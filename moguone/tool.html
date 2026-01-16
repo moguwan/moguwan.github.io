@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme-mode="auto">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MY HOME 个人主页">
+    <meta name="keywords" content="Homepage,JavaTool,个人主页">
+    <meta name="author" content="MY HOME">
+    <title>MY HOME - TOOL工具库</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css?family=Mulish:400,700%7CNoto%20Serif%20SC:400,700&display=swap" rel="stylesheet">
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_0khxww3tj3q9.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/dmego-home-page@latest/assets/css/iconfont.css">
+    <style>
+        * {margin: 0;padding: 0;box-sizing: border-box;}
+        body {
+            font-family: "Mulish", "Noto Serif SC", "Microsoft YaHei", "PingFang SC", sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #ddd;
+            scroll-behavior: smooth;
+            opacity: 1;
+            background: url(https://img.wjwj.top/2026/01/16/35e5341f019957700328b5384d095984.png) no-repeat fixed center top 10%;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            -webkit-font-smoothing: antialiased;
+            z-index: 1;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;left: 0;right:0;bottom:0;
+            background: linear-gradient(rgba(15, 18, 26, 0.9),rgba(15, 18, 26, 0.85));
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            z-index: -1;
+        }
+        .snowflake {
+            position: fixed;
+            color: #fff;
+            font-size: 12px;
+            text-shadow: 0 0 5px rgba(255,255,255,0.8);
+            pointer-events: none;
+            z-index: 2;
+            animation: snowfall linear infinite;
+            opacity: 0.7;
+        }
+        @keyframes snowfall {
+            0% { transform: translateY(-10px) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+        a {text-decoration: none; color: inherit;}
+        ul {list-style: none;}
+        img {max-width: 100%; border-radius: 8px;}
+        .rotate {transition: transform 6s ease-in-out infinite;}
+        .rotate:hover {transform: rotate(360deg);}
+        
+        /* ========== ✅ 和参考页完全一致的滚动渐入动画 核心样式 ========== */
+        [data-aos] {
+            opacity: 0.01;
+            transform: translateY(20px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        [data-aos].aos-animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .container {flex: 1; position: relative; z-index: 3;}
+
+        #loader {position: fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,18,26,0.98);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+        .loading-left-bg,.loading-right-bg{position:absolute;top:0;width:50%;height:100%;background:#22262c;transition:all 0.6s ease;}
+        .loading-left-bg{left:0;}
+        .loading-right-bg{right:0;}
+        .spinner-box{text-align:center;}
+        .loading-taichi svg{width:80px;height:80px;fill:#d83636;}
+        .loading-word{margin-top:20px;color:#f56464;font-size:16px;letter-spacing:3px;}
+        #loader.loading .loading-left-bg{transform:translateX(-100%);}
+        #loader.loading .loading-right-bg{transform:translateX(100%);}
+        #loader.loading{opacity:0;visibility:hidden;transition:all 0.6s ease;}
+
+        #header-nav {
+            width: 100%;
+            background: rgba(28, 32, 42, 0.4);
+            backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 80, 80, 0.08);
+            padding: 12px 0;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+            display: flex;justify-content:center;align-items:center;
+            transition: all 0.4s ease; /* ✅ 新增：导航栏隐藏/显示过渡动画 */
+        }
+        /* ✅ 新增：导航栏隐藏类，和参考页一致 */
+        #header-nav.hidden-nav {
+            visibility: hidden;
+            opacity: 0;
+        }
+        .main-nav-link-wrap {margin:0 12px;display:inline-block;}
+        .main-nav-link {
+            padding: 8px 18px;
+            font-size:15px;color:#ccc;border-radius:20px;
+            transition: all 0.4s ease;
+        }
+        .main-nav-link.active {
+            background: rgba(216, 54, 54, 0.2);
+            color: #f56464;font-weight:700;
+        }
+        .main-nav-link:hover:not(.active) {color:#f56464;}
+
+        #content {
+            width:100%;max-width:1200px;margin: 40px auto;
+            padding:0 20px;
+            position: relative;
+            z-index: 5;
+        }
+        #main {flex:1; position: relative; z-index: 6;}
+
+        .sidebar-top {
+            position:fixed;bottom:30px;right:30px;z-index:99;
+            width:40px;height:40px;background:rgba(28, 32, 42, 0.8);
+            backdrop-filter: blur(8px);-webkit-backdrop-filter: blur(8px);
+            border-radius:50%;box-shadow:0 2px 12px rgba(0,0,0,0.15);
+            display:flex;align-items:center;justify-content:center;
+            cursor:pointer;transition:all 0.3s ease;border:1px solid rgba(255,255,255,0.08);
+        }
+        .sidebar-top:hover {background:#d83636;color:#fff;transform: translateY(-2px);}
+        .arrow-up {font-size:18px;}
+        .sidebar-tools {
+            position:fixed;bottom:80px;right:30px;z-index:99;
+            width:40px;height:40px;background:rgba(28, 32, 42, 0.8);
+            backdrop-filter: blur(8px);-webkit-backdrop-filter: blur(8px);
+            border-radius:50%;box-shadow:0 2px 12px rgba(0,0,0,0.15);
+            display:flex;align-items:center;justify-content:center;
+            cursor:pointer;transition:all 0.3s ease;border:1px solid rgba(255,255,255,0.08);font-size:18px;
+        }
+        .sidebar-tools:hover {background:#d83636;color:#fff;transform: translateY(-2px);}
+
+        /* ========== ✅ 核心修改 重中之重：滚动条悬浮置顶 不挤压页面空间 ✅ ========== */
+        html {
+            overflow-y: overlay; /* 核心属性：滚动条悬浮覆盖，不占用页面宽度 */
+            scrollbar-width: thin;
+            scrollbar-color: rgba(216, 54, 54, 0.6) rgba(22, 25, 29, 0.7);
+        }
+        /* 悬浮滚动条样式 - 保留原配色/圆角/hover效果 无任何改变 */
+        ::-webkit-scrollbar {width: 8px;height: 8px;}
+        ::-webkit-scrollbar-track {
+            background: transparent; /* 轨道透明，悬浮必备 */
+            border-radius: 10px;
+            box-shadow: none;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(216, 54, 54, 0.6);
+            border-radius: 10px;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 0 2px rgba(0,0,0,0.3);
+        }
+        ::-webkit-scrollbar-thumb:hover {background: rgba(245, 100, 100, 0.9);}
+        ::-webkit-scrollbar-thumb:active {background: rgba(190, 30, 30, 0.9);}
+
+        @media (max-width:768px) {
+            #content {padding:0 20px;}
+            .main-nav-link-wrap {margin:0 6px;}
+            .sidebar-top {bottom:20px;right:20px;}
+            .sidebar-tools {bottom:70px;right:20px;}
+        }
+
+        /* ===== 工具库核心样式 ===== */
+        .tools-title {
+            font-size: 22px;
+            color: #f56464;
+            margin: 40px 0 20px;
+            font-weight: 700;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(245,100,100,0.2);
+        }
+        .tools-card-wrap {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(calc(25% - 15px), 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .tools-card {
+            background: rgba(28, 32, 42, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .tools-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(245,100,100,0.5);
+            background: rgba(35, 40, 52, 0.6);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        .tools-card-icon {
+            font-size: 28px;
+            color: #f56464;
+            margin-bottom: 15px;
+        }
+        .tools-card-name {
+            font-size: 18px;
+            color: #fff;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .tools-card-desc {
+            font-size: 13px;
+            color: #bbb;
+            flex: 1;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        .tools-card-btn {
+            display: inline-block;
+            padding: 6px 14px;
+            background: rgba(216,54,54,0.2);
+            color: #f56464;
+            border-radius: 20px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .tools-card-btn:hover {
+            background: #d83636;
+            color: #fff;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="snow-container"></div>
+    <div id='loader'>
+        <div class="loading-left-bg loading-bg"></div>
+        <div class="loading-right-bg loading-bg"></div>
+        <div class="spinner-box">
+            <div class="loading-taichi rotate">
+                <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" xmlns="https://www.w3.org/2000/svg">
+                    <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="#d83636" />
+                    <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="#d83636" />
+                </svg>
+            </div>
+            <div class="loading-word">春天是她最爱的季节...</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <nav id="header-nav">
+            <span class="main-nav-link-wrap">
+                <a class="main-nav-link" href="../index.html">首页</a>
+            </span>
+			<span class="main-nav-link-wrap">
+			    <a class="main-nav-link" href="mbs.html">My bookshelf</a>
+			</span>
+            <span class="main-nav-link-wrap">
+                <a class="main-nav-link active" href="tool.html">Tool工具</a>
+            </span>
+        </nav>
+		<!-- damn 标记 damn-->
+        <!-- ✅ 主体内容区 - 工具库核心内容 -->
+        <div id="content">
+            <section id="main">
+				<!-- 日常工具分类 -->
+				<h2 class="tools-title" data-aos>🧰 日常工具</h2>
+				<div class="tools-card-wrap">
+					<div class="tools-card" data-aos>
+					    <div class="tools-card-icon">⛰️️</div>
+					    <div class="tools-card-name">考研加油</div>
+					    <div class="tools-card-desc">这是一个聚焦考研备考，提供数学、计算机等学科资料、历年真题、大纲汇总、报名注意事项等资源</div>
+					    <a href="http://kaoy666.ysepan.com/" target="_blank" class="tools-card-btn">立即使用</a>
+					</div>
+					<div class="tools-card" data-aos>
+					    <div class="tools-card-icon">⌚️</div>
+					    <div class="tools-card-name">java工具</div>
+					    <div class="tools-card-desc">导入项目文件夹即刻获取项目结构和项目内所有文件代码 整合到txt文档里 配合豆包使用</div>
+					    <a href="javatool.html" target="_blank" class="tools-card-btn">立即使用</a>
+					</div>
+				    <div class="tools-card" data-aos>
+				        <div class="tools-card-icon">📄</div>
+				        <div class="tools-card-name">PDF-WORD 互转</div>
+				        <div class="tools-card-desc">免费在线转换，无需下载软件，转换后保留原格式</div>
+				        <a href="https://www.ilovepdf.com/zh-cn/pdf_to_word" target="_blank" class="tools-card-btn">立即使用</a>
+				    </div>
+				    <div class="tools-card" data-aos>
+				        <div class="tools-card-icon">📸</div>
+				        <div class="tools-card-name">图片压缩</div>
+				        <div class="tools-card-desc">无损压缩图片体积，支持PNG/JPG/WEBP，保留清晰度</div>
+				        <a href="https://tinypng.com/" target="_blank" class="tools-card-btn">立即使用</a>
+				    </div>
+				    <div class="tools-card" data-aos>
+				        <div class="tools-card-icon">📝</div>
+				        <div class="tools-card-name">在线翻译</div>
+				        <div class="tools-card-desc">多国语言互译，精准翻译，支持单词、句子、文档翻译</div>
+				        <a href="https://fanyi.baidu.com/" target="_blank" class="tools-card-btn">立即使用</a>
+				    </div>
+				    <div class="tools-card" data-aos>
+				        <div class="tools-card-icon">⏰</div>
+				        <div class="tools-card-name">时间戳转换</div>
+				        <div class="tools-card-desc">Unix时间戳与北京时间互转，精确到毫秒，支持批量转换</div>
+				        <a href="https://tool.lu/timestamp/" target="_blank" class="tools-card-btn">立即使用</a>
+				    </div>
+					<div class="tools-card" data-aos>
+					    <div class="tools-card-icon">🏫</div>
+					    <div class="tools-card-name">黄淮学院教务管理系统</div>
+					    <div class="tools-card-desc">厚德・博学・笃行・自强</div>
+					    <a href="https://portal.huanghuai.edu.cn/main.html#/Index" target="_blank" class="tools-card-btn">立即使用</a>
+				    </div>
+				</div>
+				<!-- 算法 -->
+				<h2 class="tools-title" data-aos>🖱 算法study</h2>
+				<div class="tools-card-wrap">
+					<div class="tools-card" data-aos>
+					    <div class="tools-card-icon">️✅</div>
+					    <div class="tools-card-name">acwing</div>
+					    <div class="tools-card-desc">是国内专注算法与编程学习的在线平台，以系统课程、海量题库、实战训练与竞赛服务为核心，适配算法竞赛、考研机试、求职笔试等多场景，由 NOI 金牌选手闫学灿创办，支持一站式系统提升编程能力。</div>
+					    <a href="https://www.acwing.com/" target="_blank" class="tools-card-btn">立即使用</a>
+					</div>
+					<div class="tools-card" data-aos>
+					    <div class="tools-card-icon">️🚬</div>
+					    <div class="tools-card-name">atcoder</div>
+					    <div class="tools-card-desc">是一个来自日本的高质量算法竞赛平台，题目难度分布清晰、比赛节奏稳定，非常适合系统提升编程与算法能力。</div>
+					    <a href="https://atcoder.jp/home" target="_blank" class="tools-card-btn">立即使用</a>
+					</div>
+					<div class="tools-card" data-aos>
+					    <div class="tools-card-icon">️😄</div>
+					    <div class="tools-card-name">vjudge</div>
+					    <div class="tools-card-desc">是一个聚合型在线编程判题平台，它本身不存储测试数据，而是抓取 POJ、HDU、Codeforces 等数十个主流 OJ 的题目，模拟提交并反馈结果，方便用户一站式刷题、组建跨 OJ 比赛，是 ACM 与算法竞赛选手常用的训练与赛事管理工具</div>
+					    <a href="https://vjudge.net/" target="_blank" class="tools-card-btn">立即使用</a>
+					</div>
+					<div class="tools-card" data-aos>
+					    <div class="tools-card-icon">️🌳</div>
+					    <div class="tools-card-name">codeforces</div>
+					    <div class="tools-card-desc">Codeforces 是一个面向全球程序员的在线编程竞赛平台，以高频比赛、题目质量高、社区活跃著称，常用于训练算法与编程能力。</div>
+					    <a href="https://codeforces.com/" target="_blank" class="tools-card-btn">立即使用</a>
+					</div>
+					<div class="tools-card" data-aos>
+					    <div class="tools-card-icon">️💧</div>
+					    <div class="tools-card-name">洛谷</div>
+					    <div class="tools-card-desc">欢迎来到 HHmgOJ ！ 这是黄淮国教程序设计社维护的在线评测系统。</div>
+					    <a href="https://hydro.ac/d/moguone/" target="_blank" class="tools-card-btn">立即使用</a>
+					</div>
+				    <div class="tools-card" data-aos>
+				        <div class="tools-card-icon">🧄️</div>
+				        <div class="tools-card-name">个人OJ</div>
+				        <div class="tools-card-desc">洛谷是 2013 年开始运营的，为算法竞赛选手、程序设计爱好者等提供算法题库、社区、训练工具与在线教育等一站式服务的知名编程学习综合性平台。</div>
+				        <a href="https://www.luogu.com.cn/" target="_blank" class="tools-card-btn">立即使用</a>
+				    </div>
+				    <div class="tools-card" data-aos>
+				        <div class="tools-card-icon">⌨️</div>
+				        <div class="tools-card-name">黄淮学院HOJ</div>
+				        <div class="tools-card-desc">黄淮学院国际教育学院OJ平台 专为算法学习与竞赛设计的在线评测系统，提供题库训练、实时评测及竞赛支持，助力提升编程能力。</div>
+				        <a href="http://115.190.99.211:8087/home" target="_blank" class="tools-card-btn">立即使用</a>
+				    </div>
+					<div class="tools-card" data-aos>
+					    <div class="tools-card-icon">🔘</div>
+					    <div class="tools-card-name">力扣</div>
+					    <div class="tools-card-desc">力扣（LeetCode）是一个在线编程学习平台，提供大量算法与数据结构题目，帮助程序员提升编程能力与面试竞争力。</div>
+					    <a href="https://leetcode.cn/" target="_blank" class="tools-card-btn">立即使用</a>
+					</div>
+					<div class="tools-card" data-aos>
+					    <div class="tools-card-icon">🐂️</div>
+					    <div class="tools-card-name">牛客</div>
+					    <div class="tools-card-desc">牛客是一个面向学生和求职者的求职与学习社区，提供笔试面试题、在线编程、校招资讯和内推机会。</div>
+					    <a href="https://ac.nowcoder.com/acm/contest/vip-index" target="_blank" class="tools-card-btn">立即使用</a>
+					</div>
+				</div>
+				<!-- 效率工具分类 -->
+				<h2 class="tools-title" data-aos>🚀 效率工具</h2>
+				<div class="tools-card-wrap">
+					<div class="tools-card" data-aos>
+						<div class="tools-card-icon">🤖</div>
+					    <div class="tools-card-name">chatgpt</div>
+					    <div class="tools-card-desc">ChatGPT 是由 OpenAI 开发的大型语言模型，能根据上下文进行对话、回答问题、写代码、总结内容并生成文本。</div>
+					    <a href="https://chatgpt.com/" target="_blank" class="tools-card-btn">立即使用</a>
+					</div>
+                    <div class="tools-card" data-aos>
+						<div class="tools-card-icon">📚</div>
+				        <div class="tools-card-name">抖音无水印下载器</div>
+				        <div class="tools-card-desc">只需要抖音视频链接即可无水印解析视频出来</div>
+				        <a href="https://tools.devresourcehub.com/zh/tools/douyin-downloader" target="_blank" class="tools-card-btn">立即使用</a>
+				    </div>
+				    <div class="tools-card" data-aos>
+				        <div class="tools-card-icon">📊</div>
+				        <div class="tools-card-name">二维码生成</div>
+				        <div class="tools-card-desc">网址、文本、名片生成二维码，支持自定义logo和颜色</div>
+				        <a href="https://cli.im/" target="_blank" class="tools-card-btn">立即使用</a>
+				    </div>
+				    <div class="tools-card" data-aos>
+				        <div class="tools-card-icon">📈</div>
+				        <div class="tools-card-name">进制转换</div>
+				        <div class="tools-card-desc">二进制、八进制、十进制、十六进制互转，带计算功能</div>
+				        <a href="https://tool.oschina.net/hexconvert/" target="_blank" class="tools-card-btn">立即使用</a>
+				    </div>
+				</div>
+                <!-- 开发工具分类 -->
+                <h2 class="tools-title" data-aos>💻 开发工具</h2>
+                <div class="tools-card-wrap">
+					<div class="tools-card" data-aos>
+					    <div class="tools-card-icon">📋</div>
+					    <div class="tools-card-name">在线正则测试</div>
+					    <div class="tools-card-desc">正则表达式编写、测试、匹配校验，附带常用正则库</div>
+					    <a href="https://tool.oschina.net/regex/" target="_blank" class="tools-card-btn">立即使用</a>
+					</div>
+                    <div class="tools-card" data-aos>
+                        <div class="tools-card-icon">⚙️</div>
+                        <div class="tools-card-name">在线JSON解析</div>
+                        <div class="tools-card-desc">格式化JSON数据、校验语法、一键压缩，开发必备工具</div>
+                        <a href="https://www.json.cn/" target="_blank" class="tools-card-btn">立即使用</a>
+                    </div>
+                    <div class="tools-card" data-aos>
+                        <div class="tools-card-icon">🔧</div>
+                        <div class="tools-card-name">代码格式化</div>
+                        <div class="tools-card-desc">支持Java/HTML/CSS/JS等多语言代码美化、缩进、去空格</div>
+                        <a href="https://tool.oschina.net/codeformat/" target="_blank" class="tools-card-btn">立即使用</a>
+                    </div>
+                    <div class="tools-card" data-aos>
+                        <div class="tools-card-icon">🔑</div>
+                        <div class="tools-card-name">MD5加密工具</div>
+                        <div class="tools-card-desc">文本/文件MD5、SHA1加密，生成不可逆密文，安全可靠</div>
+                        <a href="https://md5jiami.51240.com/" target="_blank" class="tools-card-btn">立即使用</a>
+                    </div>
+                </div>
+                <!-- 查询工具分类 -->
+                <h2 class="tools-title" data-aos>🔍 查询工具</h2>
+                <div class="tools-card-wrap">
+                    <div class="tools-card" data-aos>
+                        <div class="tools-card-icon">🌐</div>
+                        <div class="tools-card-name">IP地址查询</div>
+                        <div class="tools-card-desc">查询IP归属地、运营商、经纬度，支持批量查询</div>
+                        <a href="https://www.ip.cn/" target="_blank" class="tools-card-btn">立即使用</a>
+                    </div>
+                    <div class="tools-card" data-aos>
+                        <div class="tools-card-icon">📱</div>
+                        <div class="tools-card-name">手机号归属地</div>
+                        <div class="tools-card-desc">查询手机号运营商、归属省份城市，精准无误</div>
+                        <a href="https://www.ip138.com/" target="_blank" class="tools-card-btn">立即使用</a>
+                    </div>
+                </div>
+				
+				<!-- 考题收集 -->
+				<h2 class="tools-title" data-aos>📖 往年考题</h2>
+				<div class="tools-card-wrap">
+				    <div class="tools-card" data-aos>
+				        <div class="tools-card-icon">💻</div>
+				        <div class="tools-card-name">计算机组成原理</div>
+				        <div class="tools-card-desc">计算机组成原理波波精选全是原题2026年1月13日12:48:20</div>
+				        <a href="jizu.html" target="_blank" class="tools-card-btn">立即使用</a>
+				    </div>
+				    <div class="tools-card" data-aos>
+				        <div class="tools-card-icon">✏️</div>
+				        <div class="tools-card-name">软件分析设计</div>
+				        <div class="tools-card-desc">选择题、简答题</div>
+				        <a href="UMLtest.html" target="_blank" class="tools-card-btn">立即使用</a>
+				    </div>
+				</div>
+				
+            </section>
+        </div>
+    </div>
+
+    <div class="sidebar-tools">⚙️</div>
+    <div class="sidebar-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+        <div class="arrow-up">↑</div>
+    </div>
+
+    <script>
+        // 雪花特效
+        const snowContainer = document.getElementById('snow-container');
+        const snowCount = 80;
+        for(let i=0; i<snowCount; i++){
+            const snow = document.createElement('div');
+            snow.className = 'snowflake';
+            snow.textContent = '❄️';
+            snow.style.left = `${Math.random() * 100}vw`;
+            snow.style.fontSize = `${8 + Math.random() * 8}px`;
+            snow.style.animationDuration = `${8 + Math.random() * 15}s`;
+            snow.style.animationDelay = `${Math.random() * 20}s`;
+            snowContainer.appendChild(snow);
+        }
+        
+		// ========== ✅ 核心优化+修复：导航点击 反向关闭动画 + 跳转逻辑 (和参考页完全一致的完美版) ==========
+		let isAnimating = false; // 防重复点击锁
+		const navLinks = document.querySelectorAll('.main-nav-link');
+		navLinks.forEach(link => {
+		    link.addEventListener('click', function(e) {
+		        // ✅ 新增：点击当前激活的按钮，直接返回不操作，无任何动画
+		        if(this.classList.contains('active')) return;
+		        e.preventDefault(); // 阻止默认的跳转行为
+		        const targetHref = this.getAttribute('href'); // 获取要跳转的地址
+		        if (isAnimating || !targetHref) return; // 正在动画中/无地址则直接返回
+		        
+		        isAnimating = true;
+		        const loader = document.getElementById('loader');
+		        // 1. 执行【反向关闭动画】：移除loading类 → 左右遮罩闭合、恢复加载层
+		        loader.classList.remove('loading');
+		        document.body.style.overflow = 'hidden'; // 动画期间禁止滚动
+		        
+		        // 2. 动画执行0.6秒（和原动画时长一致）后，执行页面跳转
+		        setTimeout(() => {
+		            window.location.href = targetHref; // 跳转到目标页面
+		            isAnimating = false;
+		        }, 600);
+		        // ✅ 新增：兜底重置，防止按钮卡死
+		        setTimeout(() => isAnimating = false, 1000);
+		    });
+		});
+		// ========== 导航跳转动画结束 ==========
+
+        // 加载动画
+        var time = null;
+        var startLoading = () => {time = Date.now();document.getElementById('loader').classList.remove("loading");}
+        var endLoading = () => {
+            if (!time) {document.body.style.overflow = 'auto';document.getElementById('loader').classList.add("loading");}
+            else {
+                if (Date.now() - time > 500) {time = null;document.body.style.overflow = 'auto';document.getElementById('loader').classList.add("loading");}
+                else {setTimeout(endLoading, 500 - (Date.now() - time));time = null;}
+            }
+        }
+        window.addEventListener('DOMContentLoaded', endLoading);
+        document.getElementById('loader').addEventListener('click', endLoading);
+
+        // ========== ✅ 替换为参考页一致的 高性能滚动监听动画 核心代码 ==========
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                entry.target.classList.toggle('aos-animate', entry.isIntersecting);
+            });
+        }, {threshold: 0, rootMargin: '0px 0px -50px 0px'});
+        // 给所有带渐入动画的元素绑定监听
+        document.querySelectorAll('[data-aos]').forEach(el => observer.observe(el));
+        
+    </script>
+</body>
+</html>
