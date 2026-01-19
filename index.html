@@ -1731,18 +1731,8 @@ async function initRandomBg() {
 	    });
 	}
 
-	// ✅ 新版核心：通过 指定 Issue 编号 实现 刷新+1 统计
+	// ✅✅✅ 修复版：访问量统计核心函数（无重复定义+容错更强+必显示数字）
 	async function initVisitCount() {
-	    // 保留你原来的数字格式化逻辑
-	    function formatVisitCount(num) {
-	        if (num >= 1000) {
-	            return (num / 1000).toFixed(2) + 'K';
-	        } else {
-	            return num;
-	        }
-	    }
-	
-	    // 请求头固定格式
 	    const requestHeaders = {
 	        "Authorization": `token ${GITHUB_TOKEN}`,
 	        "Accept": "application/vnd.github.v3+json",
@@ -1750,60 +1740,49 @@ async function initRandomBg() {
 	    };
 	
 	    try {
-	        // 步骤1：直接请求 指定编号 的 Issue（不用搜索标题了）
+	        // 步骤1：请求指定编号的Issue
 	        const issueRes = await fetch(
 	            `https://api.github.com/repos/${GITHUB_REPO}/issues/${COUNT_ISSUE_NUMBER}`,
 	            { headers: requestHeaders, method: "GET" }
 	        );
 	
-	        // 如果 Issue 不存在，直接抛出错误走容错逻辑
 	        if (!issueRes.ok) {
-	            throw new Error(`Issue #${COUNT_ISSUE_NUMBER} 不存在，请检查编号`);
+	            throw new Error(`Issue #${COUNT_ISSUE_NUMBER} 不存在`);
 	        }
 	
 	        const countIssue = await issueRes.json();
 	        let currentCount = 0;
-	
-	        // 步骤2：提取 Issue 正文中的访问量数字
 	        const match = countIssue.body.match(COUNT_REG);
 	        if (match) {
 	            currentCount = parseInt(match[1]);
 	        }
 	
-	        // 步骤3：核心操作 → 访问量 +1
+	        // 步骤2：访问量+1
 	        currentCount += 1;
 	
-	        // 步骤4：把新数字写回这个 Issue
+	        // 步骤3：写回Issue
 	        await fetch(
 	            `https://api.github.com/repos/${GITHUB_REPO}/issues/${COUNT_ISSUE_NUMBER}`,
 	            {
 	                headers: requestHeaders,
 	                method: "PATCH",
-	                body: JSON.stringify({
-	                    body: `总访问量：${currentCount}` // 写回固定格式
-	                })
+	                body: JSON.stringify({ body: `总访问量：${currentCount}` })
 	            }
 	        );
 	
-	        // 步骤5：更新页面显示 + 本地缓存兜底
+	        // 步骤4：更新页面显示
 	        document.getElementById('totalCount').innerText = formatVisitCount(currentCount);
 	        localStorage.setItem('temp_count_all', JSON.stringify({ total: currentCount }));
 	
 	    } catch (err) {
-	        // 容错：API 失败/Issue 不存在时，用本地缓存计数
-	        console.log(`GitHub Issue #${COUNT_ISSUE_NUMBER} 操作失败，用本地计数：`, err);
-	        let localData = { total: 0 };
-	        try {
-	            localData = JSON.parse(localStorage.getItem('temp_count_all')) || { total: 0 };
-	        } catch (e) {
-	            localStorage.setItem('temp_count_all', JSON.stringify({ total: 0 }));
-	        }
+	        // 容错：本地调试/GitHub接口失败时，用本地缓存计数
+	        console.log('统计容错：', err);
+	        let localData = JSON.parse(localStorage.getItem('temp_count_all')) || { total: 0 };
 	        localData.total += 1;
 	        localStorage.setItem('temp_count_all', JSON.stringify(localData));
 	        document.getElementById('totalCount').innerText = formatVisitCount(localData.total);
 	    }
 	}
-	// 主题初始化
 	function initTheme() {
 	    const themeToggle = document.getElementById('themeToggle');
 	    const htmlDom = document.documentElement;
@@ -1815,7 +1794,7 @@ async function initRandomBg() {
 	        htmlDom.setAttribute('data-theme-mode','dark');
 	        themeToggle.checked = false;
 	    }
-	    updateUtterancesTheme();
+	    // 删掉这行：updateUtterancesTheme(); （这个函数已经不存在了）
 	    
 	    themeToggle.addEventListener('change', function() {
 	        if(this.checked){
@@ -1825,7 +1804,7 @@ async function initRandomBg() {
 	            htmlDom.setAttribute('data-theme-mode','dark');
 	            localStorage.setItem('theme_mode','dark');
 	        }
-	        updateUtterancesTheme();
+	        // 删掉这行：updateUtterancesTheme();
 	    });
 	}
 
