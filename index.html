@@ -1250,15 +1250,18 @@ table {
             });
             bgThumbList.appendChild(item);
         });
-        // 删除我的壁纸逻辑
         document.querySelectorAll('.bg-thumb-del').forEach(delBtn => {
             delBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const delIndex = parseInt(delBtn.dataset.index);
                 if(delIndex >=0 && delIndex < customBgList.length){
                     customBgList.splice(delIndex, 1);
+                    // 1. 永久保存删除后的列表，刷新不丢
                     localStorage.setItem(BG_CUSTOM_KEY, JSON.stringify(customBgList));
-                    renderBgThumbnails(customBgList); // 删除后刷新我的壁纸列表
+                    // 2. 同步全局列表，防止索引错位
+                    allBgList = [...bgUrlList, ...customBgList];
+                    // 3. 重新渲染列表
+                    renderBgThumbnails(customBgList);
                 }
             });
         });
@@ -1289,20 +1292,25 @@ function openBgModal() {
     renderBgThumbnails(customBgList);
     // ✅ 强制滚动到顶部，打开弹窗就看到第一行壁纸
     document.querySelector('#bgThumbList').scrollTop = 0;
-    // ========== 新增：强制高亮选中的壁纸 ==========
-    const saveBgIndex = Number(localStorage.getItem(BG_INDEX_KEY)) || 0;
-    document.querySelectorAll('.bg-thumb-item').forEach((el,index) => {
-        let realIndex = currentBgTab === 'custom' ? (bgUrlList.length + index) : index;
-        if(realIndex === saveBgIndex) el.classList.add('active');
-        else el.classList.remove('active');
-    });
+    // ========== 新增：强制高亮选中的壁纸【修复高亮失效BUG】 ==========
+    setTimeout(()=>{
+        const saveBgIndex = Number(localStorage.getItem(BG_INDEX_KEY)) || 0;
+        document.querySelectorAll('.bg-thumb-item').forEach((el,index) => {
+            let realIndex = currentBgTab === 'custom' ? (bgUrlList.length + index) : index;
+            if(realIndex === saveBgIndex) {
+                el.classList.add('active');
+            } else {
+                el.classList.remove('active');
+            }
+        });
+    },100);
 }
 	function closeBgModal() {
 	    document.getElementById('bgModalMask').classList.remove('show');
 	    document.body.style.overflow = 'auto';
 	}
 
-    // ✅✅✅ 修复核心5：自定义壁纸添加+永久保存，无丢失【已修复：添加后立即刷新列表，补全容错】
+    // ✅✅✅ 修复核心5：自定义壁纸添加+永久保存，无丢失【完美修复：添加后异步即时显示、滚动到底部、立即高亮】
     function initAddBgFunc() {
         const addBgBtn = document.getElementById('addBgBtn');
         const bgFileInput = document.getElementById('bgFileInput');
@@ -1320,16 +1328,21 @@ function openBgModal() {
             reader.onload = (e) => {
                 const base64Url = e.target.result;
                 customBgList.push(base64Url);
-                // 保存到本地缓存
+                // 1. 永久保存到本地缓存，刷新不丢
                 localStorage.setItem(BG_CUSTOM_KEY, JSON.stringify(customBgList));
-                // ✅核心修复：添加成功后，立即重新拼接列表+刷新缩略图，不用关闭弹窗，立刻看到新壁纸
+                // 2. 同步全局壁纸列表，防止索引错位
                 allBgList = [...bgUrlList, ...customBgList];
-                // 添加壁纸后，默认切回我的壁纸并刷新
+                // 3. 切换回【我的壁纸】分类，固定显示
                 currentBgTab = 'custom';
                 document.getElementById('customBgTab').classList.add('active');
                 document.getElementById('officialBgTab').classList.remove('active');
+                // 4. 重新渲染壁纸列表 → 异步即时显示新壁纸 ✅核心修复
                 renderBgThumbnails(customBgList);
-                bgFileInput.value = ''; // 清空文件选择器，可重复选择同一张
+                // 5. ✅核心新增：添加后自动滚动到底部，直接看到新增的壁纸，不用手动滑
+                const bgThumbList = document.getElementById('bgThumbList');
+                bgThumbList.scrollTop = bgThumbList.scrollHeight;
+                // 6. 清空文件选择器，可重复选择同一张图片添加
+                bgFileInput.value = '';
             };
             reader.readAsDataURL(file);
         });
@@ -1356,7 +1369,7 @@ function openBgModal() {
 	// 初始化分类切换
 	initBgTabSwitch();
 
-// 初始化背景【读取上次保存的壁纸+内置壁纸】【彻底修复刷新丢失，永久保存】
+// 初始化背景【读取上次保存的壁纸+内置壁纸】【彻底修复刷新丢失，永久保存】【已修复核心BUG】
 async function initRandomBg() {
     try {
         const res = await fetch('moguone/background.txt');
@@ -1366,7 +1379,10 @@ async function initRandomBg() {
         console.log('背景列表加载失败', err); 
         bgUrlList = []; 
     }
-    // ★★★ 强制拼接：内置壁纸 + 自定义壁纸，优先级最高，永不丢失
+    // ========== 核心修复：异步加载官方壁纸后，强制重新读取本地缓存+同步自定义壁纸 ==========
+    const saveCustomBg = localStorage.getItem(BG_CUSTOM_KEY);
+    customBgList = saveCustomBg ? JSON.parse(saveCustomBg) : [];
+    // ★★★ 强制拼接：内置壁纸 + 自定义壁纸，优先级最高，永不丢失，刷新必在
     allBgList = [...bgUrlList, ...customBgList];
     // ★★★ 强制读取本地保存的壁纸索引，彻底容错，不会为空、不会越界
     let saveBgIndex = localStorage.getItem(BG_INDEX_KEY);
