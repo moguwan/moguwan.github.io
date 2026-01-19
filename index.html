@@ -532,7 +532,6 @@ html[data-theme-mode="light"] .news-item:hover .news-title {color:var(--color-gr
 .sidebar-menu-link:hover {color:var(--color-green);padding-left:8px;transform:translateX(2px);font-weight:var(--font-weight-bold);}
 /* 网站访问统计样式 - 适配双主题，和侧边栏风格统一 */
 .sidebar-stat-wrap {
-    margin-bottom: 4px 0;
     padding: 0px 0;
     border-radius: 12px;
     display: flex;
@@ -1192,6 +1191,14 @@ table {
 	let currentModalIndex = -1;
 	let scrollTopVal = 0;
 	let newsAnimateObserver = null;
+	
+	function formatVisitCount(num) {
+	    if (num >= 1000) {
+	        return (num / 1000).toFixed(2) + 'K';
+	    } else {
+	        return num;
+	    }
+	}
 	const GITHUB_REPO = "moguwan/moguwan.github.io";
     // ✅✅✅ 修复核心1：优先初始化本地壁纸缓存，保证刷新不丢失【最终修复版】
     function initCustomBg() {
@@ -1461,64 +1468,29 @@ async function initRandomBg() {
 	        if (!video.classList.contains('loaded')) videoObserver.observe(video);
 	    });
 	}
-	// ====================== 云端统计核心【仅保留总访问量】 start ======================
-	function formatVisitCount(num) {
-	    if (num >= 1000) {
-	        return (num / 1000).toFixed(2) + 'K';
-	    } else {
-	        return num;
-	    }
-	}
-	const COUNT_ISSUE_ID = 7;
-	const GITHUB_TOKEN = "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";
-	const GITHUB_API = `https://api.github.com/repos/${GITHUB_REPO}/issues/${COUNT_ISSUE_ID}`;
+
 	
+
 	async function initVisitCount() {
-	    // 只初始化总访问量
-	    let countData = { total: 0 };
-	
-	    try {
-	        const res = await fetch(GITHUB_API, {
-	            headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}` }
-	        });
-	        const issueData = await res.json();
-	
-	        if (res.ok && issueData.body) {
-	            // 只匹配总访问量
-	            const dataMatch = issueData.body.match(/总访问量：(\d+)/);
-	            if (dataMatch) {
-	                countData.total = parseInt(dataMatch[1]) || 0;
-	            }
-	        }
-	
-	        // 总访问量 +1
-	        countData.total += 1;
-	
-	        // 提交到云端保存（只存总访问量）
-	        await fetch(GITHUB_API, {
-	            method: 'PATCH',
-	            headers: {
-	                'Content-Type': 'application/json',
-	                'Authorization': `Bearer ${GITHUB_TOKEN}`
-	            },
-	            body: JSON.stringify({
-	                title: '📊 网站访问量统计数据专用',
-	                body: `总访问量：${countData.total}`
-	            })
-	        });
-	
-	        // 渲染到页面
-	        document.getElementById('totalCount').innerText = formatVisitCount(countData.total);
-	
-	    } catch (err) {
-	        // 离线备用逻辑：只缓存总访问量
-	        let localData = JSON.parse(localStorage.getItem('temp_count_all')) || { total: 0 };
-	        localData.total += 1;
-	        localStorage.setItem('temp_count_all', JSON.stringify(localData));
-	        document.getElementById('totalCount').innerText = formatVisitCount(localData.total);
+	  const WORKER_URL = "https://my-visit-count.2926197119.workers.dev"; // ✔️ 你的正确Worker地址
+	  try {
+	    const res = await fetch(WORKER_URL);
+	    const data = await res.json();
+	    if (data.total) {
+	      document.getElementById('totalCount').innerText = formatVisitCount(data.total);
 	    }
+	  } catch (err) {
+	    let localData = { total: 0 };
+	    try {
+	        localData = JSON.parse(localStorage.getItem('temp_count_all')) || { total: 0 };
+	    } catch (e) {
+	        localStorage.setItem('temp_count_all', JSON.stringify({ total: 0 }));
+	    }
+	    localData.total += 1;
+	    localStorage.setItem('temp_count_all', JSON.stringify(localData));
+	    document.getElementById('totalCount').innerText = formatVisitCount(localData.total);
+	  }
 	}
-	// ====================== 云端统计核心 end ======================
 	// 主题初始化
 	function initTheme() {
 	    const themeToggle = document.getElementById('themeToggle');
@@ -1953,7 +1925,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initCustomBg();
     // 再初始化壁纸（此时自定义壁纸已经加载到内存里了）
     initRandomBg();
-	setTimeout(()=>{initRandomBg()},300);
     
     document.getElementById('bgChangeBtn').addEventListener('click', changeRandomBg);
 
