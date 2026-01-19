@@ -1033,7 +1033,43 @@ table {
     overflow-x: auto;
     display: block;
 }
+/* ✅✅✅ 新增：QQ登录+用户信息+评论区样式（完美匹配液态玻璃+森系绿色风格） */
+/* 右上角用户信息展示样式 */
+.qq-login-btn, .user-info-display {
+    padding:8px 12px;font-size:14px;color:var(--color-text-sub);background:transparent;border:1px solid rgba(255,255,255,0.08);border-radius:20px;cursor:pointer;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);display:flex;align-items:center;gap:6px;backdrop-filter:blur(8px) saturate(180%);-webkit-backdrop-filter:blur(8px) saturate(180%);box-shadow:inset 1px 1px 0 rgba(255,255,255,0.1),inset -1px -1px 0 rgba(0,0,0,0.05);
+}
+.qq-login-btn:hover, .user-info-display:hover {
+    background:rgba(56,161,105,0.08);color:var(--color-green);transform:translateY(-3px) scale(1.02);border-color:rgba(56,161,105,0.2);box-shadow:0 6px 20px var(--hover-glow);
+}
+.qq-login-btn:active, .user-info-display:active {transform:translateY(0) scale(var(--active-scale));}
+.user-info-display {color:var(--color-green);}
+.user-avatar {width:24px;height:24px;border-radius:50%;object-fit:cover;border:1px solid rgba(56,161,105,0.3);}
+.logout-btn {margin-left:8px;padding:4px 8px;font-size:12px;border-radius:10px;background:rgba(56,161,105,0.1);color:var(--color-green);cursor:pointer;border:1px solid rgba(56,161,105,0.2);}
+.logout-btn:hover {background:rgba(56,161,105,0.2);color:#fff;}
+
+/* 评论区样式（液态玻璃+森系绿色，完美匹配你的页面） */
+.comment-wrap {width:100%;margin-top:20px;border-top:1px solid rgba(255,255,255,0.08);padding-top:20px;}
+.comment-title {font-size:18px;font-weight:var(--font-weight-bold);color:var(--color-green);margin-bottom:15px;text-align:left;display:block !important;}
+.comment-input-box {width:100%;display:flex;gap:10px;margin-bottom:20px;}
+.comment-input {flex:1;height:42px;background:transparent;border:1px solid var(--glass-border);border-radius:12px;padding:0 15px;color:var(--color-text-main);font-size:15px;outline:none;transition:all 0.3s ease;backdrop-filter:blur(10px) saturate(150%);-webkit-backdrop-filter:blur(10px) saturate(150%);box-shadow:inset 1px 1px 0 var(--glass-inset-light),inset -1px -1px 0 var(--glass-inset-dark);resize:none;}
+.comment-input:focus {border-color:rgba(56,161,105,0.4);box-shadow:0 0 15px var(--hover-glow);}
+.comment-submit-btn {height:42px;padding:0 20px;background:transparent;border:1px solid var(--glass-border);border-radius:12px;color:var(--color-green);font-size:14px;cursor:pointer;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);}
+.comment-submit-btn:hover {background:rgba(56,161,105,0.08);transform:translateY(-3px) scale(1.02);border-color:rgba(56,161,105,0.4);box-shadow:0 8px 20px var(--hover-glow);}
+.comment-submit-btn:disabled {color:var(--color-text-sub);border-color:rgba(255,255,255,0.08);cursor:not-allowed;background:transparent;transform:none;box-shadow:none;}
+.comment-list {width:100%;display:flex;flex-direction:column;gap:15px;}
+.comment-item {width:100%;background:var(--glass-bg);border-radius:12px;padding:15px;border:1px solid var(--glass-border);box-shadow:var(--glass-shadow);text-align:left;}
+.comment-user-info {display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.comment-user-avatar {width:28px;height:28px;border-radius:50%;object-fit:cover;border:1px solid rgba(56,161,105,0.2);}
+.comment-user-name {font-size:14px;font-weight:var(--font-weight-medium);color:var(--color-green);}
+.comment-time {font-size:12px;color:var(--color-text-sub);margin-left:auto;}
+.comment-content {font-size:15px;color:var(--color-text-main);line-height:1.7;padding-left:36px;}
+.comment-empty {text-align:center;color:var(--color-text-sub);padding:20px 0;font-size:14px;}
+.comment-login-tip {text-align:center;color:var(--color-green);padding:20px 0;font-size:14px;cursor:pointer;}
+.comment-login-tip:hover {text-decoration:underline;}
+
     </style>
+	<!-- ✅✅✅ 新增：QQ登录官方SDK（必须引入，无需修改） -->
+	<script src="https://connect.qq.com/qc_jssdk.js" data-appid="102826970" data-redirecturi="https://moguwan.github.io/index.html"></script>
 </head>
 <body>
     <!-- 🔥 新增：开屏动画 -->
@@ -1071,6 +1107,18 @@ table {
                 <span class="main-nav-link-wrap"><a class="main-nav-link active" href="index.html">首页</a></span>
                 <span class="main-nav-link-wrap"><a class="main-nav-link" href="moguone/tool.html">Tool工具</a></span>
             </div>
+			<div class="nav-right" id="userLoginArea">
+			    <!-- QQ登录按钮：未登录时显示 -->
+			    <div class="qq-login-btn" id="qqLoginBtn">
+			        <i class="iconfont icon-qq"></i> QQ登录
+			    </div>
+			    <!-- 用户信息展示：登录后显示（头像+昵称+退出） -->
+			    <div class="user-info-display" id="userInfoBox" style="display: none;">
+			        <img src="" alt="用户头像" class="user-avatar" id="userAvatar">
+			        <span id="userNickName">昵称</span>
+			        <span class="logout-btn" id="logoutBtn">退出</span>
+			    </div>
+			</div>
         </nav>
         
         <div class="container-main">
@@ -1179,6 +1227,7 @@ table {
     <script type="text/javascript">
 	// ====== 壁纸核心变量【全局置顶，优先初始化】======
 	let bgUrlList = []; // 官方壁纸列表
+	initLoginState();
 	let customBgList = []; // 我的壁纸(自定义)列表
 	let allBgList = []; // ★★★ 必加：全局声明总壁纸列表，解决自定义壁纸丢失核心问题
 	const BG_CUSTOM_KEY = 'custom_bg_list';
@@ -1200,6 +1249,199 @@ table {
 	    }
 	}
 	const GITHUB_REPO = "moguwan/moguwan.github.io";
+	// ✅✅✅ 新增：全局核心变量 - 登录状态+用户信息+评论数据
+	let isLogin = false; // 是否登录
+	let userInfo = { // 用户信息（QQ头像+昵称+openid）
+	    avatar: '',
+	    nickname: '',
+	    openid: ''
+	};
+	const COMMENT_KEY = 'MY_HOME_COMMENT_DATA'; // 评论数据本地存储key，永久保存
+	
+	// ✅✅✅ 新增：初始化登录状态 - 页面刷新后自动恢复登录状态，无需重新扫码
+	function initLoginState() {
+	    const saveUserInfo = localStorage.getItem('MY_HOME_USER_INFO');
+	    if (saveUserInfo) {
+	        userInfo = JSON.parse(saveUserInfo);
+	        isLogin = true;
+	        // 更新右上角用户信息展示
+	        document.getElementById('qqLoginBtn').style.display = 'none';
+	        document.getElementById('userInfoBox').style.display = 'flex';
+	        document.getElementById('userAvatar').src = userInfo.avatar;
+	        document.getElementById('userNickName').textContent = userInfo.nickname;
+	    }
+	}
+	
+	// ✅✅✅ 新增：QQ登录核心函数 - 扫码登录，登录成功后保存用户信息
+	function qqLogin() {
+	    QC.Login({
+	        btnId: "qqLoginBtn", // 触发登录的按钮ID
+	        scope: "get_user_info", // 获取用户头像+昵称权限
+	        success: function(res) {
+	            // 登录成功，获取用户信息
+	            QC.api("get_user_info", res).success(function(userRes) {
+	                userInfo = {
+	                    avatar: userRes.data.figureurl_qq_1, // QQ头像（圆形小图，适配页面）
+	                    nickname: userRes.data.nickname, // QQ昵称
+	                    openid: res.openid // 用户唯一标识，用于区分评论者
+	                };
+	                isLogin = true;
+	                // 保存用户信息到本地，刷新页面不丢失
+	                localStorage.setItem('MY_HOME_USER_INFO', JSON.stringify(userInfo));
+	                // 更新右上角显示
+	                document.getElementById('qqLoginBtn').style.display = 'none';
+	                document.getElementById('userInfoBox').style.display = 'flex';
+	                document.getElementById('userAvatar').src = userInfo.avatar;
+	                document.getElementById('userNickName').textContent = userInfo.nickname;
+	                // 刷新当前页面的评论区（登录后可以评论）
+	                if (currentModalIndex !== -1) {
+	                    renderCommentArea(currentModalIndex);
+	                }
+	            });
+	        },
+	        error: function(res) {
+	            alert('QQ登录失败，请重试！');
+	        }
+	    });
+	}
+	
+	// ✅✅✅ 新增：退出登录核心函数
+	function logout() {
+	    QC.Login.signOut(); // 退出QQ登录
+	    isLogin = false;
+	    userInfo = { avatar: '', nickname: '', openid: '' };
+	    // 清除本地存储的用户信息
+	    localStorage.removeItem('MY_HOME_USER_INFO');
+	    // 恢复右上角登录按钮显示
+	    document.getElementById('userInfoBox').style.display = 'none';
+	    document.getElementById('qqLoginBtn').style.display = 'flex';
+	    alert('退出登录成功！');
+	}
+	
+	// ✅✅✅ 新增：获取评论数据 - 从本地读取，永久保存，按新闻ID分类
+	function getCommentData(newsIndex) {
+	    const commentData = localStorage.getItem(COMMENT_KEY);
+	    const allComments = commentData ? JSON.parse(commentData) : {};
+	    return allComments[`news_${newsIndex}`] || [];
+	}
+	
+	// ✅✅✅ 新增：保存评论数据 - 新增评论后写入本地，永久保存
+	function saveCommentData(newsIndex, comment) {
+	    const commentData = localStorage.getItem(COMMENT_KEY);
+	    const allComments = commentData ? JSON.parse(commentData) : {};
+	    if (!allComments[`news_${newsIndex}`]) {
+	        allComments[`news_${newsIndex}`] = [];
+	    }
+	    allComments[`news_${newsIndex}`].unshift(comment); // 最新评论在最上方
+	    localStorage.setItem(COMMENT_KEY, JSON.stringify(allComments));
+	}
+	
+	// ✅✅✅ 新增：格式化时间 - 评论显示发布时间
+	function formatTime(timestamp) {
+	    const date = new Date(timestamp);
+	    const year = date.getFullYear();
+	    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+	    const day = date.getDate().toString().padStart(2, '0');
+	    const hour = date.getHours().toString().padStart(2, '0');
+	    const minute = date.getMinutes().toString().padStart(2, '0');
+	    return `${year}-${month}-${day} ${hour}:${minute}`;
+	}
+	
+	// ✅✅✅ 新增：渲染评论区【核心】- 替换原GitHub评论，适配弹窗+列表，登录后可评论
+	function renderCommentArea(newsIndex) {
+	    const commentArea = document.getElementById('modalCommentArea');
+	    commentArea.innerHTML = '';
+	    const commentWrap = document.createElement('div');
+	    commentWrap.className = 'comment-wrap';
+	    
+	    // 评论标题
+	    const commentTitle = document.createElement('div');
+	    commentTitle.className = 'comment-title';
+	    commentTitle.textContent = '💬 评论区 (登录后可发表)';
+	    commentWrap.appendChild(commentTitle);
+	    
+	    if (!isLogin) {
+	        // 未登录：显示登录提示，点击触发QQ登录
+	        const loginTip = document.createElement('div');
+	        loginTip.className = 'comment-login-tip';
+	        loginTip.textContent = '你还未登录，点击此处进行QQ扫码登录 → 登录后即可发表评论';
+	        loginTip.onclick = qqLogin;
+	        commentWrap.appendChild(loginTip);
+	        commentArea.appendChild(commentWrap);
+	        return;
+	    }
+	    
+	    // 已登录：显示评论输入框+提交按钮
+	    const inputBox = document.createElement('div');
+	    inputBox.className = 'comment-input-box';
+	    const commentInput = document.createElement('textarea');
+	    commentInput.className = 'comment-input';
+	    commentInput.placeholder = '写下你的评论吧...';
+	    commentInput.rows = 1;
+	    const submitBtn = document.createElement('button');
+	    submitBtn.className = 'comment-submit-btn';
+	    submitBtn.textContent = '发表评论';
+	    submitBtn.disabled = true;
+	    inputBox.appendChild(commentInput);
+	    inputBox.appendChild(submitBtn);
+	    commentWrap.appendChild(inputBox);
+	    
+	    // 输入框内容变化，控制提交按钮是否可用
+	    commentInput.addEventListener('input', () => {
+	        submitBtn.disabled = commentInput.value.trim().length === 0;
+	    });
+	    
+	    // 发表评论逻辑
+	    submitBtn.addEventListener('click', () => {
+	        const content = commentInput.value.trim();
+	        if (!content) return;
+	        // 构造评论数据
+	        const newComment = {
+	            avatar: userInfo.avatar,
+	            nickname: userInfo.nickname,
+	            content: content,
+	            time: Date.now(),
+	            openid: userInfo.openid
+	        };
+	        // 保存评论
+	        saveCommentData(newsIndex, newComment);
+	        // 清空输入框
+	        commentInput.value = '';
+	        submitBtn.disabled = true;
+	        // 重新渲染评论区
+	        renderCommentArea(newsIndex);
+	    });
+	    
+	    // 渲染评论列表
+	    const commentList = document.createElement('div');
+	    commentList.className = 'comment-list';
+	    const comments = getCommentData(newsIndex);
+	    if (comments.length === 0) {
+	        const emptyTip = document.createElement('div');
+	        emptyTip.className = 'comment-empty';
+	        emptyTip.textContent = '暂无评论，快来抢沙发吧～';
+	        commentList.appendChild(emptyTip);
+	    } else {
+	        comments.forEach(comment => {
+	            const commentItem = document.createElement('div');
+	            commentItem.className = 'comment-item';
+	            commentItem.innerHTML = `
+	                <div class="comment-user-info">
+	                    <img src="${comment.avatar}" alt="头像" class="comment-user-avatar">
+	                    <span class="comment-user-name">${comment.nickname}</span>
+	                    <span class="comment-time">${formatTime(comment.time)}</span>
+	                </div>
+	                <div class="comment-content">${comment.content}</div>
+	            `;
+	            commentList.appendChild(commentItem);
+	        });
+	    }
+	    commentWrap.appendChild(commentList);
+	    commentArea.appendChild(commentWrap);
+	}
+	
+	// ✅✅✅ 重写：原createCommentArea函数，改为空函数（兼容原有调用，无实际作用）
+	function createCommentArea(newsItem, index) {}
 	// ======== 核心配置：指定 Issue 编号（改成你自己的，比如 7） ========
 	// 无敌版：数组+拆分，GitHub 连门都摸不到，人工看都要拼接才能看到完整令牌
 	const GITHUB_TOKEN = ["ghp_Eulq50oi65MM7A", "rEk8H7yz9k5W9l9", "O0e6Xmh"].join('');
@@ -1436,9 +1678,7 @@ async function initRandomBg() {
 	    });
 	});
 
-	function getUtterancesTheme() {
-	    return document.documentElement.getAttribute('data-theme-mode') === 'dark' ? 'github-dark' : 'github-light';
-	}
+
 
 	// 图片懒加载
 	function initLazyImgLoad() {
@@ -1589,35 +1829,6 @@ async function initRandomBg() {
 	    });
 	}
 
-	function updateUtterancesTheme() {
-	    const iframes = document.querySelectorAll('.utterances iframe, .modal-utter-container iframe');
-    const theme = getUtterancesTheme();
-    iframes.forEach(iframe => {
-        if (iframe.contentWindow) {
-            iframe.contentWindow.postMessage({type:'set-theme',theme:theme},'https://utteranc.es');
-        }
-    });
-}
-
-// 创建评论区
-function createCommentArea(newsItem, index) {
-    const commentArea = document.createElement('div');
-    commentArea.className='comment-area';
-    const utterContainer = document.createElement('div');
-    utterContainer.id=`utter_container_${index}`;
-    utterContainer.className='utter-container';
-    commentArea.appendChild(utterContainer);
-    newsItem.appendChild(commentArea);
-    const utterScript = document.createElement('script');
-    utterScript.src='https://utteranc.es/client.js';
-    utterScript.setAttribute('repo',GITHUB_REPO);
-    utterScript.setAttribute('issue-term',`news_${index}`);
-    utterScript.setAttribute('theme',getUtterancesTheme());
-    utterScript.setAttribute('crossorigin','anonymous');
-    utterScript.setAttribute('async',true);
-    utterContainer.appendChild(utterScript);
-}
-
 // 打开新闻弹窗
 function openNewsModal(index) {
     currentModalIndex = index;
@@ -1640,7 +1851,7 @@ function openNewsModal(index) {
         ${imgHtml}
         <div class="modal-news-date">发布时间：${newsData.date}</div>
     `;
-    createModalCommentArea(index);
+    renderCommentArea(index);
     const modalMask = document.getElementById('newsModalMask');
     modalMask.classList.add('show');
     scrollTopVal=window.scrollY;
@@ -1999,7 +2210,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initRandomBg();
     
     document.getElementById('bgChangeBtn').addEventListener('click', changeRandomBg);
-
+	document.getElementById('logoutBtn').addEventListener('click', logout);
     // 壁纸弹窗关闭按钮绑定
     document.getElementById('bgModalCloseBtn').addEventListener('click', function(e) {
         e.stopPropagation();
