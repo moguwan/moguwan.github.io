@@ -1432,15 +1432,15 @@
                     
                     <!-- 右侧：图片链接、视频链接 + 新增上传功能 -->
                     <div class="diary-edit-right">
-                        <!-- 新增：API Key配置区域 -->
+                        <!-- 修改：Imgur.la API配置区域 -->
                         <div class="api-config-group" style="display: none;">
                             <div class="api-config-title">
-                                <i class="iconfont icon-key"></i> 图床API配置
+                                <i class="iconfont icon-key"></i> Imgur.la API配置
                             </div>
                             <div class="form-group">
                                 <label class="form-label">API Key</label>
-                                <input type="text" class="form-input" id="imgccApiKey" placeholder="请输入imgcc.cloud的API Key" 
-                                    value="chv_jYbx_392995efd57a46bf02b9ce5c6694360563f9bf5026b4cba0c1b6b01d28f5b40314a384fc2949c3b3c16279d1df5fea16816967752d8a9002c3050650d2f0736d"> <!-- 这里替换为你的实际API Key -->
+                                <input type="text" class="form-input" id="imgurApiKey" placeholder="请输入Imgur.la的API Key" 
+                                    value="89bf00be2f91e3e5c74ea050d5b1d3f3">
                             </div>
                         </div>
                         
@@ -1570,8 +1570,9 @@
         const NEWS_ISSUE_NUMBER = 322; // 日记存储的Issue编号
         const NEWS_SEPARATOR = '---';
         
-        // 新增：图床API配置
-        const IMGCC_API_URL = 'https://www.imgcc.cloud/api/v2/upload';
+        // 新增：Imgur.la图床API配置
+        const IMGUR_API_URL = 'https://www.imgur.la/api/1/upload';
+        const IMGUR_API_KEY = '89bf00be2f91e3e5c74ea050d5b1d3f3';
         
         // 状态管理
         let currentUser = null;
@@ -1703,7 +1704,7 @@
             const progressText = document.getElementById('progressText');
             const uploadProgress = document.getElementById('uploadProgress');
             const uploadFilesList = document.getElementById('uploadFilesList');
-            const imgccApiKey = document.getElementById('imgccApiKey');
+            const imgurApiKey = document.getElementById('imgurApiKey');
             const imageLinksTextarea = document.getElementById('editDiaryImages');
             const videoLinksTextarea = document.getElementById('editDiaryVideos');
 
@@ -1745,57 +1746,56 @@
                 }
             });
 
-            // 单个文件上传核心函数（恢复V1 API配置）
+            // 单个文件上传核心函数（使用Imgur.la API）
             async function uploadFile(file) {
-                const apiKey = imgccApiKey.value.trim();
+                const apiKey = imgurApiKey.value.trim();
                 if (!apiKey || apiKey === 'chv_key_here') {
-                    showToast('请先填写有效的imgcc.cloud API Key');
+                    showToast('请先填写有效的Imgur.la API Key');
                     return;
                 }
-            
+
                 // 验证文件类型
                 const fileType = file.type.split('/')[0];
                 if (!['image', 'video'].includes(fileType)) {
                     showToast(`不支持的文件类型：${file.name}`);
                     return;
                 }
-            
-                // 验证文件大小（V1限制通常≤10MB）
-                const maxSize = 10 * 1024 * 1024; 
+
+                // 验证文件大小（设为20MB）
+                const maxSize = 20 * 1024 * 1024; // 20MB
                 if (file.size > maxSize) {
-                    showToast(`${file.name} 超过10MB限制，请压缩后上传`);
+                    showToast(`${file.name} 超过20MB限制，请压缩后上传`);
                     return;
                 }
-            
+
                 // 创建上传状态项
                 const fileId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
                 addFileToUploadList(fileId, file.name, 'uploading');
-            
+
                 // 显示进度条
                 uploadProgress.style.display = 'block';
                 progressFill.style.width = '0%';
                 progressText.textContent = '0%';
-            
+
                 try {
-                    // V1 API的FormData配置
+                    // Imgur API的FormData配置
                     const formData = new FormData();
                     formData.append('source', file);
-                    formData.append('format', 'json'); // V1需要显式指定返回JSON
-            
+                    formData.append('format', 'json'); // 指定返回JSON格式
+
                     // 打印调试信息
-                    console.log('=== V1 API上传调试 ===');
+                    console.log('=== Imgur API上传调试 ===');
                     console.log('API Key:', apiKey.substring(0, 10) + '...');
                     console.log('文件名:', file.name);
                     console.log('文件大小:', (file.size / 1024).toFixed(2) + 'KB');
-            
-                    // 用XMLHttpRequest（适配V1 Header授权）
+
+                    // 使用XMLHttpRequest上传到Imgur
                     const xhr = new XMLHttpRequest();
-                    xhr.open('POST', 'https://www.imgcc.cloud/api/1/upload', true);
-                    // V1 API必须在Header加X-API-Key（文档要求）
+                    xhr.open('POST', IMGUR_API_URL, true);
+                    // 设置Header授权（Imgur API要求）
                     xhr.setRequestHeader('X-API-Key', apiKey);
                     xhr.setRequestHeader('Accept', 'application/json');
-                    // 注意：multipart/form-data不需要手动设置Content-Type，浏览器会自动加边界
-            
+
                     // 进度监控
                     xhr.upload.addEventListener('progress', (e) => {
                         if (e.lengthComputable) {
@@ -1804,15 +1804,16 @@
                             progressText.textContent = `${percent}%`;
                         }
                     });
-            
+
                     // 响应处理
                     xhr.addEventListener('load', () => {
                         try {
-                            console.log('V1响应状态:', xhr.status);
-                            console.log('V1响应内容:', xhr.responseText);
-            
+                            console.log('Imgur响应状态:', xhr.status);
+                            console.log('Imgur响应内容:', xhr.responseText);
+
                             if (xhr.status >= 200 && xhr.status < 300) {
                                 const result = JSON.parse(xhr.responseText);
+                                // 根据Imgur API文档，成功上传后状态码为200
                                 if (result.status_code === 200 && result.image?.url) {
                                     // 上传成功，填充链接
                                     const fileUrl = result.image.url;
@@ -1827,20 +1828,20 @@
                                     }
                                     showToast(`${file.name} 上传成功`);
                                 } else {
-                                    throw new Error(`V1 API错误: ${result.status_txt || '返回数据异常'}`);
+                                    throw new Error(`Imgur API错误: ${result.status_txt || '返回数据异常'}`);
                                 }
                             } else {
                                 throw new Error(`请求失败 [${xhr.status}]: ${xhr.statusText}`);
                             }
                         } catch (error) {
-                            console.error('V1上传失败:', error);
+                            console.error('Imgur上传失败:', error);
                             addFileToUploadList(fileId, file.name, 'error', error.message);
                             showToast(`${file.name} 上传失败：${error.message}`);
                         } finally {
                             setTimeout(() => uploadProgress.style.display = 'none', 1000);
                         }
                     });
-            
+
                     // 网络/超时错误
                     xhr.addEventListener('error', () => {
                         const msg = '网络请求失败（可能是跨域限制）';
@@ -1855,10 +1856,10 @@
                         showToast(`${file.name} 上传失败：${msg}`);
                         uploadProgress.style.display = 'none';
                     });
-            
+
                     // 发送请求
                     xhr.send(formData);
-            
+
                 } catch (error) {
                     console.error('上传初始化失败:', error);
                     addFileToUploadList(fileId, file.name, 'error', error.message);
