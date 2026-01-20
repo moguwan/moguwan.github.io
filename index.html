@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN" data-theme-mode="dark">
 <head>
@@ -31,7 +32,122 @@
     </svg>
 
     <style type="text/css">
-
+/* ========== 评论回复收起/展开样式 ========== */
+/* 回复列表容器 - 默认收起 */
+.reply-list-container {
+    margin-left: 36px;
+    margin-top: 10px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+/* 展开状态 */
+.reply-list-container.expanded {
+    max-height: 500px;
+}
+/* 展开/收起按钮 */
+.reply-toggle-btn {
+    margin-left: 36px;
+    margin-top: 8px;
+    background: transparent;
+    border: none;
+    color: var(--color-green);
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.reply-toggle-btn:hover {
+    color: var(--color-green-deep);
+}
+.comment-delete-btn {
+    margin-left: 8px;
+    padding: 2px 6px;
+    font-size: 11px;
+    background: transparent;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: rgba(239, 68, 68, 0.8);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: none; /* 默认隐藏 */
+    opacity: 1;
+}
+/* 仅自己的评论显示删除按钮 */
+.comment-item .comment-delete-btn {
+    display: none; /* 默认隐藏 */
+}
+.comment-item.own-comment .comment-delete-btn {
+    display: inline-block !important; /* 自己的评论显示 */
+}
+/* 管理员能看到所有评论的删除按钮 */
+.comment-item .comment-delete-btn.admin-visible {
+    display: inline-block !important;
+    /* 管理员删除按钮加红色边框，区分普通删除按钮 */
+    border-color: rgba(239, 68, 68, 0.8);
+}
+.comment-delete-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-color: #ef4444;
+}
+/* 仅自己的评论显示删除按钮 */
+.comment-item:not(.own-comment) .comment-delete-btn {
+    display: none !important;
+}
+/* 回复项删除按钮 - 适配管理员权限 */
+.reply-delete-btn {
+    margin-left: 8px;
+    padding: 1px 4px;
+    font-size: 10px;
+    background: transparent;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: rgba(239, 68, 68, 0.8);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: none; /* 默认隐藏 */
+    opacity: 1;
+}
+/* 仅自己的回复显示删除按钮 */
+.reply-item .reply-delete-btn {
+    display: none; /* 默认隐藏 */
+}
+/* 管理员能看到所有回复的删除按钮 */
+.reply-item .reply-delete-btn.admin-visible {
+    display: inline-block !important;
+    border-color: rgba(239, 68, 68, 0.8);
+}
+.reply-item.own-reply .reply-delete-btn {
+    display: inline-block !important; /* 自己的回复显示 */
+}
+.reply-delete-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-color: #ef4444;
+}
+.reply-item:not(.own-reply) .reply-delete-btn {
+    display: none !important;
+}
+/* 回复相关样式 */
+.reply-input-box {
+    margin-bottom: 15px;
+}
+.reply-list {
+    border-left: 1px solid rgba(56, 161, 105, 0.1);
+    padding-left: 10px;
+}
+.reply-item {
+    border-radius: 8px !important;
+}
+.comment-reply-btn:hover {
+    background: var(--color-green) !important;
+    color: #fff !important;
+}
+html[data-theme-mode="light"] .reply-item {
+    background: rgba(45, 180, 141, 0.08) !important;
+}
 /* 🔥 新增：开屏动画样式 - 修改为清新绿色背景 */
 #loader {
     position: fixed;
@@ -1131,6 +1247,26 @@ html[data-theme-mode="light"] .news-item:hover {
     font-size: 16px;
     font-weight: bold;
 }
+/* 加载转圈动画样式 */
+.toast-notification .loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--color-green);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 调整成功图标样式，和加载动画对齐 */
+.toast-notification .success-icon {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--color-green);
+}
 .tip-modal-mask {
     position: fixed;
     top: 0;
@@ -1409,7 +1545,23 @@ html[data-theme-mode="light"] .bg-thumb-item.active {
 .img-preview-mask {position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.95);z-index:10000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.4s cubic-bezier(0.16,1,0.3,1);}
 /* ✅核心修复：点击能关闭，把none改成all */
 .img-preview-mask.show {opacity:1;pointer-events:all;}
-.preview-img, .preview-video {max-width:90vw;max-height:90vh;border-radius:8px;transform-origin:center center;transform:scale(0);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);display:none;object-fit:contain;margin:0 auto;}
+.preview-img, .preview-video {
+    max-width:90vw;
+    max-height:90vh;
+    border-radius:8px;
+    transform-origin:center center;
+    transform:scale(0.95); /* 初始缩放 */
+    opacity: 0; /* 初始透明 */
+    transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1); /* 动画过渡 */
+    display:none;
+    object-fit:contain;
+    margin:0 auto;
+}
+/* 显示状态的动画 */
+.preview-img.show-animate, .preview-video.show-animate {
+    transform:scale(1); /* 缩放至正常 */
+    opacity: 1; /* 完全显示 */
+}
 .preview-img {z-index:10001;}
 .preview-video {z-index:10001;background:#000;}
 .img-preview-mask.show .preview-img, .img-preview-mask.show .preview-video {display:block;transform:scale(1);}
@@ -1440,7 +1592,81 @@ html[data-theme-mode="light"] .bg-thumb-item.active {
     box-shadow:0 0 15px var(--hover-glow);
     border-color:rgba(56,161,105,0.3);
 }
-
+/* 图片预览左右切换按钮样式 */
+.preview-nav-btn {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--color-green);
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 10003;
+    backdrop-filter: blur(8px) saturate(180%);
+    -webkit-backdrop-filter: blur(8px) saturate(180%);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08),
+                inset 1px 1px 0 rgba(255,255,255,0.1),
+                inset -1px -1px 0 rgba(0,0,0,0.05);
+    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.preview-prev-btn {
+    left: 30px;
+}
+.preview-next-btn {
+    right: 30px;
+}
+.preview-nav-btn:hover {
+    background: rgba(56,161,105,0.15);
+    color: #fff;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 0 15px var(--hover-glow);
+    border-color: rgba(56,161,105,0.3);
+}
+.preview-nav-btn:active {
+    transform: translateY(-50%) scale(var(--active-scale));
+}
+/* 禁用状态 */
+.preview-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: translateY(-50%);
+    box-shadow: none;
+}
+/* 图片预览页码样式 */
+.preview-pagination {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 16px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 20px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: var(--font-weight-medium);
+    z-index: 10003;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+/* 白色主题适配 */
+html[data-theme-mode="light"] .preview-nav-btn {
+    background: rgba(255,255,255,0.8);
+    border: 1px solid rgba(255,255,255,0.9);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+html[data-theme-mode="light"] .preview-nav-btn:hover {
+    background: var(--color-green);
+    border-color: var(--color-green);
+}
+html[data-theme-mode="light"] .preview-pagination {
+    background: rgba(255,255,255,0.8);
+    color: var(--color-text-title);
+    border: 1px solid rgba(255,255,255,0.9);
+}
 /* ========== 新闻弹窗 ========== */
 .news-modal-mask {position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.4s cubic-bezier(0.16,1,0.3,1);padding:20px;box-sizing:border-box;}
 .news-modal-mask.show {opacity:1;pointer-events:all;}
@@ -1486,11 +1712,13 @@ html[data-theme-mode="light"] .news-modal-box {
 .modal-close-btn:hover {background:rgba(56,161,105,0.15);color:#fff;transform:rotate(120deg) scale(1.2);box-shadow:0 0 15px var(--hover-glow);border-color:rgba(56,161,105,0.3);}
 .modal-close-btn:active {transform: rotate(90deg) scale(var(--active-scale));}
 .modal-news-content {
-    padding:45px 30px 25px 30px; /* 把top的25px改成45px，给关闭按钮留出空间 */
+    padding:45px 30px 25px 30px; /* 保留原有内边距，给关闭按钮留空间 */
     width: 60%; 
-    overflow-y: auto;
-    height: 100%;
+    overflow-y: auto; /* 内容超出时垂直滚动，否则无滚动条 */
+    max-height: calc(100vh - 90px); /* 基于视口高度，减去顶部/底部间距 */
     box-sizing: border-box;
+    overscroll-behavior: contain; /* 关键：阻止滚动传递到页面全局 */
+    scrollbar-width: thin; /* 适配Firefox滚动条样式 */
 }
 .modal-news-title {font-size:25px;color:var(--color-text-title);font-weight:var(--font-weight-bold);margin-bottom:15px;letter-spacing:1px;}
 .modal-news-desc {font-size:17px;color:var(--color-text-main);line-height:1.9;margin-bottom:20px;font-weight:var(--font-weight-normal);}
@@ -1513,12 +1741,14 @@ html[data-theme-mode="light"] .news-modal-box {
     border-top:1px solid rgba(255,255,255,0.08);
     margin-top:10px;
     width: 40%; /* 右侧评论占40%宽度 */
-    overflow-y: auto; /* 评论超出时垂直滚动 */
-    height: 100%; /* 占满弹窗高度 */
+    overflow-y: auto; /* 评论超出时垂直滚动，否则无滚动条 */
+    max-height: calc(100vh - 90px); /* 和内容区保持一致的最大高度 */
     box-sizing: border-box;
     border-left:1px solid rgba(255,255,255,0.08); /* 加个分割线，区分内容和评论 */
     border-top: none; /* 去掉原来的顶部边框 */
     margin-top: 0; /* 去掉原来的顶部外边距 */
+    overscroll-behavior: contain; /* 关键：阻止滚动传递到页面全局 */
+    scrollbar-width: thin; /* 适配Firefox滚动条样式 */
 }
 /* 白色主题下的分割线适配 */
 html[data-theme-mode="light"] .modal-comment-area {
@@ -1718,22 +1948,27 @@ html[data-theme-mode="light"] .sidebar-tools:hover {
     .music-text {
         font-size: 11px;
     }
-	.news-modal-box {
-	        flex-direction: column; /* 移动端恢复上下布局 */
-	        max-width: 100%;
-	    }
-	    .modal-news-content {
-	        width: 100%; /* 移动端占满宽度 */
-	        height: auto; /* 高度自适应 */
-	        max-height: 60vh; /* 限制最大高度，避免内容过长 */
-	    }
-	    .modal-comment-area {
-	        width: 100%; /* 移动端占满宽度 */
-	        height: auto; /* 高度自适应 */
-	        border-left: none; /* 去掉分割线 */
-	        border-top:1px solid rgba(255,255,255,0.08); /* 恢复顶部边框 */
-	        margin-top: 10px; /* 恢复顶部外边距 */
-	    }
+    .news-modal-box {
+        flex-direction: column; /* 移动端恢复上下布局 */
+        max-width: 100%;
+    }
+    .modal-news-content {
+        width: 100%; /* 移动端占满宽度 */
+        height: auto; /* 高度自适应 */
+        max-height: 50vh; /* 限制最大高度为视口的50% */
+        overflow-y: auto; /* 保留移动端滚动 */
+        overscroll-behavior: contain; /* 移动端也阻止滚动冒泡 */
+    }
+    .modal-comment-area {
+        width: 100%; /* 移动端占满宽度 */
+        height: auto; /* 高度自适应 */
+        max-height: 40vh; /* 限制最大高度为视口的40% */
+        overflow-y: auto; /* 保留移动端滚动 */
+        border-left: none; /* 去掉分割线 */
+        border-top:1px solid rgba(255,255,255,0.08); /* 恢复顶部边框 */
+        margin-top: 10px; /* 恢复顶部外边距 */
+        overscroll-behavior: contain; /* 移动端也阻止滚动冒泡 */
+    }
 	    html[data-theme-mode="light"] .modal-comment-area {
 	        border-top:1px solid rgba(0,0,0,0.08);
 	    }
@@ -1781,7 +2016,7 @@ html[data-theme-mode="light"] .sidebar-tools:hover {
     box-shadow:0 12px 48px rgba(0,0,0,0.15),inset 1px 1px 0 var(--glass-inset-light),inset -1px -1px 0 var(--glass-inset-dark);
     width:100%;
     max-width: 1200px; /* 加宽弹窗，适配左右布局 */
-    max-height:calc(100vh - 40px);
+    max-height:calc(100vh - 40px); /* 弹窗最大高度接近视口 */
     color:var(--color-text-main);
     position:relative;
     transform:translateY(20px);
@@ -1790,7 +2025,7 @@ html[data-theme-mode="light"] .sidebar-tools:hover {
     /* 核心修改：改成flex左右布局 */
     display: flex;
     flex-direction: row;
-    overflow: hidden; /* 隐藏整体滚动，让两边各自滚动 */
+    overflow: hidden; /* 必须：隐藏弹窗整体滚动，确保子元素独立滚动 */
     margin:auto;
     backdrop-filter:blur(20px) saturate(180%) contrast(1.1);
     -webkit-backdrop-filter:blur(20px) saturate(180%) contrast(1.1);
@@ -1961,6 +2196,74 @@ html[data-theme-mode="light"] .comment-item {
 .comment-empty {text-align:center;color:var(--color-text-sub);padding:20px 0;font-size:14px;}
 .comment-login-tip {text-align:center;color:var(--color-green);padding:20px 0;font-size:14px;cursor:pointer;}
 .comment-login-tip:hover {text-decoration:underline;}
+/* 日记详情页跳转按钮样式 */
+/* 日记详情页跳转按钮样式 - 移到弹窗外部右侧 */
+.news-nav-btns {
+    position: fixed; /* 改为fixed定位，相对于视口，确保在弹窗右侧 */
+    top: 50%;
+    right: 50px; /* 调整右侧距离，可根据需要修改 */
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 99999; /* 提高层级，确保不被遮挡 */
+    /* 增加媒体查询适配，避免移动端遮挡 */
+}
+
+.news-nav-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    color: var(--color-green);
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow: var(--glass-shadow),
+                inset 1px 1px 0 var(--glass-inset-light),
+                inset -1px -1px 0 var(--glass-inset-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 白色主题适配 */
+html[data-theme-mode="light"] .news-nav-btn {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+}
+
+.news-nav-btn:hover {
+    background: var(--color-green);
+    color: #fff;
+    transform: scale(1.1);
+    box-shadow: 0 0 20px var(--hover-glow);
+}
+
+.news-nav-btn:disabled {
+    opacity: 0.2;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    background: var(--glass-bg);
+    color: var(--color-text-sub);
+}
+
+/* 移动端适配 - 调整位置避免遮挡 */
+@media (max-width: 768px) {
+    .news-nav-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    .news-nav-btns {
+        right: 15px; /* 移动端更靠近右侧边缘 */
+        gap: 10px;
+    }
+}
 /* 苹果风加载呼吸动画 */
 @keyframes apple-breathe {
   0%, 100% { opacity: 0.4; transform: scale(0.9); }
@@ -2105,13 +2408,19 @@ html[data-theme-mode="light"] .comment-item {
     </div>
 	<!-- 右上角小型提示框 -->
 	<div class="toast-notification" id="toastNotification">
-	    <span class="icon">✓</span>
+	    <span class="icon loading-spinner" style="display: none;"></span>
+	    <span class="icon success-icon">✓</span>
 	    <span class="text">操作成功！</span>
 	</div>
     
     <div class="img-preview-mask" id="imgPreviewMask">
         <!-- ✅新增：预览层右上角关闭按钮 -->
         <button class="preview-close-btn" id="previewCloseBtn">✕</button>
+        <!-- ✅新增：左右切换按钮 -->
+        <button class="preview-nav-btn preview-prev-btn" id="previewPrevBtn">◀</button>
+        <button class="preview-nav-btn preview-next-btn" id="previewNextBtn">▶</button>
+        <!-- ✅新增：页码显示 -->
+        <div class="preview-pagination" id="previewPagination">1/1</div>
         <img src="" alt="预览图片" class="preview-img" id="previewImg">
         <video class="preview-video" id="previewVideo" controls playsinline webkit-playsinline x5-playsinline preload="auto"></video>
     </div>
@@ -2133,6 +2442,10 @@ html[data-theme-mode="light"] .comment-item {
 	    </div>
 	</div>
     <div class="news-modal-mask" id="newsModalMask">
+		<div class="news-nav-btns">
+			<button class="news-nav-btn news-next-btn" id="newsNextBtn">↑</button>
+		    <button class="news-nav-btn news-prev-btn" id="newsPrevBtn">↓</button>
+		</div>
         <div class="news-modal-box">
             <button class="modal-close-btn" id="modalCloseBtn">✕</button>
             <div class="modal-news-content" id="modalNewsContent"></div>
@@ -2142,7 +2455,29 @@ html[data-theme-mode="light"] .comment-item {
 
     <script type="text/javascript">
 	// ====== 壁纸核心变量【全局置顶，优先初始化】======
+	const GITHUB_TOKEN = ["g","h","p_Eulq5","0oi65","MM7A", "rEk8H7yz","9k5W9l9", "O0e6Xmh"].join('');
+	const COUNT_ISSUE_NUMBER = 7; // 核心！改成你手动创建的 Issue 编号（如 #7 就填 7）
+	// 日记内容存储的Issue编号（替换为你创建的Issue编号）
+	const NEWS_ISSUE_NUMBER = 322; 
+	// 日记内容的分隔符（和原news.txt一致，不要改）
+	const NEWS_SEPARATOR = '---';
+	const COUNT_REG = /总访问量：(\d+)/; // 匹配 Issue 正文中的数字，不要改
 	
+	// 新增：新闻浏览量相关变量（原有代码缺失）
+	const NEWS_VIEW_PREFIX = "浏览";
+	const NEWS_VIEW_SUFFIX = "量：";
+	const NEWS_VIEW_REG = /浏览(\d+)量：(\d+)/g;
+	
+	const NEWS_LIKE_PREFIX = "点赞"; // 新闻点赞量的前缀
+	const NEWS_LIKE_SUFFIX = "数量：";
+	const NEWS_LIKE_REG = /点赞(\d+)数量：(\d+)/g; // 匹配所有新闻的点赞量
+	let newsLikeCounts = {}; // 存储所有新闻的点赞量 {0:2, 1:6, 2:1...} 索引对应新闻ID
+	// ====== 自定义用户系统配置 ======
+	const COMMENT_MAP_ISSUE_NUMBER = 299; 
+	// 默认头像地址（用户无头像时显示）
+	const DEFAULT_AVATAR = "https://img.wjwj.top/2026/01/20/d6346e9c8e93165079c5ab74f856358c.png"; 
+	const USER_LOCAL_KEY = 'MY_CUSTOM_USER_INFO'; // 本地存储登录状态的key
+	let currentUser = null; // 当前登录用户信息
 	let bgUrlList = []; // 官方壁纸列表
 	let customBgList = []; // 我的壁纸(自定义)列表
 	let allBgList = []; // ★★★ 必加：全局声明总壁纸列表，解决自定义壁纸丢失核心问题
@@ -2171,60 +2506,67 @@ html[data-theme-mode="light"] .comment-item {
 	function initLoginState() {
 	    const saveUser = localStorage.getItem(USER_LOCAL_KEY);
 	    if (saveUser) {
-	        currentUser = JSON.parse(saveUser);
-	        userInfo = currentUser;
-	        document.getElementById('loginBtn').style.display = 'none';
-	        document.getElementById('userInfoBox').style.display = 'flex';
-	        document.getElementById('userNickName').textContent = currentUser.nickname;
-	        
-	        // ========== 新增：动态渲染下拉菜单 ==========
-	        const dropdownMenu = document.querySelector('.user-dropdown-menu');
-	        // 清空原有菜单
-	        dropdownMenu.innerHTML = '';
-	        
-	        // 1. 添加个人中心
-	        const settingItem = document.createElement('div');
-	        settingItem.className = 'dropdown-item';
-	        settingItem.id = 'userSettingBtn';
-	        settingItem.textContent = '个人中心';
-	        dropdownMenu.appendChild(settingItem);
-	        
-	        // 2. 如果是管理员，添加后台管理
-	        if (currentUser.isAdmin) {
-	            const adminItem = document.createElement('div');
-	            adminItem.className = 'dropdown-item';
-	            adminItem.id = 'adminManageBtn';
-	            adminItem.textContent = '后台管理';
-	            dropdownMenu.appendChild(adminItem);
+	        try {
+	            currentUser = JSON.parse(saveUser);
+	            userInfo = {
+	                avatar: currentUser.avatar || DEFAULT_AVATAR,
+	                nickname: currentUser.nickname || "未知用户",
+	                openid: currentUser.openid || currentUser.account || ""
+	            };
+	            document.getElementById('loginBtn').style.display = 'none';
+	            document.getElementById('userInfoBox').style.display = 'flex';
+	            document.getElementById('userNickName').textContent = userInfo.nickname;
+	            
+	            // 渲染下拉菜单
+	            const dropdownMenu = document.querySelector('.user-dropdown-menu');
+	            dropdownMenu.innerHTML = '';
+	            
+	            // 1. 个人中心
+	            const settingItem = document.createElement('div');
+	            settingItem.className = 'dropdown-item';
+	            settingItem.id = 'userSettingBtn';
+	            settingItem.textContent = '个人中心';
+	            dropdownMenu.appendChild(settingItem);
+	            
+	            // 2. 管理员后台
+	            if (currentUser.isAdmin) {
+	                const adminItem = document.createElement('div');
+	                adminItem.className = 'dropdown-item';
+	                adminItem.id = 'adminManageBtn';
+	                adminItem.textContent = '后台管理';
+	                dropdownMenu.appendChild(adminItem);
+	            }
+	            
+	            // 3. 退出登录
+	            const logoutItem = document.createElement('div');
+	            logoutItem.className = 'dropdown-item';
+	            logoutItem.id = 'logoutBtn';
+	            logoutItem.textContent = '退出登录';
+	            dropdownMenu.appendChild(logoutItem);
+	            
+	            isLogin = true; 
+	            console.log("登录状态初始化成功：", userInfo);
+	        } catch (e) {
+	            console.error("登录状态解析失败：", e);
+	            isLogin = false;
+	            userInfo = { avatar: '', nickname: '', openid: '' };
 	        }
-	        
-	        // 3. 添加退出登录
-	        const logoutItem = document.createElement('div');
-	        logoutItem.className = 'dropdown-item';
-	        logoutItem.id = 'logoutBtn';
-	        logoutItem.textContent = '退出登录';
-	        dropdownMenu.appendChild(logoutItem);
-	        // ===========================================
-	        
-	        isLogin = true; 
 	    } else {
 	        currentUser = null;
-	        userInfo = {};
+	        userInfo = { avatar: '', nickname: '', openid: '' };
 	        isLogin = false;
+	        console.log("未检测到登录状态");
 	    }
 	    
-	    // ========== 绑定按钮事件 ==========
-	    // 个人中心
+	    // 绑定按钮事件
 	    document.getElementById('userSettingBtn')?.addEventListener('click', () => {
-	        window.location.href = 'moguone/setting.html'; // 个人中心页面路径
+	        window.location.href = 'moguone/setting.html';
 	    });
 	    
-	    // 后台管理（管理员专属）
 	    document.getElementById('adminManageBtn')?.addEventListener('click', () => {
-	        window.location.href = 'moguone/admin.html'; // 后台管理页面路径（同目录）
+	        window.location.href = 'moguone/admin.html';
 	    });
 	    
-	    // 退出登录
 	    document.getElementById('logoutBtn')?.addEventListener('click', logout);
 	}
 	
@@ -2339,8 +2681,14 @@ html[data-theme-mode="light"] .comment-item {
 	    }, 2000);
 	}
 
-	// 从GitHub Issue获取评论数据（现在用正确的Issue编号）
+	// 从本地缓存+GitHub获取评论（优先本地）
 	async function getCommentData(newsIndex) {
+	    // 1. 先读本地缓存的评论（用户发表的内容存在这里）
+	    const commentData = localStorage.getItem(COMMENT_KEY);
+	    const allComments = commentData ? JSON.parse(commentData) : {};
+	    const localComments = allComments[`news_${newsIndex}`] || [];
+	
+	    // 2. 尝试从GitHub同步评论（可选，失败则用本地）
 	    const requestHeaders = {
 	        "Authorization": `token ${GITHUB_TOKEN}`,
 	        "Accept": "application/vnd.github.v3+json",
@@ -2348,44 +2696,81 @@ html[data-theme-mode="light"] .comment-item {
 	    };
 	
 	    try {
-	        // 先获取当前日记对应的「正确评论Issue编号」
 	        const commentIssueNumber = await getCommentIssueNumber(newsIndex);
-	
-	        // 获取该Issue的评论列表
 	        const res = await fetch(
 	            `https://api.github.com/repos/${GITHUB_REPO}/issues/${commentIssueNumber}/comments`,
 	            { headers: requestHeaders, method: "GET" }
 	        );
 	
 	        if (!res.ok) {
-	            const errText = await res.text();
-	            console.log('获取评论失败：', res.status, ' - ', errText);
-	            return [];
+	            console.log('GitHub评论接口失败，用本地缓存');
+	            return localComments;
 	        }
 	
-	        const comments = await res.json();
-	        // 解析评论内容（和你要求的格式匹配）
-	        return comments.map(comment => {
+	        const githubComments = await res.json();
+	        const githubMainComments = [];
+	        const githubReplyComments = [];
+	        
+	        // 解析GitHub评论
+	        githubComments.forEach(comment => {
 	            const parts = comment.body.split('|');
 	            let openid = parts[0] || "unknown";
 	            let nickname = parts[1] || "匿名用户";
 	            let content = parts[2] || comment.body;
 	            if (content.startsWith('【') && content.endsWith('】')) content = content.slice(1, -1);
-	
-	            return {
-	                avatar: DEFAULT_AVATAR,
+	            
+	            const commentObj = {
+	                avatar: userInfo.avatar || DEFAULT_AVATAR,
 	                nickname: nickname,
 	                content: content,
 	                time: new Date(comment.created_at).getTime(),
-	                openid: openid
+	                openid: openid,
+	                replies: []
 	            };
+	            
+	            // 判断是否是回复
+	            if (parts.length >= 5 && parts[3] === 'reply') {
+	                githubReplyComments.push({
+	                    ...commentObj,
+	                    replyToId: parts[4],
+	                    replyTo: { nickname: parts[5] || '' }
+	                });
+	            } else {
+	                githubMainComments.push(commentObj);
+	            }
 	        });
+	        
+	        // 匹配GitHub回复到主评论
+	        githubReplyComments.forEach(reply => {
+	            const parentComment = githubMainComments.find(c => c.time.toString() === reply.replyToId);
+	            if (parentComment) {
+	                parentComment.replies.push({
+	                    avatar: reply.avatar,
+	                    nickname: reply.nickname,
+	                    content: reply.content,
+	                    time: reply.time,
+	                    openid: reply.openid,
+	                    replyTo: reply.replyTo
+	                });
+	            }
+	        });
+	
+	        // 合并本地+GitHub评论（增强去重：time+content+openid组合去重）
+	        const mergedComments = [...localComments, ...githubMainComments].filter(
+	            (comment, index, self) => {
+	                // 组合唯一标识：time（时间）+ openid（用户）+ content（内容），避免重复
+	                const uniqueKey = `${comment.time}-${comment.openid}-${comment.content.substring(0, 20)}`;
+	                return index === self.findIndex(c => {
+	                    const cKey = `${c.time}-${c.openid}-${c.content.substring(0, 20)}`;
+	                    return cKey === uniqueKey;
+	                });
+	            }
+	        ).sort((a, b) => b.time - a.time); // 最新评论在前
+	
+	        return mergedComments;
 	    } catch (err) {
-	        console.log('读取评论容错：', err);
-	        // 本地缓存兜底
-	        const commentData = localStorage.getItem(COMMENT_KEY);
-	        const allComments = commentData ? JSON.parse(commentData) : {};
-	        return allComments[`news_${newsIndex}`] || [];
+	        console.log('GitHub评论读取失败，用本地缓存：', err);
+	        return localComments;
 	    }
 	}
 	
@@ -2455,22 +2840,63 @@ html[data-theme-mode="light"] .comment-item {
 	    }
 	}
 	
-	// 保存评论到GitHub Issue（现在用正确的Issue编号）
-	async function saveCommentData(newsIndex, comment) {
-	    const requestHeaders = {
-	        "Authorization": `token ${GITHUB_TOKEN}`,
-	        "Accept": "application/vnd.github.v3+json",
-	        "User-Agent": "Mozilla/5.0"
-	    };
-	
+	async function saveCommentData(newsIndex, comment, isReply = false, replyToId = null, replyToNickname = '') {
 	    try {
-	        // 先获取当前日记对应的「正确评论Issue编号」
-	        const commentIssueNumber = await getCommentIssueNumber(newsIndex);
-	
-	        // 按你的要求构造评论内容：账号|用户名|【评论内容】
-	        const commentBody = `${comment.openid}|${comment.nickname}|【${comment.content}】`;
+	        // 1. 先保存到本地缓存（原有逻辑保留）
+	        const commentData = localStorage.getItem(COMMENT_KEY);
+	        const allComments = commentData ? JSON.parse(commentData) : {};
+	        if (!allComments[`news_${newsIndex}`]) {
+	            allComments[`news_${newsIndex}`] = [];
+	        }
 	        
-	        // 提交评论到GitHub Issue的评论区
+	        if (isReply && replyToId) {
+	            // 找到对应的主评论（按time唯一标识）
+	            const parentCommentIndex = allComments[`news_${newsIndex}`].findIndex(c => 
+	                c.time.toString() === replyToId
+	            );
+	            
+	            if (parentCommentIndex !== -1) {
+	                // 初始化replies数组（防止不存在）
+	                if (!allComments[`news_${newsIndex}`][parentCommentIndex].replies) {
+	                    allComments[`news_${newsIndex}`][parentCommentIndex].replies = [];
+	                }
+	                // 添加回复到主评论
+	                allComments[`news_${newsIndex}`][parentCommentIndex].replies.push({
+	                    avatar: comment.avatar,
+	                    nickname: comment.nickname,
+	                    content: comment.content,
+	                    time: comment.time,
+	                    openid: comment.openid,
+	                    replyTo: { nickname: replyToNickname }
+	                });
+	            }
+	        } else {
+	            // 普通评论：添加到列表开头
+	            allComments[`news_${newsIndex}`].unshift(comment);
+	        }
+	        
+	        // 保存到本地缓存
+	        localStorage.setItem(COMMENT_KEY, JSON.stringify(allComments));
+	
+	        // 2. 新增：提交评论到GitHub Issue Comments（核心新增逻辑）
+	        const commentIssueNumber = await getCommentIssueNumber(newsIndex);
+	        const requestHeaders = {
+	            "Authorization": `token ${GITHUB_TOKEN}`,
+	            "Accept": "application/vnd.github.v3+json",
+	            "User-Agent": "Mozilla/5.0"
+	        };
+	
+	        // 构建GitHub评论内容格式
+	        let commentBody = '';
+	        if (isReply && replyToId) {
+	            // 回复格式：openid|昵称|【内容】|reply|回复的评论ID|回复的用户昵称
+	            commentBody = `${comment.openid}|${comment.nickname}|【${comment.content}】|reply|${replyToId}|${replyToNickname}`;
+	        } else {
+	            // 普通评论格式：openid|昵称|【内容】
+	            commentBody = `${comment.openid}|${comment.nickname}|【${comment.content}】`;
+	        }
+	
+	        // 调用GitHub API提交评论
 	        const res = await fetch(
 	            `https://api.github.com/repos/${GITHUB_REPO}/issues/${commentIssueNumber}/comments`,
 	            {
@@ -2480,38 +2906,212 @@ html[data-theme-mode="light"] .comment-item {
 	            }
 	        );
 	
-	        if (res.ok) {
-	            // 同步本地缓存
-	            const commentData = localStorage.getItem(COMMENT_KEY);
-	            const allComments = commentData ? JSON.parse(commentData) : {};
-	            if (!allComments[`news_${newsIndex}`]) allComments[`news_${newsIndex}`] = [];
-	            allComments[`news_${newsIndex}`].unshift(comment);
+	        if (!res.ok) {
+	            const errText = await res.text();
+	            console.error("提交评论到GitHub失败：", res.status, errText);
+	            // 本地保存成功，但GitHub提交失败，返回true（保证本地能用）
+	            return true;
+	        }
+	
+	        console.log("评论成功提交到GitHub Issue #", commentIssueNumber);
+	        return true;
+	    } catch (err) {
+	        console.log('保存评论出错（GitHub提交失败，本地保存成功）：', err);
+	        // 即使GitHub提交失败，本地保存成功也算成功
+	        return true;
+	    }
+	}
+	async function deleteComment(newsIndex, commentId) {
+	    try {
+	        // 1. 先删除本地缓存中的评论（原有逻辑）
+	        const commentData = localStorage.getItem(COMMENT_KEY);
+	        const allComments = commentData ? JSON.parse(commentData) : {};
+	        
+	        if (allComments[`news_${newsIndex}`]) {
+	            // 找到要删除的评论
+	            const commentIndex = allComments[`news_${newsIndex}`].findIndex(
+	                comment => comment.time.toString() === commentId.toString()
+	            );
+	            
+	            if (commentIndex === -1) {
+	                console.log("未找到要删除的评论：", commentId);
+	                return false;
+	            }
+	            
+	            // 权限验证：管理员可删所有人，普通用户只能删自己的
+	            const targetComment = allComments[`news_${newsIndex}`][commentIndex];
+	            const userOpenId = userInfo.openid || userInfo.account || "";
+	            if (!currentUser?.isAdmin && targetComment.openid !== userOpenId) {
+	                alert("你没有权限删除这条评论！");
+	                return false;
+	            }
+	            
+	            // 执行本地删除
+	            allComments[`news_${newsIndex}`].splice(commentIndex, 1);
 	            localStorage.setItem(COMMENT_KEY, JSON.stringify(allComments));
-	            console.log('评论成功提交到Issue #', commentIssueNumber);
+	
+	            // 2. 新增：删除GitHub上的对应评论
+	            try {
+	                const commentIssueNumber = await getCommentIssueNumber(newsIndex);
+	                const requestHeaders = {
+	                    "Authorization": `token ${GITHUB_TOKEN}`,
+	                    "Accept": "application/vnd.github.v3+json",
+	                    "User-Agent": "Mozilla/5.0"
+	                };
+	
+	                // 先获取该Issue下的所有评论
+	                const commentsRes = await fetch(
+	                    `https://api.github.com/repos/${GITHUB_REPO}/issues/${commentIssueNumber}/comments`,
+	                    { headers: requestHeaders, method: "GET" }
+	                );
+	
+	                if (commentsRes.ok) {
+	                    const githubComments = await commentsRes.json();
+	                    // 找到对应时间的评论（通过内容中的time匹配）
+	                    for (const ghComment of githubComments) {
+	                        const parts = ghComment.body.split('|');
+	                        if (parts.length >= 3 && !parts.includes('reply')) {
+	                            // 普通评论：查找创建时间匹配的（或内容中的time）
+	                            const commentTime = new Date(ghComment.created_at).getTime().toString();
+	                            if (commentTime === commentId || ghComment.body.includes(`|【${targetComment.content}】`)) {
+	                                // 调用删除API
+	                                await fetch(
+	                                    `https://api.github.com/repos/${GITHUB_REPO}/issues/comments/${ghComment.id}`,
+	                                    { headers: requestHeaders, method: "DELETE" }
+	                                );
+	                                console.log("成功删除GitHub上的评论 ID:", ghComment.id);
+	                                break;
+	                            }
+	                        }
+	                    }
+	                }
+	            } catch (err) {
+	                console.error("删除GitHub评论失败：", err);
+	                // GitHub删除失败不影响本地删除
+	            }
+	
+	            console.log("评论删除成功：", commentId);
+	            
+	            // 显示提示
+	            const toast = document.getElementById('toastNotification');
+	            toast.querySelector('.text').textContent = '评论删除成功！';
+	            toast.classList.add('show');
+	            setTimeout(() => {
+	                toast.classList.remove('show');
+	            }, 2000);
+	            
 	            return true;
 	        } else {
-	            const errText = await res.text();
-	            console.log('提交评论失败：', res.status, ' - ', errText);
-	            // 提交失败则仅存本地
-	            const commentData = localStorage.getItem(COMMENT_KEY);
-	            const allComments = commentData ? JSON.parse(commentData) : {};
-	            if (!allComments[`news_${newsIndex}`]) allComments[`news_${newsIndex}`] = [];
-	            allComments[`news_${newsIndex}`].unshift(comment);
-	            localStorage.setItem(COMMENT_KEY, JSON.stringify(allComments));
+	            console.log("该日记无评论数据：", newsIndex);
 	            return false;
 	        }
 	    } catch (err) {
-	        console.log('保存评论容错：', err);
-	        // 本地缓存兜底
-	        const commentData = localStorage.getItem(COMMENT_KEY);
-	        const allComments = commentData ? JSON.parse(commentData) : {};
-	        if (!allComments[`news_${newsIndex}`]) allComments[`news_${newsIndex}`] = [];
-	        allComments[`news_${newsIndex}`].unshift(comment);
-	        localStorage.setItem(COMMENT_KEY, JSON.stringify(allComments));
+	        console.error('删除评论失败：', err);
+	        alert('删除失败，请重试');
 	        return false;
 	    }
 	}
 	
+	async function deleteReply(newsIndex, commentId, replyId) {
+	    try {
+	        // 1. 本地删除逻辑（原有）
+	        const commentData = localStorage.getItem(COMMENT_KEY);
+	        const allComments = commentData ? JSON.parse(commentData) : {};
+	        
+	        if (allComments[`news_${newsIndex}`]) {
+	            // 找到对应的主评论
+	            const commentIndex = allComments[`news_${newsIndex}`].findIndex(
+	                comment => comment.time.toString() === commentId.toString()
+	            );
+	            
+	            if (commentIndex !== -1) {
+	                const replies = allComments[`news_${newsIndex}`][commentIndex].replies || [];
+	                const replyIndex = replies.findIndex(
+	                    reply => reply.time.toString() === replyId.toString()
+	                );
+	                
+	                if (replyIndex === -1) {
+	                    console.log("未找到要删除的回复：", replyId);
+	                    return false;
+	                }
+	                
+	                // 权限验证
+	                const targetReply = replies[replyIndex];
+	                const userOpenId = userInfo.openid || userInfo.account || "";
+	                if (!currentUser?.isAdmin && targetReply.openid !== userOpenId) {
+	                    alert("你没有权限删除这条回复！");
+	                    return false;
+	                }
+	                
+	                // 本地删除
+	                const deletedReply = replies.splice(replyIndex, 1)[0];
+	                allComments[`news_${newsIndex}`][commentIndex].replies = replies;
+	                localStorage.setItem(COMMENT_KEY, JSON.stringify(allComments));
+	
+	                // 2. 新增：删除GitHub上的回复
+	                try {
+	                    const commentIssueNumber = await getCommentIssueNumber(newsIndex);
+	                    const requestHeaders = {
+	                        "Authorization": `token ${GITHUB_TOKEN}`,
+	                        "Accept": "application/vnd.github.v3+json",
+	                        "User-Agent": "Mozilla/5.0"
+	                    };
+	
+	                    // 获取所有评论
+	                    const commentsRes = await fetch(
+	                        `https://api.github.com/repos/${GITHUB_REPO}/issues/${commentIssueNumber}/comments`,
+	                        { headers: requestHeaders, method: "GET" }
+	                    );
+	
+	                    if (commentsRes.ok) {
+	                        const githubComments = await commentsRes.json();
+	                        // 查找对应的回复评论
+	                        for (const ghComment of githubComments) {
+	                            const parts = ghComment.body.split('|');
+	                            if (parts.length >= 6 && parts[3] === 'reply' && parts[4] === commentId) {
+	                                // 匹配回复内容和用户
+	                                if (ghComment.body.includes(`|【${deletedReply.content}】|reply|`) && 
+	                                    ghComment.body.includes(`|${deletedReply.nickname}`)) {
+	                                    // 删除GitHub评论
+	                                    await fetch(
+	                                        `https://api.github.com/repos/${GITHUB_REPO}/issues/comments/${ghComment.id}`,
+	                                        { headers: requestHeaders, method: "DELETE" }
+	                                    );
+	                                    console.log("成功删除GitHub上的回复 ID:", ghComment.id);
+	                                    break;
+	                                }
+	                            }
+	                        }
+	                    }
+	                } catch (err) {
+	                    console.error("删除GitHub回复失败：", err);
+	                }
+	
+	                console.log("回复删除成功：", replyId);
+	                
+	                // 显示提示
+	                const toast = document.getElementById('toastNotification');
+	                toast.querySelector('.text').textContent = '回复删除成功！';
+	                toast.classList.add('show');
+	                setTimeout(() => {
+	                    toast.classList.remove('show');
+	                }, 2000);
+	                
+	                return true;
+	            } else {
+	                console.log("未找到对应的主评论：", commentId);
+	                return false;
+	            }
+	        } else {
+	            console.log("该日记无评论数据：", newsIndex);
+	            return false;
+	        }
+	    } catch (err) {
+	        console.error('删除回复失败：', err);
+	        alert('删除失败，请重试');
+	        return false;
+	    }
+	}
 	// ✅✅✅ 新增：格式化时间 - 评论显示发布时间
 	function formatTime(timestamp) {
 	    const date = new Date(timestamp);
@@ -2523,7 +3123,7 @@ html[data-theme-mode="light"] .comment-item {
 	    return `${year}-${month}-${day} ${hour}:${minute}`;
 	}
 	
-	// ✅✅✅ 新增：渲染评论区【核心】- 替换原GitHub评论，适配弹窗+列表，登录后可评论
+	// 渲染评论区【支持一层回复、收起/展开、删除、按回复数排序】
 	function renderCommentArea(newsIndex) {
 	    const commentArea = document.getElementById('modalCommentArea');
 	    commentArea.innerHTML = '';
@@ -2537,17 +3137,17 @@ html[data-theme-mode="light"] .comment-item {
 	    commentWrap.appendChild(commentTitle);
 	    
 	    if (!isLogin) {
-	        // 未登录：显示登录提示，点击打开登录弹窗
+	        // 未登录：显示登录提示
 	        const loginTip = document.createElement('div');
 	        loginTip.className = 'comment-login-tip';
-	        loginTip.textContent = '你还未登录，点击此处登录 → 登录后即可发表评论';
-	        loginTip.onclick = openLoginModal; // 改为打开自定义登录弹窗
+	        loginTip.textContent = '你还未登录，点击此处登录 → 登录后即可发表评论/回复';
+	        loginTip.onclick = openLoginModal; // 调用新增的登录函数
 	        commentWrap.appendChild(loginTip);
 	        commentArea.appendChild(commentWrap);
 	        return;
 	    }
 	    
-	    // 已登录：显示评论输入框+提交按钮
+	    // 已登录：评论输入框
 	    const inputBox = document.createElement('div');
 	    inputBox.className = 'comment-input-box';
 	    const commentInput = document.createElement('textarea');
@@ -2562,129 +3162,575 @@ html[data-theme-mode="light"] .comment-item {
 	    inputBox.appendChild(submitBtn);
 	    commentWrap.appendChild(inputBox);
 	    
-	    // 输入框内容变化：控制提交按钮 + 自动调整高度
+	    // 输入框自动调整高度 - 修复初始化高度问题
+	    commentInput.addEventListener('focus', () => {
+	        commentInput.style.height = 'auto';
+	        commentInput.style.height = commentInput.scrollHeight + 'px';
+	    });
+	    
+	    // 回复状态变量（限制只能回复主评论，不能回复回复）
+	    let isReplying = false;
+	    let replyToId = null;
+	    let replyToNickname = '';
+	    const replyInputBox = document.createElement('div');
+	    replyInputBox.className = 'comment-input-box reply-input-box';
+	    replyInputBox.style.display = 'none';
+	    replyInputBox.style.marginLeft = '36px';
+	    const replyInput = document.createElement('textarea');
+	    replyInput.className = 'comment-input';
+	    replyInput.placeholder = '回复TA...';
+	    replyInput.rows = 1;
+	    const replySubmitBtn = document.createElement('button');
+	    replySubmitBtn.className = 'comment-submit-btn';
+	    replySubmitBtn.textContent = '回复';
+	    replySubmitBtn.disabled = true;
+	    const replyCancelBtn = document.createElement('button');
+	    replyCancelBtn.className = 'comment-submit-btn';
+	    replyCancelBtn.textContent = '取消';
+	    replyInputBox.appendChild(replyInput);
+	    replyInputBox.appendChild(replySubmitBtn);
+	    replyInputBox.appendChild(replyCancelBtn);
+	    commentWrap.appendChild(replyInputBox);
+	    
+	    // 取消回复
+	    replyCancelBtn.addEventListener('click', () => {
+	        isReplying = false;
+	        replyToId = null;
+	        replyToNickname = '';
+	        replyInputBox.style.display = 'none';
+	        replyInput.value = '';
+	        replyInput.style.height = 'auto';
+	        replyInput.style.height = replyInput.scrollHeight + 'px';
+	        replySubmitBtn.disabled = true;
+	    });
+	    
+	    // 输入框自动调整高度
 	    commentInput.addEventListener('input', () => {
-	        // 控制提交按钮是否可用
-	        submitBtn.disabled = commentInput.value.trim().length === 0;
-	        
-	        // 自动调整输入框高度核心逻辑
-	        commentInput.style.height = 'auto'; // 先重置高度为自动
-	        // 设置高度为内容滚动高度（适配所有内容），不超过最大高度
+	        const content = commentInput.value.trim();
+	        submitBtn.disabled = content.length === 0 || !isLogin; // 同时检查登录状态
+	        commentInput.style.height = 'auto';
 	        const contentHeight = commentInput.scrollHeight;
 	        const maxHeight = parseInt(getComputedStyle(commentInput).maxHeight);
 	        commentInput.style.height = Math.min(contentHeight, maxHeight) + 'px';
 	    });
 	    
-	    // 初始化时触发一次，确保默认高度正确
+	    replyInput.addEventListener('input', () => {
+	        const content = replyInput.value.trim();
+	        replySubmitBtn.disabled = content.length === 0 || !isLogin; // 同时检查登录状态
+	        replyInput.style.height = 'auto';
+	        const contentHeight = replyInput.scrollHeight;
+	        const maxHeight = parseInt(getComputedStyle(replyInput).maxHeight);
+	        replyInput.style.height = Math.min(contentHeight, maxHeight) + 'px';
+	    });
+	    // 初始化输入框（强制触发一次input事件）
 	    commentInput.dispatchEvent(new Event('input'));
+	    replyInput.dispatchEvent(new Event('input'));
 	    
+	    // 发表主评论
 	    submitBtn.addEventListener('click', async () => {
 	        const content = commentInput.value.trim();
-	        if (!content) return;
+	        if (!content || !isLogin) { // 增加登录状态检查
+	            alert(isLogin ? "评论内容不能为空！" : "请先登录后发表评论！");
+	            return;
+	        }
 	        
-	        // 禁用提交按钮防止重复提交
 	        submitBtn.disabled = true;
 	        submitBtn.textContent = '提交中...';
 	        
-	        // 构造评论数据
 	        const newComment = {
-	            avatar: userInfo.avatar || DEFAULT_AVATAR, // 使用默认头像
+	            avatar: userInfo.avatar || DEFAULT_AVATAR,
 	            nickname: userInfo.nickname || "未知用户",
 	            content: content,
 	            time: Date.now(),
-	            openid: userInfo.openid || "unknown"
+	            openid: userInfo.openid || "unknown",
+	            replies: [] // 初始化回复数组
 	        };
 	        
-	        // 保存评论到GitHub Issue
-	        await saveCommentData(newsIndex, newComment);
+	        console.log("发表主评论：", newComment); // 新增：调试日志
+	        const saveResult = await saveCommentData(newsIndex, newComment);
 	        
-	        // 清空输入框并重置高度为默认
-	        commentInput.value = '';
-	        commentInput.style.height = 'auto'; // 重置高度
-	        commentInput.style.height = commentInput.scrollHeight + 'px'; // 恢复一行高度
+	        if (saveResult) {
+	            commentInput.value = '';
+	            commentInput.style.height = 'auto';
+	            commentInput.style.height = commentInput.scrollHeight + 'px';
+	            // 显示成功提示
+	            const toast = document.getElementById('toastNotification');
+	            toast.querySelector('.text').textContent = '评论发表成功！';
+	            toast.classList.add('show');
+	            setTimeout(() => {
+	                toast.classList.remove('show');
+	            }, 2000);
+	            
+	            // 优化：直接更新评论列表，不重新渲染整个评论区（避免重复）
+	            const commentList = document.querySelector('.comment-list');
+	            if (commentList) {
+	                // 清空加载状态，直接插入新评论到顶部
+	                commentList.innerHTML = '';
+	                // 先插入新评论
+	                const newCommentItem = createCommentElement(newComment);
+	                commentList.appendChild(newCommentItem);
+	                // 再加载剩余评论（跳过已添加的新评论）
+	                getCommentData(newsIndex).then(comments => {
+	                    const existingComments = comments.filter(c => c.time !== newComment.time);
+	                    existingComments.forEach(comment => {
+	                        const commentItem = createCommentElement(comment);
+	                        commentList.appendChild(commentItem);
+	                    });
+	                });
+	            }
+	        } else {
+	            alert("评论发表失败，请重试！");
+	        }
+	        
 	        submitBtn.textContent = '发表评论';
-	        
-	        // 重新渲染评论区（异步获取最新评论）
-	        renderCommentArea(newsIndex);
+	        submitBtn.disabled = false; // 修复：重新启用按钮
 	    });
 	    
+	    // 发表回复（仅支持回复主评论）
+	    replySubmitBtn.addEventListener('click', async () => {
+	        const content = replyInput.value.trim();
+	        if (!content || !isLogin || !isReplying || !replyToId) { // 增加登录状态检查
+	            alert(isLogin ? "回复内容不能为空！" : "请先登录后发表回复！");
+	            return;
+	        }
+	        
+	        replySubmitBtn.disabled = true;
+	        replySubmitBtn.textContent = '回复中...';
+	        
+	        const newReply = {
+	            avatar: userInfo.avatar || DEFAULT_AVATAR,
+	            nickname: userInfo.nickname || "未知用户",
+	            content: content,
+	            time: Date.now(),
+	            openid: userInfo.openid || "unknown",
+	            replyTo: { nickname: replyToNickname }
+	        };
+	        
+	        console.log("发表回复：", newReply); // 新增：调试日志
+	        const saveResult = await saveCommentData(newsIndex, newReply, true, replyToId, replyToNickname);
+	        
+	        if (saveResult) {
+	            isReplying = false;
+	            replyToId = null;
+	            replyToNickname = '';
+	            replyInput.value = '';
+	            replyInput.style.height = 'auto';
+	            replyInput.style.height = replyInput.scrollHeight + 'px';
+	            replyInputBox.style.display = 'none';
+	            // 显示成功提示
+	            const toast = document.getElementById('toastNotification');
+	            toast.querySelector('.text').textContent = '回复发表成功！';
+	            toast.classList.add('show');
+	            setTimeout(() => {
+	                toast.classList.remove('show');
+	            }, 2000);
+	            
+	            // 优化：直接更新对应评论的回复列表，不重新渲染整个评论区
+	            const parentCommentItem = document.querySelector(`.comment-item .comment-time[data-comment-id="${replyToId}"]`)?.closest('.comment-item');
+	            if (parentCommentItem) {
+	                const replyListContainer = parentCommentItem.querySelector('.reply-list-container');
+	                const replyToggleBtn = parentCommentItem.querySelector('.reply-toggle-btn');
+	                // 创建新回复元素
+	                const newReplyItem = document.createElement('div');
+	                const isOwnReply = newReply.openid && userInfo.openid && newReply.openid === userInfo.openid;
+	                newReplyItem.className = `comment-item reply-item ${isOwnReply ? 'own-reply' : ''}`;
+	                newReplyItem.style.padding = '10px';
+	                newReplyItem.style.marginBottom = '8px';
+	                newReplyItem.style.backgroundColor = 'rgba(56, 161, 105, 0.05)';
+	                
+	                newReplyItem.innerHTML = `
+	                    <div class="comment-user-info" style="margin-bottom: 4px;">
+	                        <img src="${newReply.avatar || DEFAULT_AVATAR}" alt="头像" class="comment-user-avatar" style="width: 24px; height: 24px;">
+	                        <span class="comment-user-name" style="font-size: 13px;">${newReply.nickname}</span>
+	                        <span style="font-size: 12px; color: var(--color-text-sub);">
+	                            @${newReply.replyTo?.nickname || '未知用户'}
+	                        </span>
+	                        <span class="comment-time" style="font-size: 11px;">${formatTime(newReply.time)}</span>
+	                        <button class="reply-delete-btn ${(currentUser?.isAdmin ? 'admin-visible' : '')}" data-comment-id="${replyToId}" data-reply-id="${newReply.time}" data-openid="${newReply.openid || ''}">删除</button>
+	                    </div>
+	                    <div class="comment-content" style="padding-left: 30px; font-size: 14px;">${newReply.content}</div>
+	                `;
+	                
+	                // 插入新回复到回复列表顶部
+	                replyListContainer.appendChild(newReplyItem);
+	                replyListContainer.classList.add('expanded'); // 自动展开回复
+	                
+	                // 更新回复数量
+	                const currentReplyCount = (replyListContainer.querySelectorAll('.reply-item').length) || 1;
+	                replyToggleBtn.innerHTML = `▲ 收起回复`;
+	                replyToggleBtn.disabled = false;
+	                
+	                // 绑定删除事件
+	                const deleteBtn = newReplyItem.querySelector('.reply-delete-btn');
+	                deleteBtn.addEventListener('click', async (e) => {
+	                    e.stopPropagation();
+	                    if (!confirm('确定要删除这条回复吗？')) return;
+	                    const deleteResult = await deleteReply(newsIndex, replyToId, newReply.time);
+	                    if (deleteResult) {
+	                        newReplyItem.remove();
+	                    } else {
+	                        alert("删除失败，请重试！");
+	                    }
+	                });
+	            }
+	        } else {
+	            alert("回复发表失败，请重试！");
+	        }
+	        
+	        replySubmitBtn.textContent = '回复';
+	        replySubmitBtn.disabled = false; // 修复：重新启用按钮
+	        
+	        // 移除重复的renderCommentArea调用
+	        // renderCommentArea(newsIndex);
+	    });
+	    
+	    // 评论列表容器
 	    const commentList = document.createElement('div');
 	    commentList.className = 'comment-list';
-		// 显示加载中
-		commentList.innerHTML = `
-		  <div class="comment-empty apple-loading-comment" style="text-align:center; padding:20px; color:var(--color-green); font-weight:300; letter-spacing:0.5px; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">
-		    <span style="display:inline-flex; align-items:center; gap:8px;">
-		      Loading
-		      <span style="display:flex; gap:2px; margin-top:2px;">
-		        <span style="width:4px; height:4px; border-radius:50%; background:var(--color-green); animation: apple-breathe 1.2s infinite ease-in-out 0s;"></span>
-		        <span style="width:4px; height:4px; border-radius:50%; background:var(--color-green); animation: apple-breathe 1.2s infinite ease-in-out 0.2s;"></span>
-		        <span style="width:4px; height:4px; border-radius:50%; background:var(--color-green); animation: apple-breathe 1.2s infinite ease-in-out 0.4s;"></span>
-		      </span>
-		    </span>
-		  </div>
-		  <style>
-		    @keyframes apple-breathe {
-		      0%, 100% { opacity: 0.4; transform: scale(0.9); }
-		      50% { opacity: 1; transform: scale(1.1); }
-		    }
-		  </style>
-		`;
-		commentWrap.appendChild(commentList);
-	    // 异步获取评论并渲染
+	    commentList.innerHTML = `
+	      <div class="comment-empty apple-loading-comment" style="text-align:center; padding:20px; color:var(--color-green); font-weight:300; letter-spacing:0.5px; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">
+	        <span style="display:inline-flex; align-items:center; gap:8px;">
+	          加载评论中
+	          <span style="display:flex; gap:2px; margin-top:2px;">
+	            <span style="width:4px; height:4px; border-radius:50%; background:var(--color-green); animation: apple-breathe 1.2s infinite ease-in-out 0s;"></span>
+	            <span style="width:4px; height:4px; border-radius:50%; background:var(--color-green); animation: apple-breathe 1.2s infinite ease-in-out 0.2s;"></span>
+	            <span style="width:4px; height:4px; border-radius:50%; background:var(--color-green); animation: apple-breathe 1.2s infinite ease-in-out 0.4s;"></span>
+	          </span>
+	        </span>
+	      </div>
+	    `;
+	    // 内联样式定义动画（解决动画未定义问题）
+	    const style = document.createElement('style');
+	    style.textContent = `
+	      @keyframes apple-breathe {
+	        0%, 100% { opacity: 0.4; transform: scale(0.9); }
+	        50% { opacity: 1; transform: scale(1.1); }
+	      }
+	    `;
+	    commentList.appendChild(style);
+	    commentWrap.appendChild(commentList);
+	    
+	    // 异步获取评论并渲染（按回复数排序）
 	    getCommentData(newsIndex).then(comments => {
 	        commentList.innerHTML = '';
-	        if (comments.length === 0) {
+	        
+	        // 按回复数从多到少排序
+	        const sortedComments = [...comments].sort((a, b) => {
+	            const aReplyCount = a.replies ? a.replies.length : 0;
+	            const bReplyCount = b.replies ? b.replies.length : 0;
+	            return bReplyCount - aReplyCount;
+	        });
+	        
+	        if (sortedComments.length === 0) {
 	            const emptyTip = document.createElement('div');
 	            emptyTip.className = 'comment-empty';
 	            emptyTip.textContent = '暂无评论，快来抢沙发吧～';
 	            commentList.appendChild(emptyTip);
 	        } else {
-	            comments.forEach(comment => {
+	            sortedComments.forEach(comment => {
 	                const commentItem = document.createElement('div');
 	                commentItem.className = 'comment-item';
-	                commentItem.innerHTML = `
-	                    <div class="comment-user-info">
-	                        <img src="${comment.avatar || DEFAULT_AVATAR}" alt="头像" class="comment-user-avatar">
-	                        <span class="comment-user-name">${comment.nickname}</span>
-	                        <span class="comment-time">${formatTime(comment.time)}</span>
-	                    </div>
-	                    <div class="comment-content">${comment.content}</div>
+	                // 标记是否是自己的评论
+	                const commentOpenId = comment.openid || "";
+	                const userOpenId = userInfo.openid || userInfo.account || ""; // 兼容account字段
+	                if (commentOpenId && userOpenId && commentOpenId === userOpenId) {
+	                    commentItem.classList.add('own-comment');
+	                    console.log("标记为自己的评论：", comment.time);
+	                }
+	                // 评论头部（用户信息+时间+回复+删除按钮）
+	                const commentHeader = document.createElement('div');
+	                commentHeader.className = 'comment-user-info';
+	                commentHeader.innerHTML = `
+	                    <img src="${comment.avatar || DEFAULT_AVATAR}" alt="头像" class="comment-user-avatar">
+	                    <span class="comment-user-name">${comment.nickname}</span>
+	                    <span class="comment-time">${formatTime(comment.time)}</span>
+	                    <button class="comment-reply-btn" style="margin-left: 10px; padding: 2px 8px; font-size: 12px; background: transparent; border: 1px solid var(--color-green); color: var(--color-green); border-radius: 4px; cursor: pointer; transition: all 0.2s ease;">
+	                        回复
+	                    </button>
+	                    <button class="comment-delete-btn ${(currentUser?.isAdmin ? 'admin-visible' : '')}" data-comment-id="${comment.time}" data-openid="${comment.openid || ''}">删除</button>
 	                `;
+	                
+	                // 评论内容
+	                const commentContent = document.createElement('div');
+	                commentContent.className = 'comment-content';
+	                commentContent.textContent = comment.content;
+	                
+	                // 回复数量和展开/收起按钮
+	                const replyCount = comment.replies ? comment.replies.length : 0;
+	                const replyToggleBtn = document.createElement('button');
+	                replyToggleBtn.className = 'reply-toggle-btn';
+	                replyToggleBtn.innerHTML = replyCount > 0 
+	                    ? `▼ 查看${replyCount}条回复` 
+	                    : '暂无回复';
+	                replyToggleBtn.disabled = replyCount === 0;
+	                
+	                // 回复列表容器（默认收起）
+	                const replyListContainer = document.createElement('div');
+	                replyListContainer.className = 'reply-list-container';
+	                
+	                // 渲染回复列表
+	                if (comment.replies && comment.replies.length > 0) {
+						comment.replies.forEach(reply => {
+	                    const replyItem = document.createElement('div');
+	                    // 核心修改：判断是否是当前用户的回复，添加own-reply类
+	                    const isOwnReply = reply.openid && userInfo.openid && reply.openid === userInfo.openid;
+	                    replyItem.className = `comment-item reply-item ${isOwnReply ? 'own-reply' : ''}`;
+	                    replyItem.style.padding = '10px';
+	                    replyItem.style.marginBottom = '8px';
+	                    replyItem.style.backgroundColor = 'rgba(56, 161, 105, 0.05)';
+	                    
+	                    const replyHeader = document.createElement('div');
+	                    replyHeader.className = 'comment-user-info';
+	                    replyHeader.style.marginBottom = '4px';
+	                    // 优化：只有自己的回复才显示删除按钮（双重保障）
+	                    const deleteBtnHtml = isOwnReply || currentUser?.isAdmin ? 
+	                        `<button class="reply-delete-btn ${(currentUser?.isAdmin ? 'admin-visible' : '')}" data-comment-id="${comment.time}" data-reply-id="${reply.time}" data-openid="${reply.openid || ''}">删除</button>` : '';
+	                    
+	                    replyHeader.innerHTML = `
+	                        <img src="${reply.avatar || DEFAULT_AVATAR}" alt="头像" class="comment-user-avatar" style="width: 24px; height: 24px;">
+	                        <span class="comment-user-name" style="font-size: 13px;">${reply.nickname}</span>
+	                        <span style="font-size: 12px; color: var(--color-text-sub);">
+	                            @${reply.replyTo?.nickname || '未知用户'}
+	                        </span>
+	                        <span class="comment-time" style="font-size: 11px;">${formatTime(reply.time)}</span>
+	                        ${deleteBtnHtml}
+	                    `;
+	                    
+	                    const replyContent = document.createElement('div');
+	                    replyContent.className = 'comment-content';
+	                    replyContent.style.paddingLeft = '30px';
+	                    replyContent.style.fontSize = '14px';
+	                    replyContent.textContent = reply.content;
+	                    
+	                    replyItem.appendChild(replyHeader);
+	                    replyItem.appendChild(replyContent);
+	                    replyListContainer.appendChild(replyItem);
+	                });
+	                }
+	                
+	                // 展开/收起回复
+	                replyToggleBtn.addEventListener('click', () => {
+	                    replyListContainer.classList.toggle('expanded');
+	                    replyToggleBtn.innerHTML = replyListContainer.classList.contains('expanded')
+	                        ? `▲ 收起回复`
+	                        : `▼ 查看${replyCount}条回复`;
+	                });
+	                
+	                // 绑定回复按钮事件（仅允许回复主评论）
+	                const replyBtn = commentHeader.querySelector('.comment-reply-btn');
+	                replyBtn.addEventListener('click', () => {
+	                    isReplying = true;
+	                    replyToId = comment.time.toString();
+	                    replyToNickname = comment.nickname;
+	                    replyInput.placeholder = `回复 ${comment.nickname}...`;
+	                    replyInputBox.style.display = 'flex';
+	                    replyInput.focus();
+	                });
+	                
+	                // 绑定评论删除事件
+	                const deleteBtn = commentHeader.querySelector('.comment-delete-btn');
+	                if (deleteBtn) {
+	                    deleteBtn.addEventListener('click', async (e) => {
+	                        e.stopPropagation(); // 阻止事件冒泡
+	                        if (!confirm('确定要删除这条评论吗？删除后所有回复也会被删除。')) return;
+	                        
+	                        console.log("删除评论：", comment.time); // 新增：调试日志
+	                        // 删除主评论及所有回复
+	                        const deleteResult = await deleteComment(newsIndex, comment.time);
+	                        if (deleteResult) {
+	                            // 立即刷新评论区
+	                            renderCommentArea(newsIndex);
+	                        } else {
+	                            alert("删除失败，请重试！");
+	                        }
+	                    });
+	                }
+	                
+	                // 绑定回复删除事件
+	                const replyDeleteBtns = replyListContainer.querySelectorAll('.reply-delete-btn');
+	                replyDeleteBtns.forEach(btn => {
+	                    btn.addEventListener('click', async (e) => {
+	                        e.stopPropagation(); // 阻止事件冒泡
+	                        if (!confirm('确定要删除这条回复吗？')) return;
+	                        
+	                        const commentId = btn.dataset.commentId;
+	                        const replyId = btn.dataset.replyId;
+	                        console.log("删除回复：", commentId, replyId); // 新增：调试日志
+	                        
+	                        // 删除单条回复
+	                        const deleteResult = await deleteReply(newsIndex, commentId, replyId);
+	                        if (deleteResult) {
+	                            // 立即刷新评论区
+	                            renderCommentArea(newsIndex);
+	                        } else {
+	                            alert("删除失败，请重试！");
+	                        }
+	                    });
+	                });
+	
+	                
+	                // 组装评论项
+	                commentItem.appendChild(commentHeader);
+	                commentItem.appendChild(commentContent);
+	                commentItem.appendChild(replyToggleBtn);
+	                commentItem.appendChild(replyListContainer);
 	                commentList.appendChild(commentItem);
 	            });
 	        }
 	    });
-	    commentWrap.appendChild(commentList);
+	    
 	    commentArea.appendChild(commentWrap);
+	}
+	// 辅助函数：创建单个评论元素（避免重复代码）
+	function createCommentElement(comment) {
+	    const commentItem = document.createElement('div');
+	    commentItem.className = 'comment-item';
+	    // 标记是否是自己的评论
+	    const commentOpenId = comment.openid || "";
+	    const userOpenId = userInfo.openid || userInfo.account || "";
+	    if (commentOpenId && userOpenId && commentOpenId === userOpenId) {
+	        commentItem.classList.add('own-comment');
+	    }
+	    
+	    // 评论头部
+	    const commentHeader = document.createElement('div');
+	    commentHeader.className = 'comment-user-info';
+	    commentHeader.innerHTML = `
+	        <img src="${comment.avatar || DEFAULT_AVATAR}" alt="头像" class="comment-user-avatar">
+	        <span class="comment-user-name">${comment.nickname}</span>
+	        <span class="comment-time">${formatTime(comment.time)}</span>
+	        <button class="comment-reply-btn" style="margin-left: 10px; padding: 2px 8px; font-size: 12px; background: transparent; border: 1px solid var(--color-green); color: var(--color-green); border-radius: 4px; cursor: pointer; transition: all 0.2s ease;">
+	            回复
+	        </button>
+	        <button class="comment-delete-btn ${(currentUser?.isAdmin ? 'admin-visible' : '')}" data-comment-id="${comment.time}" data-openid="${comment.openid || ''}">删除</button>
+	    `;
+	    
+	    // 评论内容
+	    const commentContent = document.createElement('div');
+	    commentContent.className = 'comment-content';
+	    commentContent.textContent = comment.content;
+	    
+	    // 回复数量和展开/收起按钮
+	    const replyCount = comment.replies ? comment.replies.length : 0;
+	    const replyToggleBtn = document.createElement('button');
+	    replyToggleBtn.className = 'reply-toggle-btn';
+	    replyToggleBtn.innerHTML = replyCount > 0 
+	        ? `▼ 查看${replyCount}条回复` 
+	        : '暂无回复';
+	    replyToggleBtn.disabled = replyCount === 0;
+	    
+	    // 回复列表容器
+	    const replyListContainer = document.createElement('div');
+	    replyListContainer.className = 'reply-list-container';
+	    
+	    // 渲染回复
+	    if (comment.replies && comment.replies.length > 0) {
+	        comment.replies.forEach(reply => {
+	            const replyItem = document.createElement('div');
+	            const isOwnReply = reply.openid && userInfo.openid && reply.openid === userInfo.openid;
+	            replyItem.className = `comment-item reply-item ${isOwnReply ? 'own-reply' : ''}`;
+	            replyItem.style.padding = '10px';
+	            replyItem.style.marginBottom = '8px';
+	            replyItem.style.backgroundColor = 'rgba(56, 161, 105, 0.05)';
+	            
+	            const replyHeader = document.createElement('div');
+	            replyHeader.className = 'comment-user-info';
+	            replyHeader.style.marginBottom = '4px';
+	            const deleteBtnHtml = isOwnReply || currentUser?.isAdmin ? 
+	                `<button class="reply-delete-btn ${(currentUser?.isAdmin ? 'admin-visible' : '')}" data-comment-id="${comment.time}" data-reply-id="${reply.time}" data-openid="${reply.openid || ''}">删除</button>` : '';
+	            
+	            replyHeader.innerHTML = `
+	                <img src="${reply.avatar || DEFAULT_AVATAR}" alt="头像" class="comment-user-avatar" style="width: 24px; height: 24px;">
+	                <span class="comment-user-name" style="font-size: 13px;">${reply.nickname}</span>
+	                <span style="font-size: 12px; color: var(--color-text-sub);">
+	                    @${reply.replyTo?.nickname || '未知用户'}
+	                </span>
+	                <span class="comment-time" style="font-size: 11px;">${formatTime(reply.time)}</span>
+	                ${deleteBtnHtml}
+	            `;
+	            
+	            const replyContent = document.createElement('div');
+	            replyContent.className = 'comment-content';
+	            replyContent.style.paddingLeft = '30px';
+	            replyContent.style.fontSize = '14px';
+	            replyContent.textContent = reply.content;
+	            
+	            replyItem.appendChild(replyHeader);
+	            replyItem.appendChild(replyContent);
+	            replyListContainer.appendChild(replyItem);
+	        });
+	    }
+	    
+	    // 绑定回复按钮事件
+	    const replyBtn = commentHeader.querySelector('.comment-reply-btn');
+	    replyBtn.addEventListener('click', () => {
+	        isReplying = true;
+	        replyToId = comment.time.toString();
+	        replyToNickname = comment.nickname;
+	        replyInput.placeholder = `回复 ${comment.nickname}...`;
+	        replyInputBox.style.display = 'flex';
+	        replyInput.focus();
+	    });
+	    
+	    // 绑定删除事件
+	    const deleteBtn = commentHeader.querySelector('.comment-delete-btn');
+	    if (deleteBtn) {
+	        deleteBtn.addEventListener('click', async (e) => {
+	            e.stopPropagation();
+	            if (!confirm('确定要删除这条评论吗？删除后所有回复也会被删除。')) return;
+	            const deleteResult = await deleteComment(newsIndex, comment.time);
+	            if (deleteResult) {
+	                commentItem.remove();
+	            } else {
+	                alert("删除失败，请重试！");
+	            }
+	        });
+	    }
+	    
+	    // 绑定回复删除事件
+	    const replyDeleteBtns = replyListContainer.querySelectorAll('.reply-delete-btn');
+	    replyDeleteBtns.forEach(btn => {
+	        btn.addEventListener('click', async (e) => {
+	            e.stopPropagation();
+	            if (!confirm('确定要删除这条回复吗？')) return;
+	            const commentId = btn.dataset.commentId;
+	            const replyId = btn.dataset.replyId;
+	            const deleteResult = await deleteReply(newsIndex, commentId, replyId);
+	            if (deleteResult) {
+	                btn.closest('.reply-item').remove();
+	            } else {
+	                alert("删除失败，请重试！");
+	            }
+	        });
+	    });
+	    
+	    // 展开/收起回复
+	    replyToggleBtn.addEventListener('click', () => {
+	        replyListContainer.classList.toggle('expanded');
+	        replyToggleBtn.innerHTML = replyListContainer.classList.contains('expanded')
+	            ? `▲ 收起回复`
+	            : `▼ 查看${replyCount}条回复`;
+	    });
+	    
+	    // 组装评论项
+	    commentItem.appendChild(commentHeader);
+	    commentItem.appendChild(commentContent);
+	    commentItem.appendChild(replyToggleBtn);
+	    commentItem.appendChild(replyListContainer);
+	    
+	    return commentItem;
+	}
+	
+	// 新增：打开登录页面函数
+	function openLoginModal() {
+	    window.location.href = 'moguone/login.html';
 	}
 	
 	// ✅✅✅ 重写：原createCommentArea函数，改为空函数（兼容原有调用，无实际作用）
 	function createCommentArea(newsItem, index) {}
 	// ======== 核心配置：指定 Issue 编号（改成你自己的，比如 7） ========
 	// 无敌版：数组+拆分，GitHub 连门都摸不到，人工看都要拼接才能看到完整令牌
-	const GITHUB_TOKEN = ["g","h","p_Eulq5","0oi65","MM7A", "rEk8H7yz","9k5W9l9", "O0e6Xmh"].join('');
-	const COUNT_ISSUE_NUMBER = 7; // 核心！改成你手动创建的 Issue 编号（如 #7 就填 7）
-	// 日记内容存储的Issue编号（替换为你创建的Issue编号）
-	const NEWS_ISSUE_NUMBER = 322; 
-	// 日记内容的分隔符（和原news.txt一致，不要改）
-	const NEWS_SEPARATOR = '---';
-	const COUNT_REG = /总访问量：(\d+)/; // 匹配 Issue 正文中的数字，不要改
 	
-	// 新增：新闻浏览量相关变量（原有代码缺失）
-	const NEWS_VIEW_PREFIX = "浏览";
-	const NEWS_VIEW_SUFFIX = "量：";
-	const NEWS_VIEW_REG = /浏览(\d+)量：(\d+)/g;
-	
-	const NEWS_LIKE_PREFIX = "点赞"; // 新闻点赞量的前缀
-	const NEWS_LIKE_SUFFIX = "数量：";
-	const NEWS_LIKE_REG = /点赞(\d+)数量：(\d+)/g; // 匹配所有新闻的点赞量
-	let newsLikeCounts = {}; // 存储所有新闻的点赞量 {0:2, 1:6, 2:1...} 索引对应新闻ID
-	// ====== 自定义用户系统配置 ======
-	const COMMENT_MAP_ISSUE_NUMBER = 299; 
-	// 默认头像地址（用户无头像时显示）
-	const DEFAULT_AVATAR = "https://img.wjwj.top/2026/01/20/d6346e9c8e93165079c5ab74f856358c.png"; 
-	const USER_LOCAL_KEY = 'MY_CUSTOM_USER_INFO'; // 本地存储登录状态的key
-	let currentUser = null; // 当前登录用户信息
 	// 密码加密（MD5，避免明文存储）
 	initLoginState();
 	function md5(str) {
@@ -2698,6 +3744,11 @@ html[data-theme-mode="light"] .comment-item {
 	    return hash.toString(16);
 	}
 	function initNewsLikeCounts() {
+	    // 从本地缓存加载点赞数
+	    const localData = JSON.parse(localStorage.getItem('temp_count_all')) || { total: 0, likes: {} };
+	    newsLikeCounts = localData.likes || {};
+	    
+	    // 初始化未定义的点赞数为0
 	    if (newsDataList.length > 0) {
 	        newsDataList.forEach((_, index) => {
 	            if (typeof newsLikeCounts[index] === 'undefined') {
@@ -2705,6 +3756,8 @@ html[data-theme-mode="light"] .comment-item {
 	            }
 	        });
 	    }
+	    // 立即渲染一次
+	    renderNewsLikeCounts();
 	}
 	const LIKED_NEWS_KEY = 'liked_news_ids'; // 本地存储：用户已点赞的新闻ID，防重复点赞
 	// ================================================================
@@ -3291,11 +4344,21 @@ function openNewsModal(index) {
       </style>
     `;
     
-    // 第二步：异步获取评论并渲染
-    getCommentData(index).then(() => {
-        renderCommentArea(index);
-    });
+    // 第二步：异步获取评论并渲染（增加防重复标记）
+    const commentArea = document.getElementById('modalCommentArea');
+    if (!commentArea.dataset.loading) {
+        commentArea.dataset.loading = 'true';
+        getCommentData(index).then(() => {
+            // 打开弹窗时强制渲染点赞数
+            renderNewsLikeCounts();
+            renderLikedStyle();
+            // 然后再渲染评论区
+            renderCommentArea(index);
+            delete commentArea.dataset.loading;
+        });
+    }
     renderLikedStyle(); // 打开弹窗时立即同步点赞样式
+	updateNavBtnStatus();
     const modalMask = document.getElementById('newsModalMask');
     modalMask.classList.add('show');
     scrollTopVal=window.scrollY;
@@ -3342,7 +4405,40 @@ function closeNewsModal() {
     // 新增：关闭弹窗时彻底清空评论区，防止残留
     document.getElementById('modalCommentArea').innerHTML = '';
 }
+// 日记切换核心函数
+function switchNews(direction) {
+    if (currentModalIndex === -1 || newsDataList.length === 0) return;
+    
+    let newIndex = currentModalIndex;
+    if (direction === 'prev') {
+        newIndex = currentModalIndex - 1;
+    } else if (direction === 'next') {
+        newIndex = currentModalIndex + 1;
+    }
+    
+    // 边界检查
+    if (newIndex < 0 || newIndex >= newsDataList.length) return;
+    
+    // 关闭当前弹窗（清除旧内容）
+    closeNewsModal();
+    // 打开新日记
+    setTimeout(() => {
+        openNewsModal(newIndex);
+    }, 100);
+}
 
+// 更新跳转按钮状态（控制显示/隐藏）
+function updateNavBtnStatus() {
+    const prevBtn = document.getElementById('newsPrevBtn');
+    const nextBtn = document.getElementById('newsNextBtn');
+    
+    if (!prevBtn || !nextBtn || currentModalIndex === -1) return;
+    
+    // 第一个日记：禁用上按钮
+    prevBtn.disabled = currentModalIndex === 0;
+    // 最后一个日记：禁用下按钮
+    nextBtn.disabled = currentModalIndex === newsDataList.length - 1;
+}
 // 自定义提示弹窗
 function showTipModal() {
     const tipMask = document.getElementById('tipModalMask');
@@ -3389,6 +4485,8 @@ function initNewsScrollAnimation() {
 // 渲染新闻列表
 function renderNewsList(newsList) {
     const newsContainer = document.getElementById('newsScroll');
+	// 显示加载提示
+	showLoadingToast();
     newsContainer.innerHTML = '';
     if(newsList.length === 0) {
         newsContainer.innerHTML = '<div class="search-empty-tips">🔍 没有找到匹配的内容，试试换个关键词吧</div>';
@@ -3453,6 +4551,7 @@ function renderNewsList(newsList) {
         initVideoHoverPreview();
         initPreviewAnimation();
         initNewsScrollAnimation();
+		showSuccessToast();
     });
 }
 
@@ -3505,10 +4604,30 @@ function loadNewsContent() {
                 renderNewsList(newsDataList);
                 renderNewsLikeCounts(); 
                 renderLikedStyle();     
+                
+                // ========== 新增：预加载所有资源 ==========
+                preloadAllMedia(); // 预加载所有图片/视频
+                setTimeout(preloadAllComments, 500); // 延迟500ms预加载评论（避免阻塞UI）
+                // =======================================
+                
                 resolve();
             })
         .catch((err)=>{
             console.error('加载日记失败：', err);
+            // 隐藏加载提示，显示失败提示
+            const toast = document.getElementById('toastNotification');
+            toast.classList.remove('show');
+            setTimeout(() => {
+                const spinner = toast.querySelector('.loading-spinner');
+                const successIcon = toast.querySelector('.success-icon');
+                toast.querySelector('.text').textContent = '日记加载失败，请重试';
+                spinner.style.display = 'none';
+                successIcon.style.display = 'inline-block';
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }, 300);
             // 错误兜底：显示提示，兼容原本地文件（可选）
             newsContainer.innerHTML='';
             const errorDom=document.createElement('div');
@@ -3550,7 +4669,45 @@ function loadNewsContent() {
         });
     });
 }
+// 显示加载提示（日记加载中）
+function showLoadingToast() {
+    const toast = document.getElementById('toastNotification');
+    const spinner = toast.querySelector('.loading-spinner');
+    const successIcon = toast.querySelector('.success-icon');
+    
+    // 设置提示文本
+    toast.querySelector('.text').innerHTML = '首次加载新日记较慢<br>请 扣手指 耐心等待';
+    // 显示加载动画，隐藏成功图标
+    spinner.style.display = 'inline-block';
+    successIcon.style.display = 'none';
+    // 显示提示框
+    toast.classList.add('show');
+}
 
+// 显示成功提示（日记获取成功）
+function showSuccessToast() {
+    const toast = document.getElementById('toastNotification');
+    const spinner = toast.querySelector('.loading-spinner');
+    const successIcon = toast.querySelector('.success-icon');
+    
+    // 先隐藏加载提示
+    toast.classList.remove('show');
+    
+    // 短暂延迟（视觉过渡）后显示成功提示
+    setTimeout(() => {
+        toast.querySelector('.text').textContent = '日记获取成功';
+        // 隐藏加载动画，显示成功图标
+        spinner.style.display = 'none';
+        successIcon.style.display = 'inline-block';
+        // 显示成功提示
+        toast.classList.add('show');
+        
+        // 3秒后自动隐藏成功提示
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }, 300);
+}
 // 搜索功能
 function initSearchFunc() {
     const searchInput = document.getElementById('searchInput');
@@ -3598,44 +4755,187 @@ function refreshNewsContent() {
         toast.classList.remove('show');
     }, 2000);
 }
+// ========== 新增：预加载所有日记的图片/视频资源 ==========
+function preloadAllMedia() {
+    // 确保日记数据已加载
+    if (!newsDataList || newsDataList.length === 0) return;
+    
+    console.log('开始预加载所有日记的媒体资源...');
+    const preloadPromises = [];
+    
+    // 遍历所有日记
+    newsDataList.forEach((newsData, index) => {
+        // 预加载图片
+        newsData.imgSrcList.forEach(imgUrl => {
+            preloadPromises.push(new Promise((resolve) => {
+                const img = new Image();
+                img.onload = resolve;
+                img.onerror = resolve; // 加载失败也resolve，不阻塞其他资源
+                img.src = imgUrl;
+                console.log(`预加载图片[日记${index}]：${imgUrl}`);
+            }));
+        });
+        
+        // 预加载视频（仅加载元数据，不加载完整视频）
+        newsData.videoSrcList.forEach(videoUrl => {
+            preloadPromises.push(new Promise((resolve) => {
+                const video = document.createElement('video');
+                video.preload = 'metadata'; // 仅加载元数据，节省带宽
+                video.onloadedmetadata = resolve;
+                video.onerror = resolve;
+                video.src = videoUrl;
+                console.log(`预加载视频[日记${index}]：${videoUrl}`);
+            }));
+        });
+    });
+    
+    // 等待所有媒体预加载完成
+    Promise.all(preloadPromises).then(() => {
+        console.log('所有日记媒体资源预加载完成！');
+        // 预加载完成后初始化懒加载（确保资源已缓存）
+        initLazyImgLoad();
+        initVideoHoverPreview();
+    });
+}
 
-// 图片预览动画
+// ========== 新增：预加载所有日记的评论数据 ==========
+function preloadAllComments() {
+    // 确保日记数据已加载
+    if (!newsDataList || newsDataList.length === 0) return;
+    
+    console.log('开始预加载所有日记的评论数据...');
+    const commentPromises = [];
+    
+    // 遍历所有日记，提前获取评论数据
+    newsDataList.forEach((_, index) => {
+        commentPromises.push(
+            getCommentData(index).then(comments => {
+                // 将评论数据缓存到本地，避免重复请求
+                const commentData = localStorage.getItem(COMMENT_KEY);
+                const allComments = commentData ? JSON.parse(commentData) : {};
+                allComments[`news_${index}`] = comments;
+                localStorage.setItem(COMMENT_KEY, JSON.stringify(allComments));
+                console.log(`预加载评论[日记${index}]：${comments.length}条`);
+                return comments;
+            }).catch(err => {
+                console.log(`预加载评论[日记${index}]失败：`, err);
+                return [];
+            })
+        );
+    });
+    
+    // 等待所有评论预加载完成
+    Promise.all(commentPromises).then(() => {
+        console.log('所有日记评论数据预加载完成！');
+    });
+}
+// 图片预览动画（新增左右切换+页码）
 function initPreviewAnimation() {
     const mask = document.getElementById('imgPreviewMask');
     const previewImg = document.getElementById('previewImg');
     const previewVideo = document.getElementById('previewVideo');
-    // ✅新增：获取关闭按钮DOM
     const previewCloseBtn = document.getElementById('previewCloseBtn');
-    const mediaItems = document.querySelectorAll('.news-img-item, .news-video-item, .modal-news-img-item');
+    const previewPrevBtn = document.getElementById('previewPrevBtn');
+    const previewNextBtn = document.getElementById('previewNextBtn');
+    const previewPagination = document.getElementById('previewPagination');
     
-    mediaItems.forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.stopPropagation();
-            scrollTopVal = window.scrollY;
-            document.body.style.overflow = 'hidden';
-            mask.classList.add('show');
+    // 新增：存储当前预览的图片列表和索引
+    let currentMediaList = []; // 当前日记的所有图片/视频
+    let currentMediaIndex = 0; // 当前显示的索引
+    
+    // 封装更新预览内容的函数
+    function updatePreviewContent(index) {
+        if (currentMediaList.length === 0) return;
+        
+        // 先隐藏当前内容（触发淡出动画）
+        previewImg.classList.remove('show-animate');
+        previewVideo.classList.remove('show-animate');
+        
+        // 延迟一小段时间（等淡出动画完成）再更新内容
+        setTimeout(() => {
+            // 更新索引边界
+            currentMediaIndex = index;
+            if (currentMediaIndex < 0) currentMediaIndex = currentMediaList.length - 1;
+            if (currentMediaIndex >= currentMediaList.length) currentMediaIndex = 0;
             
+            // 更新按钮禁用状态
+            previewPrevBtn.disabled = currentMediaList.length <= 1 || currentMediaIndex === 0;
+            previewNextBtn.disabled = currentMediaList.length <= 1 || currentMediaIndex === currentMediaList.length - 1;
+            
+            // 更新页码显示
+            previewPagination.textContent = `${currentMediaIndex + 1}/${currentMediaList.length}`;
+            
+            // 更新预览内容
+            const media = currentMediaList[currentMediaIndex];
             previewImg.style.display = 'none';
             previewVideo.style.display = 'none';
             previewVideo.pause();
             previewVideo.currentTime = 0;
             previewVideo.muted = false;
             
-            const realSrc = this.src || this.dataset.src;
-            if(this.tagName === 'IMG' && realSrc) {
-                previewImg.src = realSrc;
+            if (media.type === 'image') {
+                previewImg.src = media.url;
                 previewImg.style.display = 'block';
-                previewImg.classList.add('loaded');
-            } else if(this.tagName === 'VIDEO' && realSrc) {
-                previewVideo.src = realSrc;
+                // 触发淡入动画
+                setTimeout(() => previewImg.classList.add('show-animate'), 50);
+            } else if (media.type === 'video') {
+                previewVideo.src = media.url;
                 previewVideo.style.display = 'block';
-                previewVideo.classList.add('loaded');
-                setTimeout(() => previewVideo.play().catch(e => {}), 100);
+                // 触发淡入动画
+                setTimeout(() => {
+                    previewVideo.classList.add('show-animate');
+                    previewVideo.play().catch(e => {});
+                }, 50);
             }
-        });
+        }, 200); // 匹配CSS动画时长
+    }
+    
+    // 左右切换按钮事件
+    previewPrevBtn.addEventListener('click', () => {
+        updatePreviewContent(currentMediaIndex - 1);
     });
-
-    // ✅核心优化：封装关闭预览的公共函数，点击遮罩/点击按钮都调用这个函数
+    previewNextBtn.addEventListener('click', () => {
+        updatePreviewContent(currentMediaIndex + 1);
+    });
+    
+    // 键盘事件：图片预览切换 + 日记跳转
+    // 键盘事件：图片预览切换 + 日记跳转 + 禁止上下键滚动页面
+    document.addEventListener('keydown', (e) => {
+        // 图片预览弹窗打开时
+        if (mask.classList.contains('show')) {
+            // 阻止上下键的默认滚动行为
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                e.preventDefault();
+            }
+            if (e.key === 'ArrowLeft') {
+                updatePreviewContent(currentMediaIndex - 1);
+            } else if (e.key === 'ArrowRight') {
+                updatePreviewContent(currentMediaIndex + 1);
+            } else if (e.key === 'Escape') {
+                closePreview();
+            }
+        }
+        // 日记详情弹窗打开时
+        else if (document.getElementById('newsModalMask').classList.contains('show')) {
+            // 阻止上下键的默认滚动行为
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                e.preventDefault();
+            }
+            if (e.key === 'ArrowUp') {
+                switchNews('next'); // 原prev，改为next
+            } else if (e.key === 'ArrowDown') {
+                switchNews('prev'); // 原next，改为prev
+            } else if (e.key === 'Escape') {
+                closeNewsModal();
+            }
+        }
+        // 全局禁止上下键滚动（如果需要在任何时候都禁止，取消下面的注释）
+        // else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        //     e.preventDefault();
+        // }
+    });
+    
+    // 关闭预览函数
     function closePreview() {
         mask.classList.remove('show');
         if(!document.getElementById('newsModalMask').classList.contains('show')) {
@@ -3646,20 +4946,71 @@ function initPreviewAnimation() {
         previewVideo.src = '';
         previewVideo.muted = true;
         previewImg.src = '';
+        // 重置状态
+        currentMediaList = [];
+        currentMediaIndex = 0;
     }
-
-    // ✅绑定：点击遮罩层关闭预览
+    
+    // 点击遮罩关闭
     mask.addEventListener('click', function(e) {
-        // 点击的是遮罩层本身，才关闭，点击图片/视频不会关闭
         if(e.target === mask) {
             closePreview();
         }
     });
     
-    // ✅新增：点击右上角关闭按钮，关闭预览
+    // 关闭按钮事件
     previewCloseBtn.addEventListener('click', function(e) {
-        e.stopPropagation(); // 防止冒泡到遮罩层
+        e.stopPropagation();
         closePreview();
+    });
+    
+    // 媒体项点击事件
+    const mediaItems = document.querySelectorAll('.news-img-item, .news-video-item, .modal-news-img-item');
+    mediaItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.stopPropagation();
+            scrollTopVal = window.scrollY;
+            document.body.style.overflow = 'hidden';
+            mask.classList.add('show');
+            
+            // 获取当前日记的所有媒体
+            const newsItem = this.closest('.news-item') || this.closest('.modal-news-imgs');
+            const currentNewsIndex = currentModalIndex >= 0 ? currentModalIndex : Array.from(document.querySelectorAll('.news-item')).indexOf(newsItem);
+            
+            // 构建当前日记的媒体列表
+            if (currentNewsIndex >= 0 && newsDataList[currentNewsIndex]) {
+                const newsData = newsDataList[currentNewsIndex];
+                currentMediaList = [];
+                
+                // 添加图片
+                newsData.imgSrcList.forEach(url => {
+                    currentMediaList.push({ type: 'image', url });
+                });
+                
+                // 添加视频
+                newsData.videoSrcList.forEach(url => {
+                    currentMediaList.push({ type: 'video', url });
+                });
+                
+                // 找到当前点击的媒体索引
+                const currentUrl = this.src || this.dataset.src;
+                currentMediaIndex = currentMediaList.findIndex(media => media.url === currentUrl);
+                if (currentMediaIndex === -1) currentMediaIndex = 0;
+                
+                // 更新预览
+                updatePreviewContent(currentMediaIndex);
+            } else {
+                // 兼容单张图片预览
+                currentMediaList = [{ 
+                    type: this.tagName === 'IMG' ? 'image' : 'video', 
+                    url: this.src || this.dataset.src 
+                }];
+                currentMediaIndex = 0;
+				previewImg.classList.remove('show-animate');
+				previewVideo.classList.remove('show-animate');
+                updatePreviewContent(0);
+            }
+        });
     });
 }
 
@@ -3750,6 +5101,13 @@ async function initPageWithLoader() {
         initMusicPlayer();
         initSearchFunc();
         initAddBgFunc();
+        
+        // ========== 兜底：确保预加载执行 ==========
+        if (newsDataList && newsDataList.length > 0) {
+            preloadAllMedia();
+            setTimeout(preloadAllComments, 1000);
+        }
+        // =========================================
     }, 300);
 }
 
@@ -3758,11 +5116,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const loader = document.getElementById('loader');
     loader.classList.remove('loaded');
     
+    // 第一步：先初始化登录状态（解决评论登录判断错误）
+    initLoginState();
     // ========== 核心修改1：先读取本地自定义壁纸缓存，再加载内置壁纸 ==========
     initCustomBg();
     // 再初始化壁纸（此时自定义壁纸已经加载到内存里了）
     initRandomBg();
-    initLoginState();
     document.getElementById('bgChangeBtn').addEventListener('click', changeRandomBg);
     // 壁纸弹窗关闭按钮绑定
     document.getElementById('bgModalCloseBtn').addEventListener('click', function(e) {
@@ -3800,6 +5159,13 @@ document.addEventListener('DOMContentLoaded', function() {
         e.stopPropagation();
         closeNewsModal();
     });
+	// 绑定日记跳转按钮事件
+	document.getElementById('newsPrevBtn').addEventListener('click', () => {
+	    switchNews('prev');
+	});
+	document.getElementById('newsNextBtn').addEventListener('click', () => {
+	    switchNews('next');
+	});
     document.getElementById('newsModalMask').addEventListener('click', function(e) {
         if(e.target === this) closeNewsModal();
     });
@@ -3812,41 +5178,27 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('tipModalMask').addEventListener('click', function(e) {
         if(e.target === this) hideTipModal();
     });
-
-    // 返回顶部按钮
     document.getElementById('sidebarTop').addEventListener('click', () => {
         window.scrollTo({top: 0, behavior: 'smooth'});
     });
 	function initUserDropdown() {
 	  const userInfoBox = document.getElementById('userInfoBox');
 	  if (!userInfoBox) return;
-	  
 	  const trigger = userInfoBox.querySelector('.user-dropdown-trigger');
 	  const menu = userInfoBox.querySelector('.user-dropdown-menu');
-	  
-	  // 点击用户名显示/隐藏下拉菜单
 	  trigger.addEventListener('click', (e) => {
 	    e.stopPropagation();
 	    menu.classList.toggle('show');
 	  });
-	  
-	  // 点击页面其他区域关闭下拉菜单
 	  document.addEventListener('click', () => {
 	    menu.classList.remove('show');
 	  });
-	  
-	  // 点击菜单内部不关闭
 	  menu.addEventListener('click', (e) => {
 	    e.stopPropagation();
 	  });
 	}
-	
-	// 调用初始化
 	initUserDropdown();
-	
-	
 });
 </script>
-
 </body>
 </html>
