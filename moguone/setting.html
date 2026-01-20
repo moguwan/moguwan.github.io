@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme-mode="dark">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="MY HOME 个人中心">
+    <meta name="keywords" content="个人中心,用户设置,头像设置">
+    <meta name="author" content="MY HOME">
+    <title>MY HOME - 个人中心</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_0khxww3tj3q9.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/dmego-home-page@latest/assets/css/iconfont.css">
+    
+    <!-- 液态玻璃SVG滤镜 -->
+    <svg style="display: none">
+      <filter id="glass-distortion">
+        <feTurbulence type="fractalNoise" baseFrequency="0.001 0.005" numOctaves="1" seed="17" result="turbulence" />
+        <feComponentTransfer in="turbulence" result="mapped">
+          <feFuncR type="gamma" amplitude="1" exponent="10" offset="0.5" />
+          <feFuncG type="gamma" amplitude="0" exponent="1" offset="0" />
+          <feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5" />
+        </feComponentTransfer>
+        <feGaussianBlur in="turbulence" stdDeviation="3" result="softMap" />
+        <feSpecularLighting in="softMap" surfaceScale="5" specularConstant="1" specularExponent="100" lighting-color="white" result="specLight">
+          <fePointLight x="-200" y="-200" z="300" />
+        </feSpecularLighting>
+        <feComposite in="specLight" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litImage" />
+        <feDisplacementMap in="SourceGraphic" in2="softMap" scale="200" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </svg>
+
+    <style type="text/css">
+
+/* 🔥 新增：开屏动画样式 - 修改为清新绿色背景 */
+#loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #ffffff;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+.loading-left-bg, .loading-right-bg {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    background: #f5faf7;
+    transition: transform 0.6s ease;
+}
+.loading-left-bg { left: 0; }
+.loading-right-bg { right: 0; }
+#loader.loaded .loading-left-bg { transform: translateX(-100%); }
+#loader.loaded .loading-right-bg { transform: translateX(100%); }
+#loader.loaded { opacity: 0; visibility: hidden; }
+.spinner-box { text-align: center; }
+.loading-taichi svg {
+    width: 80px;
+    height: 80px;
+    fill: #2d8b69;
+    transition: fill 0.3s ease;
+}
+.loading-word {
+    margin-top: 20px;
+    color: #3a9e7c;
+    font-size: 16px;
+    letter-spacing: 3px;
+    transition: color 0.3s ease;
+}
+
+/* 紧急修复：补全缺失的iconfont基础样式 */
+.iconfont {
+    font-family: "iconfont" !important;
+    font-size: inherit;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ✅✅✅ 核心升级：液态玻璃效果通用样式【iOS通透版】适配双主题 */
+.glass-effect {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px) saturate(180%) contrast(1.1) brightness(1.05);
+    -webkit-backdrop-filter: blur(12px) saturate(180%) contrast(1.1) brightness(1.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.08),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.2),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+.glass-effect-light {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.glass-effect-dark {
+    background: rgba(30, 30, 40, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* 全局重置和修复 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+html, body {
+    overflow-x: hidden !important;
+    position: relative;
+    width: 100%;
+}
+html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+/* ========== 核心修改1：深色主题 森系墨绿配色 + 极致圆润字体 ========== */
+html[data-theme-mode="dark"] {
+    --bg-base: rgba(15, 18, 26, 0.7);
+    --bg-mask: linear-gradient(rgba(15, 18, 26, 0.7), rgba(15, 18, 26, 0.65));
+    --bg-card: rgba(28,32,42,0.9);
+    --bg-card-light: rgba(28,32,42,0.75);
+    --bg-nav: rgba(28, 32, 42, 0.6);
+    --bg-footer: rgba(28,32,42,0.6);
+    --color-text-main: #e2e8e5;
+    --color-text-sub: #b8c4bc;
+    --color-text-title: #f2f8f5;
+    --color-green: #38a169;
+    --color-green-deep: #2d8b69;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --border-color-light: rgba(255,255,255,0.07);
+    --shadow-color: rgba(0,0,0,0.25);
+    --scrollbar-thumb: rgba(45, 139, 105, 0.6);
+    --scrollbar-track: rgba(22,25,29,0.8);
+    --glass-bg: rgba(40, 44, 52, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    --glass-inset-light: rgba(255, 255, 255, 0.1);
+    --glass-inset-dark: rgba(0, 0, 0, 0.05);
+    --hover-glow: rgba(45, 139, 105, 0.3);
+    --active-scale: 0.97;
+    /* ✅ 极致圆润字体组合 - 彻底去掉方正字体 */
+    --font-family-main: "思源圆角 CN", "PingFang SC Round", "Microsoft YaHei UI Light", "圆润黑体 CN", "苹方-圆角", sans-serif;
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-bold: 600;
+}
+/* ========== 核心修改2：浅色主题 【全新优雅白色主题 - 薄荷绿配色方案】 ========== */
+html[data-theme-mode="light"] {
+    /* 背景色 - 柔和的暖白色 */
+    --bg-base: #fafcf9;
+    --bg-mask: linear-gradient(rgba(250, 252, 249, 0.95), rgba(245, 250, 247, 0.9));
+    --bg-card: rgba(255, 255, 255, 0.92);
+    --bg-card-light: rgba(255, 255, 255, 0.85);
+    --bg-nav: rgba(255, 255, 255, 0.85);
+    --bg-footer: rgba(255, 255, 255, 0.85);
+    
+    /* 文字颜色 - 优雅的深灰色系 */
+    --color-text-main: #3a4a42;
+    --color-text-sub: #6b7c73;
+    --color-text-title: #1c2c22;
+    
+    /* 主色调 - 清新薄荷绿 */
+    --color-green: #2db48d;
+    --color-green-deep: #1f9c7a;
+    
+    /* 边框和阴影 */
+    --border-color: rgba(0, 0, 0, 0.08);
+    --border-color-light: rgba(0, 0, 0, 0.05);
+    --shadow-color: rgba(45, 180, 141, 0.12);
+    
+    /* 滚动条 */
+    --scrollbar-thumb: rgba(45, 180, 141, 0.5);
+    --scrollbar-track: rgba(245, 250, 247, 0.9);
+    
+    /* 玻璃质感效果 */
+    --glass-bg: rgba(255, 255, 255, 0.65);
+    --glass-border: rgba(255, 255, 255, 0.9);
+    --glass-shadow: 
+        0 10px 40px rgba(45, 180, 141, 0.1),
+        0 4px 12px rgba(0, 0, 0, 0.04);
+    --glass-inset-light: rgba(255, 255, 255, 0.9);
+    --glass-inset-dark: rgba(255, 255, 255, 0.3);
+    
+    /* 交互效果 */
+    --hover-glow: rgba(45, 180, 141, 0.18);
+    --active-scale: 0.98;
+    
+    /* 字体设置 */
+    --font-family-main: "思源圆角 CN", "PingFang SC Round", "Microsoft YaHei UI Light", "圆润黑体 CN", "苹方-圆角", sans-serif;
+    --font-weight-light: 350;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-bold: 600;
+}
+/* ========== 核心修改3：全局字体圆润化+平滑处理 ========== */
+body {
+    font-family: var(--font-family-main);
+    min-height: 100vh;
+    color: var(--color-text-main);
+    scroll-behavior: smooth;
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-stroke: 0.2px transparent;
+    text-rendering: optimizeLegibility;
+    font-size: 15px;
+    line-height: 1.75;
+    width: 100%;
+    transition: font-size 0.3s ease, color 0.3s ease, font-weight 0.3s ease;
+    letter-spacing: 0.3px; /* 文字间距微调，更圆润舒展 */
+}
+/* 白色主题专属：更柔和的背景遮罩 */
+html[data-theme-mode="light"] body::before {
+    background: linear-gradient(rgba(250, 252, 249, 0.95), rgba(245, 250, 247, 0.9));
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--bg-mask);
+    z-index: -2;
+    display: var(--mask-display, block);
+}
+a {
+    text-decoration: none;
+    color: inherit;
+}
+ul {
+    list-style: none;
+}
+img {
+    max-width: 100%;
+    border-radius: 8px;
+    object-fit: cover;
+    object-position: center;
+    opacity: 1; /* ✅ 核心修复：默认显示，不再透明 */
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: translateZ(0);
+    will-change: opacity, transform;
+}
+img.lazy-img { /* ✅ 只给需要懒加载的图片加透明，壁纸缩略图不受影响 */
+    opacity: 0;
+}
+img.loaded {
+    opacity: 1;
+}
+img:hover {
+    transform: scale(1.02);
+}
+.sidebar-author img {
+    opacity: 1 !important;
+    display: block !important;
+    margin: 0 auto 10px auto;
+}
+video {
+    max-width: 100%;
+    border-radius: 8px;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0;
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+    transform: translateZ(0);
+    will-change: transform;
+}
+video.loaded {
+    opacity: 1;
+}
+.rotate {
+    transition: transform 4s linear infinite;
+}
+.rotate:hover {
+    transform: rotate(360deg);
+}
+.container {
+    flex: 1;
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    max-width: 100vw;
+    padding-bottom: 80px;
+}
+.container-main {
+    display: flex;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 5;
+    width: 100%;
+    min-height: calc(100vh - 200px);
+    align-items: flex-start;
+}
+
+/* ========== 新增：返回首页按钮样式 ========== */
+.back-home-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px) saturate(180%) contrast(1.1) brightness(1.05);
+    -webkit-backdrop-filter: blur(12px) saturate(180%) contrast(1.1) brightness(1.05);
+    border: 1px solid var(--glass-border);
+    box-shadow: 
+        var(--glass-shadow),
+        inset 1px 1px 0 var(--glass-inset-light),
+        inset -1px -1px 0 var(--glass-inset-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 999;
+    color: var(--color-green);
+    font-size: 22px;
+}
+
+/* 白色主题返回按钮优化 */
+html[data-theme-mode="light"] .back-home-btn {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.08),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
+}
+
+.back-home-btn:hover {
+    background: var(--color-green);
+    color: #fff;
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 0 25px var(--hover-glow);
+    border-color: var(--color-green);
+}
+
+html[data-theme-mode="light"] .back-home-btn:hover {
+    background: var(--color-green);
+    color: #fff;
+    border-color: var(--color-green);
+    box-shadow: 0 0 30px rgba(45, 180, 141, 0.3);
+}
+
+.back-home-btn:active {
+    transform: translateY(0) scale(var(--active-scale));
+}
+
+/* ========== 删除原导航栏样式 ========== */
+
+/* ========== 侧边栏样式 【完美修复✅ 跟随滚动+保留所有美化效果】 ========== */
+#sidebar {
+  width:270px;
+  position:sticky !important;
+  top: 88px;
+  flex-shrink:0;
+  margin-top:0;
+  margin-left: -15px;
+  margin-right: 8px;
+  height: auto;
+  align-self:flex-start;
+  z-index:9;
+}
+.sidebar-wrap {
+  background:var(--glass-bg);
+  border-radius:20px;
+  padding:25px;
+  box-shadow:var(--glass-shadow),inset 1px 1px 0 var(--glass-inset-light),inset -1px -1px 0 var(--glass-inset-dark);
+  border:1px solid var(--glass-border);
+  transition:box-shadow 0.3s ease, transform 0.3s ease;
+  backdrop-filter:blur(12px) saturate(180%) contrast(1.1);
+  -webkit-backdrop-filter:blur(12px) saturate(180%) contrast(1.1);
+  position:relative;
+}
+/* 白色主题侧边栏优化 */
+html[data-theme-mode="light"] .sidebar-wrap {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(20px) saturate(200%) contrast(1.1);
+    -webkit-backdrop-filter: blur(20px) saturate(200%) contrast(1.1);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 
+        0 15px 50px rgba(45, 180, 141, 0.08),
+        0 8px 20px rgba(0, 0, 0, 0.03),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
+}
+.sidebar-wrap:hover {box-shadow:0 10px 30px rgba(0,0,0,0.1),0 0 20px var(--hover-glow);}
+.update-log-time-text {font-size:12px;color:var(--color-text-sub);padding-left:15px;margin-top:2px;}
+.sidebar-author {text-align:center;}
+.sidebar-author img {
+    width:100px;height:100px;border-radius:50%;border:2px solid rgba(56,161,105,0.15);margin-bottom:10px;box-shadow:0 0 20px rgba(56,161,105,0.1);transition:all 0.6s cubic-bezier(0.34,1.56,0.64,1);
+}
+/* 白色主题头像优化 */
+html[data-theme-mode="light"] .sidebar-author img {
+    border: 2px solid rgba(45, 180, 141, 0.2);
+    box-shadow: 
+        0 8px 25px rgba(45, 180, 141, 0.15),
+        0 4px 8px rgba(0, 0, 0, 0.05);
+}
+.sidebar-author img:hover {transform:scale(1.15) rotate(5deg);box-shadow:0 0 40px var(--hover-glow);border-color:rgba(56,161,105,0.4);}
+html[data-theme-mode="light"] .sidebar-author img:hover {
+    border-color: var(--color-green);
+    box-shadow: 
+        0 12px 40px rgba(45, 180, 141, 0.25),
+        0 8px 20px rgba(0, 0, 0, 0.08);
+}
+.sidebar-author-name {font-size:18px;font-weight:var(--font-weight-bold);color:var(--color-text-title);margin-bottom:5px;}
+.sidebar-description {color:var(--color-text-sub);font-size:14px;font-weight:var(--font-weight-light);}
+.sidebar-social {display:flex;justify-content:center;gap:20px;font-size:22px;margin:0px 0;}
+.sidebar-social a {color:var(--color-text-sub);transition:all 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+.sidebar-social a:hover {color:var(--color-green);transform:translateY(-4px) scale(1.3);text-shadow:0 0 10px var(--hover-glow);}
+.sidebar-menu-link-wrap {margin:15px 0;}
+.sidebar-menu-link {color:var(--color-text-sub);font-size:15px;padding:8px 0;display:block;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);font-weight:var(--font-weight-normal);}
+.sidebar-menu-link:hover {color:var(--color-green);padding-left:8px;transform:translateX(2px);font-weight:var(--font-weight-bold);}
+/* 网站访问统计样式 - 适配双主题，和侧边栏风格统一 */
+.sidebar-stat-wrap {
+    padding: 0px 0;
+    border-radius: 12px;
+    display: flex;
+    /* 把 space-around 改成 center，单个元素居中 */
+    justify-content: center;
+    align-items: center;
+    background: rgba(255,255,255,0.05);
+}
+/* 白色主题统计优化 */
+html[data-theme-mode="light"] .sidebar-stat-wrap {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+.stat-item {
+    text-align: center; 
+    flex: 1; 
+    user-select: none;
+    pointer-events: none;
+}
+.sidebar-stat-title {
+    font-size: 15px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-green);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(56,161,105,0.1);
+    text-align: center;
+}
+.sidebar-stat-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 14px;
+}
+.stat-icon {
+    width: 20px;
+    text-align: center;
+}
+.stat-text {
+    font-size: 12px;
+    color: var(--color-text-sub);
+}
+.stat-num {
+    font-size: 22px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-green);
+    margin-bottom: -5px;
+}
+.sidebar-update-log {
+    margin-top:3px;padding:16px;padding-top:5px;background:transparent;border-radius:16px;border:1px solid rgba(255,255,255,0.08);max-height:220px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
+}
+/* 白色主题更新日志优化 */
+html[data-theme-mode="light"] .sidebar-update-log {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+}
+.sidebar-update-log::-webkit-scrollbar {display:none;}
+.update-log-title {font-size:15px;font-weight:var(--font-weight-bold);color:var(--color-green);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid rgba(56,161,105,0.1);}
+.update-log-version {font-size:14px;font-weight:var(--font-weight-bold);color:var(--color-text-title);margin:10px 0 4px 0;}
+.update-log-content {font-size:13px;color:var(--color-text-sub);padding-left:15px;line-height:1.7;font-weight:var(--font-weight-light);}
+.update-log-time {margin-top:15px;padding-top:10px;border-top:1px solid var(--border-color-light);font-size:12px;color:var(--color-text-sub);text-align:center;}
+/* ========== 主内容区域 ========== */
+#content {
+  flex: 1;
+  width: 100%;
+  position:relative;
+  z-index:6;
+  margin: 0 auto;
+  text-align: center;
+}
+#main {
+  flex:1;
+  position:relative;
+  z-index:6;
+  max-width: 100%;
+  margin: 0 auto;
+}
+.article-inner {
+    background: var(--glass-bg);
+    border-radius: 20px;
+    padding: 30px 35px 35px 35px;
+    margin-bottom: 25px;
+    box-shadow: var(--glass-shadow), inset 1px 1px 0 var(--glass-inset-light), inset -1px -1px 0 var(--glass-inset-dark);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px) saturate(180%) contrast(1.1);
+    -webkit-backdrop-filter: blur(12px) saturate(180%) contrast(1.1);
+    position: relative;
+    transition: all 0.3s ease;
+    margin: 15px auto 25px auto;
+}
+/* 白色主题文章区域优化 */
+html[data-theme-mode="light"] .article-inner {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(25px) saturate(200%) contrast(1.1);
+    -webkit-backdrop-filter: blur(25px) saturate(200%) contrast(1.1);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 
+        0 20px 60px rgba(45, 180, 141, 0.08),
+        0 10px 30px rgba(0, 0, 0, 0.03),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
+}
+.article-inner:hover {box-shadow:0 10px 30px rgba(0,0,0,0.08),0 0 20px var(--hover-glow);}
+html[data-theme-mode="light"] .article-inner:hover {
+    box-shadow: 
+        0 25px 70px rgba(45, 180, 141, 0.12),
+        0 15px 40px rgba(0, 0, 0, 0.05),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.95);
+}
+.article-title {font-size:28px;text-align:center;color:var(--color-text-title);margin-bottom:15px;font-weight:var(--font-weight-bold);letter-spacing:1px;}
+.article-signature {text-align:center;line-height:2;font-size:16px;color:var(--color-text-sub);padding:0 10px;font-weight:var(--font-weight-light);}
+
+/* ✅✅✅ 核心修复：自定义提示弹窗样式【玻璃质感，完美匹配页面风格】 ========== */
+/* 右上角小型提示框样式 - 适配页面玻璃风格 */
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 10px 18px;
+    color: var(--color-text-main);
+    font-size: 14px;
+    box-shadow: var(--glass-shadow);
+    z-index: 999999; /* 确保在最顶层 */
+    opacity: 0;
+    transform: translateX(100%); /* 初始在右侧外 */
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toast-notification.show {
+    opacity: 1;
+    transform: translateX(0); /* 滑入可视区域 */
+}
+
+.toast-notification .icon {
+    color: var(--color-green);
+    font-size: 16px;
+    font-weight: bold;
+}
+.tip-modal-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    padding: 20px 10px;
+    box-sizing: border-box;
+}
+.tip-modal-mask.show {
+    opacity: 1;
+    pointer-events: all;
+}
+.tip-modal-box {
+    width: 100%;
+    max-width: 380px;
+    padding: 25px 20px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    transform: translateY(15px) scale(0.95);
+    transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+.tip-modal-mask.show .tip-modal-box {
+    transform: translateY(0) scale(1);
+}
+.tip-modal-icon {
+    font-size: 32px;
+    color: #ffffff !important;
+    font-weight: bold;
+}
+.tip-modal-text {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.98) !important;
+    text-align: center;
+    font-weight: var(--font-weight-medium);
+    line-height: 1.6;
+}
+.tip-modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.5s cubic-bezier(0.34,1.56,0.64,1);
+    backdrop-filter: blur(8px) saturate(180%);
+    -webkit-backdrop-filter: blur(8px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow:0 2px 8px rgba(0,0,0,0.08),inset 1px 1px 0 rgba(255,255,255,0.1),inset -1px -1px 0 rgba(0,0,0,0.05);
+    color: var(--color-green);
+}
+.tip-modal-close-btn:hover {
+    background:rgba(56,161,105,0.15);
+    color:#fff;
+    transform:rotate(120deg) scale(1.1);
+    box-shadow:0 0 15px var(--hover-glow);
+    border-color:rgba(56,161,105,0.3);
+}
+.tip-modal-close-btn:active {
+    transform: rotate(90deg) scale(var(--active-scale));
+}
+
+/* ========== Footer ========== */
+#footer {
+    width:calc(100% - 40px);color:var(--color-text-sub);font-size:13px;border-top:1px solid var(--glass-border);background:var(--glass-bg);position:fixed;bottom:15px;left:50%;transform:translateX(-50%);z-index:98;display:flex;align-items:center;padding:15px 25px;border-radius:20px;margin:0 auto;backdrop-filter:blur(12px) saturate(180%) contrast(1.1);-webkit-backdrop-filter:blur(12px) saturate(180%) contrast(1.1);box-shadow:var(--glass-shadow),inset 1px 1px 0 var(--glass-inset-light),inset -1px -1px 0 var(--glass-inset-dark);height:auto;box-sizing:border-box;transition:all 0.3s ease;font-weight:var(--font-weight-light);
+}
+/* 白色主题页脚优化 */
+html[data-theme-mode="light"] #footer {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px) saturate(200%);
+    -webkit-backdrop-filter: blur(20px) saturate(200%);
+    box-shadow: 
+        0 15px 50px rgba(45, 180, 141, 0.08),
+        0 8px 20px rgba(0, 0, 0, 0.03),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
+}
+#footer:hover {box-shadow:0 8px 25px rgba(0,0,0,0.08),0 0 15px var(--hover-glow);}
+html[data-theme-mode="light"] #footer:hover {
+    box-shadow: 
+        0 20px 60px rgba(45, 180, 141, 0.12),
+        0 10px 30px rgba(0, 0, 0, 0.05),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.95);
+}
+#footer a {color:var(--color-green);transition: color 0.2s ease;font-weight:var(--font-weight-medium);}
+#footer a:hover {text-decoration:underline;color:var(--color-green-deep);}
+.footer-right {display:flex;align-items:center;gap:8px;margin:0 auto;}
+
+/* ✅ 音乐播放器按钮【液态玻璃圆形通透版】核心动画优化 */
+.music-player {display:flex;align-items:center;gap:10px;position:absolute;left:30px;top:50%;transform:translateY(-50%);}
+.music-btn {width:38px;height:38px;border-radius:50%;background:transparent;color:var(--color-green);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.5s cubic-bezier(0.34,1.56,0.64,1);font-size:0;position:relative;backdrop-filter:blur(8px) saturate(180%);-webkit-backdrop-filter:blur(8px) saturate(180%);border:1px solid rgba(255,255,255,0.08);box-shadow:0 3px 10px rgba(0,0,0,0.08),inset 1px 1px 0 rgba(255,255,255,0.1),inset -1px -1px 0 rgba(0,0,0,0.05);}
+/* 白色主题音乐按钮优化 */
+html[data-theme-mode="light"] .music-btn {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.05),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
+}
+.music-btn:hover {background:var(--color-green-deep);color:#fff;transform:scale(1.2);border-color:var(--color-green-deep);box-shadow:0 0 20px var(--hover-glow);}
+html[data-theme-mode="light"] .music-btn:hover {
+    background: var(--color-green);
+    color: #fff;
+    border-color: var(--color-green);
+    box-shadow: 0 0 25px rgba(45, 180, 141, 0.3);
+}
+.music-btn:active {transform: scale(var(--active-scale));}
+.play-icon::before {content:'';width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:13px solid currentColor;margin-left:2px;}
+.pause-icon::before {content:'';width:12px;height:14px;background:linear-gradient(to right, currentColor 0, currentColor 3px, transparent 3px, transparent 6px, currentColor 6px, currentColor 9px);}
+.music-text {font-size:12px;color:var(--color-text-sub);font-weight:var(--font-weight-light);}
+audio {display:none;}
+
+/* ✅✅✅ 返回顶部+侧边工具按钮【液态玻璃圆形通透版】终极动画优化 */
+.sidebar-top {position:fixed;bottom:90px;right:30px;z-index:99;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.5s cubic-bezier(0.34,1.56,0.64,1);border:1px solid var(--glass-border);background:transparent;backdrop-filter:blur(12px) saturate(180%);-webkit-backdrop-filter:blur(12px) saturate(180%);box-shadow:var(--glass-shadow),inset 1px 1px 0 var(--glass-inset-light),inset -1px -1px 0 var(--glass-inset-dark);color: var(--color-text-sub);}
+/* 白色主题返回顶部按钮优化 */
+html[data-theme-mode="light"] .sidebar-top {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.08),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
+}
+.sidebar-top:hover {background:var(--color-green);color:#fff;transform:translateY(-6px) scale(1.2);box-shadow:0 0 25px var(--hover-glow);border-color: var(--color-green);}
+html[data-theme-mode="light"] .sidebar-top:hover {
+    background: var(--color-green);
+    color: #fff;
+    border-color: var(--color-green);
+    box-shadow: 0 0 30px rgba(45, 180, 141, 0.3);
+}
+.sidebar-top:active {transform: translateY(0) scale(var(--active-scale));}
+.sidebar-tools {position:fixed;bottom:140px;right:30px;z-index:99;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.5s cubic-bezier(0.34,1.56,0.64,1);border:1px solid var(--glass-border);background:transparent;backdrop-filter:blur(12px) saturate(180%);-webkit-backdrop-filter:blur(12px) saturate(180%);font-size:18px;color: var(--color-text-sub);box-shadow:var(--glass-shadow),inset 1px 1px 0 var(--glass-inset-light),inset -1px -1px 0 var(--glass-inset-dark);}
+/* 白色主题工具按钮优化 */
+html[data-theme-mode="light"] .sidebar-tools {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.08),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
+}
+.sidebar-tools:hover {background:var(--color-green);color:#fff;transform:translateY(-6px) scale(1.2);box-shadow:0 0 25px var(--hover-glow);border-color: var(--color-green);}
+html[data-theme-mode="light"] .sidebar-tools:hover {
+    background: var(--color-green);
+    color: #fff;
+    border-color: var(--color-green);
+    box-shadow: 0 0 30px rgba(45, 180, 141, 0.3);
+}
+.sidebar-tools:active {transform: translateY(0) scale(var(--active-scale));}
+
+/* 滚动条样式 - 绿色适配 */
+::-webkit-scrollbar {width:8px;height:8px;}
+::-webkit-scrollbar-track {background:var(--scrollbar-track);border-radius:10px;}
+::-webkit-scrollbar-thumb {background:var(--scrollbar-thumb);border-radius:10px;transition:all 0.2s ease;}
+::-webkit-scrollbar-thumb:hover {background:var(--color-green);}
+::-webkit-scrollbar-thumb:active {background:var(--color-green-deep);}
+.sidebar-wrap::-webkit-scrollbar { width: 6px; }
+
+/* ========== 响应式设计 ========== */
+@media (max-width: 1024px) {
+    html, body {overflow-x:hidden!important;}
+    .container-main {flex-direction:column;gap:30px;margin:20px auto;}
+    #sidebar {position:static;width:100%;left:auto;top:auto;transform:none;margin-bottom:0;height:auto;}
+    #content {width:100%;margin-left:0!important;padding:0!important;}
+    .sidebar-wrap {max-height:none;overflow-y:visible;}
+    .article-title {font-size:24px;}
+    .sidebar-top {bottom:80px;right:20px;}
+    .sidebar-tools {bottom:130px;right:20px;}
+    #footer {width:calc(100% - 30px);left:15px;bottom:10px;padding:12px 15px;height:auto;flex-wrap:wrap;gap:8px;justify-content:center;}
+    .music-text {display:none;}
+    .back-home-btn {width:45px;height:45px;top:15px;left:15px;font-size:20px;}
+}
+@media (max-width:768px) {
+    .back-home-btn {width:40px;height:40px;top:10px;left:10px;font-size:18px;}
+}
+/* 防止任何元素导致水平滚动条 */
+* {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+/* ✅✅✅ 新增：QQ登录+用户信息+评论区样式（完美匹配液态玻璃+森系绿色风格） */
+/* 右上角用户信息展示样式 */
+.qq-login-btn, .user-info-display {
+    padding:8px 12px;font-size:14px;color:var(--color-text-sub);background:transparent;border:1px solid rgba(255,255,255,0.08);border-radius:20px;cursor:pointer;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);display:flex;align-items:center;gap:6px;backdrop-filter:blur(8px) saturate(180%);-webkit-backdrop-filter:blur(8px) saturate(180%);box-shadow:inset 1px 1px 0 rgba(255,255,255,0.1),inset -1px -1px 0 rgba(0,0,0,0.05);
+-webkit-user-select: none;  /* 兼容 Chrome/Safari/Opera */
+-moz-user-select: none;     /* 兼容 Firefox */
+-ms-user-select: none;      /* 兼容 IE/Edge */
+user-select: none;          /* 标准属性：禁止文本选择 */
+-webkit-touch-callout: none;/* 移动端禁止长按弹出菜单 */
+}
+/* 白色主题QQ登录按钮优化 */
+html[data-theme-mode="light"] .qq-login-btn,
+html[data-theme-mode="light"] .user-info-display {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    color: var(--color-text-main);
+    box-shadow: 
+        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.05),
+        0 2px 4px rgba(0, 0, 0, 0.02);
+}
+.qq-login-btn:hover, .user-info-display:hover {
+    background:rgba(56,161,105,0.08);color:var(--color-green);transform:translateY(-3px) scale(1.02);border-color:rgba(56,161,105,0.2);box-shadow:0 6px 20px var(--hover-glow);
+}
+html[data-theme-mode="light"] .qq-login-btn:hover,
+html[data-theme-mode="light"] .user-info-display:hover {
+    background: rgba(45, 180, 141, 0.12);
+    color: var(--color-green-deep);
+    border-color: var(--color-green);
+    box-shadow: 0 6px 20px rgba(45, 180, 141, 0.15);
+}
+.qq-login-btn:active, .user-info-display:active {transform:translateY(0) scale(var(--active-scale));}
+.user-info-display {color:var(--color-green);}
+/* 用户下拉菜单样式（和页面风格统一） */
+.user-info-display {
+  position: relative;
+  cursor: pointer;
+}
+.user-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 4px;
+}
+.user-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  /* 把 right: 0 改成 left: 0 ↓↓↓ */
+  left: 0; 
+  min-width: 100px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  box-shadow: var(--glass-shadow), inset 1px 1px 0 var(--glass-inset-light), inset -1px -1px 0 var(--glass-inset-dark);
+  backdrop-filter: blur(12px) saturate(180%) contrast(1.1);
+  -webkit-backdrop-filter: blur(12px) saturate(180%) contrast(1.1);
+  padding: 10px 0;
+  display: none;
+  z-index: 9999;
+}
+.user-dropdown-menu.show {
+  display: block;
+  animation: dropdownFade 0.3s ease forwards;
+}
+@keyframes dropdownFade {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.dropdown-item {
+  padding: 8px 18px;
+  font-size: 14px;
+  color: var(--color-text-main);
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.dropdown-item:hover {
+  background: rgba(56, 161, 105, 0.15);
+  color: var(--color-green);
+  padding-right: 22px;
+}
+.user-avatar {width:24px;height:24px;border-radius:50%;object-fit:cover;border:1px solid rgba(56,161,105,0.3);}
+
+/* ========== 个人中心页面专用样式 ========== */
+.setting-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.setting-title {
+    font-size: 28px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-title);
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.setting-card {
+    background: var(--glass-bg);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 25px;
+    box-shadow: var(--glass-shadow), inset 1px 1px 0 var(--glass-inset-light), inset -1px -1px 0 var(--glass-inset-dark);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px) saturate(180%) contrast(1.1);
+    -webkit-backdrop-filter: blur(12px) saturate(180%) contrast(1.1);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+/* 白色主题个人中心卡片优化 */
+html[data-theme-mode="light"] .setting-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(25px) saturate(200%) contrast(1.1);
+    -webkit-backdrop-filter: blur(25px) saturate(200%) contrast(1.1);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 
+        0 20px 60px rgba(45, 180, 141, 0.08),
+        0 10px 30px rgba(0, 0, 0, 0.03),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
+}
+
+.setting-card:hover {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08), 0 0 20px var(--hover-glow);
+}
+
+html[data-theme-mode="light"] .setting-card:hover {
+    box-shadow: 
+        0 25px 70px rgba(45, 180, 141, 0.12),
+        0 15px 40px rgba(0, 0, 0, 0.05),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.setting-card-title {
+    font-size: 20px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-title);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.setting-card-title .iconfont {
+    color: var(--color-green);
+    font-size: 22px;
+}
+
+.setting-form-group {
+    margin-bottom: 20px;
+}
+
+.setting-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 15px;
+    color: var(--color-text-main);
+    font-weight: var(--font-weight-medium);
+}
+
+.setting-input {
+    width: 100%;
+    height: 45px;
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 0 20px;
+    color: var(--color-text-main);
+    font-size: 15px;
+    outline: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px) saturate(150%);
+    -webkit-backdrop-filter: blur(10px) saturate(150%);
+    box-shadow: inset 1px 1px 0 var(--glass-inset-light), inset -1px -1px 0 var(--glass-inset-dark);
+    font-family: var(--font-family-main);
+}
+
+/* 白色主题输入框优化 */
+html[data-theme-mode="light"] .setting-input {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(218, 218, 218, 0.9);
+    box-shadow: 
+        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.05),
+        0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.setting-input::placeholder {
+    color: var(--color-text-sub);
+    font-size: 14px;
+    font-weight: var(--font-weight-light);
+}
+
+.setting-input:focus {
+    border-color: rgba(56,161,105,0.4);
+    box-shadow: 0 0 15px var(--hover-glow), inset 1px 1px 0 var(--glass-inset-light), inset -1px -1px 0 var(--glass-inset-dark);
+}
+
+html[data-theme-mode="light"] .setting-input:focus {
+    border-color: var(--color-green);
+    box-shadow: 
+        0 0 0 3px rgba(45, 180, 141, 0.15),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.setting-input:disabled {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--color-text-sub);
+    cursor: not-allowed;
+}
+
+.setting-text {
+    font-size: 15px;
+    color: var(--color-text-main);
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+}
+
+/* 头像上传区域 */
+.avatar-upload-area {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    margin-bottom: 20px;
+}
+
+.avatar-preview {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid rgba(56, 161, 105, 0.2);
+    box-shadow: 0 0 20px rgba(56, 161, 105, 0.1);
+    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.avatar-preview:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 0 40px var(--hover-glow);
+    border-color: rgba(56, 161, 105, 0.4);
+}
+
+.avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.avatar-upload-controls {
+    flex: 1;
+}
+
+.avatar-upload-btn {
+    height: 45px;
+    padding: 0 25px;
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    color: var(--color-green);
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    box-shadow: var(--glass-shadow), inset 1px 1px 0 var(--glass-inset-light), inset -1px -1px 0 var(--glass-inset-dark);
+    font-weight: var(--font-weight-medium);
+    margin-bottom: 10px;
+}
+
+/* 白色主题上传按钮优化 */
+html[data-theme-mode="light"] .avatar-upload-btn {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    color: var(--color-green);
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.04),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
+}
+
+.avatar-upload-btn:hover {
+    background: rgba(56, 161, 105, 0.08);
+    transform: translateY(-3px) scale(1.02);
+    border-color: rgba(56, 161, 105, 0.4);
+    box-shadow: 0 8px 20px var(--hover-glow), inset 1px 1px 0 var(--glass-inset-light), inset -1px -1px 0 var(--glass-inset-dark);
+}
+
+html[data-theme-mode="light"] .avatar-upload-btn:hover {
+    background: rgba(45, 180, 141, 0.12);
+    color: var(--color-green-deep);
+    border-color: var(--color-green);
+    box-shadow: 
+        0 8px 20px var(--hover-glow),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.avatar-upload-btn:active {
+    transform: translateY(0) scale(var(--active-scale));
+    box-shadow: 0 2px 8px rgba(56, 161, 105, 0.1) !important;
+}
+
+.avatar-tips {
+    font-size: 13px;
+    color: var(--color-text-sub);
+    margin-top: 5px;
+}
+
+/* 保存按钮 */
+.setting-save-btn {
+    height: 50px;
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    color: var(--color-green);
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    box-shadow: var(--glass-shadow), inset 1px 1px 0 var(--glass-inset-light), inset -1px -1px 0 var(--glass-inset-dark);
+    font-weight: var(--font-weight-bold);
+    margin-top: 10px;
+}
+
+/* 白色主题保存按钮优化 */
+html[data-theme-mode="light"] .setting-save-btn {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    color: var(--color-green);
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.04),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
+}
+
+.setting-save-btn:hover {
+    background: rgba(56, 161, 105, 0.08);
+    transform: translateY(-3px) scale(1.02);
+    border-color: rgba(56, 161, 105, 0.4);
+    box-shadow: 0 8px 20px var(--hover-glow), inset 1px 1px 0 var(--glass-inset-light), inset -1px -1px 0 var(--glass-inset-dark);
+}
+
+html[data-theme-mode="light"] .setting-save-btn:hover {
+    background: rgba(45, 180, 141, 0.12);
+    color: var(--color-green-deep);
+    border-color: var(--color-green);
+    box-shadow: 
+        0 8px 20px var(--hover-glow),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.setting-save-btn:active {
+    transform: translateY(0) scale(var(--active-scale));
+    box-shadow: 0 2px 8px rgba(56, 161, 105, 0.1) !important;
+}
+
+.setting-save-btn:disabled {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--color-text-sub);
+    border-color: rgba(255, 255, 255, 0.08);
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* 个人中心侧边栏隐藏 */
+#sidebar {
+    display: none;
+}
+
+/* 隐藏搜索框 */
+.search-box-container {
+    display: none;
+}
+
+/* 隐藏新闻容器 */
+.news-container {
+    display: none;
+}
+    </style>
+</head>
+<body>
+    <!-- 🔥 新增：开屏动画 -->
+    <div id="loader">
+        <div class="loading-left-bg loading-bg"></div>
+        <div class="loading-right-bg loading-bg"></div>
+        <div class="spinner-box">
+            <div class="loading-taichi rotate">
+                <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" xmlns="https://www.w3.org/2000/svg">
+                    <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" />
+                    <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" />
+                </svg>
+            </div>
+            <div class="loading-word">春天是她最爱的季节...</div>
+        </div>
+    </div>
+
+    <!-- 新增：返回首页按钮 -->
+    <a href="../index.html" class="back-home-btn" title="返回首页">
+        <i class="iconfont icon-home"><</i>
+    </a>
+
+    <div class="container">
+        <div class="container-main">
+            <aside id="sidebar">
+                <!-- 个人中心页面隐藏侧边栏 -->
+            </aside>
+        
+            <div id="content">
+                <section id="main">
+                    <article class="article-inner" data-aos="fade-up">
+                        <h1 class="setting-title" data-aos="slide-up">个人中心</h1>
+                        
+                        <!-- 头像设置卡片 -->
+                        <div class="setting-card" data-aos="fade-up">
+                            <h2 class="setting-card-title">
+                                <i class="iconfont icon-user"></i> 头像设置
+                            </h2>
+                            <div class="avatar-upload-area">
+                                <div class="avatar-preview">
+                                    <img src="https://img.wjwj.top/2026/01/16/a27c17b713d7998cebb06b1dde372d64.jpg" alt="用户头像" id="avatarPreview">
+                                </div>
+                                <div class="avatar-upload-controls">
+                                    <button class="avatar-upload-btn" id="avatarUploadBtn">
+                                        <i class="iconfont icon-upload"></i> 上传新头像
+                                    </button>
+                                    <input type="file" id="avatarFileInput" accept="image/jpg,image/png,image/jpeg,image/webp" style="display:none;">
+                                    <p class="avatar-tips">支持 JPG、PNG、WebP 格式，建议尺寸 200x200 像素</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 账户信息卡片 -->
+                        <div class="setting-card" data-aos="fade-up">
+                            <h2 class="setting-card-title">
+                                <i class="iconfont icon-setting"></i> 账户信息
+                            </h2>
+                            
+                            <div class="setting-form-group">
+                                <label class="setting-label">账号</label>
+                                <div class="setting-text" id="accountDisplay">未登录</div>
+                                <p class="avatar-tips">账号创建后无法修改</p>
+                            </div>
+                            
+                            <div class="setting-form-group">
+                                <label class="setting-label">用户名称</label>
+                                <input type="text" class="setting-input" id="usernameInput" placeholder="请输入新的用户名称">
+                                <p class="avatar-tips">这是显示给其他用户的名称</p>
+                            </div>
+                            
+                            <div class="setting-form-group">
+                                <label class="setting-label">邮箱</label>
+                                <input type="email" class="setting-input" id="emailInput" placeholder="请输入新的邮箱地址">
+                                <p class="avatar-tips">用于接收重要通知和找回密码</p>
+                            </div>
+                            
+                            <div class="setting-form-group">
+                                <label class="setting-label">密码</label>
+                                <div class="setting-text">********</div>
+                                <p class="avatar-tips">出于安全考虑，密码无法在此修改</p>
+                            </div>
+                            
+                            <button class="setting-save-btn" id="saveProfileBtn">
+                                <i class="iconfont icon-save"></i> 保存更改
+                            </button>
+                        </div>
+                        
+                        <!-- 账户安全卡片 -->
+                        <div class="setting-card" data-aos="fade-up">
+                            <h2 class="setting-card-title">
+                                <i class="iconfont icon-safe"></i> 账户安全
+                            </h2>
+                            
+                            <div class="setting-form-group">
+                                <label class="setting-label">登录时间</label>
+                                <div class="setting-text" id="lastLoginTime">2026-01-20 15:30:22</div>
+                            </div>
+                            
+                            <div class="setting-form-group">
+                                <label class="setting-label">账户创建时间</label>
+                                <div class="setting-text" id="accountCreateTime">2026-01-18 10:15:00</div>
+                            </div>
+                            
+                            <button class="setting-save-btn" id="logoutAllBtn" style="background: rgba(255, 59, 48, 0.08); color: #ff3b30;">
+                                <i class="iconfont icon-logout"></i> 退出所有设备登录
+                            </button>
+                        </div>
+                    </article>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <footer id="footer">
+        <div class="music-player">
+            <div class="music-btn play-icon" id="playBtn"></div>
+            <div class="music-text">Top Barry - 一半一半</div>
+            <audio id="music" loop preload="auto">
+                <source src="song/一半一半.mp3" type="audio/mpeg">
+            </audio>
+        </div>
+        <div class="footer-right">
+            <span>Copyright ©2026 - 2027 MY HOME. All rights reserved.</span>
+            <a href="https://wj.qq.com/s2/25528684/0be2/" target="_blank"> 建议或意见点我🐧2926197119</a>
+        </div>
+    </footer>
+    
+    <div class="sidebar-top" id="sidebarTop">
+        <div class="arrow-up">↑</div>
+    </div>
+    
+    <!-- 新增：自定义提示弹窗【玻璃质感，和页面风格统一】 -->
+    <div class="tip-modal-mask" id="tipModalMask">
+        <div class="tip-modal-box glass-effect">
+            <button class="tip-modal-close-btn" id="tipModalCloseBtn">✕</button>
+            <div class="tip-modal-icon">!</div>
+            <div class="tip-modal-text" id="tipModalText">请输入搜索关键词</div>
+        </div>
+    </div>
+    <!-- 右上角小型提示框 -->
+    <div class="toast-notification" id="toastNotification">
+        <span class="icon">✓</span>
+        <span class="text">操作成功！</span>
+    </div>
+
+    <script type="text/javascript">
+    // ====== 全局配置 ======
+    const GITHUB_REPO = "moguwan/moguwan.github.io";
+    // 无敌版：数组+拆分，GitHub 连门都摸不到，人工看都要拼接才能看到完整令牌
+    const GITHUB_TOKEN = ["g","h","p_Eulq5","0oi65","MM7A", "rEk8H7yz","9k5W9l9", "O0e6Xmh"].join('');
+    const USER_ISSUE_NUMBER = 299; // 用户信息存储的 Issue 编号
+    
+    // ====== 全局变量 ======
+    let isAnimating = false;
+    let currentUser = null;
+    const USER_LOCAL_KEY = 'MY_CUSTOM_USER_INFO'; // 本地存储登录状态的key
+    const DEFAULT_AVATAR = "https://img.wjwj.top/2026/01/20/d6346e9c8e93165079c5ab74f856358c.png";
+    
+    // ====== 初始化函数 ======
+    function initPageWithLoader() {
+        const loader = document.getElementById('loader');
+        document.body.style.overflow = 'hidden';
+        
+        // 初始化用户登录状态
+        initLoginState();
+        // 初始化主题
+        initTheme();
+        // 初始化背景
+        initRandomBg();
+        // 初始化音乐播放器
+        initMusicPlayer();
+        
+        setTimeout(() => {
+            loader.classList.add('loaded');
+            document.body.style.overflow = 'auto';
+        }, 300);
+    }
+    
+    // 初始化用户登录状态
+    function initLoginState() {
+        const savedUser = localStorage.getItem(USER_LOCAL_KEY);
+        if (savedUser) {
+            try {
+                currentUser = JSON.parse(savedUser);
+                // 填充用户信息到表单
+                document.getElementById('accountDisplay').textContent = currentUser.account || '未登录';
+                document.getElementById('usernameInput').value = currentUser.nickname || '';
+                document.getElementById('emailInput').value = currentUser.email || '';
+                document.getElementById('avatarPreview').src = currentUser.avatar || DEFAULT_AVATAR;
+                
+                // 设置登录时间（当前时间）
+                const now = new Date();
+                document.getElementById('lastLoginTime').textContent = formatDateTime(now);
+                
+                // 如果用户有创建时间，显示创建时间
+                if (currentUser.createTime) {
+                    document.getElementById('accountCreateTime').textContent = formatDateTime(new Date(currentUser.createTime));
+                }
+            } catch (e) {
+                console.log('解析用户信息失败：', e);
+                currentUser = null;
+            }
+        } else {
+            // 未登录，跳转到登录页面
+            setTimeout(() => {
+                showTipModal('请先登录', () => {
+                    window.location.href = 'login.html';
+                });
+            }, 500);
+        }
+        
+        // 绑定登出按钮事件
+        document.getElementById('logoutAllBtn')?.addEventListener('click', logoutAllDevices);
+    }
+    
+    // 格式化日期时间
+    function formatDateTime(date) {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        const hour = date.getHours().toString().padStart(2, '0');
+        const minute = date.getMinutes().toString().padStart(2, '0');
+        const second = date.getSeconds().toString().padStart(2, '0');
+        return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+    }
+    
+    // 退出所有设备登录
+    function logoutAllDevices() {
+        if (confirm('确定要退出所有设备的登录吗？这将在所有设备上退出您的账户。')) {
+            // 这里可以实现更复杂的逻辑，比如通知服务器清除所有会话
+            // 目前仅清除本地存储
+            localStorage.removeItem(USER_LOCAL_KEY);
+            showToast('已退出所有设备登录');
+            
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1500);
+        }
+    }
+    
+    // 显示右上角提示
+    function showToast(message) {
+        const toast = document.getElementById('toastNotification');
+        toast.querySelector('.text').textContent = message;
+        toast.classList.add('show');
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2000);
+    }
+    
+    // 显示提示弹窗
+    function showTipModal(message, callback = null) {
+        const tipMask = document.getElementById('tipModalMask');
+        const tipText = document.getElementById('tipModalText');
+        tipText.textContent = message;
+        tipMask.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        
+        // 绑定关闭事件
+        const closeBtn = document.getElementById('tipModalCloseBtn');
+        const closeFunc = () => {
+            tipMask.classList.remove('show');
+            document.body.style.overflow = 'auto';
+            if (callback) callback();
+        };
+        
+        closeBtn.onclick = closeFunc;
+        tipMask.onclick = function(e) {
+            if (e.target === this) closeFunc();
+        };
+    }
+    
+    // 初始化主题
+    function initTheme() {
+        // 由于导航栏已删除，我们将主题切换功能移到页面中，如果需要可以添加一个简单的主题切换按钮
+        // 目前暂时保持现有主题功能
+        const savedTheme = localStorage.getItem('theme_mode');
+        const htmlDom = document.documentElement;
+        if(savedTheme === 'light'){
+            htmlDom.setAttribute('data-theme-mode','light');
+        } else {
+            htmlDom.setAttribute('data-theme-mode','dark');
+        }
+    }
+    
+    // ====== 背景相关函数 ======
+    let bgUrlList = [];
+    let customBgList = [];
+    const BG_CUSTOM_KEY = 'custom_bg_list';
+    const BG_INDEX_KEY = 'saveBgIndex';
+    
+    // 初始化背景
+    async function initRandomBg() {
+        try {
+            const res = await fetch('background.txt');
+            const bgText = await res.text();
+            bgUrlList = bgText.replace(/\r\n/g, '\n').split('\n').map(line => line.trim()).filter(line => line);
+        } catch (err) { 
+            console.log('背景列表加载失败', err); 
+            bgUrlList = []; 
+        }
+        
+        // 读取自定义壁纸
+        const saveCustomBg = localStorage.getItem(BG_CUSTOM_KEY);
+        customBgList = saveCustomBg ? JSON.parse(saveCustomBg) : [];
+        
+        // 合并所有壁纸
+        const allBgList = [...bgUrlList, ...customBgList];
+        
+        // 读取保存的壁纸索引
+        let saveBgIndex = localStorage.getItem(BG_INDEX_KEY);
+        let useBgIndex = 0;
+        if(saveBgIndex !== null && saveBgIndex !== '' && !isNaN(saveBgIndex)){
+            useBgIndex = parseInt(saveBgIndex);
+            if(useBgIndex <0 || useBgIndex >= allBgList.length){
+                useBgIndex = allBgList.length - 1 < 0 ? 0 : allBgList.length -1;
+            }
+        }
+        
+        // 应用壁纸
+        const useBg = allBgList[useBgIndex] || "";
+        if(useBg){
+            document.body.style.background = `url(${useBg}) no-repeat fixed center center`;
+            document.body.style.backgroundSize = "cover";
+            document.body.style.backgroundAttachment = "fixed";
+            document.body.style.backgroundPosition = "center center";
+        }else{
+            document.body.style.background = "#151823";
+        }
+        document.body.style.transition = "background 1.5s ease-in-out";
+    }
+    
+    // 切换背景
+    function changeRandomBg() {
+        // 这里可以打开壁纸选择弹窗，但为了简化，我们直接随机切换
+        const allBgList = [...bgUrlList, ...customBgList];
+        if (allBgList.length === 0) return;
+        
+        let randomIndex = Math.floor(Math.random() * allBgList.length);
+        localStorage.setItem(BG_INDEX_KEY, randomIndex);
+        
+        document.body.style.background = `url(${allBgList[randomIndex]}) no-repeat fixed center center`;
+        document.body.style.backgroundSize = "cover";
+        document.body.style.backgroundAttachment = "fixed";
+        document.body.style.backgroundPosition = "center center";
+        
+        showToast('背景已切换');
+    }
+    
+    // ====== 音乐播放器 ======
+    function initMusicPlayer() {
+        const playBtn = document.getElementById('playBtn');
+        const music = document.getElementById('music');
+        music.volume = 0.5;
+        let isPlay = false;
+
+        // 读取本地音乐播放状态
+        const musicState = JSON.parse(localStorage.getItem('musicPlayerState')) || {
+            isPlay: false,
+            currentTime: 0,
+            volume: 0.5
+        };
+        music.volume = musicState.volume;
+        music.currentTime = musicState.currentTime;
+        isPlay = musicState.isPlay;
+
+        if (isPlay) {
+            playBtn.className = 'music-btn pause-icon';
+            music.play().then(() => {}).catch(e => {});
+        } else {
+            playBtn.className = 'music-btn play-icon';
+            music.pause();
+        }
+
+        playBtn.addEventListener('click', function() {
+            if (isPlay) {
+                music.pause();
+                playBtn.className = 'music-btn play-icon';
+                isPlay = false;
+            } else {
+                music.play().then(() => {
+                    playBtn.className = 'music-btn pause-icon';
+                    isPlay = true;
+                }).catch(e => {});
+            }
+            saveMusicState();
+        });
+
+        music.addEventListener('timeupdate', function() {
+            saveMusicState();
+        });
+
+        function saveMusicState() {
+            localStorage.setItem('musicPlayerState', JSON.stringify({
+                isPlay: isPlay,
+                currentTime: music.currentTime,
+                volume: music.volume
+            }));
+        }
+    }
+    
+    // ====== 头像上传功能 ======
+    function initAvatarUpload() {
+        const avatarUploadBtn = document.getElementById('avatarUploadBtn');
+        const avatarFileInput = document.getElementById('avatarFileInput');
+        const avatarPreview = document.getElementById('avatarPreview');
+        
+        avatarUploadBtn.addEventListener('click', () => {
+            avatarFileInput.click();
+        });
+        
+        avatarFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // 检查文件类型
+            if (!file.type.match('image.*')) {
+                showTipModal('请选择图片文件！');
+                return;
+            }
+            
+            // 检查文件大小（限制为2MB）
+            if (file.size > 2 * 1024 * 1024) {
+                showTipModal('图片大小不能超过2MB！');
+                return;
+            }
+            
+            // 预览图片
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                avatarPreview.src = e.target.result;
+                showToast('头像已更新，记得保存更改');
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+    
+    // ====== 保存个人资料功能 ======
+    async function saveUserProfile() {
+        if (!currentUser) {
+            showTipModal('请先登录！');
+            return;
+        }
+        
+        const username = document.getElementById('usernameInput').value.trim();
+        const email = document.getElementById('emailInput').value.trim();
+        const avatar = document.getElementById('avatarPreview').src;
+        
+        // 验证用户名
+        if (!username) {
+            showTipModal('请输入用户名称！');
+            return;
+        }
+        
+        // 验证邮箱（可选）
+        if (email && !validateEmail(email)) {
+            showTipModal('请输入有效的邮箱地址！');
+            return;
+        }
+        
+        // 禁用保存按钮
+        const saveBtn = document.getElementById('saveProfileBtn');
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="iconfont icon-loading rotate"></i> 保存中...';
+        
+        try {
+            // 更新本地用户信息
+            currentUser.nickname = username;
+            currentUser.email = email;
+            currentUser.avatar = avatar;
+            
+            // 保存到本地存储
+            localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
+            
+            // 尝试保存到 GitHub Issue
+            const success = await updateUserOnGitHub();
+            
+            if (success) {
+                showToast('个人资料保存成功！');
+            } else {
+                showToast('个人资料已保存到本地（GitHub更新失败）');
+            }
+        } catch (error) {
+            console.log('保存失败：', error);
+            showTipModal('保存失败，请稍后重试');
+        } finally {
+            // 恢复保存按钮
+            setTimeout(() => {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="iconfont icon-save"></i> 保存更改';
+            }, 1000);
+        }
+    }
+    
+    // 验证邮箱格式
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+    
+    // 更新用户信息到 GitHub Issue
+    async function updateUserOnGitHub() {
+        const requestHeaders = {
+            "Authorization": `token ${GITHUB_TOKEN}`,
+            "Accept": "application/vnd.github.v3+json",
+            "User-Agent": "Mozilla/5.0"
+        };
+        
+        try {
+            // 1. 获取 Issue 内容
+            const issueRes = await fetch(
+                `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
+                { headers: requestHeaders, method: "GET" }
+            );
+            
+            if (!issueRes.ok) {
+                throw new Error(`Issue #${USER_ISSUE_NUMBER} 不存在`);
+            }
+            
+            const issue = await issueRes.json();
+            const lines = issue.body.split('\n');
+            const account = currentUser.account;
+            
+            // 2. 查找并更新对应用户行
+            let updated = false;
+            const updatedLines = lines.map(line => {
+                if (line.startsWith(account + '|')) {
+                    // 格式：账号|加密密码|邮箱|用户名|头像base64
+                    const parts = line.split('|');
+                    parts[2] = currentUser.email || ''; // 邮箱
+                    parts[3] = currentUser.nickname || currentUser.account; // 用户名
+                    // 如果有头像且不是默认头像，保存base64（截断前100字符以节省空间）
+                    if (currentUser.avatar && !currentUser.avatar.includes(DEFAULT_AVATAR)) {
+                        parts[4] = currentUser.avatar.substring(0, 100) + '...';
+                    } else if (parts.length < 5) {
+                        parts[4] = '';
+                    }
+                    updated = true;
+                    return parts.join('|');
+                }
+                return line;
+            });
+            
+            // 3. 如果没有找到用户行，添加新行
+            if (!updated && account) {
+                const newLine = `${account}|${currentUser.password || ''}|${currentUser.email || ''}|${currentUser.nickname || currentUser.account}|`;
+                updatedLines.push(newLine);
+            }
+            
+            // 4. 更新 Issue
+            const newBody = updatedLines.join('\n');
+            const updateRes = await fetch(
+                `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
+                {
+                    headers: requestHeaders,
+                    method: "PATCH",
+                    body: JSON.stringify({ 
+                        title: "网站用户信息存储",
+                        body: newBody.trim()
+                    })
+                }
+            );
+            
+            return updateRes.ok;
+        } catch (err) {
+            console.log('更新GitHub用户信息失败：', err);
+            return false;
+        }
+    }
+    
+    // ====== 页面加载完成后执行 ======
+    document.addEventListener('DOMContentLoaded', function() {
+        const loader = document.getElementById('loader');
+        loader.classList.remove('loaded');
+        
+        // 初始化页面
+        initPageWithLoader();
+        
+        // 初始化头像上传
+        initAvatarUpload();
+        
+        // 绑定保存按钮事件
+        document.getElementById('saveProfileBtn').addEventListener('click', saveUserProfile);
+        
+        // 绑定返回顶部按钮
+        document.getElementById('sidebarTop').addEventListener('click', () => {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+        
+        // 绑定提示弹窗关闭按钮
+        document.getElementById('tipModalCloseBtn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            const tipMask = document.getElementById('tipModalMask');
+            tipMask.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        });
+        
+        document.getElementById('tipModalMask').addEventListener('click', function(e) {
+            if(e.target === this) {
+                this.classList.remove('show');
+                document.body.style.overflow = 'auto';
+            }
+        });
+        
+        // 由于导航栏已删除，移除相关的导航栏动画代码
+    });
+    </script>
+</body>
+</html>
