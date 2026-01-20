@@ -1101,6 +1101,139 @@
 		    padding: 12px 16px;
 		    font-size: 16px;
 		}
+
+        /* ========== 新增：文件上传区域样式 ========== */
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 30px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(45, 180, 141, 0.02);
+        }
+        
+        .upload-area:hover {
+            border-color: var(--color-green);
+            background: rgba(45, 180, 141, 0.05);
+        }
+        
+        .upload-area.dragover {
+            border-color: var(--color-green);
+            background: rgba(45, 180, 141, 0.1);
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: var(--color-green);
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            font-size: 16px;
+            color: var(--color-text-main);
+            margin-bottom: 10px;
+        }
+        
+        .upload-hint {
+            font-size: 13px;
+            color: var(--color-text-sub);
+        }
+        
+        .upload-progress {
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: var(--border-color-light);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--color-green);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            font-size: 13px;
+            color: var(--color-text-sub);
+        }
+        
+        .upload-files-list {
+            margin-top: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+            border-top: 1px solid var(--border-color-light);
+            padding-top: 10px;
+        }
+        
+        .upload-file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.5);
+            margin-bottom: 5px;
+        }
+        
+        .file-name {
+            font-size: 13px;
+            color: var(--color-text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+            margin-right: 10px;
+        }
+        
+        .file-status {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        
+        .status-success {
+            background: rgba(45, 180, 141, 0.1);
+            color: var(--color-green);
+        }
+        
+        .status-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+        
+        .status-uploading {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+        
+        /* API Key配置区域 */
+        .api-config-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(59, 130, 246, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        
+        .api-config-title {
+            font-size: 14px;
+            font-weight: var(--font-weight-medium);
+            color: #3b82f6;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
     </style>
 </head>
 <body>
@@ -1297,14 +1430,45 @@
                         </div>
                     </div>
                     
-                    <!-- 右侧：图片链接、视频链接 -->
+                    <!-- 右侧：图片链接、视频链接 + 新增上传功能 -->
                     <div class="diary-edit-right">
-                        <div class="diary-form-row-wide">
+                        <!-- 新增：API Key配置区域 -->
+                        <div class="api-config-group" style="display: none;">
+                            <div class="api-config-title">
+                                <i class="iconfont icon-key"></i> 图床API配置
+                            </div>
                             <div class="form-group">
+                                <label class="form-label">API Key</label>
+                                <input type="text" class="form-input" id="imgccApiKey" placeholder="请输入imgcc.cloud的API Key" 
+                                    value="chv_jYbx_392995efd57a46bf02b9ce5c6694360563f9bf5026b4cba0c1b6b01d28f5b40314a384fc2949c3b3c16279d1df5fea16816967752d8a9002c3050650d2f0736d"> <!-- 这里替换为你的实际API Key -->
+                            </div>
+                        </div>
+                        
+                        <!-- 新增：文件上传区域 -->
+                        <div class="upload-area" id="fileUploadArea">
+                            <input type="file" id="fileInput" accept="image/*,video/*" multiple style="display: none;">
+                            <div class="upload-icon">
+                                <i class="iconfont icon-upload"></i>
+                            </div>
+                            <div class="upload-text">点击或拖拽文件到此处上传</div>
+                            <div class="upload-hint">支持图片(jpg/png/gif)和视频(mp4/avi/mov)格式</div>
+                            
+                            <div class="upload-progress" id="uploadProgress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progressFill"></div>
+                                </div>
+                                <div class="progress-text" id="progressText">0%</div>
+                            </div>
+                            
+                            <div class="upload-files-list" id="uploadFilesList"></div>
+                        </div>
+                        
+                        <div class="diary-form-row-wide">
+                            <div class="form-group" style="display: none;">
                                 <label class="form-label">图片链接</label>
                                 <textarea class="form-textarea" id="editDiaryImages" name="images" placeholder="一行一个图片链接，直接粘贴即可，无需加逗号/分号"></textarea>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" style="display: none;">
                                 <label class="form-label">视频链接</label>
                                 <textarea class="form-textarea" id="editDiaryVideos" name="videos" placeholder="一行一个视频链接，直接粘贴即可，无需加逗号/分号"></textarea>
                             </div>
@@ -1406,6 +1570,9 @@
         const NEWS_ISSUE_NUMBER = 322; // 日记存储的Issue编号
         const NEWS_SEPARATOR = '---';
         
+        // 新增：图床API配置
+        const IMGCC_API_URL = 'https://www.imgcc.cloud/api/v2/upload';
+        
         // 状态管理
         let currentUser = null;
         let currentUsers = [];
@@ -1419,6 +1586,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             initAuth();
             initEventListeners();
+            // 新增：初始化上传功能
+            initUploadFunctionality();
             loadUsers();
             loadDiaries();
             updateStats();
@@ -1525,6 +1694,216 @@
                     }
                 });
             });
+        }
+        // 新增：初始化文件上传功能
+        function initUploadFunctionality() {
+            const uploadArea = document.getElementById('fileUploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const uploadProgress = document.getElementById('uploadProgress');
+            const uploadFilesList = document.getElementById('uploadFilesList');
+            const imgccApiKey = document.getElementById('imgccApiKey');
+            const imageLinksTextarea = document.getElementById('editDiaryImages');
+            const videoLinksTextarea = document.getElementById('editDiaryVideos');
+
+            // 点击上传区域触发文件选择
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            // 处理文件选择
+            fileInput.addEventListener('change', (e) => {
+                const files = e.target.files;
+                if (files.length > 0) {
+                    Array.from(files).forEach(file => {
+                        uploadFile(file);
+                    });
+                    // 清空文件输入，允许重复选择同一文件
+                    fileInput.value = '';
+                }
+            });
+
+            // 拖拽事件处理
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    Array.from(files).forEach(file => {
+                        uploadFile(file);
+                    });
+                }
+            });
+
+            // 单个文件上传核心函数（恢复V1 API配置）
+            async function uploadFile(file) {
+                const apiKey = imgccApiKey.value.trim();
+                if (!apiKey || apiKey === 'chv_key_here') {
+                    showToast('请先填写有效的imgcc.cloud API Key');
+                    return;
+                }
+            
+                // 验证文件类型
+                const fileType = file.type.split('/')[0];
+                if (!['image', 'video'].includes(fileType)) {
+                    showToast(`不支持的文件类型：${file.name}`);
+                    return;
+                }
+            
+                // 验证文件大小（V1限制通常≤10MB）
+                const maxSize = 10 * 1024 * 1024; 
+                if (file.size > maxSize) {
+                    showToast(`${file.name} 超过10MB限制，请压缩后上传`);
+                    return;
+                }
+            
+                // 创建上传状态项
+                const fileId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                addFileToUploadList(fileId, file.name, 'uploading');
+            
+                // 显示进度条
+                uploadProgress.style.display = 'block';
+                progressFill.style.width = '0%';
+                progressText.textContent = '0%';
+            
+                try {
+                    // V1 API的FormData配置
+                    const formData = new FormData();
+                    formData.append('source', file);
+                    formData.append('format', 'json'); // V1需要显式指定返回JSON
+            
+                    // 打印调试信息
+                    console.log('=== V1 API上传调试 ===');
+                    console.log('API Key:', apiKey.substring(0, 10) + '...');
+                    console.log('文件名:', file.name);
+                    console.log('文件大小:', (file.size / 1024).toFixed(2) + 'KB');
+            
+                    // 用XMLHttpRequest（适配V1 Header授权）
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', 'https://www.imgcc.cloud/api/1/upload', true);
+                    // V1 API必须在Header加X-API-Key（文档要求）
+                    xhr.setRequestHeader('X-API-Key', apiKey);
+                    xhr.setRequestHeader('Accept', 'application/json');
+                    // 注意：multipart/form-data不需要手动设置Content-Type，浏览器会自动加边界
+            
+                    // 进度监控
+                    xhr.upload.addEventListener('progress', (e) => {
+                        if (e.lengthComputable) {
+                            const percent = Math.round((e.loaded / e.total) * 100);
+                            progressFill.style.width = `${percent}%`;
+                            progressText.textContent = `${percent}%`;
+                        }
+                    });
+            
+                    // 响应处理
+                    xhr.addEventListener('load', () => {
+                        try {
+                            console.log('V1响应状态:', xhr.status);
+                            console.log('V1响应内容:', xhr.responseText);
+            
+                            if (xhr.status >= 200 && xhr.status < 300) {
+                                const result = JSON.parse(xhr.responseText);
+                                if (result.status_code === 200 && result.image?.url) {
+                                    // 上传成功，填充链接
+                                    const fileUrl = result.image.url;
+                                    addFileToUploadList(fileId, file.name, 'success');
+                                    
+                                    if (fileType === 'image') {
+                                        const curr = imageLinksTextarea.value.trim();
+                                        imageLinksTextarea.value = curr ? `${curr}\n${fileUrl}` : fileUrl;
+                                    } else {
+                                        const curr = videoLinksTextarea.value.trim();
+                                        videoLinksTextarea.value = curr ? `${curr}\n${fileUrl}` : fileUrl;
+                                    }
+                                    showToast(`${file.name} 上传成功`);
+                                } else {
+                                    throw new Error(`V1 API错误: ${result.status_txt || '返回数据异常'}`);
+                                }
+                            } else {
+                                throw new Error(`请求失败 [${xhr.status}]: ${xhr.statusText}`);
+                            }
+                        } catch (error) {
+                            console.error('V1上传失败:', error);
+                            addFileToUploadList(fileId, file.name, 'error', error.message);
+                            showToast(`${file.name} 上传失败：${error.message}`);
+                        } finally {
+                            setTimeout(() => uploadProgress.style.display = 'none', 1000);
+                        }
+                    });
+            
+                    // 网络/超时错误
+                    xhr.addEventListener('error', () => {
+                        const msg = '网络请求失败（可能是跨域限制）';
+                        addFileToUploadList(fileId, file.name, 'error', msg);
+                        showToast(`${file.name} 上传失败：${msg}`);
+                        uploadProgress.style.display = 'none';
+                    });
+                    xhr.timeout = 30000;
+                    xhr.addEventListener('timeout', () => {
+                        const msg = '上传超时，请检查网络';
+                        addFileToUploadList(fileId, file.name, 'error', msg);
+                        showToast(`${file.name} 上传失败：${msg}`);
+                        uploadProgress.style.display = 'none';
+                    });
+            
+                    // 发送请求
+                    xhr.send(formData);
+            
+                } catch (error) {
+                    console.error('上传初始化失败:', error);
+                    addFileToUploadList(fileId, file.name, 'error', error.message);
+                    showToast(`${file.name} 上传失败：${error.message}`);
+                    uploadProgress.style.display = 'none';
+                }
+            }
+
+            // 添加文件到上传列表
+            function addFileToUploadList(fileId, fileName, status, message = '') {
+                let statusClass = '';
+                let statusText = '';
+
+                switch (status) {
+                    case 'uploading':
+                        statusClass = 'status-uploading';
+                        statusText = '上传中...';
+                        break;
+                    case 'success':
+                        statusClass = 'status-success';
+                        statusText = '上传成功';
+                        break;
+                    case 'error':
+                        statusClass = 'status-error';
+                        statusText = `失败：${message}`;
+                        break;
+                }
+
+                // 检查是否已存在该文件的状态项
+                let fileItem = document.getElementById(`file-item-${fileId}`);
+                if (!fileItem) {
+                    fileItem = document.createElement('div');
+                    fileItem.id = `file-item-${fileId}`;
+                    fileItem.className = 'upload-file-item';
+                    uploadFilesList.appendChild(fileItem);
+                }
+
+                fileItem.innerHTML = `
+                    <div class="file-name" title="${fileName}">${fileName}</div>
+                    <div class="file-status ${statusClass}">${statusText}</div>
+                `;
+
+                // 自动滚动到底部
+                uploadFilesList.scrollTop = uploadFilesList.scrollHeight;
+            }
         }
 
         // 切换视图
@@ -2082,7 +2461,18 @@
                 // 添加新日记
                 title.textContent = '添加新日记';
                 form.reset();
-                document.getElementById('editDiaryDate').value = new Date().toISOString().slice(0, 16);
+                
+                // ===== 关键修改：获取本地当前时间并格式化为datetime-local兼容格式 =====
+                const now = new Date();
+                // 手动格式化成本地时间的YYYY-MM-DDTHH:MM格式（解决ISOString是UTC时间的问题）
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const localDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+                
+                document.getElementById('editDiaryDate').value = localDateTime;
                 
                 // 设置数据属性
                 form.dataset.mode = 'add';
