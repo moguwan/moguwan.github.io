@@ -1913,7 +1913,15 @@ html[data-theme-mode="light"] .comment-item {
         inset 1px 1px 0 rgba(255, 255, 255, 0.95);
 }
 .comment-user-info {display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-.comment-user-avatar {width:28px;height:28px;border-radius:50%;object-fit:cover;border:1px solid rgba(56,161,105,0.2);}
+/* 头像加载失败样式 */
+.comment-user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(56, 161, 105, 0.2);
+    background: rgba(56, 161, 105, 0.1);
+}
 .comment-user-name {font-size:14px;font-weight:var(--font-weight-medium);color:var(--color-green);}
 .comment-time {font-size:12px;color:var(--color-text-sub);margin-left:auto;}
 .comment-content {font-size:15px;color:var(--color-text-main);line-height:1.7;padding-left:36px;}
@@ -2062,9 +2070,9 @@ html[data-theme-mode="light"] .news-nav-btn {
                         <div class="sidebar-description">热爱是所有的理由和答案</div>
                     </div>
                     <div class="sidebar-social">
-                        <a href="https://github.com/migolqn/moguwan" title="Github" target="_blank"><i class='social iconfont icon-github'></i></a>
+                        <a href="https://moguwan.github.io/index.html" title="Github" target="_blank"><i class='social iconfont icon-github'></i></a>
                         <a href="https://www.zhihu.com/" title="知乎" target="_blank"><i class='social iconfont icon-zhihu'></i></a>
-                        <a href="mailto:2926197119@qq.com" title="邮箱"><i class='social iconfont icon-email'></i></a>
+                        <a href="https://wj.qq.com/s2/25528684/0be2/" title="邮箱"><i class='social iconfont icon-email'></i></a>
                     </div>
                     <div class="sidebar-menu">
                         <div class="sidebar-stat-wrap">
@@ -2174,9 +2182,10 @@ const NEWS_LIKE_PREFIX = "点赞";
 const NEWS_LIKE_SUFFIX = "数量：";
 const NEWS_LIKE_REG = /点赞(\d+)数量：(\d+)/g;
 let newsLikeCounts = {};
-const COMMENT_MAP_ISSUE_NUMBER = 299;
+const COMMENT_MAP_ISSUE_NUMBER = 11;
 const DEFAULT_AVATAR = "https://img.wjwj.top/2026/01/20/d6346e9c8e93165079c5ab74f856358c.png";
 const USER_LOCAL_KEY = 'MY_CUSTOM_USER_INFO';
+const USER_ISSUE_NUMBER = 11; // 用户信息存储的 Issue 编号
 let currentUser = null;
 let bgUrlList = [];
 let customBgList = [];
@@ -2338,6 +2347,7 @@ function logout() {
         toast.classList.remove('show');
     }, 2000);
 }
+// 获取评论数据，并关联用户头像
 async function getCommentData(newsIndex) {
     const requestHeaders = {
         "Authorization": `token ${GITHUB_TOKEN}`,
@@ -2346,6 +2356,58 @@ async function getCommentData(newsIndex) {
     };
     
     try {
+        // 1. 获取用户信息列表
+        let userList = [];
+        try {
+            const userRes = await fetch(
+                `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
+                { headers: requestHeaders, method: "GET" }
+            );
+            if (userRes.ok) {
+                const userIssue = await userRes.json();
+                const lines = userIssue.body.split('\n');
+                lines.forEach(line => {
+                    const parts = line.split('|');
+                    if (parts.length >= 5) { // 账号|密码|邮箱|用户名|头像
+                        const account = parts[0]?.trim();
+                        const avatar = parts[4]?.trim();
+                        if (account && avatar) {
+                            userList.push({
+                                account: account,
+                                avatar: avatar
+                            });
+                        }
+                    }
+                });
+            }
+        } catch (userErr) {
+            console.log('获取用户列表失败，使用本地存储：', userErr);
+        }
+
+        // 2. 从本地存储补充用户头像
+        const savedUser = localStorage.getItem(USER_LOCAL_KEY);
+        if (savedUser) {
+            try {
+                const localUser = JSON.parse(savedUser);
+                if (localUser.account && localUser.avatar && localUser.avatar !== DEFAULT_AVATAR) {
+                    // 检查是否已存在该用户
+                    const existingUserIndex = userList.findIndex(u => u.account === localUser.account);
+                    if (existingUserIndex === -1) {
+                        userList.push({
+                            account: localUser.account,
+                            avatar: localUser.avatar
+                        });
+                    } else {
+                        // 更新现有用户头像
+                        userList[existingUserIndex].avatar = localUser.avatar;
+                    }
+                }
+            } catch (e) {
+                console.log('解析本地用户信息失败：', e);
+            }
+        }
+        
+        // 3. 获取评论
         const commentIssueNumber = await getCommentIssueNumber(newsIndex);
         const res = await fetch(
             `https://api.github.com/repos/${GITHUB_REPO}/issues/${commentIssueNumber}/comments`,
@@ -2360,7 +2422,7 @@ async function getCommentData(newsIndex) {
         const githubComments = await res.json();
         const githubMainComments = [];
         
-        // 仅解析主评论，忽略回复
+        // 4. 解析评论并关联用户头像
         githubComments.forEach(comment => {
             const parts = comment.body.split('|');
             let openid = parts[0] || "unknown";
@@ -2376,9 +2438,22 @@ async function getCommentData(newsIndex) {
                 content = content.slice(1, -1);
             }
             
+            // 查找用户头像
+            let userAvatar = DEFAULT_AVATAR;
+            if (openid !== "unknown") {
+                const userInfo = userList.find(u => u.account === openid);
+                if (userInfo && userInfo.avatar && userInfo.avatar !== DEFAULT_AVATAR) {
+                    userAvatar = userInfo.avatar;
+                    // 添加时间戳防止缓存
+                    if (!userAvatar.includes('?')) {
+                        userAvatar += '?t=' + Date.now();
+                    }
+                }
+            }
+            
             githubMainComments.push({
-                id: comment.id, // 新增：保存GitHub评论的唯一ID（删除需要用到）
-                avatar: DEFAULT_AVATAR,
+                id: comment.id,
+                avatar: userAvatar,
                 nickname: nickname,
                 content: content,
                 time: new Date(comment.created_at).getTime(),
@@ -2446,10 +2521,33 @@ async function getCommentIssueNumber(newsIndex) {
         throw err;
     }
 }
+// 发表评论时获取当前用户头像
+function getCurrentUserAvatar() {
+    const savedUser = localStorage.getItem(USER_LOCAL_KEY);
+    if (savedUser) {
+        try {
+            const user = JSON.parse(savedUser);
+            // 如果用户有自定义头像，使用自定义头像；否则使用默认头像
+            if (user.avatar && user.avatar !== DEFAULT_AVATAR) {
+                return user.avatar;
+            }
+        } catch (e) {
+            console.log('解析用户信息失败：', e);
+        }
+    }
+    return DEFAULT_AVATAR;
+}
+// 然后在保存评论时使用这个函数获取当前用户的头像
 async function saveCommentData(newsIndex, comment) {
     try {
-        // 移除所有本地缓存相关代码
-        // 直接提交到GitHub
+        // 获取当前用户的头像
+        const userAvatar = getCurrentUserAvatar();
+        
+        // 如果评论中没有头像信息，添加当前用户的头像
+        if (!comment.avatar || comment.avatar === DEFAULT_AVATAR) {
+            comment.avatar = userAvatar;
+        }
+        
         const commentIssueNumber = await getCommentIssueNumber(newsIndex);
         const requestHeaders = {
             "Authorization": `token ${GITHUB_TOKEN}`,
@@ -2470,12 +2568,12 @@ async function saveCommentData(newsIndex, comment) {
         if (!res.ok) {
             const errText = await res.text();
             console.error("提交评论到GitHub失败：", res.status, errText);
-            return false; // 提交失败返回false
+            return false;
         }
-        return true; // 提交成功返回true
+        return true;
     } catch (err) {
         console.error('保存评论出错：', err);
-        return false; // 异常时返回false
+        return false;
     }
 }
 function formatTime(timestamp) {
@@ -2599,21 +2697,36 @@ function renderCommentArea(newsIndex) {
                     emptyTip.textContent = '暂无评论，快来抢沙发吧～';
                     commentList.appendChild(emptyTip);
                 } else {
-                    // 重新渲染所有评论（包含删除按钮逻辑）
+                    // 渲染评论列表（仅主评论，无回复/删除）
                     sortedComments.forEach(comment => {
-                        // 这里复制第三步中渲染单条评论的代码即可
                         const commentItem = document.createElement('div');
                         commentItem.className = 'comment-item';
-                        commentItem.dataset.commentId = comment.id;
                         
+                        // 评论头部（头像/昵称/时间）
                         const commentHeader = document.createElement('div');
                         commentHeader.className = 'comment-user-info';
                         
-                        let headerHtml = `
-                            <img src="${comment.avatar || DEFAULT_AVATAR}" alt="头像" class="comment-user-avatar">
+                        // 创建头像元素，添加时间戳防止缓存
+                        let avatarUrl = comment.avatar || DEFAULT_AVATAR;
+                        if (avatarUrl !== DEFAULT_AVATAR && !avatarUrl.includes('?')) {
+                            avatarUrl += '?t=' + Date.now();
+                        }
+                        
+                        commentHeader.innerHTML = `
+                            <img src="${avatarUrl}" alt="头像" class="comment-user-avatar" onerror="this.src='${DEFAULT_AVATAR}'">
                             <span class="comment-user-name">${comment.nickname}</span>
                             <span class="comment-time">${formatTime(comment.time)}</span>
                         `;
+                        
+                        // 评论内容
+                        const commentContent = document.createElement('div');
+                        commentContent.className = 'comment-content';
+                        commentContent.textContent = comment.content;
+                        
+                        // 组装评论项
+                        commentItem.appendChild(commentHeader);
+                        commentItem.appendChild(commentContent);
+                        commentList.appendChild(commentItem);
                     });
                 }
             });
@@ -2666,11 +2779,18 @@ function renderCommentArea(newsIndex) {
                 const commentItem = document.createElement('div');
                 commentItem.className = 'comment-item';
                 
-                // 评论头部（头像/昵称/时间，移除回复/删除按钮）
+                // 评论头部（头像/昵称/时间）
                 const commentHeader = document.createElement('div');
                 commentHeader.className = 'comment-user-info';
+                
+                // 创建头像元素，添加时间戳防止缓存
+                let avatarUrl = comment.avatar || DEFAULT_AVATAR;
+                if (avatarUrl !== DEFAULT_AVATAR && !avatarUrl.includes('?')) {
+                    avatarUrl += '?t=' + Date.now();
+                }
+                
                 commentHeader.innerHTML = `
-                    <img src="${comment.avatar || DEFAULT_AVATAR}" alt="头像" class="comment-user-avatar">
+                    <img src="${avatarUrl}" alt="头像" class="comment-user-avatar" onerror="this.src='${DEFAULT_AVATAR}'">
                     <span class="comment-user-name">${comment.nickname}</span>
                     <span class="comment-time">${formatTime(comment.time)}</span>
                 `;
