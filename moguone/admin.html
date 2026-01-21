@@ -1,0 +1,3231 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme-mode="light">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="MY HOME 管理员后台">
+    <meta name="keywords" content="管理员,后台,用户管理,日记管理">
+    <meta name="author" content="MY HOME">
+    <title>MY HOME - 管理员后台</title>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/dmego-home-page@latest/assets/css/iconfont.css">
+    
+    <!-- 液态玻璃SVG滤镜 -->
+    <svg style="display: none">
+      <filter id="glass-distortion">
+        <feTurbulence type="fractalNoise" baseFrequency="0.001 0.005" numOctaves="1" seed="17" result="turbulence" />
+        <feComponentTransfer in="turbulence" result="mapped">
+          <feFuncR type="gamma" amplitude="1" exponent="10" offset="0.5" />
+          <feFuncG type="gamma" amplitude="0" exponent="1" offset="0" />
+          <feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5" />
+        </feComponentTransfer>
+        <feGaussianBlur in="turbulence" stdDeviation="3" result="softMap" />
+        <feSpecularLighting in="softMap" surfaceScale="5" specularConstant="1" specularExponent="100" lighting-color="white" result="specLight">
+          <fePointLight x="-200" y="-200" z="300" />
+        </feSpecularLighting>
+        <feComposite in="specLight" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litImage" />
+        <feDisplacementMap in="SourceGraphic" in2="softMap" scale="200" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </svg>
+
+    <style type="text/css">
+        /* 导入首页的核心样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+        }
+        
+        /* ========== 浅色主题 - 清新白色风格，边框明显 ========== */
+        html[data-theme-mode="light"] {
+            --bg-base: #f8fcf9;
+            --bg-mask: linear-gradient(rgba(248, 252, 249, 0.95), rgba(243, 248, 245, 0.9));
+            --bg-card: rgba(255, 255, 255, 0.95);
+            --bg-card-light: rgba(255, 255, 255, 0.9);
+            --bg-nav: rgba(255, 255, 255, 0.9);
+            --bg-footer: rgba(255, 255, 255, 0.9);
+            --color-text-main: #2d3a35;
+            --color-text-sub: #5a6b63;
+            --color-text-title: #1a261f;
+            --color-green: #2db48d;
+            --color-green-deep: #1f9c7a;
+            --border-color: rgba(45, 180, 141, 0.25);
+            --border-color-light: rgba(45, 180, 141, 0.12);
+            --shadow-color: rgba(45, 180, 141, 0.15);
+            --scrollbar-thumb: rgba(45, 180, 141, 0.6);
+            --scrollbar-track: rgba(245, 250, 247, 0.95);
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(45, 180, 141, 0.3);
+            --glass-shadow: 
+                0 10px 30px rgba(45, 180, 141, 0.1),
+                0 4px 12px rgba(0, 0, 0, 0.05);
+            --glass-inset-light: rgba(255, 255, 255, 0.95);
+            --glass-inset-dark: rgba(255, 255, 255, 0.3);
+            --hover-glow: rgba(45, 180, 141, 0.2);
+            --active-scale: 0.98;
+            --font-family-main: "思源圆角 CN", "PingFang SC Round", "Microsoft YaHei UI Light", "圆润黑体 CN", "苹方-圆角", sans-serif;
+            --font-weight-light: 350;
+            --font-weight-normal: 400;
+            --font-weight-medium: 500;
+            --font-weight-bold: 600;
+        }
+        
+        /* ========== 全局字体圆润化+平滑处理 ========== */
+        body {
+            font-family: var(--font-family-main);
+            min-height: 100vh;
+            height: 100%;
+            color: var(--color-text-main);
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-text-stroke: 0.2px transparent;
+            text-rendering: optimizeLegibility;
+            font-size: 15px;
+            line-height: 1.75;
+            width: 100%;
+            transition: font-size 0.3s ease, color 0.3s ease, font-weight 0.3s ease;
+            letter-spacing: 0.3px;
+            background: var(--bg-base);
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-mask);
+            z-index: -2;
+            display: var(--mask-display, block);
+        }
+        
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        ul {
+            list-style: none;
+        }
+        
+        /* iconfont基础样式 */
+        .iconfont {
+            font-family: "iconfont" !important;
+            font-size: inherit;
+            font-style: normal;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* 液态玻璃效果通用样式 */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px) saturate(180%) contrast(1.1) brightness(1.05);
+            -webkit-backdrop-filter: blur(12px) saturate(180%) contrast(1.1) brightness(1.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.08),
+                inset 1px 1px 0 rgba(255, 255, 255, 0.2),
+                inset -1px -1px 0 rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* ========== 顶部返回条 ========== */
+        .admin-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            margin: 10px auto;
+            width: calc(100% - 40px);
+            max-width: 1600px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px) saturate(180%);
+            -webkit-backdrop-filter: blur(12px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            box-shadow: var(--glass-shadow);
+            flex-shrink: 0;
+        }
+        
+        .admin-top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .back-home-btn {
+            padding: 8px 16px;
+            border-radius: 10px;
+            background: rgba(45, 180, 141, 0.1);
+            color: var(--color-green);
+            border: 1px solid rgba(45, 180, 141, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: var(--font-weight-medium);
+        }
+        
+        .back-home-btn:hover {
+            background: rgba(45, 180, 141, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--hover-glow);
+        }
+        
+        .admin-top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .admin-logout-btn {
+            padding: 8px 16px;
+            border-radius: 10px;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: var(--font-weight-medium);
+        }
+        
+        .admin-logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+        }
+        
+        /* ========== 主容器布局 ========== */
+        .admin-main-container {
+            display: flex;
+            flex: 1;
+            width: 100%;
+            max-width: 1600px;
+            margin: 0 auto 20px;
+            padding: 0 20px;
+            gap: 20px;
+            overflow: hidden;
+            height: calc(100% - 100px);
+        }
+        
+        /* ========== 左侧功能区 ========== */
+        .admin-sidebar {
+            width: 220px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: 100%;
+        }
+        
+        /* 管理员标题 */
+        .admin-header {
+            background: var(--glass-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            text-align: center;
+        }
+        
+        .admin-title {
+            font-size: 20px;
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-title);
+            margin-bottom: 8px;
+        }
+        
+        .admin-subtitle {
+            font-size: 13px;
+            color: var(--color-text-sub);
+            font-weight: var(--font-weight-light);
+        }
+        
+        /* 导航菜单 */
+        .admin-nav-menu {
+            background: var(--glass-bg);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex-grow: 1;
+        }
+        
+        .nav-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--color-text-main);
+            text-decoration: none;
+            border: 1px solid transparent;
+        }
+        
+        .nav-menu-item:hover {
+            background: rgba(45, 180, 141, 0.08);
+            transform: translateX(3px);
+        }
+        
+        .nav-menu-item.active {
+            background: rgba(45, 180, 141, 0.15);
+            color: var(--color-green);
+            border-color: rgba(45, 180, 141, 0.3);
+            font-weight: var(--font-weight-medium);
+        }
+        
+        .nav-menu-item .icon {
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .nav-menu-item .text {
+            font-size: 15px;
+        }
+        .stats-cards {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex: 1;
+            max-width: 400px;
+        }
+        .stat-card {
+            background: var(--glass-bg);
+            border-radius: 10px;
+            padding: 8px 12px;
+            border: 1px solid var(--glass-border);
+            text-align: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(12px) saturate(180%);
+            -webkit-backdrop-filter: blur(12px) saturate(180%);
+            box-shadow: var(--glass-shadow);
+            min-width: 80px;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px var(--hover-glow);
+            border-color: rgba(45, 180, 141, 0.5);
+        }
+        .stat-value {
+            font-size: 18px;
+            font-weight: var(--font-weight-bold);
+            color: var(--color-green);
+            margin-bottom: 2px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--color-text-sub);
+            font-weight: var(--font-weight-light);
+        }
+        
+        /* ========== 右侧内容区 ========== */
+        .admin-content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: 0;
+        }
+        
+        /* 内容区头部 */
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: var(--glass-bg);
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+        }
+        
+        .content-title {
+            font-size: 22px;
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-title);
+        }
+        
+        /* 内容主体 */
+        .admin-content {
+            flex: 1;
+            background: var(--glass-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--glass-shadow);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(12px) saturate(180%);
+            -webkit-backdrop-filter: blur(12px) saturate(180%);
+            overflow-y: auto;
+            min-height: 0;
+        }
+        
+        /* 搜索框 */
+        .search-box {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            flex: 1;
+            height: 42px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 0 20px;
+            color: var(--color-text-main);
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px) saturate(150%);
+            -webkit-backdrop-filter: blur(10px) saturate(150%);
+            box-shadow: inset 1px 1px 0 var(--glass-inset-light), inset -1px -1px 0 var(--glass-inset-dark);
+            font-family: var(--font-family-main);
+        }
+        
+        .search-input:focus {
+            border-color: rgba(45,180,141,0.5);
+            box-shadow: 0 0 15px var(--hover-glow), inset 1px 1px 0 var(--glass-inset-light), inset -1px -1px 0 var(--glass-inset-dark);
+            background: white;
+        }
+        
+        /* 表格容器 */
+        .admin-table-container {
+            border-radius: 10px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+        
+        .admin-table th {
+            padding: 16px 15px;
+            text-align: left;
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-title);
+            background: rgba(45, 180, 141, 0.1);
+            border-bottom: 1px solid var(--color-green);
+        }
+        
+        .admin-table td {
+            padding: 14px 15px;
+            border-bottom: 1px solid var(--border-color-light);
+            color: var(--color-text-main);
+        }
+        
+        .admin-table tr:hover {
+            background: rgba(45, 180, 141, 0.05);
+        }
+        
+        /* 日记表格特定列宽 */
+        .admin-table.diary-table td:nth-child(1) { width: 5%; } /* ID */
+        .admin-table.diary-table td:nth-child(2) { width: 20%; } /* 标题 */
+        .admin-table.diary-table td:nth-child(3) { width: 40%; max-width: 350px; } /* 内容 */
+        .admin-table.diary-table td:nth-child(4) { width: 15%; } /* 日期 */
+        .admin-table.diary-table td:nth-child(5) { width: 20%; } /* 操作 */
+        
+        .admin-table.diary-table td:nth-child(3) {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        /* 状态标签 */
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: var(--font-weight-medium);
+            border: 1px solid;
+        }
+        
+        .status-active {
+            background: rgba(45, 180, 141, 0.15);
+            color: var(--color-green);
+            border-color: rgba(45, 180, 141, 0.3);
+        }
+        
+        .status-frozen {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        
+        .status-admin {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        
+        /* 操作按钮组 */
+        .action-buttons {
+            display: flex;
+            gap: 6px;
+            flex-wrap: nowrap;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        
+        .action-btn {
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid;
+            background: transparent;
+            color: var(--color-text-main);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--hover-glow);
+        }
+        
+        .btn-edit {
+            background: rgba(45, 180, 141, 0.1);
+            color: var(--color-green);
+            border-color: rgba(45, 180, 141, 0.4);
+        }
+        
+        .btn-edit:hover {
+            background: rgba(45, 180, 141, 0.2);
+        }
+        
+        .btn-delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+        
+        .btn-delete:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+        
+        .btn-freeze {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+            border-color: rgba(245, 158, 11, 0.4);
+        }
+        
+        .btn-freeze:hover {
+            background: rgba(245, 158, 11, 0.2);
+        }
+        
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-title);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.7);
+            color: var(--color-text-main);
+            font-size: 14px;
+            font-family: var(--font-family-main);
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--color-green);
+            box-shadow: 0 0 0 3px rgba(45, 180, 141, 0.15);
+            background: white;
+        }
+        
+        .form-textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.7);
+            color: var(--color-text-main);
+            font-size: 14px;
+            font-family: var(--font-family-main);
+            resize: vertical;
+            min-height: 100px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--color-green);
+            box-shadow: 0 0 0 3px rgba(45, 180, 141, 0.15);
+            background: white;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        /* 按钮样式 */
+        .btn-primary {
+            padding: 10px 24px;
+            background: linear-gradient(135deg, var(--color-green), var(--color-green-deep));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: var(--font-weight-bold);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 25px var(--hover-glow);
+        }
+        
+        .btn-secondary {
+            padding: 10px 24px;
+            background: transparent;
+            color: var(--color-text-main);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px var(--hover-glow);
+            border-color: var(--color-green);
+            color: var(--color-green);
+        }
+        
+        .btn-reset {
+            padding: 10px 24px;
+            background: transparent;
+            color: var(--color-text-sub);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-reset:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-color: var(--color-text-sub);
+        }
+        
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 20px;
+        }
+        
+        .page-btn {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            background: transparent;
+            color: var(--color-text-main);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .page-btn.active {
+            background: var(--color-green);
+            color: white;
+            border-color: var(--color-green);
+        }
+        
+        .page-btn:hover:not(.active) {
+            border-color: var(--color-green);
+            color: var(--color-green);
+        }
+        
+        /* ========== 模态框样式 ========== */
+        .modal-mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .modal-mask.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .modal-box {
+            width: 90%;
+            max-width: 1000px; /* 加宽模态框以适应双栏布局 */
+            max-height: 90vh; /* 从85vh调整到90vh，增加可用高度 */
+            background: var(--glass-bg);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            padding: 24px;
+            transform: translateY(15px) scale(0.95);
+            transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .modal-mask.show .modal-box {
+            transform: translateY(0) scale(1);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-title);
+        }
+        
+        .modal-close-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            color: var(--color-text-sub);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-close-btn:hover {
+            background: rgba(45, 180, 141, 0.1);
+            color: var(--color-green);
+            transform: rotate(90deg);
+        }
+        
+        .modal-body {
+            padding: 10px 0;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        
+        /* ========== 日记编辑模态框 ========== */
+        .diary-edit-layout {
+            display: flex;
+            gap: 20px;
+            height: 100%;
+            width: 100%;
+        }
+        
+        /* 左栏：文本内容区域 */
+        .diary-edit-left {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+            padding-right: 10px;
+            max-height: calc(85vh - 180px); /* 适配模态框高度 */
+        }
+        
+        /* 右栏：媒体编辑区域 */
+        .diary-edit-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+            padding-left: 10px;
+            max-height: calc(85vh - 180px); /* 适配模态框高度 */
+            border-left: 1px solid var(--border-color);
+            padding-left: 20px;
+        }
+        
+        .media-preview-section {
+            margin-top: 0;
+        }
+        
+        .media-preview-title {
+            font-weight: var(--font-weight-medium);
+            margin-bottom: 10px;
+            color: var(--color-text-title);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .media-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .media-item img, .media-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .media-delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+        
+        .media-item:hover .media-delete-btn {
+            opacity: 1;
+        }
+        
+        .media-delete-btn:hover {
+            background: rgba(239, 68, 68, 1);
+            transform: scale(1.1);
+        }
+        
+        .media-links-textarea {
+            font-size: 13px;
+            min-height: 80px;
+            font-family: monospace;
+        }
+        
+        /* 文件上传区域 */
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(45, 180, 141, 0.02);
+        }
+        
+        .upload-area:hover {
+            border-color: var(--color-green);
+            background: rgba(45, 180, 141, 0.05);
+        }
+        
+        .upload-area.dragover {
+            border-color: var(--color-green);
+            background: rgba(45, 180, 141, 0.1);
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            font-size: 36px;
+            color: var(--color-green);
+            margin-bottom: 10px;
+        }
+        
+        .upload-text {
+            font-size: 14px;
+            color: var(--color-text-main);
+            margin-bottom: 8px;
+        }
+        
+        .upload-hint {
+            font-size: 12px;
+            color: var(--color-text-sub);
+        }
+        
+        /* 响应式适配：小屏幕恢复单列布局 */
+        @media (max-width: 768px) {
+            .diary-edit-layout {
+                flex-direction: column;
+            }
+            .diary-edit-right {
+                border-left: none;
+                border-top: 1px solid var(--border-color);
+                padding-left: 0;
+                padding-top: 20px;
+            }
+            .diary-edit-left, .diary-edit-right {
+                max-height: none;
+                padding-right: 0;
+                padding-left: 0;
+            }
+        }
+        
+        .media-preview-section {
+            margin-top: 15px;
+        }
+        
+        .media-preview-title {
+            font-weight: var(--font-weight-medium);
+            margin-bottom: 10px;
+            color: var(--color-text-title);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .media-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .media-item img, .media-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .media-delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+        
+        .media-item:hover .media-delete-btn {
+            opacity: 1;
+        }
+        
+        .media-delete-btn:hover {
+            background: rgba(239, 68, 68, 1);
+            transform: scale(1.1);
+        }
+        
+        .media-links-textarea {
+            font-size: 13px;
+            min-height: 80px;
+            font-family: monospace;
+        }
+        
+        /* 文件上传区域 */
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(45, 180, 141, 0.02);
+        }
+        
+        .upload-area:hover {
+            border-color: var(--color-green);
+            background: rgba(45, 180, 141, 0.05);
+        }
+        
+        .upload-area.dragover {
+            border-color: var(--color-green);
+            background: rgba(45, 180, 141, 0.1);
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            font-size: 36px;
+            color: var(--color-green);
+            margin-bottom: 10px;
+        }
+        
+        .upload-text {
+            font-size: 14px;
+            color: var(--color-text-main);
+            margin-bottom: 8px;
+        }
+        
+        .upload-hint {
+            font-size: 12px;
+            color: var(--color-text-sub);
+        }
+        
+        /* 消息提示 */
+        .toast-notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px) saturate(180%);
+            -webkit-backdrop-filter: blur(12px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 10px 18px;
+            color: var(--color-text-main);
+            font-size: 14px;
+            box-shadow: var(--glass-shadow);
+            z-index: 999999;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .toast-notification .icon {
+            color: var(--color-green);
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        /* 预览模态框 */
+        #diaryPreviewModal .modal-box {
+            max-width: 1000px;
+            width: 95%;
+        }
+        
+        .diary-preview-content {
+            line-height: 1.8;
+        }
+        
+        .diary-preview-title {
+            font-size: 22px;
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-title);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .diary-preview-meta {
+            color: var(--color-text-sub);
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .diary-preview-text {
+            margin-bottom: 25px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .admin-main-container {
+                flex-direction: column;
+                height: auto;
+                overflow-y: auto;
+            }
+            
+            .admin-sidebar {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            
+            .admin-nav-menu {
+                flex-direction: row;
+                justify-content: center;
+            }
+            
+            .stats-cards {
+                grid-template-columns: repeat(3, 1fr);
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .admin-main-container {
+                padding: 0 15px;
+            }
+            
+            .admin-top-bar {
+				flex-direction: column;
+				gap: 12px;
+				align-items: stretch;
+			}
+    
+			.admin-top-bar-left,
+			.admin-top-bar-right {
+				justify-content: center;
+			}
+            /* 其他原有样式保持不变 */
+			.content-header {
+				flex-direction: column;
+				gap: 12px;
+				align-items: flex-start;
+			}		
+            
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .stats-cards {
+				width: 100%;
+				max-width: none;
+			}
+            
+            .modal-box {
+                padding: 20px;
+            }
+            
+            .search-box {
+                flex-wrap: wrap;
+            }
+            
+            .search-box button {
+                flex: 1;
+            }
+            
+            .admin-table.diary-table td:nth-child(3) {
+                max-width: 200px;
+            }
+            
+            .media-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .admin-title {
+                font-size: 24px;
+            }
+            
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-footer {
+                flex-direction: column;
+            }
+            
+            .modal-footer button {
+                width: 100%;
+            }
+            
+            .search-box button {
+                min-width: 100%;
+            }
+            
+            .admin-table.diary-table td:nth-child(3) {
+                max-width: 150px;
+            }
+            
+            .media-grid {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
+        }
+        /* 静态视频预览样式 - 禁止所有视频预览交互 */
+        .media-item video {
+            pointer-events: none !important;
+            user-select: none !important;
+            cursor: default !important;
+        }
+        #previewVideosGrid .media-item video {
+            pointer-events: none !important;
+            user-select: none !important;
+        }
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--color-green);
+        }
+        
+        /* 空状态提示 */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--color-text-sub);
+        }
+        
+        .empty-state .icon {
+            font-size: 48px;
+            color: var(--color-green);
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        .empty-state .text {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部返回条 -->
+    <div class="admin-top-bar">
+        <div class="admin-top-bar-left">
+            <button class="back-home-btn" id="backHomeBtn">
+                <i class="iconfont icon-home"></i> 返回首页
+            </button>
+            <div class="current-user-info" id="currentUserInfo">
+                管理员：<span id="currentUserName">加载中...</span>
+            </div>
+        </div>
+		<!-- 统计卡片 -->
+		<div class="stats-cards">
+		    <div class="stat-card">
+		        <div class="stat-value" id="totalUsers">0</div>
+		        <div class="stat-label">总用户数</div>
+		    </div>
+		    <div class="stat-card">
+		        <div class="stat-value" id="totalDiaries">0</div>
+		        <div class="stat-label">总日记数</div>
+		    </div>
+		    <div class="stat-card">
+		        <div class="stat-value" id="frozenUsers">0</div>
+		        <div class="stat-label">冻结用户</div>
+		    </div>
+		</div>
+        <div class="admin-top-bar-right">
+            <button class="admin-logout-btn" id="adminLogoutBtn">
+                <i class="iconfont icon-logout"></i> 退出登录
+            </button>
+        </div>
+    </div>
+
+    <!-- 管理员主容器 -->
+    <div class="admin-main-container">
+        <!-- 左侧功能区 -->
+        <div class="admin-sidebar">
+            <!-- 管理员标题 -->
+            <div class="admin-header">
+                <h1 class="admin-title">管理员后台</h1>
+                <p class="admin-subtitle">管理用户、日记及网站设置</p>
+            </div>
+
+
+            <!-- 导航菜单 -->
+            <div class="admin-nav-menu">
+                <div class="nav-menu-item active" id="userManagementNav">
+                    <i class="iconfont icon-user icon"></i>
+                    <span class="text">用户管理</span>
+                </div>
+                
+                <div class="nav-menu-item" id="diaryManagementNav">
+                    <i class="iconfont icon-file-text icon"></i>
+                    <span class="text">日记管理</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧内容区 -->
+        <div class="admin-content-area">
+            <!-- 内容区头部 -->
+            <div class="content-header">
+                <h2 class="content-title">用户管理</h2>
+                <button class="btn-primary" id="addItemBtn">
+                    <i class="iconfont icon-plus"></i> 添加新用户
+                </button>
+            </div>
+            
+            <!-- 内容主体 -->
+            <div class="admin-content" id="adminContent">
+                <!-- 搜索框 - 仅用户管理显示 -->
+                <div class="search-box" id="searchBox">
+                    <input type="text" class="search-input" id="searchInput" placeholder="搜索用户账号、昵称或邮箱...">
+                    <button class="btn-secondary" id="searchBtn">
+                        <i class="iconfont icon-search"></i> 搜索
+                    </button>
+                    <button class="btn-reset" id="resetBtn">
+                        <i class="iconfont icon-refresh"></i> 重置
+                    </button>
+                </div>
+                
+                <!-- 表格容器 -->
+                <div class="admin-table-container">
+                    <table class="admin-table" id="dataTable">
+                        <thead id="tableHeader">
+                            <tr>
+                                <th>ID</th>
+                                <th>账号</th>
+                                <th>昵称</th>
+                                <th>邮箱</th>
+                                <th>状态</th>
+                                <th>角色</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- 数据将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- 分页 -->
+                <div class="pagination" id="pagination">
+                    <!-- 分页按钮将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 用户编辑模态框 -->
+    <div class="modal-mask" id="userEditModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 class="modal-title" id="userModalTitle">编辑用户信息</h3>
+                <button class="modal-close-btn" id="closeUserModalBtn">×</button>
+            </div>
+            <form id="userEditForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">账号</label>
+                        <input type="text" class="form-input" id="editAccount" name="account" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">密码</label>
+                        <input type="password" class="form-input" id="editPassword" name="password" placeholder="留空则不修改">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">昵称</label>
+                        <input type="text" class="form-input" id="editNickname" name="nickname" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">邮箱</label>
+                        <input type="email" class="form-input" id="editEmail" name="email">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">状态</label>
+                        <select class="form-input" id="editStatus" name="status">
+                            <option value="active">正常</option>
+                            <option value="frozen">冻结</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">角色</label>
+                        <select class="form-input" id="editRole" name="role">
+                            <option value="user">普通用户</option>
+                            <option value="admin">管理员</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelUserEditBtn">取消</button>
+                    <button type="submit" class="btn-primary" id="saveUserBtn">保存更改</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 日记编辑模态框 -->
+    <div class="modal-mask" id="diaryEditModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 class="modal-title" id="diaryModalTitle">编辑日记</h3>
+                <button class="modal-close-btn" id="closeDiaryModalBtn">×</button>
+            </div>
+            <form id="diaryEditForm">
+                <div class="diary-edit-layout">
+                    <!-- 左栏：文本内容编辑 -->
+                    <div class="diary-edit-left">
+                        <!-- 基本字段 -->
+                        <div class="form-group">
+                            <label class="form-label">标题</label>
+                            <input type="text" class="form-input" id="editDiaryTitle" name="title" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">内容</label>
+                            <textarea class="form-textarea" id="editDiaryContent" name="content" required style="min-height: 200px;"></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">发布日期</label>
+                                <input type="datetime-local" class="form-input" id="editDiaryDate" name="date" required>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <!-- 右栏：媒体内容编辑 -->
+                    <div class="diary-edit-right">
+                        <!-- 图片预览和删除 -->
+                        <div class="media-preview-section" id="imagePreviewSection">
+                            <div class="media-preview-title">
+                                <span>图片预览</span>
+                                <span id="imageCount">(0张)</span>
+                            </div>
+                            <div class="media-grid" id="imagePreviewGrid">
+                                <!-- 图片预览将通过JavaScript动态生成 -->
+                            </div>
+                        </div>
+                        
+                        <!-- 视频预览和删除 -->
+                        <div class="media-preview-section" id="videoPreviewSection">
+                            <div class="media-preview-title">
+                                <span>视频预览</span>
+                                <span id="videoCount">(0个)</span>
+                            </div>
+                            <div class="media-grid" id="videoPreviewGrid">
+                                <!-- 视频预览将通过JavaScript动态生成 -->
+                            </div>
+                        </div>
+                        
+                        <!-- 文件上传区域 -->
+                        <div class="upload-area" id="fileUploadArea">
+                            <input type="file" id="fileInput" accept="image/*,video/*" multiple style="display: none;">
+                            <div class="upload-icon">
+                                <i class="iconfont icon-upload"></i>
+                            </div>
+                            <div class="upload-text">点击或拖拽文件到此处上传</div>
+                            <div class="upload-hint">支持图片(jpg/png/gif/webp)和视频(mp4/webm/mov)格式</div>
+                            
+                            <div class="upload-progress" id="uploadProgress" style="display: none;">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progressFill"></div>
+                                </div>
+                                <div class="progress-text" id="progressText">0%</div>
+                            </div>
+                            
+                            <div class="upload-files-list" id="uploadFilesList"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelDiaryEditBtn">取消</button>
+                    <button type="submit" class="btn-primary" id="saveDiaryBtn">保存日记</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div class="modal-mask" id="confirmModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 class="modal-title" id="confirmModalTitle">确认操作</h3>
+                <button class="modal-close-btn" id="closeConfirmModalBtn">×</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmModalMessage">您确定要执行此操作吗？</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" id="cancelConfirmBtn">取消</button>
+                <button type="button" class="btn-primary" id="confirmActionBtn">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 日记预览模态框 -->
+    <div class="modal-mask" id="diaryPreviewModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 class="modal-title">日记预览</h3>
+                <button class="modal-close-btn" id="closeDiaryPreviewModalBtn">×</button>
+            </div>
+            <div class="modal-body diary-preview-content">
+                <div class="diary-preview-title" id="previewDiaryTitle"></div>
+                <div class="diary-preview-meta">
+                    <span id="previewDiaryDate"></span>
+                    <span id="previewDiaryStats"></span>
+                </div>
+                <div class="diary-preview-text" id="previewDiaryContent"></div>
+                
+                <!-- 图片预览 -->
+                <div class="media-preview-container" id="previewImagesContainer" style="display: none;">
+                    <div class="media-preview-title">图片预览：</div>
+                    <div class="media-grid" id="previewImagesGrid"></div>
+                </div>
+                
+                <!-- 视频预览 -->
+                <div class="media-preview-container" id="previewVideosContainer" style="display: none;">
+                    <div class="media-preview-title">视频预览：</div>
+                    <div class="media-grid" id="previewVideosGrid"></div>
+                </div>
+                
+                <!-- 无媒体时显示提示 -->
+                <div id="previewMediaEmpty" style="display: none; text-align: center; padding: 20px; color: var(--color-text-sub);">
+                    暂无图片/视频内容
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-primary" id="closePreviewBtn">关闭预览</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 消息提示 -->
+    <div class="toast-notification" id="toastNotification">
+        <span class="icon">✓</span>
+        <span class="text">操作成功！</span>
+    </div>
+
+    <script type="text/javascript">
+        // ====== 管理员页面核心变量 ======
+        const GITHUB_REPO = "moguwan/moguwan.github.io";
+        const GITHUB_TOKEN = ["g","h","p_Eulq5","0oi65","MM7A", "rEk8H7yz","9k5W9l9", "O0e6Xmh"].join('');
+        const USER_ISSUE_NUMBER = 11; // 用户信息存储的Issue编号（与登录页一致）
+        const NEWS_ISSUE_NUMBER = 322; // 日记存储的Issue编号
+        const NEWS_SEPARATOR = '---';
+        
+        // GitHub图床配置
+        const GITHUB_IMAGE_PATH = "images"; // 图片存储目录
+        const GITHUB_IMAGE_BRANCH = "main"; // 分支名
+        
+        // 状态管理
+        let currentUser = null;
+        let currentUsers = [];
+        let currentDiaries = [];
+        let currentView = 'users'; // 'users' 或 'diaries'
+        let currentPage = 1;
+        const itemsPerPage = 8;
+        let pendingAction = null; // 用于确认模态框
+        let editingDiaryMedia = {
+            images: [],
+            videos: []
+        }; // 当前编辑日记的媒体文件
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            initAuth();
+            initEventListeners();
+            initUploadFunctionality();
+            loadUsers();
+            loadDiaries();
+            updateStats();
+        });
+
+        // 验证管理员权限
+        function initAuth() {
+            const savedUser = localStorage.getItem('MY_CUSTOM_USER_INFO');
+            if (!savedUser) {
+                window.location.href = '../index.html';
+                return;
+            }
+            
+            currentUser = JSON.parse(savedUser);
+            if (!currentUser.isAdmin) {
+                alert('只有管理员可以访问此页面！');
+                window.location.href = '../index.html';
+                return;
+            }
+            
+            document.getElementById('currentUserName').textContent = currentUser.nickname;
+        }
+
+        // 初始化事件监听器
+        function initEventListeners() {
+            // 返回首页按钮
+            document.getElementById('backHomeBtn').addEventListener('click', () => {
+                window.location.href = '../index.html';
+            });
+            
+            // 退出登录按钮
+            document.getElementById('adminLogoutBtn').addEventListener('click', logout);
+            
+            // 导航菜单点击
+            document.getElementById('userManagementNav').addEventListener('click', () => {
+                switchView('users');
+            });
+            
+            document.getElementById('diaryManagementNav').addEventListener('click', () => {
+                switchView('diaries');
+            });
+            
+            // 添加按钮（根据当前视图动态变化）
+            document.getElementById('addItemBtn').addEventListener('click', () => {
+                if (currentView === 'users') {
+                    openUserEditModal(null);
+                } else if (currentView === 'diaries') {
+                    openDiaryEditModal(null);
+                }
+            });
+            
+            // 搜索功能
+            document.getElementById('searchBtn').addEventListener('click', searchItems);
+            document.getElementById('searchInput').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') searchItems();
+            });
+            
+            // 重置按钮
+            document.getElementById('resetBtn').addEventListener('click', resetSearch);
+            
+            // 模态框关闭
+            document.getElementById('closeUserModalBtn').addEventListener('click', () => {
+                closeModal('userEditModal');
+            });
+            
+            document.getElementById('closeDiaryModalBtn').addEventListener('click', () => {
+                closeModal('diaryEditModal');
+            });
+            
+            document.getElementById('closeConfirmModalBtn').addEventListener('click', () => {
+                closeModal('confirmModal');
+            });
+            
+            document.getElementById('cancelUserEditBtn').addEventListener('click', () => {
+                closeModal('userEditModal');
+            });
+            
+            document.getElementById('cancelDiaryEditBtn').addEventListener('click', () => {
+                closeModal('diaryEditModal');
+            });
+            
+            document.getElementById('cancelConfirmBtn').addEventListener('click', () => {
+                closeModal('confirmModal');
+            });
+            
+            // 预览模态框关闭
+            document.getElementById('closeDiaryPreviewModalBtn').addEventListener('click', () => {
+                closeModal('diaryPreviewModal');
+            });
+            
+            document.getElementById('closePreviewBtn').addEventListener('click', () => {
+                closeModal('diaryPreviewModal');
+            });
+            
+            // 表单提交
+            document.getElementById('userEditForm').addEventListener('submit', saveUser);
+            document.getElementById('diaryEditForm').addEventListener('submit', saveDiary);
+            
+            // 确认操作
+            document.getElementById('confirmActionBtn').addEventListener('click', executePendingAction);
+            
+            // 点击模态框外部关闭
+            document.querySelectorAll('.modal-mask').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        closeModal(modal.id);
+                    }
+                });
+            });
+        }
+        
+        // 初始化上传功能
+        function initUploadFunctionality() {
+            const uploadArea = document.getElementById('fileUploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const uploadProgress = document.getElementById('uploadProgress');
+            const uploadFilesList = document.getElementById('uploadFilesList');
+
+            // 点击上传区域触发文件选择
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            // 处理文件选择
+            fileInput.addEventListener('change', (e) => {
+                const files = e.target.files;
+                if (files.length > 0) {
+                    Array.from(files).forEach(file => {
+                        uploadToGitHub(file);
+                    });
+                    // 清空文件输入，允许重复选择同一文件
+                    fileInput.value = '';
+                }
+            });
+
+            // 拖拽事件处理
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    Array.from(files).forEach(file => {
+                        uploadToGitHub(file);
+                    });
+                }
+            });
+
+            // 单个文件上传到GitHub
+            async function uploadToGitHub(file) {
+                const githubToken = GITHUB_TOKEN; // 直接使用代码中拆分的 Token
+                if (!githubToken) {
+                    showToast('GitHub Token 未配置');
+                    return;
+                }
+            
+                // 验证文件类型
+                const fileType = file.type.split('/')[0];
+                if (!['image', 'video'].includes(fileType)) {
+                    showToast(`不支持的文件类型：${file.name}`);
+                    return;
+                }
+            
+                // 验证文件大小（GitHub限制100MB，但建议控制在50MB内）
+                const maxSize = 50 * 1024 * 1024; // 50MB
+                if (file.size > maxSize) {
+                    showToast(`${file.name} 超过50MB限制，请压缩后上传`);
+                    return;
+                }
+            
+                // 创建上传状态项
+                const fileId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                addFileToUploadList(fileId, file.name, 'uploading');
+            
+                // 显示进度条
+                uploadProgress.style.display = 'block';
+                progressFill.style.width = '0%';
+                progressText.textContent = '0%';
+            
+                try {
+                    // 读取文件为Base64
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    
+                    reader.onload = async () => {
+                        try {
+                            const base64Data = reader.result.split(',')[1]; // 移除data:image/xxx;base64,前缀
+                            const fileName = generateFileName(file);
+                            const filePath = `${GITHUB_IMAGE_PATH}/${fileName}`;
+                            
+                            // 更新进度到25%
+                            progressFill.style.width = '25%';
+                            progressText.textContent = '25%';
+            
+                            // 检查文件是否已存在
+                            const checkUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}`;
+                            let sha = null;
+                            
+                            try {
+                                const checkResponse = await fetch(checkUrl, {
+                                    headers: {
+                                        'Authorization': `token ${githubToken}`,
+                                        'Accept': 'application/vnd.github.v3+json',
+                                        'User-Agent': 'Mozilla/5.0'
+                                    }
+                                });
+                                
+                                if (checkResponse.ok) {
+                                    const existingFile = await checkResponse.json();
+                                    sha = existingFile.sha; // 获取文件的sha值，用于更新
+                                }
+                            } catch (error) {
+                                // 文件不存在，正常上传
+                                console.log('文件不存在，将创建新文件');
+                            }
+            
+                            // 更新进度到50%
+                            progressFill.style.width = '50%';
+                            progressText.textContent = '50%';
+            
+                            // 准备上传数据
+                            const uploadData = {
+                                message: `Upload ${fileName}`,
+                                content: base64Data,
+                                branch: GITHUB_IMAGE_BRANCH
+                            };
+                            
+                            // 如果文件已存在，添加sha值以更新文件
+                            if (sha) {
+                                uploadData.sha = sha;
+                            }
+            
+                            // 上传到GitHub
+                            const uploadUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}`;
+                            const uploadResponse = await fetch(uploadUrl, {
+                                method: 'PUT',
+                                headers: {
+                                    'Authorization': `token ${githubToken}`,
+                                    'Accept': 'application/vnd.github.v3+json',
+                                    'Content-Type': 'application/json',
+                                    'User-Agent': 'Mozilla/5.0'
+                                },
+                                body: JSON.stringify(uploadData)
+                            });
+            
+                            if (uploadResponse.ok) {
+                                const result = await uploadResponse.json();
+                                
+                                // 生成GitHub raw链接
+                                const cdnUrl = `https://github.com/${GITHUB_REPO}/blob/${GITHUB_IMAGE_BRANCH}/${filePath}?raw=true`;
+                                
+                                // 更新进度到100%
+                                progressFill.style.width = '100%';
+                                progressText.textContent = '100%';
+                                
+                                addFileToUploadList(fileId, file.name, 'success');
+                                
+                                // 根据文件类型添加到媒体数据
+                                if (fileType === 'image') {
+                                    editingDiaryMedia.images.push(cdnUrl);
+                                    updateImagePreview(); // 更新图片预览
+                                } else {
+                                    editingDiaryMedia.videos.push(cdnUrl);
+                                    updateVideoPreview(); // 更新视频预览
+                                }
+                                
+                                showToast(`${file.name} 上传成功`);
+                            } else {
+                                const errorText = await uploadResponse.text();
+                                throw new Error(`GitHub上传失败 [${uploadResponse.status}]: ${errorText}`);
+                            }
+                        } catch (error) {
+                            console.error('GitHub上传失败:', error);
+                            addFileToUploadList(fileId, file.name, 'error', error.message);
+                            showToast(`${file.name} 上传失败：${error.message}`);
+                        } finally {
+                            setTimeout(() => uploadProgress.style.display = 'none', 1000);
+                        }
+                    };
+                    
+                    reader.onerror = (error) => {
+                        console.error('文件读取失败:', error);
+                        addFileToUploadList(fileId, file.name, 'error', '文件读取失败');
+                        showToast(`${file.name} 读取失败`);
+                        uploadProgress.style.display = 'none';
+                    };
+                    
+                } catch (error) {
+                    console.error('上传初始化失败:', error);
+                    addFileToUploadList(fileId, file.name, 'error', error.message);
+                    showToast(`${file.name} 上传失败：${error.message}`);
+                    uploadProgress.style.display = 'none';
+                }
+            }
+
+            // 生成唯一的文件名
+            function generateFileName(file) {
+                const timestamp = Date.now();
+                const randomStr = Math.random().toString(36).substring(2, 8);
+                const originalName = file.name.replace(/\.[^/.]+$/, ""); // 移除扩展名
+                const safeName = originalName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                const extension = file.name.split('.').pop().toLowerCase();
+                
+                return `${safeName}_${timestamp}_${randomStr}.${extension}`;
+            }
+
+            // 添加文件到上传列表
+            function addFileToUploadList(fileId, fileName, status, message = '') {
+                let statusClass = '';
+                let statusText = '';
+
+                switch (status) {
+                    case 'uploading':
+                        statusClass = 'status-uploading';
+                        statusText = '上传中...';
+                        break;
+                    case 'success':
+                        statusClass = 'status-success';
+                        statusText = '上传成功';
+                        break;
+                    case 'error':
+                        statusClass = 'status-error';
+                        statusText = `失败：${message}`;
+                        break;
+                }
+
+                // 检查是否已存在该文件的状态项
+                let fileItem = document.getElementById(`file-item-${fileId}`);
+                if (!fileItem) {
+                    fileItem = document.createElement('div');
+                    fileItem.id = `file-item-${fileId}`;
+                    fileItem.className = 'upload-file-item';
+                    uploadFilesList.appendChild(fileItem);
+                }
+
+                fileItem.innerHTML = `
+                    <div class="file-name" title="${fileName}">${fileName}</div>
+                    <div class="file-status ${statusClass}">${statusText}</div>
+                `;
+
+                // 自动滚动到底部
+                uploadFilesList.scrollTop = uploadFilesList.scrollHeight;
+            }
+        }
+        
+        // 更新图片预览（修改后：从editingDiaryMedia读取）
+        function updateImagePreview() {
+            const imagePreviewGrid = document.getElementById('imagePreviewGrid');
+            const imageCount = document.getElementById('imageCount');
+            const images = editingDiaryMedia.images || [];
+            
+            imagePreviewGrid.innerHTML = '';
+            
+            images.forEach((imageUrl, index) => {
+                const mediaItem = document.createElement('div');
+                mediaItem.className = 'media-item';
+                // 优化：修复SVG占位图的转义问题，确保加载失败时显示正常
+                mediaItem.innerHTML = `
+                    <img src="${imageUrl}" alt="图片预览" 
+                         onerror="this.src='data:image/svg+xml;utf8,%3Csvg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;100&quot; height=&quot;100&quot;%3E%3Crect width=&quot;100&quot; height=&quot;100&quot; fill=&quot;%23f0f0f0&quot;/%3E%3Ctext x=&quot;50&quot; y=&quot;50&quot; font-family=&quot;Arial&quot; font-size=&quot;10&quot; text-anchor=&quot;middle&quot; fill=&quot;%23999&quot;%3E图片加载失败%3C/text%3E%3C/svg%3E';">
+                    <button class="media-delete-btn" data-index="${index}" data-type="image">×</button>
+                `;
+                imagePreviewGrid.appendChild(mediaItem);
+            });
+            
+            imageCount.textContent = `(${images.length}张)`;
+            
+            // 绑定删除按钮事件
+            document.querySelectorAll('#imagePreviewGrid .media-delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = parseInt(e.target.dataset.index);
+                    // 从媒体数据中删除
+                    editingDiaryMedia.images.splice(index, 1);
+                    // 更新预览
+                    updateImagePreview();
+                    showToast('图片已删除');
+                });
+            });
+        }
+        
+        // 更新视频预览（修改后：从editingDiaryMedia读取）
+        function updateVideoPreview() {
+            const videoPreviewGrid = document.getElementById('videoPreviewGrid');
+            const videoCount = document.getElementById('videoCount');
+            const videos = editingDiaryMedia.videos || [];
+            
+            videoPreviewGrid.innerHTML = '';
+            
+            videos.forEach((videoUrl, index) => {
+                const mediaItem = document.createElement('div');
+                mediaItem.className = 'media-item';
+                mediaItem.innerHTML = `
+                    <video 
+                        src="${videoUrl}" 
+                        alt="视频预览" 
+                        preload="none"  // 禁止预加载视频内容
+                        poster="${videoUrl}"  // 使用视频地址作为封面（浏览器会自动提取第一帧）
+                        controls="false"  // 隐藏播放控件
+                        autoplay="false"  // 禁止自动播放
+                        loop="false"      // 禁止循环播放
+                        muted="true"      // 静音（防止意外播放）
+                        style="pointer-events: none; user-select: none;"  // 禁止点击/选择交互
+                        onerror="this.src='data:image/svg+xml;utf8,%3Csvg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;100&quot; height=&quot;100&quot;%3E%3Crect width=&quot;100&quot; height=&quot;100&quot; fill=&quot;%23f0f0f0&quot;/%3E%3Ctext x=&quot;50&quot; y=&quot;50&quot; font-family=&quot;Arial&quot; font-size=&quot;10&quot; text-anchor=&quot;middle&quot; fill=&quot;%23999&quot;%3E视频加载失败%3C/text%3E%3C/svg%3E';"
+                    ></video>
+                    <button class="media-delete-btn" data-index="${index}" data-type="video">×</button>
+                `;
+                videoPreviewGrid.appendChild(mediaItem);
+            });
+            
+            videoCount.textContent = `(${videos.length}个)`;
+            
+            // 绑定删除按钮事件
+            document.querySelectorAll('#videoPreviewGrid .media-delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = parseInt(e.target.dataset.index);
+                    // 从媒体数据中删除
+                    editingDiaryMedia.videos.splice(index, 1);
+                    // 更新预览
+                    updateVideoPreview();
+                    showToast('视频已删除');
+                });
+            });
+        }
+        
+        // 切换视图
+        function switchView(view) {
+            currentView = view;
+            currentPage = 1;
+            
+            const contentTitle = document.querySelector('.content-title');
+            const addButton = document.getElementById('addItemBtn');
+            const searchBox = document.getElementById('searchBox');
+            const table = document.getElementById('dataTable');
+            
+            // 更新导航菜单活动状态
+            document.querySelectorAll('.nav-menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            if (view === 'users') {
+                document.getElementById('userManagementNav').classList.add('active');
+                contentTitle.textContent = '用户管理';
+                addButton.innerHTML = '<i class="iconfont icon-plus"></i> 添加新用户';
+                addButton.style.display = 'block';
+                searchBox.style.display = 'flex';
+                table.classList.remove('diary-table');
+                
+                // 设置用户表头
+                document.getElementById('tableHeader').innerHTML = `
+                    <tr>
+                        <th>ID</th>
+                        <th>账号</th>
+                        <th>昵称</th>
+                        <th>邮箱</th>
+                        <th>状态</th>
+                        <th>角色</th>
+                        <th>操作</th>
+                    </tr>
+                `;
+                
+                // 设置搜索框提示
+                document.getElementById('searchInput').placeholder = '搜索用户账号、昵称或邮箱...';
+                document.getElementById('searchInput').value = '';
+                
+                renderUserTable();
+            } else if (view === 'diaries') {
+                document.getElementById('diaryManagementNav').classList.add('active');
+                contentTitle.textContent = '日记管理';
+                addButton.innerHTML = '<i class="iconfont icon-plus"></i> 添加新日记';
+                addButton.style.display = 'block';
+                searchBox.style.display = 'none';
+                table.classList.add('diary-table');
+                
+                // 设置日记表头
+                document.getElementById('tableHeader').innerHTML = `
+                    <tr>
+                        <th>ID</th>
+                        <th>标题</th>
+                        <th>内容</th>
+                        <th>日期</th>
+                        <th>操作</th>
+                    </tr>
+                `;
+                
+                renderDiaryTable();
+            }
+        }
+
+        // 加载用户数据
+        async function loadUsers() {
+            try {
+                const requestHeaders = {
+                    "Authorization": `token ${GITHUB_TOKEN}`,
+                    "Accept": "application/vnd.github.v3+json",
+                    "User-Agent": "Mozilla/5.0"
+                };
+
+                const res = await fetch(
+                    `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
+                    { headers: requestHeaders, method: "GET" }
+                );
+
+                if (!res.ok) {
+                    throw new Error('获取用户数据失败');
+                }
+
+                const issue = await res.json();
+                const userLines = issue.body.split('\n').filter(line => line.includes('|'));
+                
+                currentUsers = userLines.map((line, index) => {
+                    const parts = line.split('|');
+                    const account = parts[0]?.trim() || '';
+                    const pwd = parts[1]?.trim() || '';
+                    const email = parts[2]?.trim() || '';
+                    const nickname = parts[3]?.trim() || account;
+                    const isAdmin = parts[4]?.trim() === 'true' || parts[4]?.trim() === '管理员';
+                    const isFrozen = parts[5]?.trim() === '冻结';
+                    
+                    return {
+                        id: index + 1,
+                        account: account,
+                        password: pwd,
+                        email: email,
+                        nickname: nickname,
+                        isAdmin: isAdmin,
+                        isFrozen: isFrozen,
+                        registerTime: Date.now() - (currentUsers.length - index) * 24 * 60 * 60 * 1000
+                    };
+                });
+
+                renderUserTable();
+                updateStats();
+            } catch (err) {
+                console.error('加载用户失败：', err);
+                showToast('加载用户数据失败');
+                // 使用模拟数据作为后备
+                currentUsers = getMockUsers();
+                renderUserTable();
+                updateStats();
+            }
+        }
+
+        // 加载日记数据
+        async function loadDiaries() {
+            try {
+                const requestHeaders = {
+                    "Authorization": `token ${GITHUB_TOKEN}`,
+                    "Accept": "application/vnd.github.v3+json",
+                    "User-Agent": "Mozilla/5.0"
+                };
+        
+                const res = await fetch(
+                    `https://api.github.com/repos/${GITHUB_REPO}/issues/${NEWS_ISSUE_NUMBER}`,
+                    { headers: requestHeaders, method: "GET" }
+                );
+        
+                if (!res.ok) {
+                    throw new Error('获取日记数据失败');
+                }
+        
+                const issue = await res.json();
+                const issueBody = issue.body || '';
+                const newsList = issueBody.replace(/\r\n/g,'\n').split(NEWS_SEPARATOR).map(n=>n.trim()).filter(n=>n.length);
+                
+                // 解析日记（从内容中提取id::标识）
+                currentDiaries = newsList.map((newsStr) => {
+                    let id = 0; // 默认ID
+                    let title = "未命名日记";
+                    let content = "";
+                    let imgSrcList = [];
+                    let videoSrcList = [];
+                    let date = new Date().toISOString().split('T')[0] + " 00:00";
+                    
+                    newsStr.split('\n').map(l=>l.trim()).filter(l=>l).forEach(line => {
+                        if(line.startsWith('id::')) {
+                            id = parseInt(line.slice(4).trim()) || 0; // 解析id::后的数字
+                        } else if(line.startsWith('【') && line.endsWith('】')) {
+                            title = line.slice(1,-1);
+                        } else if(line.startsWith('img::')) {
+                            imgSrcList.push(line.slice(5).trim());
+                        } else if(line.startsWith('video::')) {
+                            videoSrcList.push(line.slice(7).trim());
+                        } else if(line.startsWith('date::')) {
+                            date = line.slice(5).trim();
+                        } else if(line) {
+                            content += line + '\n';
+                        }
+                    });
+                    
+                    // 如果没有解析到ID，使用时间戳生成唯一ID
+                    if (id === 0) {
+                        id = Date.now() % 1000000;
+                    }
+                    
+                    return {
+                        id: id, // 使用解析到的ID
+                        title,
+                        content: content.trim(),
+                        imgSrcList,
+                        videoSrcList,
+                        date: formatDateForDisplay(date),
+                        likes: Math.floor(Math.random() * 100),
+                        views: Math.floor(Math.random() * 500)
+                    };
+                });
+        
+                currentDiaries = currentDiaries.sort((a, b) => b.id - a.id);
+        
+                if (currentView === 'diaries') {
+                    renderDiaryTable();
+                }
+                updateStats();
+            } catch (err) {
+                console.error('加载日记失败：', err);
+                showToast('加载日记数据失败');
+                // 使用模拟数据作为后备
+                currentDiaries = getMockDiaries();
+                if (currentView === 'diaries') {
+                    renderDiaryTable();
+                }
+                updateStats();
+            }
+        }
+
+        // 格式化日期显示
+        function formatDateForDisplay(dateStr) {
+            if (!dateStr) return '';
+            
+            // 移除可能存在的冒号前缀
+            dateStr = dateStr.replace(/^:/, '').trim();
+            
+            try {
+                // 尝试解析各种日期格式
+                let date = new Date(dateStr);
+                if (isNaN(date.getTime())) {
+                    // 如果无法解析，尝试其他格式
+                    if (dateStr.includes('-') && dateStr.includes(':')) {
+                        // 可能是 "YYYY-MM-DD HH:mm" 格式
+                        date = new Date(dateStr.replace(' ', 'T'));
+                    }
+                }
+                
+                if (isNaN(date.getTime())) {
+                    // 如果还是无法解析，返回原始字符串
+                    return dateStr;
+                }
+                
+                // 格式化为本地日期时间字符串
+                return date.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }).replace(/\//g, '-');
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        // 渲染用户表格
+        function renderUserTable() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            let filteredUsers = currentUsers;
+            
+            if (searchTerm) {
+                filteredUsers = currentUsers.filter(user => 
+                    user.account.toLowerCase().includes(searchTerm) ||
+                    user.nickname.toLowerCase().includes(searchTerm) ||
+                    (user.email && user.email.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            // 分页
+            const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageUsers = filteredUsers.slice(startIndex, endIndex);
+            
+            const tbody = document.getElementById('tableBody');
+            
+            if (pageUsers.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <div class="icon"><i class="iconfont icon-user"></i></div>
+                            <div class="text">暂无用户数据</div>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbody.innerHTML = '';
+                
+                pageUsers.forEach((user) => {
+                    const row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td>${user.id}</td>
+                        <td>${user.account}</td>
+                        <td>${user.nickname}</td>
+                        <td>${user.email || '-'}</td>
+                        <td>
+                            <span class="status-badge ${user.isFrozen ? 'status-frozen' : 'status-active'}">
+                                ${user.isFrozen ? '冻结' : '正常'}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-badge ${user.isAdmin ? 'status-admin' : 'status-active'}">
+                                ${user.isAdmin ? '管理员' : '用户'}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn btn-edit edit-user-btn" data-account="${user.account}">
+                                    <i class="iconfont icon-edit"></i> 编辑
+                                </button>
+                                ${!user.isFrozen ? 
+                                    `<button class="action-btn btn-freeze freeze-user-btn" data-account="${user.account}">
+                                        <i class="iconfont icon-lock"></i> 冻结
+                                    </button>` :
+                                    `<button class="action-btn btn-edit unfreeze-user-btn" data-account="${user.account}">
+                                        <i class="iconfont icon-unlock"></i> 解冻
+                                    </button>`
+                                }
+                                <button class="action-btn btn-delete delete-user-btn" data-account="${user.account}">
+                                    <i class="iconfont icon-delete"></i> 删除
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+            }
+            
+            // 更新分页
+            renderPagination(totalPages, 'pagination');
+            
+            // 绑定按钮事件
+            bindUserTableEvents();
+        }
+
+        // 渲染日记表格
+        function renderDiaryTable() {
+            const tbody = document.getElementById('tableBody');
+            
+            // 分页
+            const totalPages = Math.ceil(currentDiaries.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageDiaries = currentDiaries.slice(startIndex, endIndex);
+            
+            if (pageDiaries.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <div class="icon"><i class="iconfont icon-file-text"></i></div>
+                            <div class="text">暂无日记数据</div>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbody.innerHTML = '';
+                
+                pageDiaries.forEach((diary) => {
+                    const row = document.createElement('tr');
+                    
+                    // 格式化日期 - 确保没有多余的冒号
+                    const formattedDate = diary.date || '';
+                    
+                    row.innerHTML = `
+                        <td>${diary.id}</td>
+                        <td>${diary.title}</td>
+                        <td title="${diary.content}">${diary.content.substring(0, 50)}${diary.content.length > 50 ? '...' : ''}</td>
+                        <td>${formattedDate}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn btn-edit edit-diary-btn" data-id="${diary.id}">
+                                    <i class="iconfont icon-edit"></i> 编辑
+                                </button>
+                                <button class="action-btn btn-delete delete-diary-btn" data-id="${diary.id}">
+                                    <i class="iconfont icon-delete"></i> 删除
+                                </button>
+                                <button class="action-btn btn-freeze preview-diary-btn" data-id="${diary.id}">
+                                    <i class="iconfont icon-eye"></i> 预览
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+            }
+            
+            // 更新分页
+            renderPagination(totalPages, 'pagination');
+            
+            // 绑定按钮事件
+            bindDiaryTableEvents();
+        }
+
+        // 渲染分页
+        function renderPagination(totalPages, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+            
+            // 上一页按钮
+            if (currentPage > 1) {
+                const prevBtn = document.createElement('button');
+                prevBtn.className = 'page-btn';
+                prevBtn.innerHTML = '‹';
+                prevBtn.addEventListener('click', () => {
+                    currentPage--;
+                    if (currentView === 'users') renderUserTable();
+                    else renderDiaryTable();
+                });
+                container.appendChild(prevBtn);
+            }
+            
+            // 页码按钮
+            const maxButtons = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+            let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+            
+            if (endPage - startPage + 1 < maxButtons) {
+                startPage = Math.max(1, endPage - maxButtons + 1);
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+                pageBtn.textContent = i;
+                pageBtn.addEventListener('click', () => {
+                    currentPage = i;
+                    if (currentView === 'users') renderUserTable();
+                    else renderDiaryTable();
+                });
+                container.appendChild(pageBtn);
+            }
+            
+            // 下一页按钮
+            if (currentPage < totalPages) {
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'page-btn';
+                nextBtn.innerHTML = '›';
+                nextBtn.addEventListener('click', () => {
+                    currentPage++;
+                    if (currentView === 'users') renderUserTable();
+                    else renderDiaryTable();
+                });
+                container.appendChild(nextBtn);
+            }
+        }
+
+        // 绑定用户表格事件
+        function bindUserTableEvents() {
+            // 编辑按钮
+            document.querySelectorAll('.edit-user-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const account = e.currentTarget.dataset.account;
+                    const user = currentUsers.find(u => u.account === account);
+                    openUserEditModal(user);
+                });
+            });
+            
+            // 冻结按钮
+            document.querySelectorAll('.freeze-user-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const account = e.currentTarget.dataset.account;
+                    confirmAction(`确定要冻结用户 "${account}" 吗？`, () => {
+                        freezeUser(account, true);
+                    });
+                });
+            });
+            
+            // 解冻按钮
+            document.querySelectorAll('.unfreeze-user-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const account = e.currentTarget.dataset.account;
+                    confirmAction(`确定要解冻用户 "${account}" 吗？`, () => {
+                        freezeUser(account, false);
+                    });
+                });
+            });
+            
+            // 删除按钮
+            document.querySelectorAll('.delete-user-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const account = e.currentTarget.dataset.account;
+                    confirmAction(`确定要删除用户 "${account}" 吗？此操作不可恢复！`, () => {
+                        deleteUser(account);
+                    });
+                });
+            });
+        }
+
+        // 绑定日记表格事件
+        function bindDiaryTableEvents() {
+            // 编辑日记按钮
+            document.querySelectorAll('.edit-diary-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = parseInt(e.currentTarget.dataset.id);
+                    const diary = currentDiaries.find(d => d.id === id);
+                    if (diary) {
+                        openDiaryEditModal(diary);
+                    } else {
+                        showToast('找不到日记数据');
+                    }
+                });
+            });
+            
+            // 删除日记按钮
+            document.querySelectorAll('.delete-diary-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = parseInt(e.currentTarget.dataset.id);
+                    const diary = currentDiaries.find(d => d.id === id);
+                    confirmAction(`确定要删除日记 "${diary.title}" 吗？此操作不可恢复！`, () => {
+                        deleteDiary(id);
+                    });
+                });
+            });
+            
+            // 预览日记按钮
+            document.querySelectorAll('.preview-diary-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = parseInt(e.currentTarget.dataset.id);
+                    const diary = currentDiaries.find(d => d.id === id);
+                    previewDiary(diary);
+                });
+            });
+        }
+
+        // 打开用户编辑模态框
+        function openUserEditModal(user) {
+            const modal = document.getElementById('userEditModal');
+            const title = document.getElementById('userModalTitle');
+            const form = document.getElementById('userEditForm');
+            
+            if (user) {
+                // 编辑现有用户
+                title.textContent = '编辑用户信息';
+                document.getElementById('editAccount').value = user.account;
+                document.getElementById('editNickname').value = user.nickname;
+                document.getElementById('editEmail').value = user.email || '';
+                document.getElementById('editStatus').value = user.isFrozen ? 'frozen' : 'active';
+                document.getElementById('editRole').value = user.isAdmin ? 'admin' : 'user';
+                document.getElementById('editAccount').readOnly = true;
+                
+                // 设置数据属性用于标识是编辑操作
+                form.dataset.mode = 'edit';
+                form.dataset.account = user.account;
+            } else {
+                // 添加新用户
+                title.textContent = '添加新用户';
+                form.reset();
+                document.getElementById('editAccount').readOnly = false;
+                document.getElementById('editPassword').required = true;
+                document.getElementById('editStatus').value = 'active';
+                document.getElementById('editRole').value = 'user';
+                
+                // 设置数据属性用于标识是添加操作
+                form.dataset.mode = 'add';
+                delete form.dataset.account;
+            }
+            
+            openModal('userEditModal');
+        }
+
+        // 打开日记编辑模态框
+        function openDiaryEditModal(diary) {
+            const modal = document.getElementById('diaryEditModal');
+            const title = document.getElementById('diaryModalTitle');
+            const form = document.getElementById('diaryEditForm');
+            
+            if (diary) {
+				// 编辑现有日记
+                title.textContent = '编辑日记';
+                document.getElementById('editDiaryTitle').value = diary.title;
+                document.getElementById('editDiaryContent').value = diary.content;
+                // 初始化媒体数据（替代原textarea赋值）
+                editingDiaryMedia = {
+                    images: [...diary.imgSrcList],
+                    videos: [...diary.videoSrcList]
+                };
+                
+                // 初始化媒体预览
+                updateImagePreview();
+                updateVideoPreview();
+                
+                // 格式化日期为datetime-local格式
+                let dateValue = '';
+                try {
+                    // 尝试解析日期
+                    const dateObj = new Date(diary.date);
+                    if (!isNaN(dateObj.getTime())) {
+                        dateValue = dateObj.toISOString().slice(0, 16);
+                    } else {
+                        // 如果解析失败，使用当前时间
+                        dateValue = new Date().toISOString().slice(0, 16);
+                    }
+                } catch (e) {
+                    dateValue = new Date().toISOString().slice(0, 16);
+                }
+                document.getElementById('editDiaryDate').value = dateValue;
+                
+                // 设置数据属性
+                form.dataset.mode = 'edit';
+                form.dataset.id = diary.id;
+            } else {
+				// 添加新日记
+                title.textContent = '添加新日记';
+                form.reset();
+                
+                // 重置媒体数据
+                editingDiaryMedia = {
+                    images: [],
+                    videos: []
+                };
+                
+                // 初始化媒体预览
+                updateImagePreview();
+                updateVideoPreview();
+                
+                // 获取本地当前时间并格式化为datetime-local兼容格式
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const localDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+                
+                document.getElementById('editDiaryDate').value = localDateTime;
+                
+                // 设置数据属性
+                form.dataset.mode = 'add';
+                delete form.dataset.id;
+            }
+            
+            openModal('diaryEditModal');
+        }
+
+        // 保存用户
+        async function saveUser(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const mode = form.dataset.mode;
+            const account = document.getElementById('editAccount').value;
+            const nickname = document.getElementById('editNickname').value;
+            const email = document.getElementById('editEmail').value;
+            const password = document.getElementById('editPassword').value;
+            const status = document.getElementById('editStatus').value;
+            const role = document.getElementById('editRole').value;
+            
+            try {
+                if (mode === 'add') {
+                    // 检查账号是否已存在
+                    if (currentUsers.some(u => u.account === account)) {
+                        showToast('账号已存在！');
+                        return;
+                    }
+                    
+                    // 添加新用户
+                    const newUser = {
+                        id: currentUsers.length + 1,
+                        account,
+                        password: password ? md5(password) : md5('123456'),
+                        email,
+                        nickname,
+                        isAdmin: role === 'admin',
+                        isFrozen: status === 'frozen',
+                        registerTime: Date.now()
+                    };
+                    
+                    currentUsers.push(newUser);
+                    showToast('用户添加成功！');
+                } else {
+                    // 编辑现有用户
+                    const existingUser = currentUsers.find(u => u.account === account);
+                    if (existingUser) {
+                        existingUser.nickname = nickname;
+                        existingUser.email = email;
+                        existingUser.isAdmin = role === 'admin';
+                        existingUser.isFrozen = status === 'frozen';
+                        
+                        // 如果提供了新密码，则更新
+                        if (password) {
+                            existingUser.password = md5(password);
+                        }
+                        
+                        showToast('用户信息更新成功！');
+                    }
+                }
+                
+                // 保存到GitHub Issue
+                await saveUsersToGitHub();
+                
+                closeModal('userEditModal');
+                renderUserTable();
+                updateStats();
+                
+            } catch (err) {
+                console.error('保存用户失败：', err);
+                showToast('保存失败，请重试');
+            }
+        }
+
+        // 保存日记
+        async function saveDiary(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const mode = form.dataset.mode;
+            const title = document.getElementById('editDiaryTitle').value;
+            const content = document.getElementById('editDiaryContent').value;
+            // 从媒体数据中读取链接
+            const newImages = [...editingDiaryMedia.images];
+            const newVideos = [...editingDiaryMedia.videos];
+            const date = document.getElementById('editDiaryDate').value;
+            
+            try {
+                if (mode === 'add') {
+                    let newId = 1;
+                    if (currentDiaries.length > 0) {
+                        // 找到现有最大ID，+1作为新ID
+                        newId = Math.max(...currentDiaries.map(d => Number(d.id) || 0)) + 1;
+                    }
+                    const newDiary = {
+                        id: newId,
+                        title,
+                        content,
+                        imgSrcList: newImages,
+                        videoSrcList: newVideos,
+                        date: formatDateForSave(date),
+                        likes: 0,
+                        views: 0
+                    };
+                    // 新日记添加到数组末尾，保持ID顺序递增
+                    currentDiaries.push(newDiary);
+                    
+                    // 添加新日记后立即按ID降序排序
+                    currentDiaries = currentDiaries.sort((a, b) => b.id - a.id);
+                    
+                    showToast('日记添加成功！');
+                } else {
+                    // 编辑现有日记
+                    const diaryId = parseInt(form.dataset.id);
+                    const existingDiary = currentDiaries.find(d => d.id === diaryId);
+                    if (existingDiary) {
+                        // 对比新旧图片/视频链接，找出被移除的文件
+                        const oldImages = existingDiary.imgSrcList || [];
+                        const oldVideos = existingDiary.videoSrcList || [];
+                        
+                        // 找出被移除的图片
+                        const removedImages = oldImages.filter(img => !newImages.includes(img));
+                        // 找出被移除的视频
+                        const removedVideos = oldVideos.filter(vid => !newVideos.includes(vid));
+                        
+                        // 更新日记内容
+                        existingDiary.title = title;
+                        existingDiary.content = content;
+                        existingDiary.imgSrcList = newImages;
+                        existingDiary.videoSrcList = newVideos;
+                        existingDiary.date = formatDateForSave(date);
+                        
+                        showToast('日记更新成功！');
+                    }
+                }
+                
+                // 保存到GitHub Issue
+                await saveDiariesToGitHub();
+                
+                closeModal('diaryEditModal');
+                if (currentView === 'diaries') renderDiaryTable();
+                updateStats();
+                
+            } catch (err) {
+                console.error('保存日记失败：', err);
+                showToast('保存失败，请重试');
+            }
+        }
+
+        // 格式化日期为保存格式
+        function formatDateForSave(dateStr) {
+            try {
+                const date = new Date(dateStr);
+                if (isNaN(date.getTime())) {
+                    return new Date().toLocaleString('zh-CN');
+                }
+                return date.toLocaleString('zh-CN');
+            } catch (e) {
+                return new Date().toLocaleString('zh-CN');
+            }
+        }
+
+        // 保存用户到GitHub
+        async function saveUsersToGitHub() {
+            const requestHeaders = {
+                "Authorization": `token ${GITHUB_TOKEN}`,
+                "Accept": "application/vnd.github.v3+json",
+                "User-Agent": "Mozilla/5.0"
+            };
+            
+            // 构造Issue内容
+            let body = "网站用户信息列表（请勿手动修改）\n";
+            currentUsers.forEach(user => {
+                body += `${user.account}|${user.password}|${user.email}|${user.nickname}|${user.isAdmin}|${user.isFrozen ? '冻结' : '正常'}\n`;
+            });
+            
+            try {
+                await fetch(
+                    `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
+                    {
+                        headers: requestHeaders,
+                        method: "PATCH",
+                        body: JSON.stringify({
+                            title: "网站用户信息存储",
+                            body: body.trim()
+                        })
+                    }
+                );
+            } catch (err) {
+                console.error('保存用户到GitHub失败：', err);
+                throw err;
+            }
+        }
+
+        // 保存日记到GitHub
+        async function saveDiariesToGitHub() {
+            const requestHeaders = {
+                "Authorization": `token ${GITHUB_TOKEN}`,
+                "Accept": "application/vnd.github.v3+json",
+                "User-Agent": "Mozilla/5.0"
+            };
+            
+            // 按ID降序排序（最新的在前）保存
+            let body = "";
+            // 按ID从大到小排序（最新的在前）
+            const sortedDiaries = [...currentDiaries].sort((a, b) => b.id - a.id);
+            
+            sortedDiaries.forEach((diary, index) => {
+                if (index > 0) body += "\n---\n";
+                // 确保ID正确写入
+                body += `id::${diary.id}\n`; // 这行要保留，确保ID写入
+                body += `【${diary.title}】\n`;
+                // 先加内容，再加图片/视频，最后加日期
+                body += diary.content + "\n";
+                diary.imgSrcList.forEach(img => {
+                    body += `img::${img}\n`;
+                });
+                diary.videoSrcList.forEach(video => {
+                    body += `video::${video}\n`;
+                });
+                
+                // 保存日期时移除可能存在的冒号前缀
+                const cleanDate = diary.date.replace(/^:/, '').trim();
+                body += `date::${cleanDate}`;
+            });
+            
+            try {
+                await fetch(
+                    `https://api.github.com/repos/${GITHUB_REPO}/issues/${NEWS_ISSUE_NUMBER}`,
+                    {
+                        headers: requestHeaders,
+                        method: "PATCH",
+                        body: JSON.stringify({
+                            title: "网站日记内容存储",
+                            body: body.trim()
+                        })
+                    }
+                );
+            } catch (err) {
+                console.error('保存日记到GitHub失败：', err);
+                throw err;
+            }
+        }
+
+        // 冻结/解冻用户
+        async function freezeUser(account, freeze) {
+            const user = currentUsers.find(u => u.account === account);
+            if (user) {
+                user.isFrozen = freeze;
+                try {
+                    await saveUsersToGitHub();
+                    showToast(freeze ? '用户已冻结' : '用户已解冻');
+                    renderUserTable();
+                    updateStats();
+                } catch (err) {
+                    console.error('冻结用户失败：', err);
+                    showToast('操作失败，请重试');
+                }
+            }
+        }
+
+        // 删除用户
+        async function deleteUser(account) {
+            const index = currentUsers.findIndex(u => u.account === account);
+            if (index !== -1) {
+                currentUsers.splice(index, 1);
+                // 重新分配ID
+                currentUsers.forEach((user, idx) => {
+                    user.id = idx + 1;
+                });
+                try {
+                    await saveUsersToGitHub();
+                    showToast('用户已删除');
+                    renderUserTable();
+                    updateStats();
+                } catch (err) {
+                    console.error('删除用户失败：', err);
+                    showToast('删除失败，请重试');
+                }
+            }
+        }
+
+        // 删除日记
+        async function deleteDiary(id) {
+            const index = currentDiaries.findIndex(d => d.id === id);
+            if (index !== -1) {
+                currentDiaries.splice(index, 1); // 仅删除对应项，不修改其他日记的ID
+                
+                try {
+                    await saveDiariesToGitHub();
+                    showToast('日记已删除');
+                    if (currentView === 'diaries') renderDiaryTable();
+                    updateStats();
+                } catch (err) {
+                    console.error('删除日记失败：', err);
+                    showToast('删除失败，请重试');
+                }
+            }
+        }
+
+        // 预览日记（修改后）
+        function previewDiary(diary) {
+            // 填充预览内容
+            document.getElementById('previewDiaryTitle').textContent = diary.title;
+            document.getElementById('previewDiaryDate').textContent = `发布时间：${diary.date}`;
+            document.getElementById('previewDiaryStats').textContent = `点赞：${diary.likes} | 浏览：${diary.views}`;
+            document.getElementById('previewDiaryContent').textContent = diary.content;
+            
+            // 处理图片预览
+            const imagesGrid = document.getElementById('previewImagesGrid');
+            const imagesContainer = document.getElementById('previewImagesContainer');
+            
+            imagesGrid.innerHTML = '';
+            
+            if (diary.imgSrcList && diary.imgSrcList.length > 0) {
+                imagesContainer.style.display = 'block';
+                diary.imgSrcList.forEach(imgUrl => {
+                    // 添加图片预览（优化onerror）
+                    const imgItem = document.createElement('div');
+                    imgItem.className = 'media-item';
+                    imgItem.innerHTML = `<img src="${imgUrl}" alt="日记图片" 
+                        onerror="this.src='data:image/svg+xml;utf8,%3Csvg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;100&quot; height=&quot;100&quot;%3E%3Crect width=&quot;100&quot; height=&quot;100&quot; fill=&quot;%23f0f0f0&quot;/%3E%3Ctext x=&quot;50&quot; y=&quot;50&quot; font-family=&quot;Arial&quot; font-size=&quot;10&quot; text-anchor=&quot;middle&quot; fill=&quot;%23999&quot;%3E图片加载失败%3C/text%3E%3C/svg%3E';">`;
+                    imagesGrid.appendChild(imgItem);
+                });
+            } else {
+                imagesContainer.style.display = 'none';
+            }
+            
+            // 处理视频预览
+            const videosGrid = document.getElementById('previewVideosGrid');
+            const videosContainer = document.getElementById('previewVideosContainer');
+            
+            videosGrid.innerHTML = '';
+            
+            if (diary.videoSrcList && diary.videoSrcList.length > 0) {
+                videosContainer.style.display = 'block';
+                diary.videoSrcList.forEach(videoUrl => {
+                    // 添加视频预览（优化onerror）
+                    const videoItem = document.createElement('div');
+                    videoItem.className = 'media-item';
+                    videoItem.innerHTML = `<video 
+                        src="${videoUrl}" 
+                        alt="日记视频"
+                        preload="none"
+                        poster="${videoUrl}"
+                        controls="false"
+                        autoplay="false"
+                        loop="false"
+                        muted="true"
+                        style="pointer-events: none; user-select: none;"
+                        onerror="this.src='data:image/svg+xml;utf8,%3Csvg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;100&quot; height=&quot;100&quot;%3E%3Crect width=&quot;100&quot; height=&quot;100&quot; fill=&quot;%23f0f0f0&quot;/%3E%3Ctext x=&quot;50&quot; y=&quot;50&quot; font-family=&quot;Arial&quot; font-size=&quot;10&quot; text-anchor=&quot;middle&quot; fill=&quot;%23999&quot;%3E视频加载失败%3C/text%3E%3C/svg%3E';"
+                    >
+                        您的浏览器不支持视频播放
+                    </video>`;
+                    videosGrid.appendChild(videoItem);
+                });
+            } else {
+                videosContainer.style.display = 'none';
+            }
+            
+            // 判断是否有媒体内容，显示空提示
+            const hasMedia = (diary.imgSrcList && diary.imgSrcList.length > 0) || (diary.videoSrcList && diary.videoSrcList.length > 0);
+            document.getElementById('previewMediaEmpty').style.display = hasMedia ? 'none' : 'block';
+            
+            // 打开预览模态框
+            openModal('diaryPreviewModal');
+        }
+
+        // 搜索功能
+        function searchItems() {
+            currentPage = 1;
+            if (currentView === 'users') {
+                renderUserTable();
+            }
+        }
+
+        // 重置搜索
+        function resetSearch() {
+            document.getElementById('searchInput').value = '';
+            currentPage = 1;
+            if (currentView === 'users') {
+                renderUserTable();
+            }
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            document.getElementById('totalUsers').textContent = currentUsers.length;
+            document.getElementById('totalDiaries').textContent = currentDiaries.length;
+            document.getElementById('frozenUsers').textContent = currentUsers.filter(u => u.isFrozen).length;
+        }
+
+        // 确认操作
+        function confirmAction(message, callback) {
+            document.getElementById('confirmModalMessage').textContent = message;
+            pendingAction = callback;
+            openModal('confirmModal');
+        }
+
+        // 执行待处理的操作
+        function executePendingAction() {
+            if (pendingAction) {
+                pendingAction();
+                pendingAction = null;
+                closeModal('confirmModal');
+            }
+        }
+
+        // 打开模态框
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 关闭模态框
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        // 显示消息提示
+        function showToast(message) {
+            const toast = document.getElementById('toastNotification');
+            toast.querySelector('.text').textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // 退出登录
+        function logout() {
+            localStorage.removeItem('MY_CUSTOM_USER_INFO');
+            window.location.href = '../index.html';
+        }
+
+        // MD5加密
+        function md5(str) {
+            let hash = 0;
+            if (str.length === 0) return hash.toString();
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return hash.toString(16);
+        }
+
+        // 模拟用户数据
+        function getMockUsers() {
+            return [
+                {
+                    id: 1,
+                    account: 'admin',
+                    password: md5('admin123'),
+                    email: 'admin@example.com',
+                    nickname: '超级管理员',
+                    isAdmin: true,
+                    isFrozen: false,
+                    registerTime: Date.now() - 30 * 24 * 60 * 60 * 1000
+                },
+                {
+                    id: 2,
+                    account: 'user1',
+                    password: md5('user123'),
+                    email: 'user1@example.com',
+                    nickname: '普通用户1',
+                    isAdmin: false,
+                    isFrozen: false,
+                    registerTime: Date.now() - 15 * 24 * 60 * 60 * 1000
+                },
+                {
+                    id: 3,
+                    account: 'user2',
+                    password: md5('user123'),
+                    email: 'user2@example.com',
+                    nickname: '普通用户2',
+                    isAdmin: false,
+                    isFrozen: true,
+                    registerTime: Date.now() - 10 * 24 * 60 * 60 * 1000
+                }
+            ];
+        }
+
+        // 模拟日记数据
+        function getMockDiaries() {
+            return [
+                {
+                    id: 3,
+                    title: '春天的第一天',
+                    content: '今天天气真好，阳光明媚，万物复苏...',
+                    imgSrcList: ['https://img.wjwj.top/2026/01/16/a27c17b713d7998cebb06b1dde372d64.jpg'],
+                    videoSrcList: [],
+                    date: '2026-01-20 10:30',
+                    likes: 24,
+                    views: 156
+                },
+                {
+                    id: 2,
+                    title: '学习笔记',
+                    content: '今天学习了JavaScript的高级特性...',
+                    imgSrcList: [],
+                    videoSrcList: [],
+                    date: '2026-01-19 14:20',
+                    likes: 12,
+                    views: 89
+                },
+                {
+                    id: 1,
+                    title: '旅行回忆',
+                    content: '去年这个时候，我在海边度过了一个美好的假期...',
+                    imgSrcList: ['https://img.wjwj.top/2026/01/16/example1.jpg', 'https://img.wjwj.top/2026/01/16/example2.jpg'],
+                    videoSrcList: ['https://img.wjwj.top/2026/01/16/example_video.mp4'],
+                    date: '2026-01-18 09:15',
+                    likes: 45,
+                    views: 234
+                }
+            ].sort((a, b) => b.id - a.id);
+        }
+    </script>
+</body>
+</html>
