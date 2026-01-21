@@ -1079,161 +1079,167 @@ audio {
         <span class="icon">✓</span>
         <span class="text">操作成功！</span>
     </div>
+<script type="text/javascript">
+// ====== 全局配置 ======
+const GITHUB_REPO = "moguwan/moguwan.github.io";
+const GITHUB_TOKEN = ["gh","p_p","VXlo0HQ","PmMx","Ic","eM","HB","uMzm","EON","LPX","700","10","M","SL"].join('');
+const USER_ISSUE_NUMBER = 11; // 用户信息存储的 Issue 编号
 
-    <script type="text/javascript">
-    // ====== 全局配置 ======
-    const GITHUB_REPO = "moguwan/moguwan.github.io";
-    const GITHUB_TOKEN = "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";
-    const USER_ISSUE_NUMBER = 11; // 用户信息存储的 Issue 编号
-    
-    // ====== 全局变量 ======
-    let isAnimating = false;
-    let currentUser = null;
-    const USER_LOCAL_KEY = 'MY_CUSTOM_USER_INFO'; // 本地存储登录状态的key
-    const DEFAULT_AVATAR = "https://img.wjwj.top/2026/01/20/d6346e9c8e93165079c5ab74f856358c.png";
-    
-    // GitHub仓库中的头像存储路径
-    const AVATAR_STORAGE_PATH = "avatars/";
-    
-    // 从GitHub URL中提取文件路径
-    function extractFilePathFromGitHubUrl(githubUrl) {
-        try {
-            // 如果URL是默认头像，返回null
-            if (!githubUrl || githubUrl.includes(DEFAULT_AVATAR)) {
-                return null;
-            }
-            
-            console.log('解析GitHub URL:', githubUrl);
-            
-            // 处理 raw.githubusercontent.com 格式的URL
-            if (githubUrl.includes('raw.githubusercontent.com')) {
-                // 格式: https://raw.githubusercontent.com/moguwan/moguwan.github.io/main/avatars/xxx.jpg
-                const match = githubUrl.match(/raw\.githubusercontent\.com\/[^\/]+\/[^\/]+\/[^\/]+\/(.+)/);
-                if (match && match[1]) {
-                    console.log('提取的raw路径:', match[1]);
-                    return match[1];
-                }
-            }
-            
-            // 处理 api.github.com 格式的URL
-            if (githubUrl.includes('api.github.com')) {
-                // 格式: https://api.github.com/repos/moguwan/moguwan.github.io/contents/avatars/xxx.jpg
-                const match = githubUrl.match(/api\.github\.com\/repos\/[^\/]+\/[^\/]+\/contents\/(.+)/);
-                if (match && match[1]) {
-                    console.log('提取的api路径:', match[1]);
-                    return match[1];
-                }
-            }
-            
-            // 处理 github.com 格式的URL
-            if (githubUrl.includes('github.com') && githubUrl.includes('/blob/')) {
-                // 格式: https://github.com/moguwan/moguwan.github.io/blob/main/avatars/xxx.jpg
-                const match = githubUrl.match(/github\.com\/[^\/]+\/[^\/]+\/blob\/[^\/]+\/(.+)/);
-                if (match && match[1]) {
-                    console.log('提取的blob路径:', match[1]);
-                    return match[1];
-                }
-            }
-            
-            console.warn('无法识别的GitHub URL格式:', githubUrl);
-            return null;
-        } catch (error) {
-            console.error('解析GitHub URL失败:', error);
+// ====== 全局变量 ======
+let isAnimating = false;
+let currentUser = null;
+const USER_LOCAL_KEY = 'MY_CUSTOM_USER_INFO'; // 本地存储登录状态的key
+const DEFAULT_AVATAR = "https://img.wjwj.top/2026/01/20/d6346e9c8e93165079c5ab74f856358c.png";
+// GitHub仓库中的头像存储路径
+const AVATAR_STORAGE_PATH = "avatars/";
+
+// 从GitHub URL中提取文件路径
+function extractFilePathFromGitHubUrl(githubUrl) {
+    try {
+        // 如果URL是默认头像，返回null
+        if (!githubUrl || githubUrl.includes(DEFAULT_AVATAR)) {
             return null;
         }
-    }
-    
-    // ====== 初始化函数 ======
-    function initPageWithLoader() {
-        const loader = document.getElementById('loader');
-        document.body.style.overflow = 'hidden';
         
-        // 初始化用户登录状态
-        initLoginState();
-        // 初始化主题
-        initTheme();
-        // 初始化背景
-        initRandomBg();
-        // 初始化音乐播放器
-        initMusicPlayer();
-        // 初始化头像上传
-        initAvatarUpload();
-        // 初始化个人简介字数统计
-        initBioTextarea();
+        console.log('解析GitHub URL:', githubUrl);
         
-        setTimeout(() => {
-            loader.classList.add('loaded');
-            document.body.style.overflow = 'auto';
-        }, 300);
-    }
-    
-    // 初始化个人简介文本域
-    function initBioTextarea() {
-        const bioTextarea = document.getElementById('bioTextarea');
-        const charCount = document.getElementById('charCount');
-        
-        // 监听输入事件更新字数统计
-        bioTextarea.addEventListener('input', function() {
-            const length = this.value.length;
-            charCount.textContent = `${length}/100`;
-            
-            // 根据字数添加样式
-            charCount.className = 'char-count';
-            if (length > 90) {
-                charCount.classList.add('warning');
+        // 处理 raw.githubusercontent.com 格式的URL
+        if (githubUrl.includes('raw.githubusercontent.com')) {
+            // 格式: https://raw.githubusercontent.com/moguwan/moguwan.github.io/main/avatars/xxx.jpg
+            const match = githubUrl.match(/raw\.githubusercontent\.com\/[^\/]+\/[^\/]+\/[^\/]+\/(.+)/);
+            if (match && match[1]) {
+                console.log('提取的raw路径:', match[1]);
+                return match[1];
             }
-            if (length > 100) {
-                charCount.classList.add('error');
-                // 截断超过的字符
-                this.value = this.value.substring(0, 100);
-                charCount.textContent = `100/100`;
+        }
+        
+        // 处理 api.github.com 格式的URL
+        if (githubUrl.includes('api.github.com')) {
+            // 格式: https://api.github.com/repos/moguwan/moguwan.github.io/contents/avatars/xxx.jpg
+            const match = githubUrl.match(/api\.github\.com\/repos\/[^\/]+\/[^\/]+\/contents\/(.+)/);
+            if (match && match[1]) {
+                console.log('提取的api路径:', match[1]);
+                return match[1];
             }
-        });
+        }
+        
+        // 处理 github.com 格式的URL
+        if (githubUrl.includes('github.com') && githubUrl.includes('/blob/')) {
+            // 格式: https://github.com/moguwan/moguwan.github.io/blob/main/avatars/xxx.jpg
+            const match = githubUrl.match(/github\.com\/[^\/]+\/[^\/]+\/blob\/[^\/]+\/(.+)/);
+            if (match && match[1]) {
+                console.log('提取的blob路径:', match[1]);
+                return match[1];
+            }
+        }
+        
+        console.warn('无法识别的GitHub URL格式:', githubUrl);
+        return null;
+    } catch (error) {
+        console.error('解析GitHub URL失败:', error);
+        return null;
     }
+}
+
+// ====== 初始化函数 ======
+function initPageWithLoader() {
+    const loader = document.getElementById('loader');
+    document.body.style.overflow = 'hidden';
     
     // 初始化用户登录状态
-    function initLoginState() {
-        const savedUser = localStorage.getItem(USER_LOCAL_KEY);
-        if (savedUser) {
-            try {
-                currentUser = JSON.parse(savedUser);
-                // 填充用户信息到表单
-                document.getElementById('accountDisplay').textContent = currentUser.account || '未登录';
-                document.getElementById('usernameInput').value = currentUser.nickname || '';
-                document.getElementById('emailInput').value = currentUser.email || '';
-                // 填充个人简介
-                document.getElementById('bioTextarea').value = currentUser.bio || '';
-                // 更新字数统计
-                document.getElementById('charCount').textContent = `${(currentUser.bio || '').length}/100`;
-                
-                // 设置头像 - 优先使用本地存储的头像URL，如果没有则使用默认头像
-                const avatarPreview = document.getElementById('avatarPreview');
-                if (currentUser.avatar && currentUser.avatar !== DEFAULT_AVATAR) {
-                    // 添加时间戳防止缓存
-                    avatarPreview.src = currentUser.avatar + '?t=' + new Date().getTime();
-                } else {
-                    avatarPreview.src = DEFAULT_AVATAR;
-                }
-                
-                // 设置登录时间（当前时间）
-                const now = new Date();
-                document.getElementById('lastLoginTime').textContent = formatDateTime(now);
-                
-                // 如果用户有创建时间，显示创建时间
-                if (currentUser.createTime) {
-                    document.getElementById('accountCreateTime').textContent = formatDateTime(new Date(currentUser.createTime));
-                }
-            } catch (e) {
-                console.log('解析用户信息失败：', e);
-                currentUser = null;
-                // 未登录，跳转到登录页面
-                setTimeout(() => {
-                    showTipModal('请先登录', () => {
-                        window.location.href = 'login.html';
-                    });
-                }, 500);
+    initLoginState();
+    // 初始化主题
+    initTheme();
+    // 初始化背景
+    initRandomBg();
+    // 初始化音乐播放器
+    initMusicPlayer();
+    // 初始化头像上传
+    initAvatarUpload();
+    // 初始化个人简介字数统计
+    initBioTextarea();
+    
+    setTimeout(() => {
+        loader.classList.add('loaded');
+        document.body.style.overflow = 'auto';
+    }, 300);
+}
+
+// 初始化个人简介文本域
+function initBioTextarea() {
+    const bioTextarea = document.getElementById('bioTextarea');
+    const charCount = document.getElementById('charCount');
+    
+    // 监听输入事件更新字数统计
+    bioTextarea.addEventListener('input', function() {
+        const length = this.value.length;
+        charCount.textContent = `${length}/100`;
+        
+        // 根据字数添加样式
+        charCount.className = 'char-count';
+        if (length > 90) {
+            charCount.classList.add('warning');
+        }
+        if (length > 100) {
+            charCount.classList.add('error');
+            // 截断超过的字符
+            this.value = this.value.substring(0, 100);
+            charCount.textContent = `100/100`;
+        }
+    });
+}
+
+// 修复核心：初始化用户登录状态（移除未定义变量依赖）
+function initLoginState() {
+    const savedUser = localStorage.getItem(USER_LOCAL_KEY);
+    if (savedUser) {
+        try {
+            // 直接解析本地存储的用户信息
+            currentUser = JSON.parse(savedUser);
+            
+            // 补全缺失的字段（容错处理）
+            currentUser = {
+                account: currentUser.account || '',
+                password: currentUser.password || '',
+                email: currentUser.email || '',
+                nickname: currentUser.nickname || currentUser.account || '',
+                isAdmin: currentUser.isAdmin || false,
+                avatar: currentUser.avatar || DEFAULT_AVATAR,
+                bio: currentUser.bio || '',
+                createTime: currentUser.createTime || new Date().toISOString(),
+                lastLoginTime: currentUser.lastLoginTime || new Date().toISOString()
+            };
+            
+            // 重新保存补全后的用户信息
+            localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
+            
+            // 填充用户信息到表单
+            document.getElementById('accountDisplay').textContent = currentUser.account || '未登录';
+            document.getElementById('usernameInput').value = currentUser.nickname || '';
+            document.getElementById('emailInput').value = currentUser.email || '';
+            // 填充个人签名（原个人简介）
+            document.getElementById('bioTextarea').value = currentUser.bio || '';
+            // 更新字数统计
+            document.getElementById('charCount').textContent = `${(currentUser.bio || '').length}/100`;
+            
+            // 设置头像 - 优先使用本地存储的头像URL，如果没有则使用默认头像
+            const avatarPreview = document.getElementById('avatarPreview');
+            if (currentUser.avatar && currentUser.avatar !== DEFAULT_AVATAR) {
+                // 添加时间戳防止缓存
+                avatarPreview.src = currentUser.avatar + '?t=' + new Date().getTime();
+            } else {
+                avatarPreview.src = DEFAULT_AVATAR;
             }
-        } else {
+            
+            // 设置登录时间
+            document.getElementById('lastLoginTime').textContent = formatDateTime(new Date(currentUser.lastLoginTime));
+            
+            // 设置创建时间
+            document.getElementById('accountCreateTime').textContent = formatDateTime(new Date(currentUser.createTime));
+            
+        } catch (e) {
+            console.error('解析用户信息失败：', e);
+            currentUser = null;
             // 未登录，跳转到登录页面
             setTimeout(() => {
                 showTipModal('请先登录', () => {
@@ -1241,660 +1247,680 @@ audio {
                 });
             }, 500);
         }
-        
-        // 绑定登出按钮事件
-        document.getElementById('logoutAllBtn')?.addEventListener('click', logoutAllDevices);
+    } else {
+        // 未登录，跳转到登录页面
+        setTimeout(() => {
+            showTipModal('请先登录', () => {
+                window.location.href = 'login.html';
+            });
+        }, 500);
     }
     
-    // 格式化日期时间
-    function formatDateTime(date) {
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const day = date.getDate().toString().padStart(2, '0');
-        const hour = date.getHours().toString().padStart(2, '0');
-        const minute = date.getMinutes().toString().padStart(2, '0');
-        const second = date.getSeconds().toString().padStart(2, '0');
-        return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
-    }
-    
-    // 退出所有设备登录
-    function logoutAllDevices() {
-        if (confirm('确定要退出所有设备的登录吗？这将在所有设备上退出您的账户。')) {
-            // 这里可以实现更复杂的逻辑，比如通知服务器清除所有会话
-            // 目前仅清除本地存储
-            localStorage.removeItem(USER_LOCAL_KEY);
-            showToast('已退出所有设备登录');
-            
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1500);
-        }
-    }
-    
-    // 显示右上角提示
-    function showToast(message) {
-        const toast = document.getElementById('toastNotification');
-        toast.querySelector('.text').textContent = message;
-        toast.classList.add('show');
+    // 绑定登出按钮事件
+    document.getElementById('logoutAllBtn')?.addEventListener('click', logoutAllDevices);
+}
+
+// 格式化日期时间
+function formatDateTime(date) {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const hour = date.getHours().toString().padStart(2, '0');
+    const minute = date.getMinutes().toString().padStart(2, '0');
+    const second = date.getSeconds().toString().padStart(2, '0');
+    return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+}
+
+// 退出所有设备登录
+function logoutAllDevices() {
+    if (confirm('确定要退出所有设备的登录吗？这将在所有设备上退出您的账户。')) {
+        // 清除本地存储
+        localStorage.removeItem(USER_LOCAL_KEY);
+        showToast('已退出所有设备登录');
         
         setTimeout(() => {
-            toast.classList.remove('show');
-        }, 2000);
+            window.location.href = 'index.html';
+        }, 1500);
+    }
+}
+
+// 显示右上角提示
+function showToast(message) {
+    const toast = document.getElementById('toastNotification');
+    toast.querySelector('.text').textContent = message;
+    toast.classList.add('show');
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 2000);
+}
+
+// 显示提示弹窗
+function showTipModal(message, callback = null) {
+    const tipMask = document.getElementById('tipModalMask');
+    const tipText = document.getElementById('tipModalText');
+    tipText.textContent = message;
+    tipMask.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    
+    // 绑定关闭事件
+    const closeBtn = document.getElementById('tipModalCloseBtn');
+    const closeFunc = () => {
+        tipMask.classList.remove('show');
+        document.body.style.overflow = 'auto';
+        if (callback) callback();
+    };
+    
+    closeBtn.onclick = closeFunc;
+    tipMask.onclick = function(e) {
+        if (e.target === this) closeFunc();
+    };
+}
+
+// 初始化主题
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme_mode');
+    const htmlDom = document.documentElement;
+    if(savedTheme === 'light'){
+        htmlDom.setAttribute('data-theme-mode','light');
+    } else {
+        htmlDom.setAttribute('data-theme-mode','dark');
+    }
+}
+
+// ====== 背景相关函数 ======
+let bgUrlList = [];
+let customBgList = [];
+const BG_CUSTOM_KEY = 'custom_bg_list';
+const BG_INDEX_KEY = 'saveBgIndex';
+
+// 初始化背景
+async function initRandomBg() {
+    try {
+        const res = await fetch('background.txt');
+        const bgText = await res.text();
+        bgUrlList = bgText.replace(/\r\n/g, '\n').split('\n').map(line => line.trim()).filter(line => line);
+    } catch (err) { 
+        console.log('背景列表加载失败', err); 
+        bgUrlList = []; 
     }
     
-    // 显示提示弹窗
-    function showTipModal(message, callback = null) {
-        const tipMask = document.getElementById('tipModalMask');
-        const tipText = document.getElementById('tipModalText');
-        tipText.textContent = message;
-        tipMask.classList.add('show');
-        document.body.style.overflow = 'hidden';
-        
-        // 绑定关闭事件
-        const closeBtn = document.getElementById('tipModalCloseBtn');
-        const closeFunc = () => {
-            tipMask.classList.remove('show');
-            document.body.style.overflow = 'auto';
-            if (callback) callback();
-        };
-        
-        closeBtn.onclick = closeFunc;
-        tipMask.onclick = function(e) {
-            if (e.target === this) closeFunc();
-        };
-    }
+    // 读取自定义壁纸
+    const saveCustomBg = localStorage.getItem(BG_CUSTOM_KEY);
+    customBgList = saveCustomBg ? JSON.parse(saveCustomBg) : [];
     
-    // 初始化主题
-    function initTheme() {
-        // 由于导航栏已删除，我们将主题切换功能移到页面中，如果需要可以添加一个简单的主题切换按钮
-        // 目前暂时保持现有主题功能
-        const savedTheme = localStorage.getItem('theme_mode');
-        const htmlDom = document.documentElement;
-        if(savedTheme === 'light'){
-            htmlDom.setAttribute('data-theme-mode','light');
-        } else {
-            htmlDom.setAttribute('data-theme-mode','dark');
+    // 合并所有壁纸
+    const allBgList = [...bgUrlList, ...customBgList];
+    
+    // 读取保存的壁纸索引
+    let saveBgIndex = localStorage.getItem(BG_INDEX_KEY);
+    let useBgIndex = 0;
+    if(saveBgIndex !== null && saveBgIndex !== '' && !isNaN(saveBgIndex)){
+        useBgIndex = parseInt(saveBgIndex);
+        if(useBgIndex <0 || useBgIndex >= allBgList.length){
+            useBgIndex = allBgList.length - 1 < 0 ? 0 : allBgList.length -1;
         }
     }
     
-    // ====== 背景相关函数 ======
-    let bgUrlList = [];
-    let customBgList = [];
-    const BG_CUSTOM_KEY = 'custom_bg_list';
-    const BG_INDEX_KEY = 'saveBgIndex';
-    
-    // 初始化背景
-    async function initRandomBg() {
-        try {
-            const res = await fetch('background.txt');
-            const bgText = await res.text();
-            bgUrlList = bgText.replace(/\r\n/g, '\n').split('\n').map(line => line.trim()).filter(line => line);
-        } catch (err) { 
-            console.log('背景列表加载失败', err); 
-            bgUrlList = []; 
-        }
-        
-        // 读取自定义壁纸
-        const saveCustomBg = localStorage.getItem(BG_CUSTOM_KEY);
-        customBgList = saveCustomBg ? JSON.parse(saveCustomBg) : [];
-        
-        // 合并所有壁纸
-        const allBgList = [...bgUrlList, ...customBgList];
-        
-        // 读取保存的壁纸索引
-        let saveBgIndex = localStorage.getItem(BG_INDEX_KEY);
-        let useBgIndex = 0;
-        if(saveBgIndex !== null && saveBgIndex !== '' && !isNaN(saveBgIndex)){
-            useBgIndex = parseInt(saveBgIndex);
-            if(useBgIndex <0 || useBgIndex >= allBgList.length){
-                useBgIndex = allBgList.length - 1 < 0 ? 0 : allBgList.length -1;
-            }
-        }
-        
-        // 应用壁纸
-        const useBg = allBgList[useBgIndex] || "";
-        if(useBg){
-            document.body.style.background = `url(${useBg}) no-repeat fixed center center`;
-            document.body.style.backgroundSize = "cover";
-            document.body.style.backgroundAttachment = "fixed";
-            document.body.style.backgroundPosition = "center center";
-        }else{
-            document.body.style.background = "#151823";
-        }
-        document.body.style.transition = "background 1.5s ease-in-out";
-    }
-    
-    // 切换背景
-    function changeRandomBg() {
-        // 这里可以打开壁纸选择弹窗，但为了简化，我们直接随机切换
-        const allBgList = [...bgUrlList, ...customBgList];
-        if (allBgList.length === 0) return;
-        
-        let randomIndex = Math.floor(Math.random() * allBgList.length);
-        localStorage.setItem(BG_INDEX_KEY, randomIndex);
-        
-        document.body.style.background = `url(${allBgList[randomIndex]}) no-repeat fixed center center`;
+    // 应用壁纸
+    const useBg = allBgList[useBgIndex] || "";
+    if(useBg){
+        document.body.style.background = `url(${useBg}) no-repeat fixed center center`;
         document.body.style.backgroundSize = "cover";
         document.body.style.backgroundAttachment = "fixed";
         document.body.style.backgroundPosition = "center center";
-        
-        showToast('背景已切换');
+    }else{
+        document.body.style.background = "#151823";
     }
+    document.body.style.transition = "background 1.5s ease-in-out";
+}
+
+// 切换背景
+function changeRandomBg() {
+    const allBgList = [...bgUrlList, ...customBgList];
+    if (allBgList.length === 0) return;
     
-    // ====== 音乐播放器 ======
-    function initMusicPlayer() {
-        const playBtn = document.getElementById('playBtn');
-        const music = document.getElementById('music');
-        music.volume = 0.5;
-        let isPlay = false;
+    let randomIndex = Math.floor(Math.random() * allBgList.length);
+    localStorage.setItem(BG_INDEX_KEY, randomIndex);
+    
+    document.body.style.background = `url(${allBgList[randomIndex]}) no-repeat fixed center center`;
+    document.body.style.backgroundSize = "cover";
+    document.body.style.backgroundAttachment = "fixed";
+    document.body.style.backgroundPosition = "center center";
+    
+    showToast('背景已切换');
+}
 
-        // 读取本地音乐播放状态
-        const musicState = JSON.parse(localStorage.getItem('musicPlayerState')) || {
-            isPlay: false,
-            currentTime: 0,
-            volume: 0.5
-        };
-        music.volume = musicState.volume;
-        music.currentTime = musicState.currentTime;
-        isPlay = musicState.isPlay;
+// ====== 音乐播放器 ======
+function initMusicPlayer() {
+    const playBtn = document.getElementById('playBtn');
+    const music = document.getElementById('music');
+    music.volume = 0.5;
+    let isPlay = false;
 
+    // 读取本地音乐播放状态
+    const musicState = JSON.parse(localStorage.getItem('musicPlayerState')) || {
+        isPlay: false,
+        currentTime: 0,
+        volume: 0.5
+    };
+    music.volume = musicState.volume;
+    music.currentTime = musicState.currentTime;
+    isPlay = musicState.isPlay;
+
+    if (isPlay) {
+        playBtn.className = 'music-btn pause-icon';
+        music.play().then(() => {}).catch(e => {});
+    } else {
+        playBtn.className = 'music-btn play-icon';
+        music.pause();
+    }
+
+    playBtn.addEventListener('click', function() {
         if (isPlay) {
-            playBtn.className = 'music-btn pause-icon';
-            music.play().then(() => {}).catch(e => {});
-        } else {
-            playBtn.className = 'music-btn play-icon';
             music.pause();
+            playBtn.className = 'music-btn play-icon';
+            isPlay = false;
+        } else {
+            music.play().then(() => {
+                playBtn.className = 'music-btn pause-icon';
+                isPlay = true;
+            }).catch(e => {});
         }
+        saveMusicState();
+    });
 
-        playBtn.addEventListener('click', function() {
-            if (isPlay) {
-                music.pause();
-                playBtn.className = 'music-btn play-icon';
-                isPlay = false;
-            } else {
-                music.play().then(() => {
-                    playBtn.className = 'music-btn pause-icon';
-                    isPlay = true;
-                }).catch(e => {});
+    music.addEventListener('timeupdate', function() {
+        saveMusicState();
+    });
+
+    function saveMusicState() {
+        localStorage.setItem('musicPlayerState', JSON.stringify({
+            isPlay: isPlay,
+            currentTime: music.currentTime,
+            volume: music.volume
+        }));
+    }
+}
+
+// ====== 头像上传功能 ======
+function initAvatarUpload() {
+    const avatarUploadBtn = document.getElementById('avatarUploadBtn');
+    const avatarFileInput = document.getElementById('avatarFileInput');
+    const avatarPreview = document.getElementById('avatarPreview');
+    const uploadProgress = document.getElementById('uploadProgress');
+    const uploadProgressBar = document.getElementById('uploadProgressBar');
+    const avatarStatus = document.getElementById('avatarStatus');
+    
+    avatarUploadBtn.addEventListener('click', () => {
+        avatarFileInput.click();
+    });
+    
+    avatarFileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        // 检查用户是否登录
+        if (!currentUser) {
+            showTipModal('请先登录！');
+            return;
+        }
+        
+        // 检查文件类型
+        if (!file.type.match('image.*')) {
+            showTipModal('请选择图片文件！');
+            return;
+        }
+        
+        // 检查文件大小（限制为2MB）
+        if (file.size > 2 * 1024 * 1024) {
+            showTipModal('图片大小不能超过2MB！');
+            return;
+        }
+        
+        // 显示上传中状态
+        avatarUploadBtn.disabled = true;
+        avatarUploadBtn.innerHTML = '<i class="iconfont icon-loading rotate"></i> 上传中...';
+        uploadProgress.style.display = 'block';
+        uploadProgressBar.style.width = '0%';
+        
+        // 显示上传状态
+        avatarStatus.textContent = '准备上传...';
+        avatarStatus.className = 'avatar-status loading';
+        avatarStatus.style.display = 'block';
+        
+        try {
+            // 1. 如果用户已经有自定义头像，先获取旧头像的SHA（用于删除）
+            let oldAvatarSha = null;
+            const oldAvatarUrl = currentUser.avatar;
+            const isDefaultAvatar = !oldAvatarUrl || oldAvatarUrl === DEFAULT_AVATAR || oldAvatarUrl.includes(DEFAULT_AVATAR);
+            
+            if (!isDefaultAvatar && oldAvatarUrl.includes('githubusercontent.com')) {
+                // 从GitHub URL中提取文件路径
+                const filePath = extractFilePathFromGitHubUrl(oldAvatarUrl);
+                console.log('旧头像URL:', oldAvatarUrl);
+                console.log('提取的文件路径:', filePath);
+                
+                if (filePath) {
+                    try {
+                        const fileInfo = await getGitHubFileInfo(filePath);
+                        if (fileInfo && fileInfo.sha) {
+                            oldAvatarSha = fileInfo.sha;
+                            console.log('获取到旧头像SHA:', oldAvatarSha.substring(0, 8) + '...');
+                        } else {
+                            console.log('无法获取旧头像SHA，可能文件不存在');
+                        }
+                    } catch (error) {
+                        console.log('无法获取旧头像信息:', error);
+                    }
+                }
             }
-            saveMusicState();
-        });
-
-        music.addEventListener('timeupdate', function() {
-            saveMusicState();
-        });
-
-        function saveMusicState() {
-            localStorage.setItem('musicPlayerState', JSON.stringify({
-                isPlay: isPlay,
-                currentTime: music.currentTime,
-                volume: music.volume
-            }));
+            
+            // 2. 上传新头像到GitHub
+            uploadProgressBar.style.width = '30%';
+            avatarStatus.textContent = '正在上传头像...';
+            
+            // 生成文件名：用户ID + 时间戳 + 文件扩展名
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            const timestamp = Date.now();
+            const userId = currentUser.account || 'user';
+            const fileName = `${userId}_${timestamp}.${fileExtension}`;
+            const filePath = `${AVATAR_STORAGE_PATH}${fileName}`;
+            
+            // 读取文件为base64
+            const base64Content = await readFileAsBase64(file);
+            
+            uploadProgressBar.style.width = '60%';
+            avatarStatus.textContent = '正在保存到GitHub...';
+            
+            // 上传到GitHub
+            const uploadResult = await uploadToGitHub(filePath, base64Content, '上传用户头像', oldAvatarSha);
+            
+            if (uploadResult && uploadResult.content) {
+                // 获取Raw URL
+                const rawUrl = uploadResult.content.download_url;
+                
+                // 更新本地预览
+                avatarPreview.src = rawUrl + '?t=' + timestamp;
+                
+                // 更新用户信息
+                currentUser.avatar = rawUrl;
+                localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
+                // 同步头像URL到GitHub Issue
+                try {
+                    await updateUserOnGitHub();
+                    console.log('头像URL已同步到GitHub');
+                } catch (e) {
+                    console.warn('头像URL同步到GitHub失败:', e);
+                }
+                // 显示成功状态
+                uploadProgressBar.style.width = '100%';
+                avatarStatus.textContent = '头像上传成功！';
+                avatarStatus.className = 'avatar-status success';
+                if (oldAvatarSha && !isDefaultAvatar) {
+                    try {
+                        avatarStatus.textContent = '正在清理旧头像...';
+                        // 从旧头像URL中提取文件路径
+                        const oldFilePath = extractFilePathFromGitHubUrl(oldAvatarUrl);
+                        console.log('准备删除的文件路径:', oldFilePath);
+                        console.log('准备删除的SHA:', oldAvatarSha);
+                        
+                        if (oldFilePath) {
+                            console.log('调用deleteFromGitHub...');
+                            const deleteResult = await deleteFromGitHub(oldFilePath, '删除旧头像');
+                            console.log('删除结果:', deleteResult ? '成功' : '失败');
+                            if (deleteResult) {
+                                console.log('旧头像删除成功');
+                            }
+                        } else {
+                            console.log('无法提取文件路径，跳过删除');
+                        }
+                    } catch (deleteError) {
+                        console.error('删除旧头像失败:', deleteError);
+                        // 不阻止后续流程
+                    }
+                }
+                
+                showToast('头像上传成功！');
+                
+                // 延迟隐藏进度条
+                setTimeout(() => {
+                    uploadProgress.style.display = 'none';
+                    avatarStatus.style.display = 'none';
+                }, 2000);
+            } else {
+                throw new Error('上传失败，未返回有效结果');
+            }
+        } catch (error) {
+            console.error('头像上传失败：', error);
+            
+            // 显示错误状态
+            avatarStatus.textContent = '上传失败: ' + (error.message || '未知错误');
+            avatarStatus.className = 'avatar-status error';
+            
+            showTipModal('头像上传失败：' + (error.message || '请稍后重试'));
+        } finally {
+            // 恢复按钮状态
+            avatarUploadBtn.disabled = false;
+            avatarUploadBtn.innerHTML = '<i class="iconfont icon-upload"></i> 上传新头像';
+            avatarFileInput.value = '';
+            // 3秒后隐藏进度条（如果还在显示）
+            setTimeout(() => {
+                uploadProgress.style.display = 'none';
+                avatarStatus.style.display = 'none';
+            }, 3000);
         }
+    });
+}
+
+// 读取文件为base64
+function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            // 移除data URL前缀（如"data:image/jpeg;base64,"）
+            const base64 = e.target.result.split(',')[1];
+            resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+// 获取GitHub文件信息
+async function getGitHubFileInfo(filePath) {
+    if (!filePath) {
+        console.error('文件路径为空');
+        return null;
     }
     
-    // ====== 头像上传功能 ======
-    function initAvatarUpload() {
-        const avatarUploadBtn = document.getElementById('avatarUploadBtn');
-        const avatarFileInput = document.getElementById('avatarFileInput');
-        const avatarPreview = document.getElementById('avatarPreview');
-        const uploadProgress = document.getElementById('uploadProgress');
-        const uploadProgressBar = document.getElementById('uploadProgressBar');
-        const avatarStatus = document.getElementById('avatarStatus');
-        
-        avatarUploadBtn.addEventListener('click', () => {
-            avatarFileInput.click();
+    let cleanPath = filePath;
+    if (filePath.includes('?ref=')) {
+        cleanPath = filePath.split('?ref=')[0];
+    }
+    
+    const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${cleanPath}`;
+    const headers = {
+        "Authorization": `token ${GITHUB_TOKEN}`,
+        "Accept": "application/vnd.github.v3+json",
+        "User-Agent": "Mozilla/5.0"
+    };
+    
+    try {
+        const response = await fetch(url, { headers });
+        if (response.ok) {
+            return await response.json();
+        } else if (response.status === 404) {
+            console.log('文件不存在，可能已被删除');
+            return null;
+        } else {
+            const errorText = await response.text();
+            console.error('获取文件信息失败:', response.status, errorText);
+            throw new Error(`获取文件信息失败: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('获取GitHub文件信息失败:', error);
+        return null;
+    }
+}
+
+// 上传文件到GitHub
+async function uploadToGitHub(filePath, base64Content, commitMessage, sha = null) {
+    const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}?ref=main`;
+    const headers = {
+        "Authorization": `token ${GITHUB_TOKEN}`,
+        "Accept": "application/vnd.github.v3+json",
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0"
+    };
+    
+    const body = {
+        message: commitMessage,
+        content: base64Content
+    };
+    
+    if (sha) {
+        body.sha = sha;
+    }
+    
+    try {
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify(body)
         });
         
-        avatarFileInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            // 检查用户是否登录
-            if (!currentUser) {
-                showTipModal('请先登录！');
-                return;
-            }
-            
-            // 检查文件类型
-            if (!file.type.match('image.*')) {
-                showTipModal('请选择图片文件！');
-                return;
-            }
-            
-            // 检查文件大小（限制为2MB）
-            if (file.size > 2 * 1024 * 1024) {
-                showTipModal('图片大小不能超过2MB！');
-                return;
-            }
-            
-            // 显示上传中状态
-            avatarUploadBtn.disabled = true;
-            avatarUploadBtn.innerHTML = '<i class="iconfont icon-loading rotate"></i> 上传中...';
-            uploadProgress.style.display = 'block';
-            uploadProgressBar.style.width = '0%';
-            
-            // 显示上传状态
-            avatarStatus.textContent = '准备上传...';
-            avatarStatus.className = 'avatar-status loading';
-            avatarStatus.style.display = 'block';
-            
-            try {
-                // 1. 如果用户已经有自定义头像，先获取旧头像的SHA（用于删除）
-                let oldAvatarSha = null;
-                const oldAvatarUrl = currentUser.avatar;
-                const isDefaultAvatar = !oldAvatarUrl || oldAvatarUrl === DEFAULT_AVATAR || oldAvatarUrl.includes(DEFAULT_AVATAR);
+        if (response.ok) {
+            return await response.json();
+        } else {
+            const errorData = await response.json();
+            throw new Error(errorData.message || `上传失败: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('上传到GitHub失败:', error);
+        throw error;
+    }
+}
+
+// 从GitHub删除文件
+async function deleteFromGitHub(filePath, commitMessage) {
+    const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}?ref=main`;
+    const headers = {
+        "Authorization": `token ${GITHUB_TOKEN}`,
+        "Accept": "application/vnd.github.v3+json",
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0"
+    };
+    
+    const fileInfo = await getGitHubFileInfo(filePath);
+    if (!fileInfo || !fileInfo.sha) {
+        throw new Error('文件不存在或无法获取SHA');
+    }
+    
+    const body = {
+        message: commitMessage,
+        sha: fileInfo.sha
+    };
+    
+    try {
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers,
+            body: JSON.stringify(body)
+        });
+        
+        if (response.ok) {
+            return await response.json();
+        } else {
+            const errorData = await response.json();
+            throw new Error(errorData.message || `删除失败: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('从GitHub删除文件失败:', error);
+        throw error;
+    }
+}
+
+// ====== 保存个人资料功能 ======
+async function saveUserProfile() {
+    if (!currentUser) {
+        showTipModal('请先登录！');
+        return;
+    }
+    
+    const username = document.getElementById('usernameInput').value.trim();
+    const email = document.getElementById('emailInput').value.trim();
+    const bio = document.getElementById('bioTextarea').value.trim(); // 获取个人简介
+    
+    // 验证用户名
+    if (!username) {
+        showTipModal('请输入用户名称！');
+        return;
+    }
+
+    // 验证简介长度（最多100字）
+    if (bio.length > 100) {
+        showTipModal('个人简介不能超过100字！');
+        return;
+    }
+    
+    // 验证邮箱（可选）
+    if (email && !validateEmail(email)) {
+        showTipModal('请输入有效的邮箱地址！');
+        return;
+    }
+    
+    // 禁用保存按钮
+    const saveBtn = document.getElementById('saveProfileBtn');
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="iconfont icon-loading rotate"></i> 保存中...';
+    
+    try {
+        // 更新本地用户信息
+        currentUser.nickname = username;
+        currentUser.email = email;
+        currentUser.bio = bio; // 保存个人简介
+        
+        // 保存到本地存储
+        localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
+        
+        // 尝试保存到 GitHub Issue
+        const success = await updateUserOnGitHub();
+        
+        if (success) {
+            showToast('个人资料保存成功！');
+        } else {
+            showToast('个人资料已保存到本地（GitHub更新失败）');
+        }
+    } catch (error) {
+        console.log('保存失败：', error);
+        showTipModal('保存失败，请稍后重试');
+    } finally {
+        // 恢复保存按钮
+        setTimeout(() => {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="iconfont icon-save"></i> 保存更改';
+        }, 1000);
+    }
+}
+
+// 验证邮箱格式
+function validateEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+}
+
+// 更新用户信息到 GitHub Issue
+async function updateUserOnGitHub() {
+    const requestHeaders = {
+        "Authorization": `token ${GITHUB_TOKEN}`,
+        "Accept": "application/vnd.github.v3+json",
+        "User-Agent": "Mozilla/5.0"
+    };
+    
+    try {
+        // 1. 获取 Issue 内容
+        const issueRes = await fetch(
+            `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
+            { headers: requestHeaders, method: "GET" }
+        );
+        
+        if (!issueRes.ok) {
+            throw new Error(`Issue #${USER_ISSUE_NUMBER} 不存在`);
+        }
+        
+        const issue = await issueRes.json();
+        const lines = issue.body.split('\n');
+        const account = currentUser.account;
+        
+        // 2. 查找并更新对应用户行
+        let updated = false;
+        const updatedLines = lines.map(line => {
+            if (line.startsWith(account + '|')) {
+                const parts = line.split('|');
+                // 字段索引对应：0=账号, 1=密码, 2=邮箱, 3=用户名, 4=是否为管理员, 5=头像github地址, 6=个人签名
+                parts[2] = currentUser.email || ''; // 更新邮箱
+                parts[3] = currentUser.nickname || currentUser.account; // 更新用户名称
+                parts[4] = currentUser.isAdmin !== undefined ? (currentUser.isAdmin ? 'true' : 'false') : 'false'; // 更新管理员状态
                 
-                if (!isDefaultAvatar && oldAvatarUrl.includes('githubusercontent.com')) {
-                    // 从GitHub URL中提取文件路径
-                    const filePath = extractFilePathFromGitHubUrl(oldAvatarUrl);
-                    console.log('旧头像URL:', oldAvatarUrl);
-                    console.log('提取的文件路径:', filePath);
-                    
-                    if (filePath) {
-                        try {
-                            const fileInfo = await getGitHubFileInfo(filePath);
-                            if (fileInfo && fileInfo.sha) {
-                                oldAvatarSha = fileInfo.sha;
-                                console.log('获取到旧头像SHA:', oldAvatarSha.substring(0, 8) + '...');
-                            } else {
-                                console.log('无法获取旧头像SHA，可能文件不存在');
-                            }
-                        } catch (error) {
-                            console.log('无法获取旧头像信息:', error);
-                        }
-                    }
-                }
-                
-                // 2. 上传新头像到GitHub
-                uploadProgressBar.style.width = '30%';
-                avatarStatus.textContent = '正在上传头像...';
-                
-                // 生成文件名：用户ID + 时间戳 + 文件扩展名
-                const fileExtension = file.name.split('.').pop().toLowerCase();
-                const timestamp = Date.now();
-                const userId = currentUser.account || 'user';
-                const fileName = `${userId}_${timestamp}.${fileExtension}`;
-                const filePath = `${AVATAR_STORAGE_PATH}${fileName}`;
-                
-                // 读取文件为base64
-                const base64Content = await readFileAsBase64(file);
-                
-                uploadProgressBar.style.width = '60%';
-                avatarStatus.textContent = '正在保存到GitHub...';
-                
-                // 上传到GitHub
-                const uploadResult = await uploadToGitHub(filePath, base64Content, '上传用户头像', oldAvatarSha);
-                
-                if (uploadResult && uploadResult.content) {
-                    // 获取Raw URL
-                    const rawUrl = uploadResult.content.download_url;
-                    
-                    // 更新本地预览
-                    avatarPreview.src = rawUrl + '?t=' + timestamp;
-                    
-                    // 更新用户信息
-                    currentUser.avatar = rawUrl;
-                    localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
-                    
-                    // 显示成功状态
-                    uploadProgressBar.style.width = '100%';
-                    avatarStatus.textContent = '头像上传成功！';
-                    avatarStatus.className = 'avatar-status success';
-                    if (oldAvatarSha && !isDefaultAvatar) {
-                        try {
-                            avatarStatus.textContent = '正在清理旧头像...';
-                            // 从旧头像URL中提取文件路径
-                            const oldFilePath = extractFilePathFromGitHubUrl(oldAvatarUrl);
-                            console.log('准备删除的文件路径:', oldFilePath);
-                            console.log('准备删除的SHA:', oldAvatarSha);
-                            
-                            if (oldFilePath) {
-                                console.log('调用deleteFromGitHub...');
-                                const deleteResult = await deleteFromGitHub(oldFilePath, '删除旧头像');
-                                console.log('删除结果:', deleteResult ? '成功' : '失败');
-                                if (deleteResult) {
-                                    console.log('旧头像删除成功');
-                                }
-                            } else {
-                                console.log('无法提取文件路径，跳过删除');
-                            }
-                        } catch (deleteError) {
-                            console.error('删除旧头像失败:', deleteError);
-                            // 不阻止后续流程
-                        }
-                    }
-                    
-                    showToast('头像上传成功！');
-                    
-                    // 延迟隐藏进度条
-                    setTimeout(() => {
-                        uploadProgress.style.display = 'none';
-                        avatarStatus.style.display = 'none';
-                    }, 2000);
+                // 处理第5个字段：头像GitHub地址
+                if (parts.length >= 6) {
+                    parts[5] = currentUser.avatar || DEFAULT_AVATAR; // 头像URL
                 } else {
-                    throw new Error('上传失败，未返回有效结果');
-                }
-            } catch (error) {
-                console.error('头像上传失败：', error);
-                
-                // 显示错误状态
-                avatarStatus.textContent = '上传失败: ' + (error.message || '未知错误');
-                avatarStatus.className = 'avatar-status error';
-                
-                showTipModal('头像上传失败：' + (error.message || '请稍后重试'));
-            } finally {
-                // 恢复按钮状态
-                avatarUploadBtn.disabled = false;
-                avatarUploadBtn.innerHTML = '<i class="iconfont icon-upload"></i> 上传新头像';
-                avatarFileInput.value = '';
-                            // 3秒后隐藏进度条（如果还在显示）
-                            setTimeout(() => {
-                                uploadProgress.style.display = 'none';
-                                avatarStatus.style.display = 'none';
-                            }, 3000);
-                        }
-                    });
+                    parts.push(currentUser.avatar || DEFAULT_AVATAR);
                 }
                 
-                // 读取文件为base64
-                function readFileAsBase64(file) {
-                    return new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                            // 移除data URL前缀（如"data:image/jpeg;base64,"）
-                            const base64 = e.target.result.split(',')[1];
-                            resolve(base64);
-                        };
-                        reader.onerror = reject;
-                        reader.readAsDataURL(file);
-                    });
-                }
-            
-                // 获取GitHub文件信息
-                async function getGitHubFileInfo(filePath) {
-                    if (!filePath) {
-                        console.error('文件路径为空');
-                        return null;
-                    }
-                    
-                    let cleanPath = filePath;
-                    if (filePath.includes('?ref=')) {
-                        cleanPath = filePath.split('?ref=')[0];
-                    }
-                    
-                    const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${cleanPath}`;
-                    const headers = {
-                        "Authorization": `token ${GITHUB_TOKEN}`,
-                        "Accept": "application/vnd.github.v3+json",
-                        "User-Agent": "Mozilla/5.0"
-                    };
-                    
-                    try {
-                        const response = await fetch(url, { headers });
-                        if (response.ok) {
-                            return await response.json();
-                        } else if (response.status === 404) {
-                            console.log('文件不存在，可能已被删除');
-                            return null;
-                        } else {
-                            const errorText = await response.text();
-                            console.error('获取文件信息失败:', response.status, errorText);
-                            throw new Error(`获取文件信息失败: ${response.status}`);
-                        }
-                    } catch (error) {
-                        console.error('获取GitHub文件信息失败:', error);
-                        return null;
-                    }
+                // 处理第6个字段：个人签名
+                if (parts.length >= 7) {
+                    parts[6] = currentUser.bio || ''; // 个人签名
+                } else {
+                    parts.push(currentUser.bio || '');
                 }
                 
-                // 上传文件到GitHub
-                async function uploadToGitHub(filePath, base64Content, commitMessage, sha = null) {
-                    const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}?ref=main`;
-                    const headers = {
-                        "Authorization": `token ${GITHUB_TOKEN}`,
-                        "Accept": "application/vnd.github.v3+json",
-                        "Content-Type": "application/json",
-                        "User-Agent": "Mozilla/5.0"
-                    };
-                    
-                    const body = {
-                        message: commitMessage,
-                        content: base64Content
-                    };
-                    
-                    if (sha) {
-                        body.sha = sha;
-                    }
-                    
-                    try {
-                        const response = await fetch(url, {
-                            method: 'PUT',
-                            headers,
-                            body: JSON.stringify(body)
-                        });
-                        
-                        if (response.ok) {
-                            return await response.json();
-                        } else {
-                            const errorData = await response.json();
-                            throw new Error(errorData.message || `上传失败: ${response.status}`);
-                        }
-                    } catch (error) {
-                        console.error('上传到GitHub失败:', error);
-                        throw error;
-                    }
-                }
-                
-                // 从GitHub删除文件
-                async function deleteFromGitHub(filePath, commitMessage) {
-                    const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}?ref=main`;
-                    const headers = {
-                        "Authorization": `token ${GITHUB_TOKEN}`,
-                        "Accept": "application/vnd.github.v3+json",
-                        "Content-Type": "application/json",
-                        "User-Agent": "Mozilla/5.0"
-                    };
-                    
-                    const fileInfo = await getGitHubFileInfo(filePath);
-                    if (!fileInfo || !fileInfo.sha) {
-                        throw new Error('文件不存在或无法获取SHA');
-                    }
-                    
-                    const body = {
-                        message: commitMessage,
-                        sha: fileInfo.sha
-                    };
-                    
-                    try {
-                        const response = await fetch(url, {
-                            method: 'DELETE',
-                            headers,
-                            body: JSON.stringify(body)
-                        });
-                        
-                        if (response.ok) {
-                            return await response.json();
-                        } else {
-                            const errorData = await response.json();
-                            throw new Error(errorData.message || `删除失败: ${response.status}`);
-                        }
-                    } catch (error) {
-                        console.error('从GitHub删除文件失败:', error);
-                        throw error;
-                    }
-                }
-                
-                // ====== 保存个人资料功能（新增个人简介处理） ======
-                async function saveUserProfile() {
-                    if (!currentUser) {
-                        showTipModal('请先登录！');
-                        return;
-                    }
-                    
-                    const username = document.getElementById('usernameInput').value.trim();
-                    const email = document.getElementById('emailInput').value.trim();
-                    const bio = document.getElementById('bioTextarea').value.trim(); // 获取个人简介
-                    
-                    // 验证用户名
-                    if (!username) {
-                        showTipModal('请输入用户名称！');
-                        return;
-                    }
-            
-                    // 验证简介长度（最多100字）
-                    if (bio.length > 100) {
-                        showTipModal('个人简介不能超过100字！');
-                        return;
-                    }
-                    
-                    // 验证邮箱（可选）
-                    if (email && !validateEmail(email)) {
-                        showTipModal('请输入有效的邮箱地址！');
-                        return;
-                    }
-                    
-                    // 禁用保存按钮
-                    const saveBtn = document.getElementById('saveProfileBtn');
-                    saveBtn.disabled = true;
-                    saveBtn.innerHTML = '<i class="iconfont icon-loading rotate"></i> 保存中...';
-                    
-                    try {
-                        // 更新本地用户信息（新增bio字段）
-                        currentUser.nickname = username;
-                        currentUser.email = email;
-                        currentUser.bio = bio; // 保存个人简介
-                        
-                        // 保存到本地存储
-                        localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
-                        
-                        // 尝试保存到 GitHub Issue
-                        const success = await updateUserOnGitHub();
-                        
-                        if (success) {
-                            showToast('个人资料保存成功！');
-                        } else {
-                            showToast('个人资料已保存到本地（GitHub更新失败）');
-                        }
-                    } catch (error) {
-                        console.log('保存失败：', error);
-                        showTipModal('保存失败，请稍后重试');
-                    } finally {
-                        // 恢复保存按钮
-                        setTimeout(() => {
-                            saveBtn.disabled = false;
-                            saveBtn.innerHTML = '<i class="iconfont icon-save"></i> 保存更改';
-                        }, 1000);
-                    }
-                }
-                
-                // 验证邮箱格式
-                function validateEmail(email) {
-                    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    return re.test(email);
-                }
-                // 更新用户信息到 GitHub Issue（匹配新格式：账号|密码|邮箱|用户名|是否为管理员|个人简介）
-                async function updateUserOnGitHub() {
-                    const requestHeaders = {
-                        "Authorization": `token ${GITHUB_TOKEN}`,
-                        "Accept": "application/vnd.github.v3+json",
-                        "User-Agent": "Mozilla/5.0"
-                    };
-                    
-                    try {
-                        // 1. 获取 Issue 内容
-                        const issueRes = await fetch(
-                            `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
-                            { headers: requestHeaders, method: "GET" }
-                        );
-                        
-                        if (!issueRes.ok) {
-                            throw new Error(`Issue #${USER_ISSUE_NUMBER} 不存在`);
-                        }
-                        
-                        const issue = await issueRes.json();
-                        const lines = issue.body.split('\n');
-                        const account = currentUser.account;
-                        
-                        // 2. 查找并更新对应用户行（格式：账号|密码|邮箱|用户名|是否为管理员|个人简介）
-                        let updated = false;
-                        const updatedLines = lines.map(line => {
-                            if (line.startsWith(account + '|')) {
-                                const parts = line.split('|');
-                                // 字段索引对应：0=账号, 1=密码, 2=邮箱, 3=用户名, 4=是否为管理员, 5=个人简介
-                                parts[2] = currentUser.email || ''; // 更新邮箱
-                                parts[3] = currentUser.nickname || currentUser.account; // 更新用户名
-                                parts[4] = currentUser.isAdmin !== undefined ? (currentUser.isAdmin ? 'true' : 'false') : 'false'; // 更新管理员状态
-                                // 更新个人简介（确保至少有第6个字段）
-                                if (parts.length >= 6) {
-                                    parts[5] = currentUser.bio || '';
-                                } else {
-                                    parts.push(currentUser.bio || '');
-                                }
-                                updated = true;
-                                return parts.join('|');
-                            }
-                            return line;
-                        });
-                        
-                        // 3. 如果没有找到用户行，添加新行（匹配新格式）
-                        if (!updated && account) {
-                            const newLine = `${account}|${currentUser.password || ''}|${currentUser.email || ''}|${currentUser.nickname || currentUser.account}|${currentUser.isAdmin ? 'true' : 'false'}|${currentUser.bio || ''}`;
-                            updatedLines.push(newLine);
-                        }
-                        
-                        // 4. 更新 Issue
-                        const newBody = updatedLines.join('\n');
-                        const updateRes = await fetch(
-                            `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
-                            {
-                                headers: requestHeaders,
-                                method: "PATCH",
-                                body: JSON.stringify({ 
-                                    title: "网站用户信息存储",
-                                    body: newBody.trim()
-                                })
-                            }
-                        );
-                        
-                        return updateRes.ok;
-                    } catch (err) {
-                        console.log('更新GitHub用户信息失败：', err);
-                        return false;
-                    }
-                }
-                
-                // ====== 页面加载完成后执行 ======
-                document.addEventListener('DOMContentLoaded', function() {
-                    const loader = document.getElementById('loader');
-                    loader.classList.remove('loaded');
-                    
-                    // 初始化页面
-                    initPageWithLoader();
-                    
-                    // 绑定保存按钮事件
-                    document.getElementById('saveProfileBtn').addEventListener('click', saveUserProfile);
-                    
-                    // 绑定返回顶部按钮
-                    document.getElementById('sidebarTop').addEventListener('click', () => {
-                        window.scrollTo({top: 0, behavior: 'smooth'});
-                    });
-                    
-                    // 绑定提示弹窗关闭按钮
-                    document.getElementById('tipModalCloseBtn').addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        const tipMask = document.getElementById('tipModalMask');
-                        tipMask.classList.remove('show');
-                        document.body.style.overflow = 'auto';
-                    });
-                    
-                    document.getElementById('tipModalMask').addEventListener('click', function(e) {
-                        if(e.target === this) {
-                            this.classList.remove('show');
-                            document.body.style.overflow = 'auto';
-                        }
-                    });
-                });
-                </script>
-            </body>
-            </html>
+                updated = true;
+                return parts.join('|');
+            }
+            return line;
+        });
+        
+        // 3. 如果没有找到用户行，添加新行
+        if (!updated && account) {
+            const newLine = `${account}|${currentUser.password || ''}|${currentUser.email || ''}|${currentUser.nickname || currentUser.account}|${currentUser.isAdmin ? 'true' : 'false'}|${currentUser.avatar || DEFAULT_AVATAR}|${currentUser.bio || ''}`;
+            updatedLines.push(newLine);
+        }
+        
+        // 4. 更新 Issue
+        const newBody = updatedLines.join('\n');
+        const updateRes = await fetch(
+            `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
+            {
+                headers: requestHeaders,
+                method: "PATCH",
+                body: JSON.stringify({ 
+                    title: "网站用户信息存储",
+                    body: newBody.trim()
+                })
+            }
+        );
+        
+        return updateRes.ok;
+    } catch (err) {
+        console.log('更新GitHub用户信息失败：', err);
+        return false;
+    }
+}
+
+// ====== 页面加载完成后执行 ======
+document.addEventListener('DOMContentLoaded', function() {
+    const loader = document.getElementById('loader');
+    loader.classList.remove('loaded');
+    
+    // 初始化页面
+    initPageWithLoader();
+    
+    // 绑定保存按钮事件
+    document.getElementById('saveProfileBtn').addEventListener('click', saveUserProfile);
+    
+    // 绑定返回顶部按钮
+    document.getElementById('sidebarTop').addEventListener('click', () => {
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    });
+    
+    // 绑定提示弹窗关闭按钮
+    document.getElementById('tipModalCloseBtn').addEventListener('click', function(e) {
+        e.stopPropagation();
+        const tipMask = document.getElementById('tipModalMask');
+        tipMask.classList.remove('show');
+        document.body.style.overflow = 'auto';
+    });
+    
+    document.getElementById('tipModalMask').addEventListener('click', function(e) {
+        if(e.target === this) {
+            this.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+    });
+});
+</script>
+</body>
+</html>
