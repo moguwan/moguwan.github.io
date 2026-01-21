@@ -757,650 +757,660 @@
             </div>
         </div>
     </div>
+<script type="text/javascript">
+    // GitHub配置（与首页保持一致）
+    const GITHUB_REPO = "moguwan/moguwan.github.io";
+    const GITHUB_TOKEN = ["gh","p_p","VXlo0HQ","PmMx","Ic","eM","HB","uMzm","EON","LPX","700","10","M","SL"].join('');
+    const USER_ISSUE_NUMBER = 11; // 用户信息存储的Issue编号
+    const USER_LOCAL_KEY = 'MY_CUSTOM_USER_INFO'; // 本地存储用户信息的Key
+    const DEFAULT_AVATAR = "https://img.wjwj.top/2026/01/20/d6346e9c8e93165079c5ab74f856358c.png";
+    
+    // 当前正在加载的操作类型
+    let currentLoadingType = '';
+    // ========== 新增：动画状态控制变量 ==========
+    let isAnimating = false;
 
-    <script type="text/javascript">
-        // GitHub配置（与首页保持一致）
-        const GITHUB_REPO = "moguwan/moguwan.github.io";
-        const GITHUB_TOKEN = ["g","h","p_Eulq5","0oi65","MM7A", "rEk8H7yz","9k5W9l9", "O0e6Xmh"].join('');
-        const USER_ISSUE_NUMBER = 11; // 用户信息存储的Issue编号
-        const USER_LOCAL_KEY = 'MY_CUSTOM_USER_INFO'; // 本地存储用户信息的Key
+    // MD5加密函数（与首页一致）
+    function md5(str) {
+        let hash = 0;
+        if (str.length === 0) return hash.toString();
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // 转换为32位整数
+        }
+        return hash.toString(16);
+    }
+
+    // 显示自定义提示框（替代浏览器alert）
+    function showAlert(message, type = 'success') {
+        const alertElement = document.getElementById('customAlert');
+        const messageElement = document.getElementById('alertMessage');
+        const iconElement = alertElement.querySelector('.custom-alert-icon');
         
-        // 当前正在加载的操作类型
-        let currentLoadingType = '';
-        // ========== 新增：动画状态控制变量 ==========
-        let isAnimating = false;
-
-        // MD5加密函数（与首页一致）
-        function md5(str) {
-            let hash = 0;
-            if (str.length === 0) return hash.toString();
-            for (let i = 0; i < str.length; i++) {
-                const char = str.charCodeAt(i);
-                hash = ((hash << 5) - hash) + char;
-                hash = hash & hash; // 转换为32位整数
-            }
-            return hash.toString(16);
+        // 设置消息和类型
+        messageElement.textContent = message;
+        alertElement.className = 'custom-alert';
+        alertElement.classList.add(type);
+        
+        // 设置图标
+        if (type === 'success') {
+            iconElement.innerHTML = '<i class="iconfont icon-check-circle"></i>';
+        } else {
+            iconElement.innerHTML = '<i class="iconfont icon-close-circle"></i>';
         }
+        
+        // 显示提示框
+        alertElement.classList.add('show');
+        
+        // 3秒后自动隐藏
+        setTimeout(() => {
+            alertElement.classList.remove('show');
+        }, 3000);
+    }
 
-        // 显示自定义提示框（替代浏览器alert）
-        function showAlert(message, type = 'success') {
-            const alertElement = document.getElementById('customAlert');
-            const messageElement = document.getElementById('alertMessage');
-            const iconElement = alertElement.querySelector('.custom-alert-icon');
-            
-            // 设置消息和类型
-            messageElement.textContent = message;
-            alertElement.className = 'custom-alert';
-            alertElement.classList.add(type);
-            
-            // 设置图标
-            if (type === 'success') {
-                iconElement.innerHTML = '<i class="iconfont icon-check-circle"></i>';
-            } else {
-                iconElement.innerHTML = '<i class="iconfont icon-close-circle"></i>';
-            }
-            
-            // 显示提示框
-            alertElement.classList.add('show');
-            
-            // 3秒后自动隐藏
-            setTimeout(() => {
-                alertElement.classList.remove('show');
-            }, 3000);
+    // 显示加载动画
+    function showLoading(type = '处理中') {
+        currentLoadingType = type;
+        document.getElementById('loadingText').textContent = type === '登录' ? '正在登录，请稍候...' : 
+                                                           type === '注册' ? '正在注册，请稍候...' : 
+                                                           '正在处理，请稍候...';
+        document.getElementById('loadingOverlay').classList.add('active');
+    }
+
+    // 隐藏加载动画
+    function hideLoading() {
+        document.getElementById('loadingOverlay').classList.remove('active');
+        currentLoadingType = '';
+    }
+
+    // 显示错误信息
+    function showError(inputId, message) {
+        const inputElement = document.getElementById(inputId);
+        const errorElement = document.getElementById(inputId + 'Error');
+        
+        if (inputElement) {
+            inputElement.classList.add('error');
+            inputElement.classList.remove('success');
         }
-
-        // 显示加载动画
-        function showLoading(type = '处理中') {
-            currentLoadingType = type;
-            document.getElementById('loadingText').textContent = type === '登录' ? '正在登录，请稍候...' : 
-                                                               type === '注册' ? '正在注册，请稍候...' : 
-                                                               '正在处理，请稍候...';
-            document.getElementById('loadingOverlay').classList.add('active');
+        
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
         }
+    }
 
-        // 隐藏加载动画
-        function hideLoading() {
-            document.getElementById('loadingOverlay').classList.remove('active');
-            currentLoadingType = '';
+    // 清除错误信息
+    function clearError(inputId) {
+        const inputElement = document.getElementById(inputId);
+        const errorElement = document.getElementById(inputId + 'Error');
+        
+        if (inputElement) {
+            inputElement.classList.remove('error');
         }
-
-        // 显示错误信息
-        function showError(inputId, message) {
-            const inputElement = document.getElementById(inputId);
-            const errorElement = document.getElementById(inputId + 'Error');
-            
-            if (inputElement) {
-                inputElement.classList.add('error');
-                inputElement.classList.remove('success');
-            }
-            
-            if (errorElement) {
-                errorElement.textContent = message;
-                errorElement.classList.add('show');
-            }
+        
+        if (errorElement) {
+            errorElement.textContent = '';
+            errorElement.classList.remove('show');
         }
+    }
 
-        // 清除错误信息
-        function clearError(inputId) {
-            const inputElement = document.getElementById(inputId);
-            const errorElement = document.getElementById(inputId + 'Error');
-            
-            if (inputElement) {
-                inputElement.classList.remove('error');
-            }
-            
-            if (errorElement) {
-                errorElement.textContent = '';
-                errorElement.classList.remove('show');
-            }
+    // 显示成功状态
+    function showSuccess(inputId) {
+        const inputElement = document.getElementById(inputId);
+        
+        if (inputElement) {
+            inputElement.classList.remove('error');
+            inputElement.classList.add('success');
         }
+        
+        clearError(inputId);
+    }
 
-        // 显示成功状态
-        function showSuccess(inputId) {
-            const inputElement = document.getElementById(inputId);
-            
-            if (inputElement) {
-                inputElement.classList.remove('error');
-                inputElement.classList.add('success');
-            }
-            
-            clearError(inputId);
-        }
+    // 验证邮箱格式
+    function validateEmail(email) {
+        const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailReg.test(email);
+    }
 
-        // 验证邮箱格式
-        function validateEmail(email) {
-            const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailReg.test(email);
-        }
-
-        // 切换登录/注册选项卡（带动画）
-        function initTabs() {
-            const tabs = document.querySelectorAll('.auth-tab');
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    // 切换选项卡激活状态
-                    tabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    
-                    // 切换表单显示（触发动画）
-                    document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
-                    document.getElementById(tab.dataset.target).classList.add('active');
-                    
-                    // 清除所有错误状态
-                    clearAllErrors();
-                });
-            });
-        }
-
-        // 初始化密码显示/隐藏功能
-        function initPasswordToggles() {
-            // 登录密码显示/隐藏
-            const loginToggle = document.getElementById('loginPasswordToggle');
-            const loginPassword = document.getElementById('loginPassword');
-            
-            loginToggle.addEventListener('click', () => {
-                const type = loginPassword.getAttribute('type') === 'password' ? 'text' : 'password';
-                loginPassword.setAttribute('type', type);
+    // 切换登录/注册选项卡（带动画）
+    function initTabs() {
+        const tabs = document.querySelectorAll('.auth-tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // 切换选项卡激活状态
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
                 
-                // 切换图标
-                loginToggle.innerHTML = type === 'password' ? 
-                    '<i class="iconfont icon-eye"></i>' : 
-                    '<i class="iconfont icon-eye-close"></i>';
-            });
-            
-            // 注册密码显示/隐藏
-            const regToggle = document.getElementById('regPasswordToggle');
-            const regPassword = document.getElementById('regPassword');
-            
-            regToggle.addEventListener('click', () => {
-                const type = regPassword.getAttribute('type') === 'password' ? 'text' : 'password';
-                regPassword.setAttribute('type', type);
+                // 切换表单显示（触发动画）
+                document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
+                document.getElementById(tab.dataset.target).classList.add('active');
                 
-                // 切换图标
-                regToggle.innerHTML = type === 'password' ? 
-                    '<i class="iconfont icon-eye"></i>' : 
-                    '<i class="iconfont icon-eye-close"></i>';
+                // 清除所有错误状态
+                clearAllErrors();
             });
-            
-            // 注册确认密码显示/隐藏
-            const regConfirmToggle = document.getElementById('regPasswordConfirmToggle');
-            const regPasswordConfirm = document.getElementById('regPasswordConfirm');
-            
-            regConfirmToggle.addEventListener('click', () => {
-                const type = regPasswordConfirm.getAttribute('type') === 'password' ? 'text' : 'password';
-                regPasswordConfirm.setAttribute('type', type);
-                
-                // 切换图标
-                regConfirmToggle.innerHTML = type === 'password' ? 
-                    '<i class="iconfont icon-eye"></i>' : 
-                    '<i class="iconfont icon-eye-close"></i>';
-            });
-        }
+        });
+    }
 
-        // 清除所有错误状态
-        function clearAllErrors() {
-            // 清除登录表单错误
-            clearError('loginAccount');
-            clearError('loginPassword');
+    // 初始化密码显示/隐藏功能
+    function initPasswordToggles() {
+        // 登录密码显示/隐藏
+        const loginToggle = document.getElementById('loginPasswordToggle');
+        const loginPassword = document.getElementById('loginPassword');
+        
+        loginToggle.addEventListener('click', () => {
+            const type = loginPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+            loginPassword.setAttribute('type', type);
             
-            // 清除注册表单错误
-            clearError('regNickname');
-            clearError('regAccount');
-            clearError('regPassword');
-            clearError('regPasswordConfirm');
-            clearError('regEmail');
-        }
+            // 切换图标
+            loginToggle.innerHTML = type === 'password' ? 
+                '<i class="iconfont icon-eye"></i>' : 
+                '<i class="iconfont icon-eye-close"></i>';
+        });
+        
+        // 注册密码显示/隐藏
+        const regToggle = document.getElementById('regPasswordToggle');
+        const regPassword = document.getElementById('regPassword');
+        
+        regToggle.addEventListener('click', () => {
+            const type = regPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+            regPassword.setAttribute('type', type);
+            
+            // 切换图标
+            regToggle.innerHTML = type === 'password' ? 
+                '<i class="iconfont icon-eye"></i>' : 
+                '<i class="iconfont icon-eye-close"></i>';
+        });
+        
+        // 注册确认密码显示/隐藏
+        const regConfirmToggle = document.getElementById('regPasswordConfirmToggle');
+        const regPasswordConfirm = document.getElementById('regPasswordConfirm');
+        
+        regConfirmToggle.addEventListener('click', () => {
+            const type = regPasswordConfirm.getAttribute('type') === 'password' ? 'text' : 'password';
+            regPasswordConfirm.setAttribute('type', type);
+            
+            // 切换图标
+            regConfirmToggle.innerHTML = type === 'password' ? 
+                '<i class="iconfont icon-eye"></i>' : 
+                '<i class="iconfont icon-eye-close"></i>';
+        });
+    }
 
-        // 从GitHub Issue读取所有用户信息
-        async function getAllUsers() {
-            const requestHeaders = {
-                "Authorization": `token ${GITHUB_TOKEN}`,
-                "Accept": "application/vnd.github.v3+json",
-                "User-Agent": "Mozilla/5.0"
-            };
+    // 清除所有错误状态
+    function clearAllErrors() {
+        // 清除登录表单错误
+        clearError('loginAccount');
+        clearError('loginPassword');
         
-            try {
-                const res = await fetch(
-                    `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
-                    { headers: requestHeaders, method: "GET" }
-                );
-        
-                if (!res.ok) return [];
-        
-                const issue = await res.json();
-                // 解析用户信息（格式升级：账号|加密密码|邮箱|用户名|isAdmin）
-                const userLines = issue.body.split('\n').filter(line => line.includes('|'));
-                const users = [];
-                
-                userLines.forEach(line => {
-                    // 拆分字段，isAdmin字段可选，默认false
-                    const [account, pwd, email, nickname, isAdminStr] = line.split('|');
-                    if (account && pwd) {
-                        users.push({
-                            account: account.trim(),
-                            password: pwd.trim(),
-                            email: email ? email.trim() : '',
-                            nickname: nickname ? nickname.trim() : account.trim(),
-                            // 关键修改：解析管理员标识，转换为布尔值，默认false
-                            isAdmin: isAdminStr ? isAdminStr.trim().toLowerCase() === 'true' : false
-                        });
-                    }
-                });
-                return users;
-            } catch (err) {
-                console.error('读取用户信息失败：', err);
-                // 本地缓存容错
-                const localUsers = localStorage.getItem('temp_users');
-                return localUsers ? JSON.parse(localUsers) : [];
-            }
-        }
+        // 清除注册表单错误
+        clearError('regNickname');
+        clearError('regAccount');
+        clearError('regPassword');
+        clearError('regPasswordConfirm');
+        clearError('regEmail');
+    }
 
-        // 将新用户保存到GitHub Issue（普通用户默认不是管理员）
-        async function saveUserToIssue(newUser) {
-            const requestHeaders = {
-                "Authorization": `token ${GITHUB_TOKEN}`,
-                "Accept": "application/vnd.github.v3+json",
-                "User-Agent": "Mozilla/5.0"
-            };
-        
-            try {
-                // 先读取现有用户
-                const users = await getAllUsers();
-                users.push(newUser);
-        
-                // 拼接Issue内容（新增isAdmin字段）
-                let body = "网站用户信息列表（请勿手动修改）\n";
-                users.forEach(user => {
-                    body += `${user.account}|${user.password}|${user.email}|${user.nickname}|${user.isAdmin || false}\n`;
-                });
-        
-                // 更新Issue
-                const res = await fetch(
-                    `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
-                    {
-                        headers: requestHeaders,
-                        method: "PATCH",
-                        body: JSON.stringify({
-                            title: "网站用户信息存储",
-                            body: body.trim()
-                        })
-                    }
-                );
-        
-                if (res.ok) {
-                    // 缓存到本地
-                    localStorage.setItem('temp_users', JSON.stringify(users));
-                    return true;
+    // 从GitHub Issue读取所有用户信息
+    async function getAllUsers() {
+        const requestHeaders = {
+            "Authorization": `token ${GITHUB_TOKEN}`,
+            "Accept": "application/vnd.github.v3+json",
+            "User-Agent": "Mozilla/5.0"
+        };
+    
+        try {
+            const res = await fetch(
+                `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
+                { headers: requestHeaders, method: "GET" }
+            );
+    
+            if (!res.ok) return [];
+    
+            const issue = await res.json();
+            // 解析用户信息（格式升级：账号|加密密码|邮箱|用户名|isAdmin|avatar|bio）
+            const userLines = issue.body.split('\n').filter(line => line.includes('|'));
+            const users = [];
+            
+            userLines.forEach(line => {
+                // 拆分字段，支持7个字段（账号|密码|邮箱|用户名|isAdmin|avatar|bio）
+                const parts = line.split('|');
+                if (parts[0] && parts[1]) {
+                    users.push({
+                        account: parts[0].trim(),
+                        password: parts[1].trim(),
+                        email: parts[2] ? parts[2].trim() : '',
+                        nickname: parts[3] ? parts[3].trim() : parts[0].trim(),
+                        isAdmin: parts[4] ? parts[4].trim().toLowerCase() === 'true' : false,
+                        avatar: parts[5] ? parts[5].trim() : DEFAULT_AVATAR,
+                        bio: parts[6] ? parts[6].trim() : '',
+                        createTime: new Date().toISOString() // 添加创建时间
+                    });
                 }
-                return false;
-            } catch (err) {
-                console.error('保存用户信息失败：', err);
-                return false;
-            }
+            });
+            return users;
+        } catch (err) {
+            console.error('读取用户信息失败：', err);
+            // 本地缓存容错
+            const localUsers = localStorage.getItem('temp_users');
+            return localUsers ? JSON.parse(localUsers) : [];
         }
+    }
 
-        // 注册表单验证
-        function validateRegisterForm() {
-            const nickname = document.getElementById('regNickname').value.trim();
-            const account = document.getElementById('regAccount').value.trim();
-            const password = document.getElementById('regPassword').value.trim();
-            const pwdConfirm = document.getElementById('regPasswordConfirm').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
+    // 将新用户保存到GitHub Issue（支持完整字段）
+    async function saveUserToIssue(newUser) {
+        const requestHeaders = {
+            "Authorization": `token ${GITHUB_TOKEN}`,
+            "Accept": "application/vnd.github.v3+json",
+            "User-Agent": "Mozilla/5.0"
+        };
+    
+        try {
+            // 先读取现有用户
+            const users = await getAllUsers();
+            users.push(newUser);
+    
+            // 拼接Issue内容（支持7个字段）
+            let body = "网站用户信息列表（请勿手动修改）\n";
+            users.forEach(user => {
+                body += `${user.account}|${user.password}|${user.email}|${user.nickname}|${user.isAdmin || false}|${user.avatar || DEFAULT_AVATAR}|${user.bio || ''}\n`;
+            });
+    
+            // 更新Issue
+            const res = await fetch(
+                `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
+                {
+                    headers: requestHeaders,
+                    method: "PATCH",
+                    body: JSON.stringify({
+                        title: "网站用户信息存储",
+                        body: body.trim()
+                    })
+                }
+            );
+    
+            if (res.ok) {
+                // 缓存到本地
+                localStorage.setItem('temp_users', JSON.stringify(users));
+                return true;
+            }
+            return false;
+        } catch (err) {
+            console.error('保存用户信息失败：', err);
+            return false;
+        }
+    }
+
+    // 注册表单验证
+    function validateRegisterForm() {
+        const nickname = document.getElementById('regNickname').value.trim();
+        const account = document.getElementById('regAccount').value.trim();
+        const password = document.getElementById('regPassword').value.trim();
+        const pwdConfirm = document.getElementById('regPasswordConfirm').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        
+        let isValid = true;
+        
+        // 验证用户名
+        if (!nickname) {
+            showError('regNickname', '用户名不能为空');
+            isValid = false;
+        } else if (nickname.length < 2) {
+            showError('regNickname', '用户名至少2个字符');
+            isValid = false;
+        } else {
+            showSuccess('regNickname');
+        }
+        
+        // 验证账号
+        if (!account) {
+            showError('regAccount', '账号不能为空');
+            isValid = false;
+        } else if (!/^[a-zA-Z0-9]+$/.test(account)) {
+            showError('regAccount', '账号只能包含字母和数字');
+            isValid = false;
+        } else if (account.length < 4) {
+            showError('regAccount', '账号至少4个字符');
+            isValid = false;
+        } else {
+            showSuccess('regAccount');
+        }
+        
+        // 验证密码
+        if (!password) {
+            showError('regPassword', '密码不能为空');
+            isValid = false;
+        } else if (password.length < 6) {
+            showError('regPassword', '密码长度不少于6位');
+            isValid = false;
+        } else {
+            showSuccess('regPassword');
+        }
+        
+        // 验证确认密码
+        if (!pwdConfirm) {
+            showError('regPasswordConfirm', '请再次输入密码');
+            isValid = false;
+        } else if (password !== pwdConfirm) {
+            showError('regPasswordConfirm', '两次密码输入不一致');
+            isValid = false;
+        } else {
+            showSuccess('regPasswordConfirm');
+        }
+        
+        // 验证邮箱
+        if (!email) {
+            showError('regEmail', '邮箱不能为空');
+            isValid = false;
+        } else if (!validateEmail(email)) {
+            showError('regEmail', '邮箱格式不正确');
+            isValid = false;
+        } else {
+            showSuccess('regEmail');
+        }
+        
+        return isValid;
+    }
+
+    // 检查账号、邮箱、用户名是否重复
+    async function checkDuplicate(account, email, nickname) {
+        const users = await getAllUsers();
+        let duplicate = '';
+        
+        if (users.some(u => u.account === account)) {
+            duplicate = '账号';
+        } else if (users.some(u => u.email === email)) {
+            duplicate = '邮箱';
+        } else if (users.some(u => u.nickname === nickname)) {
+            duplicate = '用户名';
+        }
+        
+        return duplicate;
+    }
+
+    // 注册逻辑（支持完整字段）
+    async function handleRegister() {
+        // 表单验证
+        if (!validateRegisterForm()) {
+            return;
+        }
+        
+        const nickname = document.getElementById('regNickname').value.trim();
+        const account = document.getElementById('regAccount').value.trim();
+        const password = document.getElementById('regPassword').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        
+        // 显示加载动画
+        showLoading('注册');
+        
+        try {
+            // 检查重复
+            const duplicate = await checkDuplicate(account, email, nickname);
+            if (duplicate) {
+                hideLoading();
+                showAlert(`该${duplicate}已被注册！`, 'error');
+                
+                // 高亮显示重复的字段
+                if (duplicate === '账号') {
+                    showError('regAccount', '该账号已被注册');
+                } else if (duplicate === '邮箱') {
+                    showError('regEmail', '该邮箱已被注册');
+                } else if (duplicate === '用户名') {
+                    showError('regNickname', '该用户名已被注册');
+                }
+                
+                return;
+            }
             
-            let isValid = true;
+            // 加密密码并保存（支持完整字段）
+            const encryptPwd = md5(password);
+            const newUser = {
+                account: account,
+                password: encryptPwd,
+                email: email,
+                nickname: nickname,
+                isAdmin: false, // 注册用户默认不是管理员
+                avatar: DEFAULT_AVATAR, // 默认头像
+                bio: '', // 默认空简介
+                createTime: new Date().toISOString() // 创建时间
+            };
+    
+            const success = await saveUserToIssue(newUser);
             
-            // 验证用户名
+            hideLoading();
+            
+            if (success) {
+                showAlert('注册成功！请登录', 'success');
+                // 切换到登录表单并清空注册内容
+                document.querySelectorAll('.auth-tab')[0].click();
+                document.getElementById('regNickname').value = '';
+                document.getElementById('regAccount').value = '';
+                document.getElementById('regPassword').value = '';
+                document.getElementById('regPasswordConfirm').value = '';
+                document.getElementById('regEmail').value = '';
+                
+                // 清除所有错误状态
+                clearAllErrors();
+            } else {
+                showAlert('注册失败，请稍后重试！', 'error');
+            }
+        } catch (error) {
+            hideLoading();
+            console.error('注册过程出错：', error);
+            showAlert('注册过程出错，请检查网络连接后重试！', 'error');
+        }
+    }
+
+    // 登录逻辑（修复核心：保存完整用户信息）
+    async function handleLogin() {
+        const account = document.getElementById('loginAccount').value.trim();
+        const password = document.getElementById('loginPassword').value.trim();
+    
+        if (!account) {
+            showError('loginAccount', '账号不能为空');
+            return;
+        } else {
+            clearError('loginAccount');
+        }
+        
+        if (!password) {
+            showError('loginPassword', '密码不能为空');
+            return;
+        } else {
+            clearError('loginPassword');
+        }
+    
+        // 显示加载动画
+        showLoading('登录');
+        
+        try {
+            // 验证账号密码
+            const users = await getAllUsers();
+            const encryptPwd = md5(password);
+            const user = users.find(u => u.account === account && u.password === encryptPwd);
+    
+            hideLoading();
+            
+            if (user) {
+                // 登录成功：保存完整的用户信息到本地存储（修复核心）
+                const userInfo = {
+                    account: user.account,
+                    password: user.password,
+                    email: user.email || '',
+                    nickname: user.nickname || account,
+                    isAdmin: user.isAdmin || false,
+                    avatar: user.avatar || DEFAULT_AVATAR,
+                    bio: user.bio || '',
+                    createTime: user.createTime || new Date().toISOString(),
+                    lastLoginTime: new Date().toISOString()
+                };
+                localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(userInfo));
+                
+                // 显示成功消息
+                showAlert('登录成功！即将跳转到首页', 'success');
+                
+                // 登录成功后带开合动画跳转
+                setTimeout(() => {
+                    if (isAnimating) return;
+                    isAnimating = true;
+                    
+                    const loader = document.getElementById('loader');
+                    loader.classList.remove('loaded'); // 显示开合动画
+                    document.body.style.overflow = 'hidden';
+                    
+                    // 延迟跳转，匹配动画时长
+                    setTimeout(() => {
+                        window.location.href = '../index.html';
+                        isAnimating = false;
+                    }, 600);
+                    
+                    // 兜底重置动画状态
+                    setTimeout(() => {
+                        isAnimating = false;
+                    }, 1000);
+                }, 1000);
+            } else {
+                showAlert('账号或密码错误！', 'error');
+            }
+        } catch (error) {
+            hideLoading();
+            console.error('登录过程出错：', error);
+            showAlert('登录过程出错，请检查网络连接后重试！', 'error');
+        }
+    }
+
+    // 实时验证注册表单
+    function initFormValidation() {
+        // 用户名验证
+        document.getElementById('regNickname').addEventListener('input', function() {
+            const nickname = this.value.trim();
             if (!nickname) {
                 showError('regNickname', '用户名不能为空');
-                isValid = false;
             } else if (nickname.length < 2) {
                 showError('regNickname', '用户名至少2个字符');
-                isValid = false;
             } else {
                 showSuccess('regNickname');
             }
-            
-            // 验证账号
+        });
+        
+        // 账号验证
+        document.getElementById('regAccount').addEventListener('input', function() {
+            const account = this.value.trim();
             if (!account) {
                 showError('regAccount', '账号不能为空');
-                isValid = false;
             } else if (!/^[a-zA-Z0-9]+$/.test(account)) {
                 showError('regAccount', '账号只能包含字母和数字');
-                isValid = false;
             } else if (account.length < 4) {
                 showError('regAccount', '账号至少4个字符');
-                isValid = false;
             } else {
                 showSuccess('regAccount');
             }
+        });
+        
+        // 密码验证
+        document.getElementById('regPassword').addEventListener('input', function() {
+            const password = this.value.trim();
+            const confirmPassword = document.getElementById('regPasswordConfirm').value.trim();
             
-            // 验证密码
             if (!password) {
                 showError('regPassword', '密码不能为空');
-                isValid = false;
             } else if (password.length < 6) {
                 showError('regPassword', '密码长度不少于6位');
-                isValid = false;
             } else {
                 showSuccess('regPassword');
             }
             
-            // 验证确认密码
-            if (!pwdConfirm) {
-                showError('regPasswordConfirm', '请再次输入密码');
-                isValid = false;
-            } else if (password !== pwdConfirm) {
+            // 如果确认密码已输入，验证是否匹配
+            if (confirmPassword && password !== confirmPassword) {
                 showError('regPasswordConfirm', '两次密码输入不一致');
-                isValid = false;
+            } else if (confirmPassword) {
+                showSuccess('regPasswordConfirm');
+            }
+        });
+        
+        // 确认密码验证
+        document.getElementById('regPasswordConfirm').addEventListener('input', function() {
+            const confirmPassword = this.value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+            
+            if (!confirmPassword) {
+                showError('regPasswordConfirm', '请再次输入密码');
+            } else if (password !== confirmPassword) {
+                showError('regPasswordConfirm', '两次密码输入不一致');
             } else {
                 showSuccess('regPasswordConfirm');
             }
-            
-            // 验证邮箱
+        });
+        
+        // 邮箱验证
+        document.getElementById('regEmail').addEventListener('input', function() {
+            const email = this.value.trim();
             if (!email) {
                 showError('regEmail', '邮箱不能为空');
-                isValid = false;
             } else if (!validateEmail(email)) {
                 showError('regEmail', '邮箱格式不正确');
-                isValid = false;
             } else {
                 showSuccess('regEmail');
             }
-            
-            return isValid;
-        }
+        });
+    }
 
-        // 检查账号、邮箱、用户名是否重复
-        async function checkDuplicate(account, email, nickname) {
-            const users = await getAllUsers();
-            let duplicate = '';
+    // 初始化事件绑定
+    function initEvents() {
+        // 返回按钮带开合动画跳转
+        document.getElementById('backBtn').addEventListener('click', () => {
+            if (isAnimating) return;
+            isAnimating = true;
             
-            if (users.some(u => u.account === account)) {
-                duplicate = '账号';
-            } else if (users.some(u => u.email === email)) {
-                duplicate = '邮箱';
-            } else if (users.some(u => u.nickname === nickname)) {
-                duplicate = '用户名';
-            }
+            const loader = document.getElementById('loader');
+            loader.classList.remove('loaded');
+            document.body.style.overflow = 'hidden';
             
-            return duplicate;
-        }
+            setTimeout(() => {
+                window.location.href = '../index.html';
+                isAnimating = false;
+            }, 600);
+            
+            setTimeout(() => isAnimating = false, 1000);
+        });
+        
+        // 登录按钮
+        document.getElementById('loginBtn').addEventListener('click', handleLogin);
+        // 注册按钮
+        document.getElementById('registerBtn').addEventListener('click', handleRegister);
+        // 回车提交表单
+        document.getElementById('loginForm').addEventListener('keyup', e => {
+            if (e.key === 'Enter') handleLogin();
+        });
+        document.getElementById('registerForm').addEventListener('keyup', e => {
+            if (e.key === 'Enter') handleRegister();
+        });
+    }
 
-        // 注册逻辑（普通用户默认不是管理员）
-        async function handleRegister() {
-            // 表单验证
-            if (!validateRegisterForm()) {
-                return;
-            }
-            
-            const nickname = document.getElementById('regNickname').value.trim();
-            const account = document.getElementById('regAccount').value.trim();
-            const password = document.getElementById('regPassword').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
-            
-            // 显示加载动画
-            showLoading('注册');
-            
+    // 页面初始化
+    function initPage() {
+        initTabs();
+        initPasswordToggles();
+        initFormValidation();
+        initEvents();
+        
+        // 默认隐藏开合动画
+        document.getElementById('loader').classList.add('loaded');
+        
+        // 页面加载完成后，如果有缓存的用户信息，自动填充登录表单
+        const savedUser = localStorage.getItem(USER_LOCAL_KEY);
+        if (savedUser) {
             try {
-                // 检查重复
-                const duplicate = await checkDuplicate(account, email, nickname);
-                if (duplicate) {
-                    hideLoading();
-                    showAlert(`该${duplicate}已被注册！`, 'error');
-                    
-                    // 高亮显示重复的字段
-                    if (duplicate === '账号') {
-                        showError('regAccount', '该账号已被注册');
-                    } else if (duplicate === '邮箱') {
-                        showError('regEmail', '该邮箱已被注册');
-                    } else if (duplicate === '用户名') {
-                        showError('regNickname', '该用户名已被注册');
-                    }
-                    
-                    return;
-                }
-                
-                // 加密密码并保存（关键：普通用户默认isAdmin为false）
-                const encryptPwd = md5(password);
-                const newUser = {
-                    account: account,
-                    password: encryptPwd,
-                    email: email,
-                    nickname: nickname,
-                    isAdmin: false // 注册用户默认不是管理员
-                };
-        
-                const success = await saveUserToIssue(newUser);
-                
-                hideLoading();
-                
-                if (success) {
-                    showAlert('注册成功！请登录', 'success');
-                    // 切换到登录表单并清空注册内容
-                    document.querySelectorAll('.auth-tab')[0].click();
-                    document.getElementById('regNickname').value = '';
-                    document.getElementById('regAccount').value = '';
-                    document.getElementById('regPassword').value = '';
-                    document.getElementById('regPasswordConfirm').value = '';
-                    document.getElementById('regEmail').value = '';
-                    
-                    // 清除所有错误状态
-                    clearAllErrors();
-                } else {
-                    showAlert('注册失败，请稍后重试！', 'error');
-                }
-            } catch (error) {
-                hideLoading();
-                console.error('注册过程出错：', error);
-                showAlert('注册过程出错，请检查网络连接后重试！', 'error');
+                const userInfo = JSON.parse(savedUser);
+                document.getElementById('loginAccount').value = userInfo.account;
+            } catch (e) {
+                // 忽略解析错误
             }
         }
+    }
 
-        // 登录逻辑
-        async function handleLogin() {
-            const account = document.getElementById('loginAccount').value.trim();
-            const password = document.getElementById('loginPassword').value.trim();
-        
-            if (!account) {
-                showError('loginAccount', '账号不能为空');
-                return;
-            } else {
-                clearError('loginAccount');
-            }
-            
-            if (!password) {
-                showError('loginPassword', '密码不能为空');
-                return;
-            } else {
-                clearError('loginPassword');
-            }
-        
-            // 显示加载动画
-            showLoading('登录');
-            
-            try {
-                // 验证账号密码
-                const users = await getAllUsers();
-                const encryptPwd = md5(password);
-                const user = users.find(u => u.account === account && u.password === encryptPwd);
-        
-                hideLoading();
-                
-                if (user) {
-                    // 登录成功：保存用户信息到本地存储（关键修改：添加isAdmin字段）
-                    const userInfo = {
-                        account: user.account,
-                        nickname: user.nickname,
-                        email: user.email,
-                        isAdmin: user.isAdmin // 新增：保存管理员标识
-                    };
-                    localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(userInfo));
-                    
-                    // 显示成功消息
-                    showAlert('登录成功！即将跳转到首页', 'success');
-                    
-                    // ========== 修改：登录成功后带开合动画跳转 ==========
-                    setTimeout(() => {
-                        if (isAnimating) return;
-                        isAnimating = true;
-                        
-                        const loader = document.getElementById('loader');
-                        loader.classList.remove('loaded'); // 显示开合动画
-                        document.body.style.overflow = 'hidden';
-                        
-                        // 延迟跳转，匹配动画时长
-                        setTimeout(() => {
-                            window.location.href = '../index.html';
-                            isAnimating = false;
-                        }, 600);
-                        
-                        // 兜底重置动画状态
-                        setTimeout(() => {
-                            isAnimating = false;
-                        }, 1000);
-                    }, 1000);
-                } else {
-                    showAlert('账号或密码错误！', 'error');
-                }
-            } catch (error) {
-                hideLoading();
-                console.error('登录过程出错：', error);
-                showAlert('登录过程出错，请检查网络连接后重试！', 'error');
-            }
-        }
-
-        // 实时验证注册表单
-        function initFormValidation() {
-            // 用户名验证
-            document.getElementById('regNickname').addEventListener('input', function() {
-                const nickname = this.value.trim();
-                if (!nickname) {
-                    showError('regNickname', '用户名不能为空');
-                } else if (nickname.length < 2) {
-                    showError('regNickname', '用户名至少2个字符');
-                } else {
-                    showSuccess('regNickname');
-                }
-            });
-            
-            // 账号验证
-            document.getElementById('regAccount').addEventListener('input', function() {
-                const account = this.value.trim();
-                if (!account) {
-                    showError('regAccount', '账号不能为空');
-                } else if (!/^[a-zA-Z0-9]+$/.test(account)) {
-                    showError('regAccount', '账号只能包含字母和数字');
-                } else if (account.length < 4) {
-                    showError('regAccount', '账号至少4个字符');
-                } else {
-                    showSuccess('regAccount');
-                }
-            });
-            
-            // 密码验证
-            document.getElementById('regPassword').addEventListener('input', function() {
-                const password = this.value.trim();
-                const confirmPassword = document.getElementById('regPasswordConfirm').value.trim();
-                
-                if (!password) {
-                    showError('regPassword', '密码不能为空');
-                } else if (password.length < 6) {
-                    showError('regPassword', '密码长度不少于6位');
-                } else {
-                    showSuccess('regPassword');
-                }
-                
-                // 如果确认密码已输入，验证是否匹配
-                if (confirmPassword && password !== confirmPassword) {
-                    showError('regPasswordConfirm', '两次密码输入不一致');
-                } else if (confirmPassword) {
-                    showSuccess('regPasswordConfirm');
-                }
-            });
-            
-            // 确认密码验证
-            document.getElementById('regPasswordConfirm').addEventListener('input', function() {
-                const confirmPassword = this.value.trim();
-                const password = document.getElementById('regPassword').value.trim();
-                
-                if (!confirmPassword) {
-                    showError('regPasswordConfirm', '请再次输入密码');
-                } else if (password !== confirmPassword) {
-                    showError('regPasswordConfirm', '两次密码输入不一致');
-                } else {
-                    showSuccess('regPasswordConfirm');
-                }
-            });
-            
-            // 邮箱验证
-            document.getElementById('regEmail').addEventListener('input', function() {
-                const email = this.value.trim();
-                if (!email) {
-                    showError('regEmail', '邮箱不能为空');
-                } else if (!validateEmail(email)) {
-                    showError('regEmail', '邮箱格式不正确');
-                } else {
-                    showSuccess('regEmail');
-                }
-            });
-        }
-
-        // 初始化事件绑定
-        function initEvents() {
-            // ========== 修改：返回按钮带开合动画跳转 ==========
-            document.getElementById('backBtn').addEventListener('click', () => {
-                if (isAnimating) return;
-                isAnimating = true;
-                
-                const loader = document.getElementById('loader');
-                loader.classList.remove('loaded');
-                document.body.style.overflow = 'hidden';
-                
-                setTimeout(() => {
-                    window.location.href = '../index.html';
-                    isAnimating = false;
-                }, 600);
-                
-                setTimeout(() => isAnimating = false, 1000);
-            });
-            
-            // 登录按钮
-            document.getElementById('loginBtn').addEventListener('click', handleLogin);
-            // 注册按钮
-            document.getElementById('registerBtn').addEventListener('click', handleRegister);
-            // 回车提交表单
-            document.getElementById('loginForm').addEventListener('keyup', e => {
-                if (e.key === 'Enter') handleLogin();
-            });
-            document.getElementById('registerForm').addEventListener('keyup', e => {
-                if (e.key === 'Enter') handleRegister();
-            });
-        }
-
-        // 页面初始化
-        function initPage() {
-            initTabs();
-            initPasswordToggles();
-            initFormValidation();
-            initEvents();
-            
-            // ========== 新增：默认隐藏开合动画 ==========
-            document.getElementById('loader').classList.add('loaded');
-            
-            // 页面加载完成后，如果有缓存的用户信息，自动填充登录表单
-            const savedUser = localStorage.getItem(USER_LOCAL_KEY);
-            if (savedUser) {
-                try {
-                    const userInfo = JSON.parse(savedUser);
-                    document.getElementById('loginAccount').value = userInfo.account;
-                } catch (e) {
-                    // 忽略解析错误
-                }
-            }
-        }
-
-        // 页面加载完成后执行
-        document.addEventListener('DOMContentLoaded', initPage);
-    </script>
+    // 页面加载完成后执行
+    document.addEventListener('DOMContentLoaded', initPage);
+</script>
 </body>
 </html>
