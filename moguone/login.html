@@ -9,6 +9,9 @@
     <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_0khxww3tj3q9.woff2" as="font" type="font/woff2" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/dmego-home-page@latest/assets/css/iconfont.css">
     
+    <!-- 引入EmailJS库（新增） -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
     <!-- 液态玻璃SVG滤镜 -->
     <svg style="display: none">
       <filter id="glass-distortion">
@@ -70,7 +73,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 0px;
             min-height: 100vh;
             position: relative;
         }
@@ -116,7 +119,7 @@
             gap: 6px;
             color: var(--color-text-sub);
             cursor: pointer;
-            font-size: 14px;
+            font-size: 18px;
             padding: 8px 12px;
             border-radius: 8px;
             background: var(--glass-bg);
@@ -136,7 +139,6 @@
             box-shadow: 0 6px 16px rgba(45, 180, 141, 0.15);
         }
 
-        /* 登录容器（玻璃效果） */
         .auth-container {
             background: var(--glass-bg);
             backdrop-filter: blur(20px) saturate(180%);
@@ -146,15 +148,18 @@
             box-shadow: var(--glass-shadow), 
                         inset 1px 1px 0 rgba(255,255,255,0.8), 
                         inset -1px -1px 0 rgba(0,0,0,0.05);
-            width: 100%;
-            max-width: 420px;
-            padding: 25px 35px;
+            /* 1. 修改：把原来的 width: 100% 改成 30%（屏幕宽度的30%） */
+            width: 35%;
+            /* 2. 删除/注释：原来的 max-width: 520px;（这行限制了最大宽度，必须去掉） */
+            /* max-width: 520px; */
+            /* 3. 新增：添加最小宽度，避免屏幕过宽时30%太宽，或屏幕过窄时30%太窄 */
+            min-width: 400px; 
+            padding: 30px 40px; /* 内边距不变 */
             position: relative;
             overflow: hidden;
             transition: all 0.4s ease;
-            z-index: 10; /* 确保内容在装饰层上方 */
-            /* 新增：设置最小高度，避免切换时容器高度跳动 */
-            min-height: 634px;
+            z-index: 10;
+            min-height: 706px; /* 保持680px，保证高度足够 */
             display: flex;
             flex-direction: column;
         }
@@ -250,30 +255,29 @@
         .auth-form-wrapper {
             position: relative;
             width: 100%;
-            /* 占据容器剩余空间 */
-            flex: 1;
-            /* 确保表单不会超出容器 */
+            flex: 1; /* 这一行必须保留，让表单区域占满剩余空间 */
             overflow: hidden;
         }
         
         .auth-form {
-            position: absolute; /* 关键修改：绝对定位，让两个表单重叠 */
+            position: absolute;
             top: 0;
             left: 0;
-            width: 100%; /* 宽度100% */
-            height: 100%; /* 高度100% */
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             opacity: 0;
             visibility: hidden;
-            pointer-events: none; /* 隐藏时不响应点击 */
+            pointer-events: none;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             transform: translateY(10px);
             z-index: 1;
         }
         
         .auth-form.active {
+			width: 100%;
             opacity: 1;
             visibility: visible;
             pointer-events: auto; /* 显示时响应点击 */
@@ -330,6 +334,41 @@
         
         .error-message.show {
             display: block;
+        }
+
+        /* 新增：验证码输入容器样式 */
+        .verify-code-wrapper {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+        
+        .verify-code-input {
+            flex: 1;
+        }
+        
+        .send-code-btn {
+            width: 120px;
+            height: 44px;
+            background: var(--color-green-light);
+            color: var(--color-green);
+            border: 1px solid rgba(45, 180, 141, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: var(--transition-smooth);
+        }
+        
+        .send-code-btn:hover {
+            background: var(--color-green-light);
+            border-color: var(--color-green);
+        }
+        
+        .send-code-btn:disabled {
+            background: #f0f0f0;
+            color: #999;
+            border-color: #ddd;
+            cursor: not-allowed;
         }
 
         /* 密码输入容器 - 统一样式，修复按钮定位 */
@@ -535,7 +574,6 @@
             text-decoration: underline;
         }
 
-        /* 响应式适配 - 修复错位 */
         @media (max-width: 480px) {
             body {
                 padding: 15px;
@@ -543,11 +581,16 @@
             
             .auth-container {
                 padding: 30px 20px;
+                /* 修改：小屏幕下恢复100%宽度，避免过窄 */
+                width: 100%;
+                /* 小屏幕下取消最小宽度限制 */
+                min-width: auto;
                 max-width: 100%;
                 border-radius: 18px;
-                min-height: 550px;
+                min-height: 650px;
             }
             
+            /* 其他样式不变，保留 */
             .auth-form {
                 gap: 14px;
             }
@@ -566,6 +609,12 @@
                 font-size: 14px;
             }
             
+            .send-code-btn {
+                width: 100px;
+                height: 40px;
+                font-size: 13px;
+            }
+            
             .back-btn {
                 top: 15px;
                 left: 15px;
@@ -577,7 +626,7 @@
         @media (max-width: 360px) {
             .auth-container {
                 padding: 25px 18px;
-                min-height: 520px;
+                min-height: 620px;
             }
         }
 
@@ -654,7 +703,7 @@
     
     <!-- 返回按钮 - 固定在左上角 -->
     <div class="back-btn" id="backBtn">
-        <i class="iconfont icon-left"></i> 返回首页
+        <<i class="iconfont icon-left"></i>Back
     </div>
 
     <!-- 加载动画 -->
@@ -697,7 +746,7 @@
                     <div class="password-input-wrapper">
                         <input type="password" class="form-input" id="loginPassword" placeholder="请输入密码">
                         <button type="button" class="password-toggle" id="loginPasswordToggle">
-                            <i class="iconfont icon-eye"></i>
+                            <<i class="iconfont icon-eye"></</i>
                         </button>
                     </div>
                 </div>
@@ -709,7 +758,7 @@
                 </div>
             </div>
 
-            <!-- 注册表单 -->
+            <!-- 注册表单（新增验证码输入框） -->
             <div class="auth-form" id="registerForm">
                 <div class="form-group">
                     <label class="form-label">用户名</label>
@@ -727,7 +776,7 @@
                     <div class="password-input-wrapper">
                         <input type="password" class="form-input" id="regPassword" placeholder="请设置密码（不少于6位）">
                         <button type="button" class="password-toggle" id="regPasswordToggle">
-                            <i class="iconfont icon-eye"></i>
+                            <<i class="iconfont icon-eye"></</i>
                         </button>
                     </div>
                     <div class="error-message" id="regPasswordError"></div>
@@ -738,15 +787,24 @@
                     <div class="password-input-wrapper">
                         <input type="password" class="form-input" id="regPasswordConfirm" placeholder="请再次输入密码">
                         <button type="button" class="password-toggle" id="regPasswordConfirmToggle">
-                            <i class="iconfont icon-eye"></i>
+                            <<i class="iconfont icon-eye"></</i>
                         </button>
                     </div>
                     <div class="error-message" id="regPasswordConfirmError"></div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">邮箱</label>
-                    <input type="email" class="form-input" id="regEmail" placeholder="请输入邮箱">
+                    <label class="form-label">QQ邮箱</label>
+                    <input type="email" class="form-input" id="regEmail" placeholder="请输入QQ邮箱（仅支持QQ邮箱）">
                     <div class="error-message" id="regEmailError"></div>
+                </div>
+                <!-- 新增：验证码输入框 -->
+                <div class="form-group">
+                    <label class="form-label">验证码</label>
+                    <div class="verify-code-wrapper">
+                        <input type="text" class="form-input verify-code-input" id="regVerifyCode" placeholder="请输入邮箱验证码">
+                        <button type="button" class="send-code-btn" id="sendCodeBtn">发送验证码</button>
+                    </div>
+                    <div class="error-message" id="regVerifyCodeError"></div>
                 </div>
                 <button type="button" class="auth-btn" id="registerBtn">注册</button>
                 
@@ -769,6 +827,13 @@
     let currentLoadingType = '';
     // ========== 新增：动画状态控制变量 ==========
     let isAnimating = false;
+    // 新增：验证码倒计时定时器
+    let countdownTimer = null;
+
+
+    // ========== 新增：初始化EmailJS（用你提供的Public Key） ==========
+    emailjs.init('QPXRZfhOcviP14EGP');
+
 
     // MD5加密函数（与首页一致）
     function md5(str) {
@@ -795,9 +860,9 @@
         
         // 设置图标
         if (type === 'success') {
-            iconElement.innerHTML = '<i class="iconfont icon-check-circle"></i>';
+            iconElement.innerHTML = '<<i class="iconfont icon-check-circle"></</i>';
         } else {
-            iconElement.innerHTML = '<i class="iconfont icon-close-circle"></i>';
+            iconElement.innerHTML = '<<i class="iconfont icon-close-circle"></</i>';
         }
         
         // 显示提示框
@@ -814,6 +879,7 @@
         currentLoadingType = type;
         document.getElementById('loadingText').textContent = type === '登录' ? '正在登录，请稍候...' : 
                                                            type === '注册' ? '正在注册，请稍候...' : 
+                                                           type === '发送验证码' ? '正在发送验证码，请稍候...' :
                                                            '正在处理，请稍候...';
         document.getElementById('loadingOverlay').classList.add('active');
     }
@@ -867,10 +933,80 @@
         clearError(inputId);
     }
 
-    // 验证邮箱格式
+    // ========== 修改：只验证QQ邮箱格式 ==========
     function validateEmail(email) {
-        const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailReg.test(email);
+        const qqEmailReg = /^[1-9]\d{4,10}@qq\.com$/;
+        return qqEmailReg.test(email);
+    }
+
+    // ========== 新增：生成6位验证码 ==========
+    function generateVerifyCode() {
+        return Math.floor(100000 + Math.random() * 900000).toString();
+    }
+
+    // ========== 新增：发送验证码函数 ==========
+    async function sendVerifyCode() {
+        const email = document.getElementById('regEmail').value.trim();
+        const sendBtn = document.getElementById('sendCodeBtn');
+        
+        // 1. 验证QQ邮箱
+        if (!email) {
+            showError('regEmail', 'QQ邮箱不能为空');
+            return;
+        } else if (!validateEmail(email)) {
+            showError('regEmail', '请输入有效的QQ邮箱');
+            return;
+        }
+
+        // 2. 防止重复点击
+        if (sendBtn.disabled) return;
+        sendBtn.disabled = true;
+        showLoading('发送验证码');
+
+        try {
+            // 3. 生成验证码并存储（有效期5分钟）
+            const verifyCode = generateVerifyCode();
+            sessionStorage.setItem(`verifyCode_${email}`, JSON.stringify({
+                code: verifyCode,
+                expireTime: Date.now() + 5 * 60 * 1000
+            }));
+
+            // 4. 调用EmailJS发送邮件（替换为你的Template ID）
+            const response = await emailjs.send(
+                'service_9nfcx0b', // 你提供的Service ID
+                'template_kn5zqc8', // 【需确认】替换为你的验证码模板ID（在EmailJS模板页复制）
+                {
+                    to_email: email,   // 对应模板里的{{to_email}}
+                    verify_code: verifyCode // 对应模板里的{{verify_code}}
+                }
+            );
+
+            hideLoading();
+            if (response.status === 200) {
+                showAlert('验证码已发送至您的QQ邮箱，5分钟内有效', 'success');
+                
+                // 5. 启动倒计时
+                let countdown = 60;
+                sendBtn.textContent = `${countdown}秒后重发`;
+                countdownTimer = setInterval(() => {
+                    countdown--;
+                    sendBtn.textContent = `${countdown}秒后重发`;
+                    if (countdown <= 0) {
+                        clearInterval(countdownTimer);
+                        sendBtn.disabled = false;
+                        sendBtn.textContent = '发送验证码';
+                    }
+                }, 1000);
+            } else {
+                showAlert('验证码发送失败，请重试', 'error');
+                sendBtn.disabled = false;
+            }
+        } catch (error) {
+            hideLoading();
+            console.error('发送验证码失败：', error);
+            showAlert('验证码发送失败，请检查配置', 'error');
+            sendBtn.disabled = false;
+        }
     }
 
     // 切换登录/注册选项卡（带动画）
@@ -904,8 +1040,8 @@
             
             // 切换图标
             loginToggle.innerHTML = type === 'password' ? 
-                '<i class="iconfont icon-eye"></i>' : 
-                '<i class="iconfont icon-eye-close"></i>';
+                '<<i class="iconfont icon-eye"></</i>' : 
+                '<<i class="iconfont icon-eye-close"></</i>';
         });
         
         // 注册密码显示/隐藏
@@ -918,8 +1054,8 @@
             
             // 切换图标
             regToggle.innerHTML = type === 'password' ? 
-                '<i class="iconfont icon-eye"></i>' : 
-                '<i class="iconfont icon-eye-close"></i>';
+                '<<i class="iconfont icon-eye"></</i>' : 
+                '<<i class="iconfont icon-eye-close"></</i>';
         });
         
         // 注册确认密码显示/隐藏
@@ -932,8 +1068,8 @@
             
             // 切换图标
             regConfirmToggle.innerHTML = type === 'password' ? 
-                '<i class="iconfont icon-eye"></i>' : 
-                '<i class="iconfont icon-eye-close"></i>';
+                '<<i class="iconfont icon-eye"></</i>' : 
+                '<<i class="iconfont icon-eye-close"></</i>';
         });
     }
 
@@ -949,6 +1085,7 @@
         clearError('regPassword');
         clearError('regPasswordConfirm');
         clearError('regEmail');
+        clearError('regVerifyCode');
     }
 
     // 从GitHub Issue读取所有用户信息
@@ -1041,13 +1178,14 @@
         }
     }
 
-    // 注册表单验证
+    // ========== 修改：注册表单验证（新增验证码验证） ==========
     function validateRegisterForm() {
         const nickname = document.getElementById('regNickname').value.trim();
         const account = document.getElementById('regAccount').value.trim();
         const password = document.getElementById('regPassword').value.trim();
         const pwdConfirm = document.getElementById('regPasswordConfirm').value.trim();
         const email = document.getElementById('regEmail').value.trim();
+        const verifyCode = document.getElementById('regVerifyCode').value.trim();
         
         let isValid = true;
         
@@ -1098,15 +1236,38 @@
             showSuccess('regPasswordConfirm');
         }
         
-        // 验证邮箱
+        // 验证QQ邮箱
         if (!email) {
-            showError('regEmail', '邮箱不能为空');
+            showError('regEmail', 'QQ邮箱不能为空');
             isValid = false;
         } else if (!validateEmail(email)) {
-            showError('regEmail', '邮箱格式不正确');
+            showError('regEmail', '请输入有效的QQ邮箱');
             isValid = false;
         } else {
             showSuccess('regEmail');
+        }
+        
+        // 验证验证码
+        if (!verifyCode) {
+            showError('regVerifyCode', '验证码不能为空');
+            isValid = false;
+        } else {
+            const codeDataStr = sessionStorage.getItem(`verifyCode_${email}`);
+            if (!codeDataStr) {
+                showError('regVerifyCode', '请先获取验证码');
+                isValid = false;
+            } else {
+                const codeData = JSON.parse(codeDataStr);
+                if (Date.now() > codeData.expireTime) {
+                    showError('regVerifyCode', '验证码已过期，请重新获取');
+                    isValid = false;
+                } else if (codeData.code !== verifyCode) {
+                    showError('regVerifyCode', '验证码输入错误');
+                    isValid = false;
+                } else {
+                    showSuccess('regVerifyCode');
+                }
+            }
         }
         
         return isValid;
@@ -1188,9 +1349,18 @@
                 document.getElementById('regPassword').value = '';
                 document.getElementById('regPasswordConfirm').value = '';
                 document.getElementById('regEmail').value = '';
+                document.getElementById('regVerifyCode').value = '';
                 
                 // 清除所有错误状态
                 clearAllErrors();
+                
+                // 清除验证码倒计时
+                if (countdownTimer) {
+                    clearInterval(countdownTimer);
+                    countdownTimer = null;
+                }
+                document.getElementById('sendCodeBtn').disabled = false;
+                document.getElementById('sendCodeBtn').textContent = '发送验证码';
             } else {
                 showAlert('注册失败，请稍后重试！', 'error');
             }
@@ -1342,20 +1512,40 @@
             }
         });
         
-        // 邮箱验证
+        // QQ邮箱验证
         document.getElementById('regEmail').addEventListener('input', function() {
             const email = this.value.trim();
             if (!email) {
-                showError('regEmail', '邮箱不能为空');
+                showError('regEmail', 'QQ邮箱不能为空');
             } else if (!validateEmail(email)) {
-                showError('regEmail', '邮箱格式不正确');
+                showError('regEmail', '请输入有效的QQ邮箱');
             } else {
                 showSuccess('regEmail');
             }
         });
+        
+        // 验证码验证
+        document.getElementById('regVerifyCode').addEventListener('input', function() {
+            const code = this.value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            
+            if (code && email) {
+                const codeDataStr = sessionStorage.getItem(`verifyCode_${email}`);
+                if (codeDataStr) {
+                    const codeData = JSON.parse(codeDataStr);
+                    if (codeData.code !== code) {
+                        showError('regVerifyCode', '验证码输入错误');
+                    } else {
+                        showSuccess('regVerifyCode');
+                    }
+                }
+            } else if (code) {
+                clearError('regVerifyCode');
+            }
+        });
     }
 
-    // 初始化事件绑定
+    // ========== 修改：初始化事件绑定（新增发送验证码按钮） ==========
     function initEvents() {
         // 返回按钮带开合动画跳转
         document.getElementById('backBtn').addEventListener('click', () => {
@@ -1378,6 +1568,9 @@
         document.getElementById('loginBtn').addEventListener('click', handleLogin);
         // 注册按钮
         document.getElementById('registerBtn').addEventListener('click', handleRegister);
+        // 发送验证码按钮（新增）
+        document.getElementById('sendCodeBtn').addEventListener('click', sendVerifyCode);
+        
         // 回车提交表单
         document.getElementById('loginForm').addEventListener('keyup', e => {
             if (e.key === 'Enter') handleLogin();
@@ -1386,31 +1579,8 @@
             if (e.key === 'Enter') handleRegister();
         });
     }
-
-    // 页面初始化
-    function initPage() {
-        initTabs();
-        initPasswordToggles();
-        initFormValidation();
-        initEvents();
-        
-        // 默认隐藏开合动画
-        document.getElementById('loader').classList.add('loaded');
-        
-        // 页面加载完成后，如果有缓存的用户信息，自动填充登录表单
-        const savedUser = localStorage.getItem(USER_LOCAL_KEY);
-        if (savedUser) {
-            try {
-                const userInfo = JSON.parse(savedUser);
-                document.getElementById('loginAccount').value = userInfo.account;
-            } catch (e) {
-                // 忽略解析错误
-            }
-        }
-    }
-
-    // 页面加载完成后执行
-    document.addEventListener('DOMContentLoaded', initPage);
-</script>
+function initPage () {initTabs ();initPasswordToggles ();initFormValidation ();initEvents ();
+document.getElementById ('loader').classList.add ('loaded');
+const savedUser = localStorage.getItem (USER_LOCAL_KEY);if (savedUser) {try {const userInfo = JSON.parse (savedUser);document.getElementById ('loginAccount').value = userInfo.account;} catch (e) {}}}
+document.addEventListener ('DOMContentLoaded', initPage);</script>
 </body>
-</html>
