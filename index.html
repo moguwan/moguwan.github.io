@@ -1338,48 +1338,60 @@ video.loaded {
 .news-modal-mask {position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);padding:20px;box-sizing:border-box;}
 .news-modal-mask.show {opacity:1;pointer-events:all;}
 .news-modal-box {
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    background:linear-gradient(145deg, #ffffff, #f8f9fa);
     border-radius:20px;
     border:1px solid rgba(255, 255, 255, 0.9);
     box-shadow: 0 6px 20px rgba(0,0,0,0.08);
     width:100%;
-    max-width:800px;
+    max-width: 1200px;
     max-height:calc(100vh - 40px);
     color:var(--color-text-main);
     position:relative;
     transform:translateY(20px);
     transition:transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     opacity:0;
-    overflow-y:auto;
-    overflow-x:hidden;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
     margin:auto;
+    margin-top: 80px; /* 新增：顶部留出80px空间，避开关闭按钮 */
     backdrop-filter:blur(20px) saturate(180%) contrast(1.1);
     -webkit-backdrop-filter:blur(20px) saturate(180%) contrast(1.1);
 }
 .news-modal-mask.show .news-modal-box {transform:translateY(0);opacity:1;}
 .modal-close-btn {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 40px;
-    height: 40px;
+    position: fixed; /* 改为fixed，相对于视口定位 */
+    top: 30px; /* 距离顶部30px */
+    right: 30px; /* 距离右侧30px */
+    width: 50px; /* 增大尺寸，更显眼 */
+    height: 50px;
     border-radius: 50%;
     background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    border: 1px solid rgba(255, 255, 255, 0.9);
+    border: 2px solid #0078d4; /* 增加边框颜色，更突出 */
     cursor: pointer;
-    font-size: 20px;
+    font-size: 24px; /* 增大叉号字体 */
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 99999;
+    z-index: 999999; /* 提高层级，确保不被遮挡 */
     backdrop-filter: blur(8px) saturate(180%);
     -webkit-backdrop-filter: blur(8px) saturate(180%);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.2); /* 增加阴影，更立体 */
     color: #0078d4;
     margin: 0;
     padding: 0;
 }
+
+/* 保留hover/active样式，确保交互效果 */
+.modal-close-btn:hover {
+    background: rgba(0, 120, 212, 0.15);
+    color: #0078d4;
+    transform: rotate(120deg) scale(1.2);
+    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.15);
+    border-color: rgba(0, 120, 212, 0.3);
+}
+.modal-close-btn:active {transform: rotate(90deg) scale(var(--active-scale));}
 .modal-close-btn:hover {
     background: rgba(0, 120, 212, 0.15);
     color: #0078d4;
@@ -2070,12 +2082,12 @@ table {
         </div>
     </div>
     <div class="news-modal-mask" id="newsModalMask">
+        <button class="modal-close-btn" id="modalCloseBtn">✕</button> <!-- 移到这里 -->
         <div class="news-nav-btns">
             <button class="news-nav-btn news-next-btn" id="newsNextBtn">↑</button>
             <button class="news-nav-btn news-prev-btn" id="newsPrevBtn">↓</button>
         </div>
         <div class="news-modal-box">
-            <button class="modal-close-btn" id="modalCloseBtn">✕</button>
             <div class="modal-news-content" id="modalNewsContent"></div>
             <div class="modal-comment-area" id="modalCommentArea"></div>
         </div>
