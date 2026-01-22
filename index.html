@@ -824,9 +824,33 @@ video.loaded {
     transform: translate3d(100%, 0, 0);
 }
 .news-text-box {flex:0 0 60%;display:flex;flex-direction:column;justify-content:space-between;min-height:200px;}
-.news-media-box {flex:0 0 35%;height:200px;border-radius:12px;overflow:hidden;border:1px solid rgba(255, 255, 255, 0.9);box-shadow: 
+.news-media-box {
+    flex:0 0 35%;
+    height:200px;
+    border-radius:12px;
+    overflow:hidden;
+    border:1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 
         0 2px 8px rgba(0, 0, 0, 0.05),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95);}
+        inset 1px 1px 0 rgba(255, 255, 255, 0.95);
+    /* 新增：图片加载前的占位背景 */
+    background: #f5f7fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; /* 新增：为伪元素定位提供参考 */
+}
+.news-media-box::before {
+    content: "🖼️ 图片加载中...";
+    color: #94a3b8;
+    font-size: 14px;
+    display: block;
+    position: absolute; /* 新增：固定提示文字位置 */
+    z-index: 0; /* 确保在图片下方 */
+}
+.news-media-box.loaded::before {
+    display: none !important; /* 强制隐藏 */
+}
 .news-item:hover {
     transform: translateY(-6px) scale(1.01) translateZ(0) rotate(0deg) !important;
     box-shadow: 
@@ -852,7 +876,19 @@ video.loaded {
     align-items: center;
     gap: 8px;
 }
-.news-img-item, .news-video-item {width:100%;height:100%;object-fit:cover;object-position:center;cursor:pointer;transition:all 0.3s ease;display:block;}
+
+.news-img-item, .news-video-item {
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center;
+    cursor:pointer;
+    transition:all 0.3s ease;
+    display:block;
+    /* 新增：覆盖占位提示 */
+    position: relative;
+    z-index: 1;
+}
 .news-img-item:hover, .news-video-item:hover {transform:scale(1.03);box-shadow: 0 4px 12px rgba(0, 120, 212, 0.15);}
 .news-loading {text-align:center;color:#0078d4;padding:40px 20px;font-size:15px;}
 .comment-area {margin-top:15px;padding-top:15px;border-top:1px solid rgba(255,255,255,0.08);width:100%;display:none;}
@@ -2836,7 +2872,14 @@ function initLazyImgLoad() {
                 if (entry.isIntersecting) {
                     const el = entry.target;
                     el.src = el.dataset.src;
-                    el.onload = () => { el.classList.add('loaded'); };
+                    el.onload = () => { 
+                        el.classList.add('loaded'); 
+                        // 新增：找到图片的父容器.news-media-box，添加loaded类
+                        const mediaBox = el.closest('.news-media-box');
+                        if (mediaBox) {
+                            mediaBox.classList.add('loaded');
+                        }
+                    };
                     imgObserver.unobserve(el);
                 }
             });
@@ -2858,7 +2901,14 @@ function initVideoHoverPreview() {
                     video.loop = false;
                     video.load();
                     video.classList.add('loaded');
-                    video.onloadeddata = function() { video.play(); }
+                    // 新增：给父容器添加loaded类，隐藏加载提示
+                    const mediaBox = video.closest('.news-media-box');
+                    if (mediaBox) {
+                        mediaBox.classList.add('loaded');
+                    }
+                    video.onloadeddata = function() { 
+                        video.play(); 
+                    }
                     video.ontimeupdate = function() {
                         if (video.currentTime >=3) {video.currentTime=0;video.play();}
                     }
@@ -3186,26 +3236,29 @@ function initNewsScrollAnimation() {
 }
 function renderNewsList(newsList) {
     const newsContainer = document.getElementById('newsScroll');
-    showLoadingToast();
+    // 移除加载提示，直接显示内容
     newsContainer.innerHTML = '';
     if(newsList.length === 0) {
         newsContainer.innerHTML = '<div class="search-empty-tips">🔍 没有找到匹配的内容，试试换个关键词吧</div>';
         return;
     }
-    const resourcesToLoad = [];
+    
+    // 直接渲染所有文字内容，不等待图片加载
     newsList.forEach((newsData) => {
         const originalIndex = newsDataList.indexOf(newsData);
         const item = document.createElement('div');
-        item.className='news-item';
+        item.className='news-item active'; // 直接添加active类，立即显示
         let mediaHtml = '';
         let firstMedia = null;
         if(newsData.imgSrcList.length>0){
             firstMedia={type:'image',url:newsData.imgSrcList[0]};
-            mediaHtml = `<img class="news-img-item" data-src="${firstMedia.url}" alt="${newsData.title}" src="">`;
+            // 图片使用data-src懒加载，src留空，确保不阻塞渲染
+            mediaHtml = `<img class="news-img-item lazy-img" data-src="${firstMedia.url}" alt="${newsData.title}" src="" style="width:100%;height:100%;object-fit:cover;">`;
         }else if(newsData.videoSrcList.length>0){
             firstMedia={type:'video',url:newsData.videoSrcList[0]};
-            mediaHtml = `<video class="news-video-item" tag="video" data-src="${firstMedia.url}" muted playsinline preload="metadata"></video>`;
+            mediaHtml = `<video class="news-video-item lazy-img" tag="video" data-src="${firstMedia.url}" muted playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;"></video>`;
         }
+        // 立即渲染文字内容
         item.innerHTML = `
             <div class="news-text-box">
                 <div class="news-title">${newsData.title}</div>
@@ -3216,6 +3269,8 @@ function renderNewsList(newsList) {
         `;
         newsContainer.appendChild(item);
         createCommentArea(item, originalIndex);
+        
+        // 绑定点击事件
         const newsTitleEl = item.querySelector('.news-title');
         newsTitleEl.addEventListener('click', () => {
             openNewsModal(originalIndex);
@@ -3225,30 +3280,16 @@ function renderNewsList(newsList) {
             e.stopPropagation();
             updateNewsLikeCount(originalIndex);
         });
-        if(firstMedia) resourcesToLoad.push(firstMedia);
     });
-    Promise.all(resourcesToLoad.map(resource=>{
-        return new Promise((resolveLoad)=>{
-            if(resource.type==='image'){
-                const img=new Image();
-                img.onload=resolveLoad;
-                img.onerror=resolveLoad;
-                img.src=resource.url;
-            }else{
-                const video=document.createElement('video');
-                video.preload='metadata';
-                video.onloadedmetadata=resolveLoad;
-                video.onerror=resolveLoad;
-                video.src=resource.url;
-            }
-        });
-    })).then(()=>{
-        initLazyImgLoad();
-        initVideoHoverPreview();
-        initPreviewAnimation();
-        initNewsScrollAnimation();
-        showSuccessToast();
-    });
+    
+    // 立即初始化懒加载，图片后台加载
+    initLazyImgLoad();
+    initVideoHoverPreview();
+    initPreviewAnimation();
+    initNewsScrollAnimation();
+    
+    // 立即隐藏加载提示，显示成功
+    showSuccessToast();
 }
 function loadNewsContent() {
     const newsContainer = document.getElementById('newsScroll');
@@ -3288,8 +3329,7 @@ function loadNewsContent() {
                 initNewsLikeCounts(); 
                 renderNewsList(newsDataList);
                 renderNewsLikeCounts(); 
-                renderLikedStyle();     
-                preloadAllMedia();
+                renderLikedStyle(); 
                 resolve();
             })
         .catch((err)=>{
@@ -3632,10 +3672,7 @@ function initMusicPlayer() {
 async function initPageWithLoader() {
     const loader = document.getElementById('loader');
     document.body.style.overflow = 'hidden';
-    await Promise.all([
-        loadNewsContent(),
-        new Promise(resolve => setTimeout(resolve, 1000))
-    ]);
+    await loadNewsContent();
     setTimeout(() => {
         loader.classList.add('loaded');
         document.body.style.overflow = 'auto';
@@ -3643,10 +3680,7 @@ async function initPageWithLoader() {
         initMusicPlayer();
         initSearchFunc();
         initAddBgFunc();
-        if (newsDataList && newsDataList.length > 0) {
-            preloadAllMedia();
-        }
-    }, 300);
+    }, 100);
 }
 document.addEventListener('DOMContentLoaded', function() {
     const loader = document.getElementById('loader');
