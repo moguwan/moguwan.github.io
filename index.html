@@ -148,6 +148,10 @@ body {
     color: var(--color-text-main);
     scroll-behavior: smooth;
     background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center center;
+    background-color: transparent;
     display: flex;
     flex-direction: column;
     position: relative;
@@ -161,9 +165,9 @@ body {
     width: 100%;
     transition: font-size 0.3s ease, color 0.3s ease, font-weight 0.3s ease;
     letter-spacing: 0.3px;
-    background-color: #f5f7fa;
 }
 body::before {
+    display: none;
     content: "";
     position: fixed;
     top: 0;
@@ -172,7 +176,6 @@ body::before {
     bottom: 0;
     background: var(--bg-mask);
     z-index: -2;
-    display: var(--mask-display, block);
 }
 a {
     text-decoration: none;
@@ -708,7 +711,7 @@ video.loaded {
         inset -1px -1px 0 rgba(0, 0, 0, 0.05);
     position: relative;
     transition: all 0.3s ease;
-    margin: 15px auto 25px auto;
+    margin: 10px auto 50px auto;
 }
 .article-inner .search-box-container {
     width: 100%;
@@ -798,7 +801,7 @@ video.loaded {
     margin-bottom:4px;
     width:100%;
     overflow:hidden;
-    transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     opacity: 0;
     will-change: transform, opacity;
     display:flex;
@@ -1843,6 +1846,68 @@ table {
   0%, 100% { opacity: 0.4; transform: scale(0.9); }
   50% { opacity: 1; transform: scale(1.1); }
 }
+/* 首次访问提示框样式 - 与页面玻璃质感风格统一 */
+.first-visit-tip {
+    position: fixed;
+    top: 220px;          /* 距离顶部20px */
+    right: 20px;        /* 距离右侧20px（右上角） */
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    padding: 12px 18px;
+    box-shadow: 
+        0 4px 16px rgba(0, 0, 0, 0.06),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
+    z-index: 999999;    /* 最高层级，确保不被遮挡 */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--color-text-title);
+    font-size: 14px;
+    opacity: 0;         /* 默认隐藏 */
+    transform: translateY(-20px); /* 初始向上偏移 */
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* 平滑动画 */
+}
+
+/* 显示提示框的样式 */
+.first-visit-tip.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 提示文字样式 */
+.first-visit-tip .tip-text {
+    font-size: 14px;
+    color: #0078d4;     /* 页面主色调 */
+    font-weight: var(--font-weight-medium);
+}
+
+/* 关闭按钮样式 */
+.first-visit-tip .tip-close-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(0, 120, 212, 0.1);
+    border: none;
+    color: #0078d4;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+/* 关闭按钮hover效果 */
+.first-visit-tip .tip-close-btn:hover {
+    background: #0078d4;
+    color: white;
+    transform: rotate(90deg) scale(1.1);
+}
 .apple-loading-comment {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-weight: 300;
@@ -1962,7 +2027,11 @@ table {
     <div class="sidebar-top" id="sidebarTop">
         <div class="arrow-up">↑</div>
     </div>
-    
+    <!-- 首次访问提示框 -->
+    <div class="first-visit-tip" id="firstVisitTip">
+        <span class="tip-text">点击大标题可查看详情</span>
+        <button class="tip-close-btn" id="tipCloseBtn">✕</button>
+    </div>
     <div class="tip-modal-mask" id="tipModalMask">
         <div class="tip-modal-box glass-effect">
             <button class="tip-modal-close-btn" id="tipModalCloseBtn">✕</button>
@@ -2601,6 +2670,7 @@ function renderCommentArea(newsIndex) {
         0%, 100% { opacity: 0.4; transform: scale(0.9); }
         50% { opacity: 1; transform: scale(1.1); }
       }
+	  
     `;
     commentList.appendChild(style);
     commentWrap.appendChild(commentList);
@@ -3122,6 +3192,7 @@ function openNewsModal(index) {
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
+		
       </style>
     `;
     const commentArea = document.getElementById('modalCommentArea');
@@ -3227,8 +3298,8 @@ function initNewsScrollAnimation() {
         });
     }, {
         root: null,
-        rootMargin: "0px 0px 100px 0px",
-        threshold: 0.05
+        rootMargin: "150px 0px 150px 0px",
+        threshold: 0
     });
     newsItems.forEach(item => {
         newsAnimateObserver.observe(item);
@@ -3755,6 +3826,47 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
     initUserDropdown();
+	// ========== 首次访问提示框逻辑 ==========
+	function initFirstVisitTip() {
+	    // 存储用户访问标记的localStorage键名
+	    const firstVisitKey = 'hasVisitedMoGuOneWebsite';
+	    const firstVisitTip = document.getElementById('firstVisitTip');
+	    const tipCloseBtn = document.getElementById('tipCloseBtn');
+	    
+	    // 检查用户是否首次访问（localStorage无标记则为首次）
+	    const hasVisited = localStorage.getItem(firstVisitKey);
+	    if (!hasVisited) {
+	        // 延迟1秒显示（等页面加载完成，体验更好）
+	        setTimeout(() => {
+	            firstVisitTip.classList.add('show');
+	        }, 1000);
+	        
+	        // 点击关闭按钮隐藏提示框，并标记为已访问
+	        tipCloseBtn.addEventListener('click', () => {
+	            firstVisitTip.classList.remove('show');
+	            localStorage.setItem(firstVisitKey, 'true');
+	        });
+	        
+	        // 点击页面其他区域自动关闭提示框
+	        document.addEventListener('click', (e) => {
+	            if (!firstVisitTip.contains(e.target) && firstVisitTip.classList.contains('show')) {
+	                firstVisitTip.classList.remove('show');
+	                localStorage.setItem(firstVisitKey, 'true');
+	            }
+	        });
+	        
+	        // 自动关闭（8秒后），避免提示框一直显示
+	        setTimeout(() => {
+	            if (firstVisitTip.classList.contains('show')) {
+	                firstVisitTip.classList.remove('show');
+	                localStorage.setItem(firstVisitKey, 'true');
+	            }
+	        }, 8000);
+	    }
+	}
+	
+	// 初始化首次访问提示框
+	initFirstVisitTip();
 });
 </script>
 </body>
