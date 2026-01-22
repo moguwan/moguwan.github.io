@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<link rel="dns-prefetch" href="https://cn.bing.com">
+	<link rel="dns-prefetch" href="https://www.google.com">
+	<link rel="dns-prefetch" href="https://www.baidu.com">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mogu Search</title>
@@ -503,7 +506,7 @@
 <body>
     <!-- 右上角圆形图片按钮 -->
     <a href="../index.html" class="nav-btn" title="Back to Home">
-        <img src="https://img.wjwj.top/2026/01/19/58ed709d34fb7f07ae44a29b30492baf.png" alt="Home Button">
+        <img src="https://img.wjwj.top/2026/01/16/a27c17b713d7998cebb06b1dde372d64.jpg" alt="Home Button">
     </a>
 	<!-- 新增：toggle按钮移到这里 -->
 	<button class="toggle-btn" id="toggleBtn" title="Hide/Show History & Rank">
@@ -580,10 +583,9 @@
             return historyStr ? JSON.parse(historyStr) : [];
         }
 
-        // 保存历史记录到本地存储
         function saveSearchHistory(history) {
             localStorage.setItem('moguSearchHistory', JSON.stringify(history));
-            renderHistory();
+            setTimeout(renderHistory, 0);
         }
 
         // 获取搜索次数统计
@@ -592,10 +594,9 @@
             return countStr ? JSON.parse(countStr) : {};
         }
 
-        // 保存搜索次数统计
         function saveSearchCount(countMap) {
             localStorage.setItem('moguSearchCount', JSON.stringify(countMap));
-            renderRank();
+            setTimeout(renderRank, 0);
         }
 
         // 增加搜索次数
@@ -772,13 +773,8 @@
                 searchInput.focus();
                 return;
             }
-            
-            // 1. 添加/更新历史记录（去重，仅显示最新时间）
-            addSearchHistory(searchText);
-            // 2. 增加搜索次数（核心修复：每次搜索都累加）
-            incrementSearchCount(searchText);
-            
-            // 跳转搜索
+        
+            // 第一步：优先执行跳转（修改1：打开新窗口）
             const selectedEngine = searchEngine.value;
             const engineUrlMap = {
                 bing: 'https://cn.bing.com/search?q=',
@@ -786,7 +782,18 @@
                 baidu: 'https://www.baidu.com/s?wd='
             };
             const searchUrl = engineUrlMap[selectedEngine] + encodeURIComponent(searchText);
-            window.location.href = searchUrl;
+            
+            // 修改1：window.open 打开新标签页（_blank 表示新窗口）
+            window.open(searchUrl, '_blank');
+        
+            // 修改2：立即清空搜索框（关键）
+            searchInput.value = '';
+        
+            // 第二步：异步执行本地存储（跳转后后台完成，不影响跳转速度）
+            setTimeout(() => {
+                addSearchHistory(searchText); // 更新历史记录
+                incrementSearchCount(searchText); // 累加次数
+            }, 0);
         }
 
         // ========== 事件绑定 ==========
