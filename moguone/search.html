@@ -230,7 +230,7 @@
         .history-rank-wrap {
             width: 100%;
             max-width: 720px;
-            margin-top: 10px;
+            margin-top: 65px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             opacity: 1;
             height: auto;
@@ -311,6 +311,7 @@
             margin-bottom: 12px;
             display: flex;
             align-items: center;
+            justify-content: flex-start; /* 新增：默认左对齐 */
             gap: 8px;
             cursor: default;
         }
@@ -320,11 +321,86 @@
             height: 18px;
             fill: #0078d4;
         }
-
+		/* 新增：历史记录开关容器 */
+		.history-switch-wrap {
+		    display: flex;
+		    align-items: center;
+		    gap: 8px;
+		    margin-left: auto; /* 靠右对齐 */
+		}
+		
+		/* 开关文字标签 */
+		.switch-label {
+		    font-size: 11px;
+		    color: #64748b;
+		    font-weight: 400;
+		}
+		
+		/* 开关基础样式 */
+		.toggle-switch {
+		    position: relative;
+		    display: inline-block;
+		    width: 36px;
+		    height: 20px;
+		    cursor: pointer;
+		}
+		
+		/* 隐藏原生复选框 */
+		.toggle-switch input {
+		    opacity: 0;
+		    width: 0;
+		    height: 0;
+		}
+		
+		/* 开关滑块样式（贴合页面风格） */
+		.switch-slider {
+		    position: absolute;
+		    top: 0;
+		    left: 0;
+		    right: 0;
+		    bottom: 0;
+		    background: linear-gradient(145deg, #e2e8f0, #f1f5f9);
+		    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+		    border-radius: 24px;
+		    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+		
+		/* 滑块圆形按钮 */
+		.switch-slider:before {
+		    position: absolute;
+		    content: "";
+		    height: 14px;
+		    width: 14px;
+		    left: 3px;
+		    bottom: 3px;
+		    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+		    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		    border-radius: 50%;
+		    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+		
+		/* 开启状态的背景 */
+		input:checked + .switch-slider {
+		    background: linear-gradient(135deg, #0078d4 0%, #0066b8 100%);
+		}
+		
+		/* 开启状态的滑块位置 */
+		input:checked + .switch-slider:before {
+		    transform: translateX(16px);
+		}
+		
+		/* 开关hover效果 */
+		.toggle-switch:hover .switch-slider {
+		    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08);
+		}
+		
+		input:checked + .switch-slider:hover {
+		    box-shadow: 0 0 0 8px rgba(0, 120, 212, 0.12);
+		}
         /* 记录列表 */
         .history-list, .rank-list {
             list-style: none;
-            max-height: 200px;
+            max-height: 210px;
             overflow-y: auto;
             padding-right: 8px;
         }
@@ -515,7 +591,7 @@
 	    </svg>
 	</button>
     <!-- 顶部标题 -->
-    <div class="search-title">mogu_search</div>
+    <div class="search-title">Mogu_Search</div>
     
     <!-- 搜索容器 -->
     <div class="search-container">
@@ -541,6 +617,14 @@
                         <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
                     </svg>
                     Search History
+                    <!-- 新增：历史记录开关 -->
+                    <div class="history-switch-wrap">
+                        <span class="switch-label">Record History</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="historySwitch">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
                 </div>
                 <ul class="history-list" id="historyList"></ul>
             </div>
@@ -571,12 +655,24 @@
         const toggleBtn = document.getElementById('toggleBtn');
         const historyList = document.getElementById('historyList');
         const rankList = document.getElementById('rankList');
-        
+        const historySwitch = document.getElementById('historySwitch');
+		
         let alertTimer = null;
         const MAX_HISTORY = 10; // 最大历史记录数
         const MAX_RANK = 10;    // 最大排行数
 
         // ========== 本地存储工具函数 ==========
+		function getHistorySwitchState() {
+		    const state = localStorage.getItem('moguHistorySwitch');
+		    return state === null ? true : JSON.parse(state);
+		}
+		
+		// 新增：保存历史记录开关状态
+		function saveHistorySwitchState(enabled) {
+		    localStorage.setItem('moguHistorySwitch', JSON.stringify(enabled));
+		    // 更新开关UI状态
+		    historySwitch.checked = enabled;
+		}
         // 获取本地存储的历史记录（去重，仅显示最新时间）
         function getSearchHistory() {
             const historyStr = localStorage.getItem('moguSearchHistory');
@@ -634,6 +730,10 @@
         // ========== 搜索记录核心功能 ==========
         // 添加搜索记录（去重，仅更新时间）
         function addSearchHistory(keyword) {
+            // 新增：判断开关是否开启，关闭则不添加记录
+            const isRecordEnabled = getHistorySwitchState();
+            if (!isRecordEnabled) return; // 开关关闭时直接返回
+            
             if (!keyword.trim()) return;
             keyword = keyword.trim();
             
@@ -812,11 +912,18 @@
             const currentState = getShowState();
             saveShowState(!currentState);
         });
-
+		
+		// 新增：历史记录开关切换事件
+		historySwitch.addEventListener('change', (e) => {
+		    saveHistorySwitchState(e.target.checked);
+		});
+		
         // ========== 页面初始化 ==========
         window.addEventListener('DOMContentLoaded', () => {
             // 初始化显示状态
             saveShowState(getShowState());
+            // 新增：初始化历史记录开关状态
+            saveHistorySwitchState(getHistorySwitchState());
             // 渲染历史记录和排行
             renderHistory();
             renderRank();
