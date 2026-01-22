@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme-mode="dark">
+<html lang="zh-CN" data-theme-mode="light">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -12,7 +12,6 @@
     <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_0khxww3tj3q9.woff2" as="font" type="font/woff2" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/dmego-home-page@latest/assets/css/iconfont.css">
     
-    <!-- 液态玻璃SVG滤镜 -->
     <svg style="display: none">
       <filter id="glass-distortion">
         <feTurbulence type="fractalNoise" baseFrequency="0.001 0.005" numOctaves="1" seed="17" result="turbulence" />
@@ -31,7 +30,6 @@
     </svg>
 
     <style type="text/css">
-/* 🔥 核心重构：全局样式 - 紧凑无滚动、增强对比度、小众极简风格 */
 * {
     margin: 0;
     padding: 0;
@@ -40,36 +38,12 @@
 }
 
 html, body {
-    overflow: hidden !important; /* 彻底禁用滚动 */
+    overflow: hidden !important;
     position: relative;
     width: 100%;
-    height: 100vh; /* 固定视口高度 */
+    height: 100vh;
     scrollbar-width: thin;
     scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
-}
-
-/* ========== 主题配色重构 - 增强对比度，小众莫兰迪色系 ========== */
-html[data-theme-mode="dark"] {
-    --bg-base: #0f121a;
-    --bg-mask: linear-gradient(#0f121a, #121621);
-    --bg-card: rgba(22, 26, 36, 0.95);
-    --color-text-main: #e8ecef;
-    --color-text-sub: #9aa3ac;
-    --color-text-title: #f5f8fa;
-    --color-primary: #4a9d7c;
-    --color-primary-deep: #3a8c6b;
-    --color-primary-light: #5aa889;
-    --border-color: rgba(255, 255, 255, 0.15);
-    --border-color-light: rgba(255,255,255,0.08);
-    --shadow-color: rgba(0,0,0,0.3);
-    --scrollbar-thumb: rgba(74, 157, 124, 0.7);
-    --scrollbar-track: rgba(18, 22, 33, 0.8);
-    --glass-bg: rgba(22, 26, 36, 0.8);
-    --glass-border: rgba(255, 255, 255, 0.12);
-    --glass-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-    --hover-glow: rgba(74, 157, 124, 0.25);
-    --active-scale: 0.97;
-    --font-family-main: "思源圆角 CN", "PingFang SC Round", "Microsoft YaHei UI Light", "圆润黑体 CN", "苹方-圆角", sans-serif;
 }
 
 html[data-theme-mode="light"] {
@@ -123,7 +97,6 @@ body::before {
     -webkit-backdrop-filter: blur(8px);
 }
 
-/* 开屏动画样式优化 */
 #loader {
     position: fixed;
     top: 0;
@@ -165,7 +138,6 @@ body::before {
     letter-spacing: 2px;
 }
 
-/* iconfont基础样式 */
 .iconfont {
     font-family: "iconfont" !important;
     font-size: inherit;
@@ -174,7 +146,6 @@ body::before {
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* 玻璃效果通用样式 */
 .glass-effect {
     background: var(--glass-bg);
     backdrop-filter: blur(12px) saturate(180%) contrast(1.1);
@@ -185,7 +156,6 @@ body::before {
     overflow: hidden;
 }
 
-/* 返回首页按钮样式优化 */
 .back-home-btn {
     position: fixed;
     top: 16px;
@@ -218,15 +188,14 @@ body::before {
     transform: translateY(0) scale(var(--active-scale));
 }
 
-/* 容器布局重构 - 紧凑无滚动 */
 .container {
     flex: 1;
     position: relative;
     z-index: 3;
     width: 100%;
     padding: 16px;
-    overflow-y: auto; /* 仅容器内滚动，页面整体不滚动 */
-    max-height: calc(100vh - 80px); /* 预留页脚空间 */
+    overflow-y: auto;
+    max-height: calc(100vh - 80px);
 }
 
 .container-main {
@@ -241,12 +210,10 @@ body::before {
     align-items: flex-start;
 }
 
-/* 侧边栏隐藏 */
 #sidebar {
     display: none;
 }
 
-/* 主内容区域重构 */
 #content {
     flex: 1;
     width: 100%;
@@ -289,7 +256,6 @@ body::before {
     letter-spacing: 0.5px;
 }
 
-/* 提示弹窗样式优化 */
 .toast-notification {
     position: fixed;
     top: 20px;
@@ -401,7 +367,6 @@ body::before {
     transform: rotate(90deg) scale(var(--active-scale));
 }
 
-/* 页脚样式优化 */
 #footer {
     width:calc(100% - 32px);
     color:var(--color-text-sub);
@@ -443,7 +408,6 @@ body::before {
     margin:0 auto;
 }
 
-/* 音乐播放器样式优化 */
 .music-player {
     display:flex;
     align-items:center;
@@ -505,7 +469,6 @@ audio {
     display:none;
 }
 
-/* 返回顶部按钮优化 */
 .sidebar-top {
     position:fixed;
     bottom: 70px;
@@ -538,7 +501,6 @@ audio {
     transform: translateY(0) scale(var(--active-scale));
 }
 
-/* 滚动条样式优化 */
 ::-webkit-scrollbar {
     width:6px;
     height:6px;
@@ -559,7 +521,6 @@ audio {
     background:var(--color-primary-deep);
 }
 
-/* ========== 个人中心页面专用样式重构 ========== */
 .setting-container {
     width: 100%;
     max-width: 700px;
@@ -647,7 +608,6 @@ audio {
     cursor: not-allowed;
 }
 
-/* 新增：个人简介文本域样式 */
 .bio-textarea {
     width: 100%;
     min-height: 80px;
@@ -676,7 +636,6 @@ audio {
     border-color: var(--color-primary);
     box-shadow: 0 0 12px var(--hover-glow);
 }
-/* 字数统计样式 */
 .char-count {
     text-align: right;
     font-size: 12px;
@@ -699,7 +658,6 @@ audio {
     border: 1px solid var(--glass-border);
 }
 
-/* 头像上传区域重构 */
 .avatar-upload-area {
     display: flex;
     align-items: center;
@@ -765,7 +723,6 @@ audio {
     margin-top: 4px;
 }
 
-/* 保存按钮重构 - 平滑动画+点击反馈 */
 .setting-save-btn {
     height: 46px;
     width: 100%;
@@ -823,7 +780,6 @@ audio {
     display: none;
 }
 
-/* 退出按钮样式 */
 #logoutAllBtn {
     background: rgba(229, 62, 62, 0.08) !important;
     color: #e53e3e !important;
@@ -834,7 +790,6 @@ audio {
     box-shadow: 0 0 16px rgba(229, 62, 62, 0.15) !important;
 }
 
-/* 头像上传进度条 */
 .upload-progress {
     width: 100%;
     height: 5px;
@@ -852,7 +807,6 @@ audio {
     transition: width 0.3s ease;
 }
 
-/* 头像上传状态提示 */
 .avatar-status {
     font-size: 12px;
     margin-top: 4px;
@@ -876,7 +830,6 @@ audio {
     border: 1px solid rgba(237, 137, 54, 0.2);
 }
 
-/* 响应式设计优化 */
 @media (max-width: 768px) {
     .container {
         padding: 12px;
@@ -923,7 +876,6 @@ audio {
     </style>
 </head>
 <body>
-    <!-- 开屏动画 -->
     <div id="loader">
         <div class="loading-left-bg loading-bg"></div>
         <div class="loading-right-bg loading-bg"></div>
@@ -938,7 +890,6 @@ audio {
         </div>
     </div>
 
-    <!-- 返回首页按钮 -->
     <a href="../index.html" class="back-home-btn" title="返回首页">
         <i class="iconfont icon-home"><</i>
     </a>
@@ -946,7 +897,6 @@ audio {
     <div class="container">
         <div class="container-main">
             <aside id="sidebar">
-                <!-- 个人中心页面隐藏侧边栏 -->
             </aside>
         
             <div id="content">
@@ -954,7 +904,6 @@ audio {
                     <article class="article-inner" data-aos="fade-up">
                         <h1 class="setting-title" data-aos="slide-up">个人中心</h1>
                         
-                        <!-- 头像设置卡片 -->
                         <div class="setting-card" data-aos="fade-up">
                             <h2 class="setting-card-title">
                                 <i class="iconfont icon-user"></i> 头像设置
@@ -968,18 +917,15 @@ audio {
                                         <i class="iconfont icon-upload"></i> 上传新头像
                                     </button>
                                     <input type="file" id="avatarFileInput" accept="image/jpg,image/png,image/jpeg,image/webp" style="display:none;">
-                                    <!-- 上传进度条 -->
                                     <div class="upload-progress" id="uploadProgress">
                                         <div class="upload-progress-bar" id="uploadProgressBar"></div>
                                     </div>
-                                    <!-- 上传状态提示 -->
                                     <div class="avatar-status" id="avatarStatus"></div>
                                     <p class="avatar-tips">支持 JPG、PNG、WebP 格式，建议尺寸 200x200 像素</p>
                                 </div>
                             </div>
                         </div>
                         
-                        <!-- 账户信息卡片 -->
                         <div class="setting-card" data-aos="fade-up">
                             <h2 class="setting-card-title">
                                 <i class="iconfont icon-setting"></i> 账户信息
@@ -1003,7 +949,6 @@ audio {
                                 <p class="avatar-tips">用于接收重要通知和找回密码</p>
                             </div>
                             
-                            <!-- 新增：个人简介输入框 -->
                             <div class="setting-form-group">
                                 <label class="setting-label">个人简介</label>
                                 <textarea class="bio-textarea" id="bioTextarea" placeholder="输入你的人生格言、个人介绍等（最多100字）" maxlength="100"></textarea>
@@ -1022,7 +967,6 @@ audio {
                             </button>
                         </div>
                         
-                        <!-- 账户安全卡片 -->
                         <div class="setting-card" data-aos="fade-up">
                             <h2 class="setting-card-title">
                                 <i class="iconfont icon-safe"></i> 账户安全
@@ -1066,7 +1010,6 @@ audio {
         <div class="arrow-up">↑</div>
     </div>
     
-    <!-- 自定义提示弹窗 -->
     <div class="tip-modal-mask" id="tipModalMask">
         <div class="tip-modal-box glass-effect">
             <button class="tip-modal-close-btn" id="tipModalCloseBtn">✕</button>
@@ -1074,38 +1017,29 @@ audio {
             <div class="tip-modal-text" id="tipModalText">请输入搜索关键词</div>
         </div>
     </div>
-    <!-- 右上角小型提示框 -->
     <div class="toast-notification" id="toastNotification">
         <span class="icon">✓</span>
         <span class="text">操作成功！</span>
     </div>
 <script type="text/javascript">
-// ====== 全局配置 ======
 const GITHUB_REPO = "moguwan/moguwan.github.io";
 const GITHUB_TOKEN = ["gh","p_p","VXlo0HQ","PmMx","Ic","eM","HB","uMzm","EON","LPX","700","10","M","SL"].join('');
-const USER_ISSUE_NUMBER = 11; // 用户信息存储的 Issue 编号
-
-// ====== 全局变量 ======
+const USER_ISSUE_NUMBER = 11;
 let isAnimating = false;
 let currentUser = null;
-const USER_LOCAL_KEY = 'MY_CUSTOM_USER_INFO'; // 本地存储登录状态的key
+const USER_LOCAL_KEY = 'MY_CUSTOM_USER_INFO';
 const DEFAULT_AVATAR = "https://img.wjwj.top/2026/01/20/d6346e9c8e93165079c5ab74f856358c.png";
-// GitHub仓库中的头像存储路径
 const AVATAR_STORAGE_PATH = "avatars/";
 
-// 从GitHub URL中提取文件路径
 function extractFilePathFromGitHubUrl(githubUrl) {
     try {
-        // 如果URL是默认头像，返回null
         if (!githubUrl || githubUrl.includes(DEFAULT_AVATAR)) {
             return null;
         }
         
         console.log('解析GitHub URL:', githubUrl);
         
-        // 处理 raw.githubusercontent.com 格式的URL
         if (githubUrl.includes('raw.githubusercontent.com')) {
-            // 格式: https://raw.githubusercontent.com/moguwan/moguwan.github.io/main/avatars/xxx.jpg
             const match = githubUrl.match(/raw\.githubusercontent\.com\/[^\/]+\/[^\/]+\/[^\/]+\/(.+)/);
             if (match && match[1]) {
                 console.log('提取的raw路径:', match[1]);
@@ -1113,9 +1047,7 @@ function extractFilePathFromGitHubUrl(githubUrl) {
             }
         }
         
-        // 处理 api.github.com 格式的URL
         if (githubUrl.includes('api.github.com')) {
-            // 格式: https://api.github.com/repos/moguwan/moguwan.github.io/contents/avatars/xxx.jpg
             const match = githubUrl.match(/api\.github\.com\/repos\/[^\/]+\/[^\/]+\/contents\/(.+)/);
             if (match && match[1]) {
                 console.log('提取的api路径:', match[1]);
@@ -1123,9 +1055,7 @@ function extractFilePathFromGitHubUrl(githubUrl) {
             }
         }
         
-        // 处理 github.com 格式的URL
         if (githubUrl.includes('github.com') && githubUrl.includes('/blob/')) {
-            // 格式: https://github.com/moguwan/moguwan.github.io/blob/main/avatars/xxx.jpg
             const match = githubUrl.match(/github\.com\/[^\/]+\/[^\/]+\/blob\/[^\/]+\/(.+)/);
             if (match && match[1]) {
                 console.log('提取的blob路径:', match[1]);
@@ -1141,22 +1071,15 @@ function extractFilePathFromGitHubUrl(githubUrl) {
     }
 }
 
-// ====== 初始化函数 ======
 function initPageWithLoader() {
     const loader = document.getElementById('loader');
     document.body.style.overflow = 'hidden';
     
-    // 初始化用户登录状态
     initLoginState();
-    // 初始化主题
     initTheme();
-    // 初始化背景
     initRandomBg();
-    // 初始化音乐播放器
     initMusicPlayer();
-    // 初始化头像上传
     initAvatarUpload();
-    // 初始化个人简介字数统计
     initBioTextarea();
     
     setTimeout(() => {
@@ -1165,39 +1088,32 @@ function initPageWithLoader() {
     }, 300);
 }
 
-// 初始化个人简介文本域
 function initBioTextarea() {
     const bioTextarea = document.getElementById('bioTextarea');
     const charCount = document.getElementById('charCount');
     
-    // 监听输入事件更新字数统计
     bioTextarea.addEventListener('input', function() {
         const length = this.value.length;
         charCount.textContent = `${length}/100`;
         
-        // 根据字数添加样式
         charCount.className = 'char-count';
         if (length > 90) {
             charCount.classList.add('warning');
         }
         if (length > 100) {
             charCount.classList.add('error');
-            // 截断超过的字符
             this.value = this.value.substring(0, 100);
             charCount.textContent = `100/100`;
         }
     });
 }
 
-// 修复核心：初始化用户登录状态（移除未定义变量依赖）
 function initLoginState() {
     const savedUser = localStorage.getItem(USER_LOCAL_KEY);
     if (savedUser) {
         try {
-            // 直接解析本地存储的用户信息
             currentUser = JSON.parse(savedUser);
             
-            // 补全缺失的字段（容错处理）
             currentUser = {
                 account: currentUser.account || '',
                 password: currentUser.password || '',
@@ -1210,37 +1126,27 @@ function initLoginState() {
                 lastLoginTime: currentUser.lastLoginTime || new Date().toISOString()
             };
             
-            // 重新保存补全后的用户信息
             localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
             
-            // 填充用户信息到表单
             document.getElementById('accountDisplay').textContent = currentUser.account || '未登录';
             document.getElementById('usernameInput').value = currentUser.nickname || '';
             document.getElementById('emailInput').value = currentUser.email || '';
-            // 填充个人签名（原个人简介）
             document.getElementById('bioTextarea').value = currentUser.bio || '';
-            // 更新字数统计
             document.getElementById('charCount').textContent = `${(currentUser.bio || '').length}/100`;
             
-            // 设置头像 - 优先使用本地存储的头像URL，如果没有则使用默认头像
             const avatarPreview = document.getElementById('avatarPreview');
             if (currentUser.avatar && currentUser.avatar !== DEFAULT_AVATAR) {
-                // 添加时间戳防止缓存
                 avatarPreview.src = currentUser.avatar + '?t=' + new Date().getTime();
             } else {
                 avatarPreview.src = DEFAULT_AVATAR;
             }
             
-            // 设置登录时间
             document.getElementById('lastLoginTime').textContent = formatDateTime(new Date(currentUser.lastLoginTime));
-            
-            // 设置创建时间
             document.getElementById('accountCreateTime').textContent = formatDateTime(new Date(currentUser.createTime));
             
         } catch (e) {
             console.error('解析用户信息失败：', e);
             currentUser = null;
-            // 未登录，跳转到登录页面
             setTimeout(() => {
                 showTipModal('请先登录', () => {
                     window.location.href = 'login.html';
@@ -1248,7 +1154,6 @@ function initLoginState() {
             }, 500);
         }
     } else {
-        // 未登录，跳转到登录页面
         setTimeout(() => {
             showTipModal('请先登录', () => {
                 window.location.href = 'login.html';
@@ -1256,11 +1161,9 @@ function initLoginState() {
         }, 500);
     }
     
-    // 绑定登出按钮事件
     document.getElementById('logoutAllBtn')?.addEventListener('click', logoutAllDevices);
 }
 
-// 格式化日期时间
 function formatDateTime(date) {
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -1271,10 +1174,8 @@ function formatDateTime(date) {
     return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
 }
 
-// 退出所有设备登录
 function logoutAllDevices() {
     if (confirm('确定要退出所有设备的登录吗？这将在所有设备上退出您的账户。')) {
-        // 清除本地存储
         localStorage.removeItem(USER_LOCAL_KEY);
         showToast('已退出所有设备登录');
         
@@ -1284,7 +1185,6 @@ function logoutAllDevices() {
     }
 }
 
-// 显示右上角提示
 function showToast(message) {
     const toast = document.getElementById('toastNotification');
     toast.querySelector('.text').textContent = message;
@@ -1295,7 +1195,6 @@ function showToast(message) {
     }, 2000);
 }
 
-// 显示提示弹窗
 function showTipModal(message, callback = null) {
     const tipMask = document.getElementById('tipModalMask');
     const tipText = document.getElementById('tipModalText');
@@ -1303,7 +1202,6 @@ function showTipModal(message, callback = null) {
     tipMask.classList.add('show');
     document.body.style.overflow = 'hidden';
     
-    // 绑定关闭事件
     const closeBtn = document.getElementById('tipModalCloseBtn');
     const closeFunc = () => {
         tipMask.classList.remove('show');
@@ -1317,24 +1215,16 @@ function showTipModal(message, callback = null) {
     };
 }
 
-// 初始化主题
 function initTheme() {
-    const savedTheme = localStorage.getItem('theme_mode');
     const htmlDom = document.documentElement;
-    if(savedTheme === 'light'){
-        htmlDom.setAttribute('data-theme-mode','light');
-    } else {
-        htmlDom.setAttribute('data-theme-mode','dark');
-    }
+    htmlDom.setAttribute('data-theme-mode','light');
 }
 
-// ====== 背景相关函数 ======
 let bgUrlList = [];
 let customBgList = [];
 const BG_CUSTOM_KEY = 'custom_bg_list';
 const BG_INDEX_KEY = 'saveBgIndex';
 
-// 初始化背景
 async function initRandomBg() {
     try {
         const res = await fetch('background.txt');
@@ -1345,14 +1235,11 @@ async function initRandomBg() {
         bgUrlList = []; 
     }
     
-    // 读取自定义壁纸
     const saveCustomBg = localStorage.getItem(BG_CUSTOM_KEY);
     customBgList = saveCustomBg ? JSON.parse(saveCustomBg) : [];
     
-    // 合并所有壁纸
     const allBgList = [...bgUrlList, ...customBgList];
     
-    // 读取保存的壁纸索引
     let saveBgIndex = localStorage.getItem(BG_INDEX_KEY);
     let useBgIndex = 0;
     if(saveBgIndex !== null && saveBgIndex !== '' && !isNaN(saveBgIndex)){
@@ -1362,7 +1249,6 @@ async function initRandomBg() {
         }
     }
     
-    // 应用壁纸
     const useBg = allBgList[useBgIndex] || "";
     if(useBg){
         document.body.style.background = `url(${useBg}) no-repeat fixed center center`;
@@ -1375,7 +1261,6 @@ async function initRandomBg() {
     document.body.style.transition = "background 1.5s ease-in-out";
 }
 
-// 切换背景
 function changeRandomBg() {
     const allBgList = [...bgUrlList, ...customBgList];
     if (allBgList.length === 0) return;
@@ -1391,14 +1276,12 @@ function changeRandomBg() {
     showToast('背景已切换');
 }
 
-// ====== 音乐播放器 ======
 function initMusicPlayer() {
     const playBtn = document.getElementById('playBtn');
     const music = document.getElementById('music');
     music.volume = 0.5;
     let isPlay = false;
 
-    // 读取本地音乐播放状态
     const musicState = JSON.parse(localStorage.getItem('musicPlayerState')) || {
         isPlay: false,
         currentTime: 0,
@@ -1443,7 +1326,6 @@ function initMusicPlayer() {
     }
 }
 
-// ====== 头像上传功能 ======
 function initAvatarUpload() {
     const avatarUploadBtn = document.getElementById('avatarUploadBtn');
     const avatarFileInput = document.getElementById('avatarFileInput');
@@ -1460,43 +1342,36 @@ function initAvatarUpload() {
         const file = e.target.files[0];
         if (!file) return;
         
-        // 检查用户是否登录
         if (!currentUser) {
             showTipModal('请先登录！');
             return;
         }
         
-        // 检查文件类型
         if (!file.type.match('image.*')) {
             showTipModal('请选择图片文件！');
             return;
         }
         
-        // 检查文件大小（限制为2MB）
         if (file.size > 2 * 1024 * 1024) {
             showTipModal('图片大小不能超过2MB！');
             return;
         }
         
-        // 显示上传中状态
         avatarUploadBtn.disabled = true;
         avatarUploadBtn.innerHTML = '<i class="iconfont icon-loading rotate"></i> 上传中...';
         uploadProgress.style.display = 'block';
         uploadProgressBar.style.width = '0%';
         
-        // 显示上传状态
         avatarStatus.textContent = '准备上传...';
         avatarStatus.className = 'avatar-status loading';
         avatarStatus.style.display = 'block';
         
         try {
-            // 1. 如果用户已经有自定义头像，先获取旧头像的SHA（用于删除）
             let oldAvatarSha = null;
             const oldAvatarUrl = currentUser.avatar;
             const isDefaultAvatar = !oldAvatarUrl || oldAvatarUrl === DEFAULT_AVATAR || oldAvatarUrl.includes(DEFAULT_AVATAR);
             
             if (!isDefaultAvatar && oldAvatarUrl.includes('githubusercontent.com')) {
-                // 从GitHub URL中提取文件路径
                 const filePath = extractFilePathFromGitHubUrl(oldAvatarUrl);
                 console.log('旧头像URL:', oldAvatarUrl);
                 console.log('提取的文件路径:', filePath);
@@ -1516,51 +1391,41 @@ function initAvatarUpload() {
                 }
             }
             
-            // 2. 上传新头像到GitHub
             uploadProgressBar.style.width = '30%';
             avatarStatus.textContent = '正在上传头像...';
             
-            // 生成文件名：用户ID + 时间戳 + 文件扩展名
             const fileExtension = file.name.split('.').pop().toLowerCase();
             const timestamp = Date.now();
             const userId = currentUser.account || 'user';
             const fileName = `${userId}_${timestamp}.${fileExtension}`;
             const filePath = `${AVATAR_STORAGE_PATH}${fileName}`;
             
-            // 读取文件为base64
             const base64Content = await readFileAsBase64(file);
             
             uploadProgressBar.style.width = '60%';
             avatarStatus.textContent = '正在保存到GitHub...';
             
-            // 上传到GitHub
             const uploadResult = await uploadToGitHub(filePath, base64Content, '上传用户头像', oldAvatarSha);
             
             if (uploadResult && uploadResult.content) {
-                // 获取Raw URL
                 const rawUrl = uploadResult.content.download_url;
                 
-                // 更新本地预览
                 avatarPreview.src = rawUrl + '?t=' + timestamp;
                 
-                // 更新用户信息
                 currentUser.avatar = rawUrl;
                 localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
-                // 同步头像URL到GitHub Issue
                 try {
                     await updateUserOnGitHub();
                     console.log('头像URL已同步到GitHub');
                 } catch (e) {
                     console.warn('头像URL同步到GitHub失败:', e);
                 }
-                // 显示成功状态
                 uploadProgressBar.style.width = '100%';
                 avatarStatus.textContent = '头像上传成功！';
                 avatarStatus.className = 'avatar-status success';
                 if (oldAvatarSha && !isDefaultAvatar) {
                     try {
                         avatarStatus.textContent = '正在清理旧头像...';
-                        // 从旧头像URL中提取文件路径
                         const oldFilePath = extractFilePathFromGitHubUrl(oldAvatarUrl);
                         console.log('准备删除的文件路径:', oldFilePath);
                         console.log('准备删除的SHA:', oldAvatarSha);
@@ -1577,13 +1442,11 @@ function initAvatarUpload() {
                         }
                     } catch (deleteError) {
                         console.error('删除旧头像失败:', deleteError);
-                        // 不阻止后续流程
                     }
                 }
                 
                 showToast('头像上传成功！');
                 
-                // 延迟隐藏进度条
                 setTimeout(() => {
                     uploadProgress.style.display = 'none';
                     avatarStatus.style.display = 'none';
@@ -1594,17 +1457,14 @@ function initAvatarUpload() {
         } catch (error) {
             console.error('头像上传失败：', error);
             
-            // 显示错误状态
             avatarStatus.textContent = '上传失败: ' + (error.message || '未知错误');
             avatarStatus.className = 'avatar-status error';
             
             showTipModal('头像上传失败：' + (error.message || '请稍后重试'));
         } finally {
-            // 恢复按钮状态
             avatarUploadBtn.disabled = false;
             avatarUploadBtn.innerHTML = '<i class="iconfont icon-upload"></i> 上传新头像';
             avatarFileInput.value = '';
-            // 3秒后隐藏进度条（如果还在显示）
             setTimeout(() => {
                 uploadProgress.style.display = 'none';
                 avatarStatus.style.display = 'none';
@@ -1613,12 +1473,10 @@ function initAvatarUpload() {
     });
 }
 
-// 读取文件为base64
 function readFileAsBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
-            // 移除data URL前缀（如"data:image/jpeg;base64,"）
             const base64 = e.target.result.split(',')[1];
             resolve(base64);
         };
@@ -1627,7 +1485,6 @@ function readFileAsBase64(file) {
     });
 }
 
-// 获取GitHub文件信息
 async function getGitHubFileInfo(filePath) {
     if (!filePath) {
         console.error('文件路径为空');
@@ -1664,7 +1521,6 @@ async function getGitHubFileInfo(filePath) {
     }
 }
 
-// 上传文件到GitHub
 async function uploadToGitHub(filePath, base64Content, commitMessage, sha = null) {
     const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}?ref=main`;
     const headers = {
@@ -1702,7 +1558,6 @@ async function uploadToGitHub(filePath, base64Content, commitMessage, sha = null
     }
 }
 
-// 从GitHub删除文件
 async function deleteFromGitHub(filePath, commitMessage) {
     const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}?ref=main`;
     const headers = {
@@ -1741,7 +1596,6 @@ async function deleteFromGitHub(filePath, commitMessage) {
     }
 }
 
-// ====== 保存个人资料功能 ======
 async function saveUserProfile() {
     if (!currentUser) {
         showTipModal('请先登录！');
@@ -1750,41 +1604,34 @@ async function saveUserProfile() {
     
     const username = document.getElementById('usernameInput').value.trim();
     const email = document.getElementById('emailInput').value.trim();
-    const bio = document.getElementById('bioTextarea').value.trim(); // 获取个人简介
+    const bio = document.getElementById('bioTextarea').value.trim();
     
-    // 验证用户名
     if (!username) {
         showTipModal('请输入用户名称！');
         return;
     }
 
-    // 验证简介长度（最多100字）
     if (bio.length > 100) {
         showTipModal('个人简介不能超过100字！');
         return;
     }
     
-    // 验证邮箱（可选）
     if (email && !validateEmail(email)) {
         showTipModal('请输入有效的邮箱地址！');
         return;
     }
     
-    // 禁用保存按钮
     const saveBtn = document.getElementById('saveProfileBtn');
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<i class="iconfont icon-loading rotate"></i> 保存中...';
     
     try {
-        // 更新本地用户信息
         currentUser.nickname = username;
         currentUser.email = email;
-        currentUser.bio = bio; // 保存个人简介
+        currentUser.bio = bio;
         
-        // 保存到本地存储
         localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
         
-        // 尝试保存到 GitHub Issue
         const success = await updateUserOnGitHub();
         
         if (success) {
@@ -1796,7 +1643,6 @@ async function saveUserProfile() {
         console.log('保存失败：', error);
         showTipModal('保存失败，请稍后重试');
     } finally {
-        // 恢复保存按钮
         setTimeout(() => {
             saveBtn.disabled = false;
             saveBtn.innerHTML = '<i class="iconfont icon-save"></i> 保存更改';
@@ -1804,13 +1650,11 @@ async function saveUserProfile() {
     }
 }
 
-// 验证邮箱格式
 function validateEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
 }
 
-// 更新用户信息到 GitHub Issue
 async function updateUserOnGitHub() {
     const requestHeaders = {
         "Authorization": `token ${GITHUB_TOKEN}`,
@@ -1819,7 +1663,6 @@ async function updateUserOnGitHub() {
     };
     
     try {
-        // 1. 获取 Issue 内容
         const issueRes = await fetch(
             `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
             { headers: requestHeaders, method: "GET" }
@@ -1833,26 +1676,22 @@ async function updateUserOnGitHub() {
         const lines = issue.body.split('\n');
         const account = currentUser.account;
         
-        // 2. 查找并更新对应用户行
         let updated = false;
         const updatedLines = lines.map(line => {
             if (line.startsWith(account + '|')) {
                 const parts = line.split('|');
-                // 字段索引对应：0=账号, 1=密码, 2=邮箱, 3=用户名, 4=是否为管理员, 5=头像github地址, 6=个人签名
-                parts[2] = currentUser.email || ''; // 更新邮箱
-                parts[3] = currentUser.nickname || currentUser.account; // 更新用户名称
-                parts[4] = currentUser.isAdmin !== undefined ? (currentUser.isAdmin ? 'true' : 'false') : 'false'; // 更新管理员状态
+                parts[2] = currentUser.email || '';
+                parts[3] = currentUser.nickname || currentUser.account;
+                parts[4] = currentUser.isAdmin !== undefined ? (currentUser.isAdmin ? 'true' : 'false') : 'false';
                 
-                // 处理第5个字段：头像GitHub地址
                 if (parts.length >= 6) {
-                    parts[5] = currentUser.avatar || DEFAULT_AVATAR; // 头像URL
+                    parts[5] = currentUser.avatar || DEFAULT_AVATAR;
                 } else {
                     parts.push(currentUser.avatar || DEFAULT_AVATAR);
                 }
                 
-                // 处理第6个字段：个人签名
                 if (parts.length >= 7) {
-                    parts[6] = currentUser.bio || ''; // 个人签名
+                    parts[6] = currentUser.bio || '';
                 } else {
                     parts.push(currentUser.bio || '');
                 }
@@ -1863,13 +1702,11 @@ async function updateUserOnGitHub() {
             return line;
         });
         
-        // 3. 如果没有找到用户行，添加新行
         if (!updated && account) {
             const newLine = `${account}|${currentUser.password || ''}|${currentUser.email || ''}|${currentUser.nickname || currentUser.account}|${currentUser.isAdmin ? 'true' : 'false'}|${currentUser.avatar || DEFAULT_AVATAR}|${currentUser.bio || ''}`;
             updatedLines.push(newLine);
         }
         
-        // 4. 更新 Issue
         const newBody = updatedLines.join('\n');
         const updateRes = await fetch(
             `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
@@ -1890,23 +1727,18 @@ async function updateUserOnGitHub() {
     }
 }
 
-// ====== 页面加载完成后执行 ======
 document.addEventListener('DOMContentLoaded', function() {
     const loader = document.getElementById('loader');
     loader.classList.remove('loaded');
     
-    // 初始化页面
     initPageWithLoader();
     
-    // 绑定保存按钮事件
     document.getElementById('saveProfileBtn').addEventListener('click', saveUserProfile);
     
-    // 绑定返回顶部按钮
     document.getElementById('sidebarTop').addEventListener('click', () => {
         window.scrollTo({top: 0, behavior: 'smooth'});
     });
     
-    // 绑定提示弹窗关闭按钮
     document.getElementById('tipModalCloseBtn').addEventListener('click', function(e) {
         e.stopPropagation();
         const tipMask = document.getElementById('tipModalMask');
