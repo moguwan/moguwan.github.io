@@ -1691,7 +1691,6 @@ async function sendChatMessage() {
         const data = await response.json();
         lastMessageId = Math.max(lastMessageId, data.id);
 		if (localMsg) localMsg.dataset.commentId = data.id;
-        showCustomAlert('消息发送成功');
     } catch (error) {
         console.error('发送消息失败:', error);
         addMessageToChat('System', '消息发送失败，请重试', timestamp, 'other');
