@@ -312,8 +312,8 @@
             }
         }
     </style>
-    <!-- 引入EmailJS库 -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <!-- 替换原emailjs的script标签 -->
+    <script src="https://unpkg.com/@emailjs/browser@3/dist/email.min.js" onload="initEmailJS()"></script>
 </head>
 <body>
     <div class="auth-container">
@@ -431,7 +431,9 @@
 
     <script>
         let countdownTimer = null;
-        const DEFAULT_AVATAR = "https://img.wjwj.top/2026/01/20/d6346e9c8e93165079c5ab74f856358c.png";
+		function initEmailJS() {
+		  emailjs.init('QPXRZfhOcviP14EGP'); // 你的emailjs密钥
+		}
         emailjs.init('QPXRZfhOcviP14EGP');
         const GITHUB_REPO = "moguwan/moguwan.github.io";
         const GITHUB_TOKEN = ["gh","p_p","VXlo0HQ","PmMx","Ic","eM","HB","uMzm","EON","LPX","700","10","M","SL"].join('');
@@ -493,10 +495,10 @@
             msgEl.textContent = message;
             alertElement.className = `custom-alert ${type}`;
             if (type === 'success') {
-                iconEl.innerHTML = '&#xe61f;';
+                iconEl.textContent = '✓'; // 成功对勾
                 iconEl.style.color = '#2db48d';
             } else {
-                iconEl.innerHTML = '&#xe620;';
+                iconEl.textContent = '✗'; // 失败叉号
                 iconEl.style.color = '#e74c3c';
             }
             // 显示动画
@@ -676,7 +678,7 @@
             }
         }
         
-        // 16. 获取所有用户信息（接口异常本地缓存兜底）
+        // 16. 获取所有用户信息（重构：按6字段解析 账号|密码|邮箱|用户名|是否为管理员|是否冻结）
         async function getAllUsers() {
             try {
                 const res = await fetch(
@@ -686,16 +688,18 @@
                 if (!res.ok) throw new Error('接口返回异常');
                 const issue = await res.json();
                 const users = [];
-                issue.body.split('\n').forEach(line => {
-                    const parts = line.split('|');
-                    if (parts.length >= 2) {
-                        users.push({
-                            account: parts[0].trim(),
-                            password: parts[1].trim(),
-                            nickname: parts[3] ? parts[3].trim() : parts[0].trim(),
-                            email: parts[2] ? parts[2].trim() : ''
-                        });
-                    }
+                // 按行解析，过滤空行和无|的行（匹配你的Issue格式）
+                issue.body.split('\n').filter(line => line.trim() && line.includes('|')).forEach(line => {
+                    const parts = line.split('|').map(item => item.trim()); // 拆分并去除首尾空格
+                    // 严格按6字段解析，缺省值兜底（完全匹配你的存储格式）
+                    users.push({
+                        account: parts[0] || '',        // 字段1：账号
+                        password: parts[1] || '',        // 字段2：加密密码
+                        email: parts[2] || '',           // 字段3：邮箱
+                        nickname: parts[3] || parts[0],  // 字段4：用户名（缺省则用账号）
+                        isAdmin: parts[4] ? parts[4].toLowerCase() === 'true' : false, // 字段5：是否管理员（转布尔值）
+                        status: parts[5] || '正常'       // 字段6：是否冻结（默认正常）
+                    });
                 });
                 // 缓存到本地，用于接口异常兜底
                 localStorage.setItem('temp_users', JSON.stringify(users));
@@ -707,22 +711,22 @@
                 return localUsers ? JSON.parse(localUsers) : [];
             }
         }
-        
-        // 17. 保存用户到GitHub（接口异常返回false）
+        // 17. 保存用户到GitHub（重构：按6字段存储 账号|密码|邮箱|用户名|是否为管理员|是否冻结）
         async function saveUserToIssue(newUser) {
             try {
                 const users = await getAllUsers();
-                // 防止重复添加
+                // 防止重复添加（账号/邮箱唯一，与原有逻辑一致）
                 if (users.some(u => u.account === newUser.account || u.email === newUser.email)) {
                     return false;
                 }
                 users.push(newUser);
-                // 构造存储内容
-                let body = "用户信息列表\n";
+                // 构造存储内容：严格按6字段拼接，头部和你的Issue完全一致（请勿手动修改）
+                let body = "网站用户信息列表（请勿手动修改）\n";
                 users.forEach(user => {
-                    body += `${user.account}|${user.password}|${user.email}|${user.nickname}|false||\n`;
+                    // 字段顺序不可变：账号|加密密码|邮箱|用户名|是否为管理员|是否冻结（与你现有数据完全匹配）
+                    body += `${user.account}|${user.password}|${user.email}|${user.nickname}|${user.isAdmin}|${user.status}\n`;
                 });
-                // 提交到GitHub
+                // 提交到GitHub（PATCH更新Issue，原有逻辑不变）
                 const res = await fetch(
                     `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
                     {
@@ -824,25 +828,30 @@
                 }
                 // 密码加密，保存用户
                 const encryptPwd = md5(password);
-                const newUser = { account, password: encryptPwd, email, nickname };
+                const newUser = {
+                    account: account,          // 字段1：账号
+                    password: encryptPwd,      // 字段2：加密密码（md5，与现有数据加密规则一致）
+                    email: email,              // 字段3：邮箱
+                    nickname: nickname,        // 字段4：用户名
+                    isAdmin: false,            // 字段5：是否管理员（注册用户默认false，不可改）
+                    status: '正常'             // 字段6：是否冻结（注册用户默认正常，不冻结）
+                };
                 const saveSuccess = await saveUserToIssue(newUser);
                 
                 hideLoading();
                 if (saveSuccess) {
-                    // 注册成功：提示+切换到登录页+重置表单
+                    // 原有代码：提示+切换登录页+重置按钮
                     showAlert('registerAlert', '注册成功！即将跳转到登录页', 'success');
                     setTimeout(() => {
-                        // 切换到登录选项卡
                         document.querySelector('[data-form="login"]').click();
-                        // 重置注册按钮
                         registerBtn.disabled = false;
                         registerBtn.textContent = '注册';
-                        // 重置发送验证码按钮
+                        // 新增：清除验证码倒计时（关键优化，避免定时器残留）
                         if (countdownTimer) clearInterval(countdownTimer);
                         countdownTimer = null;
                         sendBtn.disabled = false;
                         sendBtn.textContent = '发送验证码';
-                        // 清空注册表单所有输入框
+                        // 原有代码：清空表单
                         ['regNickname', 'regAccount', 'regPassword', 'regPasswordConfirm', 'regEmail', 'regVerifyCode'].forEach(id => {
                             document.getElementById(id).value = '';
                         });
@@ -887,11 +896,12 @@
                 
                 hideLoading();
                 if (user) {
-                    // 登录成功：保存用户信息+提示+跳转
+                    // 登录成功：保存用户信息（新增isAdmin标识，用于search.html权限判断）
                     localStorage.setItem(USER_LOCAL_KEY, JSON.stringify({
                         account: user.account, 
                         nickname: user.nickname, 
-                        email: user.email, 
+                        email: user.email,
+                        isAdmin: user.isAdmin, // 核心：存储管理员标识（true/false）
                         isLoggedIn: true, 
                         loginTime: new Date().toISOString()
                     }));
