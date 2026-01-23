@@ -956,9 +956,10 @@ let lastMessageId = 0;
 let chatUpdateInterval = null;
 let isLoading = false;
 let currentUser = null;
-
+let isHistoryFetched = false; 
 const MAX_HISTORY = 10;
 const MAX_RANK = 10;
+const MAX_MESSAGE_LENGTH = 200; // 消息最大长度限制
 
 // 检查用户登录状态
 function checkLoginStatus() {
@@ -1220,52 +1221,153 @@ function handleSearch() {
     }
 }
 
-// 修改后的聊天功能
-async function fetchChatMessages() {
+// 格式化消息时间为 HH:MM 格式
+function formatMessageTime(date) {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+// 新增：递归获取GitHub Issue的所有分页评论（解决多页消息没拉取的问题）
+async function getAllComments() {
+  let allComments = [];
+  let page = 1;
+  const perPage = 100; // GitHub允许的单页最大评论数
+  while (true) {
     try {
-        const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${ISSUE_NUMBER}/comments`, {
-            headers: {
-                'Authorization': `token ${GITHUB_TOKEN}`,
-                'Accept': 'application/vnd.github.v3+json'
-            }
-        });
-        
-        if (!response.ok) throw new Error('Failed to fetch messages');
-        
-        const messages = await response.json();
-        const newMessages = messages.filter(msg => msg.id > lastMessageId);
-        
-        if (newMessages.length > 0) {
-            lastMessageId = Math.max(lastMessageId, ...messages.map(msg => msg.id));
-            newMessages.forEach(msg => {
-                // 解析消息格式：用户名: 消息内容
-                const messageBody = msg.body;
-                const colonIndex = messageBody.indexOf(':');
-                
-                let sender, text;
-                if (colonIndex !== -1) {
-                    sender = messageBody.substring(0, colonIndex).trim();
-                    text = messageBody.substring(colonIndex + 1).trim();
-                } else {
-                    sender = 'Unknown';
-                    text = messageBody;
-                }
-                
-                // 检查是否是当前用户发送的消息
-                const isCurrentUser = currentUser && 
-                    (sender === currentUser.account || sender === currentUser.nickname);
-                
-                addMessageToChat(sender, text, 
-                    new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                    isCurrentUser ? 'user' : 'other');
-            });
-            moguChatMessages.scrollTop = moguChatMessages.scrollHeight;
+      const response = await fetch(
+        `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${ISSUE_NUMBER}/comments?per_page=${perPage}&page=${page}`,
+        {
+          headers: {
+            'Authorization': `token ${GITHUB_TOKEN}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
         }
+      );
+
+      if (!response.ok) {
+        console.error(`获取第${page}页评论失败，状态码：${response.status}`);
+        break;
+      }
+
+      const comments = await response.json();
+      if (comments.length === 0) break; // 无更多评论，终止循环
+      
+      allComments = allComments.concat(comments);
+      page++;
     } catch (error) {
-        console.error('Error fetching messages:', error);
+      console.error(`获取第${page}页评论出错：`, error);
+      break;
     }
+  }
+  console.log(`共拉取到${allComments.length}条评论（所有分页）`);
+  return allComments;
+}
+// 替换后完整的fetchChatMessages函数（含两处核心修改）
+async function fetchChatMessages() {
+  try {
+    // 步骤1：首次拉取 → 获取所有分页的评论（解决多页消息缺失）
+    if (!isHistoryFetched) {
+      const allMessages = await getAllComments(); // 调用分页拉取函数
+      
+      if (allMessages.length === 0) {
+        console.log('当前无任何评论');
+        return;
+      }
+
+      // 按评论创建时间正序排序（id越小，创建时间越早）
+      const historyMessages = [...allMessages].sort((a, b) => a.id - b.id);
+      console.log(`首次拉取到${historyMessages.length}条历史消息，开始渲染`);
+      
+      // 遍历渲染所有历史消息（优化解析：支持“用户名:内容”/“用户名: 内容”两种格式）
+      historyMessages.forEach(msg => {
+        // 解析逻辑：用“:”分割，兼容有无空格的情况
+        const parts = msg.body.split(':');
+        let sender, text;
+        if (parts.length >= 2) {
+          sender = parts[0].trim(); // 提取用户名（自动去除前后空格）
+          text = parts.slice(1).join(':').trim(); // 内容可能含冒号，合并后去空格
+        } else {
+          sender = 'Unknown'; // 无用户名的情况
+          text = msg.body.trim();
+        }
+
+        // 格式化消息时间
+        const time = formatMessageTime(new Date(msg.created_at));
+        
+        // 【修改点1：历史消息 - 增加身份判断，动态设置显示类型】
+        let messageType = 'other'; // 默认左侧
+        // 已登录且消息发送者是当前用户 → 右侧（user）
+        if (currentUser) {
+          const currentUserName = currentUser.nickname || currentUser.account;
+          if (sender === currentUserName) {
+            messageType = 'user';
+          }
+        }
+        // 渲染到聊天窗口（传动态的messageType，替代固定的other）
+        addMessageToChat(sender, text, time, messageType);
+      });
+
+      // 标记历史消息已拉取，避免重复渲染
+      isHistoryFetched = true;
+      // 初始化新消息基准ID（后续只拉取比这个ID大的新消息）
+      lastMessageId = Math.max(...allMessages.map(msg => msg.id));
+      console.log(`历史消息渲染完成，最新消息ID：${lastMessageId}`);
+      // 自动滚动到最新消息
+      moguChatMessages.scrollTop = moguChatMessages.scrollHeight;
+      return;
+    }
+
+    // 步骤2：非首次拉取 → 只拉取最新的新消息（效率优化）
+    const latestComments = await fetch(
+      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${ISSUE_NUMBER}/comments?per_page=100&page=1`,
+      { headers: { 'Authorization': `token ${GITHUB_TOKEN}` } }
+    ).then(res => res.json());
+    
+    // 筛选出ID大于基准值的新消息
+    const newMessages = latestComments.filter(msg => msg.id > lastMessageId);
+    if (newMessages.length > 0) {
+      console.log(`拉取到${newMessages.length}条新消息，开始渲染`);
+      // 新消息按时间正序渲染
+      newMessages.sort((a, b) => a.id - b.id).forEach(msg => {
+        const parts = msg.body.split(':');
+        let sender, text;
+        if (parts.length >= 2) {
+          sender = parts[0].trim();
+          text = parts.slice(1).join(':').trim();
+        } else {
+          sender = 'Unknown';
+          text = msg.body.trim();
+        }
+        const time = formatMessageTime(new Date(msg.created_at));
+        
+        let messageType = 'other'; // 默认左侧
+        // 已登录且消息发送者是当前用户 → 改为右侧（user）
+        if (currentUser) {
+          const currentUserName = currentUser.nickname || currentUser.account;
+          if (sender === currentUserName) {
+            messageType = 'user';
+          }
+        }
+        // 渲染时传动态的messageType，替代原来固定的'other'
+        addMessageToChat(sender, text, time, messageType);
+      });
+      // 更新基准ID
+      lastMessageId = Math.max(lastMessageId, ...newMessages.map(msg => msg.id));
+      moguChatMessages.scrollTop = moguChatMessages.scrollHeight;
+    } else {
+      console.log(`轮询成功，当前无新消息，最新ID：${lastMessageId}`);
+    }
+
+  } catch (error) {
+    if (error.message.includes('Failed to fetch')) {
+      console.error('网络错误：', error);
+      showCustomAlert('网络异常，无法连接GitHub');
+    } else {
+      console.error('拉取消息出错：', error);
+      showCustomAlert('获取消息失败，请重试');
+    }
+  }
 }
 
+// 修复后的发送聊天消息函数（增加200字限制）
 async function sendChatMessage() {
     if (!currentUser) {
         showCustomAlert('请先登录才能发送消息');
@@ -1274,19 +1376,24 @@ async function sendChatMessage() {
     }
     
     const message = moguChatInput.value.trim();
+    // 验证消息长度
+    if (message.length > MAX_MESSAGE_LENGTH) {
+        showCustomAlert(`消息长度不能超过${MAX_MESSAGE_LENGTH}个字！`);
+        return;
+    }
     if (!message || isLoading) return;
     
     isLoading = true;
     sendText.innerHTML = '<div class="loading-spinner"></div>';
     moguChatSend.disabled = true;
     
-    const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    const timestamp = formatMessageTime(new Date());
     const senderName = currentUser.nickname || currentUser.account;
     
     // 发送格式：用户名: 消息内容
     const messageWithSender = `${senderName}: ${message}`;
     
-    // 本地显示
+    // 本地先显示消息
     addMessageToChat(senderName, message, timestamp, 'user');
     moguChatInput.value = '';
     moguChatMessages.scrollTop = moguChatMessages.scrollHeight;
@@ -1306,8 +1413,9 @@ async function sendChatMessage() {
         
         const data = await response.json();
         lastMessageId = Math.max(lastMessageId, data.id);
+        showCustomAlert('消息发送成功');
     } catch (error) {
-        console.error('Error sending message:', error);
+        console.error('发送消息失败:', error);
         addMessageToChat('System', '消息发送失败，请重试', timestamp, 'other');
     } finally {
         isLoading = false;
@@ -1316,43 +1424,42 @@ async function sendChatMessage() {
     }
 }
 
+// 修复后的消息渲染函数（统一显示用户名）
 function addMessageToChat(sender, text, time, type) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message-item ${type}`;
-    
-    // 当前用户的消息不需要显示用户名
-    const showSender = type === 'other' ? `<div class="message-sender">${sender}</div>` : '';
-    
+    // 统一渲染用户名、内容、时间（所有消息都显示发送者）
     messageDiv.innerHTML = `
-        ${showSender}
+        <div class="message-sender">${sender}</div>
         <div class="message-text">${text}</div>
         <div class="message-time">${time}</div>
     `;
-    
     moguChatMessages.appendChild(messageDiv);
 }
 
+// 【完全替换】修复后：聊天窗口切换函数（优化轮询机制，后台持续拉取）
 function toggleChatWindow() {
     chatOpen = !chatOpen;
-    
+
     if (chatOpen) {
+        // 打开窗口：显示窗口+恢复轮询（若未启动）
         moguChatWindow.classList.add('open');
         moguChatBtn.style.transform = 'scale(1.1) rotate(-5deg)';
-        
-        if (chatUpdateInterval) {
-            clearInterval(chatUpdateInterval);
-            chatUpdateInterval = null;
+        // 恢复轮询（避免重复创建）
+        if (!chatUpdateInterval) {
+            chatUpdateInterval = setInterval(fetchChatMessages, 5 * 1000);
+            console.log('聊天窗口打开，恢复消息轮询（5秒/次）');
         }
-        
+        // 打开窗口时立即拉取1次，确保最新
         fetchChatMessages();
-        chatUpdateInterval = setInterval(fetchChatMessages, 5 * 1000);
     } else {
+        // 关闭窗口：隐藏窗口+暂停轮询（不销毁，仅暂停）
         moguChatWindow.classList.remove('open');
         moguChatBtn.style.transform = '';
-        
         if (chatUpdateInterval) {
             clearInterval(chatUpdateInterval);
             chatUpdateInterval = null;
+            console.log('聊天窗口关闭，暂停消息轮询');
         }
     }
 }
@@ -1396,22 +1503,27 @@ document.addEventListener('click', (e) => {
     }
 });
 
+// 【完全替换】修复后：页面加载完成初始化逻辑（启动全局轮询，核心修改）
 window.addEventListener('DOMContentLoaded', () => {
     // 检查登录状态
     checkLoginStatus();
     
     if (isMobile()) {
         searchInput.focus();
-        return;
+    } else {
+        saveShowState(getShowState());
+        saveHistorySwitchState(getHistorySwitchState());
+        renderHistory();
+        renderRank();
+        searchInput.focus();
     }
     
-    saveShowState(getShowState());
-    saveHistorySwitchState(getHistorySwitchState());
-    renderHistory();
-    renderRank();
-    searchInput.focus();
-    
-    // 初始加载消息
+    // 【核心添加】页面加载后直接启动全局消息轮询（5秒/次），关闭窗口仅暂停
+    if (!chatUpdateInterval) {
+        chatUpdateInterval = setInterval(fetchChatMessages, 5 * 1000);
+        console.log('页面加载完成，启动全局消息轮询（5秒/次）');
+    }
+    // 页面加载时立即拉取1次，初始化消息
     fetchChatMessages();
 });
 </script>
