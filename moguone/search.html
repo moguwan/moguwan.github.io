@@ -726,7 +726,7 @@ right: 20px;
 </svg>
 Mogu Chat
 </div>
-<div class="mogu-chat-subtitle">Anonymous forum • All messages stored on GitHub</div>
+<div class="mogu-chat-subtitle">This is the current test version</div>
 </div>
 <div class="mogu-chat-messages" id="moguChatMessages">
 <div class="message-item other">
@@ -1004,7 +1004,9 @@ const newMessages = messages.filter(msg => msg.id > lastMessageId);
 if (newMessages.length > 0) {
 lastMessageId = Math.max(lastMessageId, ...messages.map(msg => msg.id));
 newMessages.forEach(msg => {
-addMessageToChat(msg.user.login, msg.body, new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), 'other');
+// 解析msg.body，提取纯消息内容（分割掉可能的user_xxx: 前缀）
+const pureText = msg.body.split(': ').length > 1 ? msg.body.split(': ').slice(1).join(': ') : msg.body;
+addMessageToChat('', pureText, new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), 'other');
 });
 moguChatMessages.scrollTop = moguChatMessages.scrollHeight;
 }
@@ -1018,9 +1020,8 @@ if (!message || isLoading) return;
 isLoading = true;
 sendText.innerHTML = '<div class="loading-spinner"></div>';
 moguChatSend.disabled = true;
-const user = `User_${Math.floor(Math.random() * 10000)}`;
 const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-addMessageToChat(user, message, timestamp, 'user');
+addMessageToChat('', message, timestamp, 'user');
 moguChatInput.value = '';
 moguChatMessages.scrollTop = moguChatMessages.scrollHeight;
 try {
@@ -1031,7 +1032,7 @@ headers: {
 'Accept': 'application/vnd.github.v3+json',
 'Content-Type': 'application/json'
 },
-body: JSON.stringify({body: `${user}: ${message}`})
+body: JSON.stringify({body: message})
 });
 if (!response.ok) throw new Error('Failed to send message');
 const data = await response.json();
@@ -1046,14 +1047,13 @@ moguChatSend.disabled = false;
 }
 }
 function addMessageToChat(sender, text, time, type) {
-const messageDiv = document.createElement('div');
-messageDiv.className = `message-item ${type}`;
-messageDiv.innerHTML = `
-<div class="message-sender">${sender}</div>
-<div class="message-text">${text}</div>
-<div class="message-time">${time}</div>
-`;
-moguChatMessages.appendChild(messageDiv);
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `message-item ${type}`;
+  messageDiv.innerHTML = `
+  <div class="message-text">${text}</div>
+  <div class="message-time">${time}</div>
+  `;
+  moguChatMessages.appendChild(messageDiv);
 }
 function toggleChatWindow() {
   chatOpen = !chatOpen;
