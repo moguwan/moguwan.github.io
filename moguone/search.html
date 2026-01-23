@@ -1056,20 +1056,30 @@ messageDiv.innerHTML = `
 moguChatMessages.appendChild(messageDiv);
 }
 function toggleChatWindow() {
-chatOpen = !chatOpen;
-if (chatOpen) {
-moguChatWindow.classList.add('open');
-moguChatBtn.style.transform = 'scale(1.1) rotate(-5deg)';
-fetchChatMessages();
-chatUpdateInterval = setInterval(fetchChatMessages, 10 * 1000);
-} else {
-moguChatWindow.classList.remove('open');
-moguChatBtn.style.transform = '';
-if (chatUpdateInterval) {
-clearInterval(chatUpdateInterval);
-chatUpdateInterval = null;
-}
-}
+  chatOpen = !chatOpen;
+  if (chatOpen) {
+    // 1. 窗口打开：添加样式、修改按钮效果
+    moguChatWindow.classList.add('open');
+    moguChatBtn.style.transform = 'scale(1.1) rotate(-5deg)';
+    // 关键新增：先清除残留定时器（防止快速点开关导致多个定时器同时运行）
+    if (chatUpdateInterval) {
+      clearInterval(chatUpdateInterval);
+      chatUpdateInterval = null;
+    }
+    // 2. 立即拉取一次最新消息（打开窗口即见最新内容，无需等5秒）
+    fetchChatMessages();
+    // 3. 启动5秒轮询，赋值给定时器变量用于后续关闭
+    chatUpdateInterval = setInterval(fetchChatMessages, 5 * 1000);
+  } else {
+    // 窗口关闭：移除样式、恢复按钮效果
+    moguChatWindow.classList.remove('open');
+    moguChatBtn.style.transform = '';
+    // 停止轮询并置空变量，确保无残留
+    if (chatUpdateInterval) {
+      clearInterval(chatUpdateInterval);
+      chatUpdateInterval = null;
+    }
+  }
 }
 searchBtn.addEventListener('click', handleSearch);
 searchInput.addEventListener('keydown', (e) => {
