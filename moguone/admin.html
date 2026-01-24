@@ -233,7 +233,7 @@
         
         /* ========== 左侧功能区 ========== */
         .admin-sidebar {
-            width: 220px;
+            width: 180px;
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
@@ -245,7 +245,7 @@
         .admin-header {
             background: var(--glass-bg);
             border-radius: 12px;
-            padding: 8px;
+            padding: 20px;
             border: 1px solid var(--glass-border);
             box-shadow: var(--glass-shadow);
             text-align: center;
@@ -255,6 +255,7 @@
             font-size: 20px;
             font-weight: var(--font-weight-bold);
             color: var(--color-text-title);
+            margin-bottom: 8px;
         }
         
         .admin-subtitle {
@@ -321,7 +322,7 @@
         .stat-card {
             background: var(--glass-bg);
             border-radius: 10px;
-            padding: 0px 12px;
+            padding: 0p'x 12px;
             border: 1px solid var(--glass-border);
             text-align: center;
             transition: all 0.3s ease;
@@ -363,7 +364,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            padding: 16px;
+            padding: 20px;
             background: var(--glass-bg);
             border-radius: 12px;
             border: 1px solid var(--glass-border);
@@ -908,49 +909,13 @@
         }
         
         .media-links-textarea {
-            font-size: 13px;
-            min-height: 80px;
+            font-size: 14px; /* 放大字体，更易输入 */
+            min-height: 120px; /* 高度从80px→120px，输入更多内容 */
             font-family: monospace;
-        }
-        
-        /* 文件上传区域 */
-        .upload-area {
-            border: 2px dashed var(--border-color);
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: rgba(45, 180, 141, 0.02);
-        }
-        
-        .upload-area:hover {
-            border-color: var(--color-green);
-            background: rgba(45, 180, 141, 0.05);
-        }
-        
-        .upload-area.dragover {
-            border-color: var(--color-green);
-            background: rgba(45, 180, 141, 0.1);
-            transform: scale(1.02);
-        }
-        
-        .upload-icon {
-            font-size: 36px;
-            color: var(--color-green);
-            margin-bottom: 10px;
-        }
-        
-        .upload-text {
-            font-size: 14px;
-            color: var(--color-text-main);
-            margin-bottom: 8px;
-        }
-        
-        .upload-hint {
-            font-size: 12px;
-            color: var(--color-text-sub);
+            width: 100% !important; /* 确保满宽，适配模态框 */
+            padding: 12px 16px !important; /* 增加内边距，输入区更宽敞 */
+            resize: vertical; /* 允许手动向下拉伸，灵活调整大小 */
+            line-height: 1.6; /* 增大行高，避免链接重叠 */
         }
         
         /* 响应式适配：小屏幕恢复单列布局 */
@@ -1363,12 +1328,10 @@
             <!-- 导航菜单 -->
             <div class="admin-nav-menu">
                 <div class="nav-menu-item active" id="userManagementNav">
-                    <i class="iconfont icon-user icon"></i>
                     <span class="text">用户管理</span>
                 </div>
                 
                 <div class="nav-menu-item" id="diaryManagementNav">
-                    <i class="iconfont icon-file-text icon"></i>
                     <span class="text">日记管理</span>
                 </div>
             </div>
@@ -1509,50 +1472,33 @@
                             </div>
                         </div>
                     </div>
-                
-                    <!-- 右栏：媒体内容编辑 -->
-                    <div class="diary-edit-right">
-                        <!-- 图片预览和删除 -->
-                        <div class="media-preview-section" id="imagePreviewSection">
-                            <div class="media-preview-title">
-                                <span>图片预览</span>
-                                <span id="imageCount">(0张)</span>
-                            </div>
-                            <div class="media-grid" id="imagePreviewGrid">
-                                <!-- 图片预览将通过JavaScript动态生成 -->
-                            </div>
-                        </div>
-                        
-                        <!-- 视频预览和删除 -->
-                        <div class="media-preview-section" id="videoPreviewSection">
-                            <div class="media-preview-title">
-                                <span>视频预览</span>
-                                <span id="videoCount">(0个)</span>
-                            </div>
-                            <div class="media-grid" id="videoPreviewGrid">
-                                <!-- 视频预览将通过JavaScript动态生成 -->
-                            </div>
-                        </div>
-                        
-                        <!-- 文件上传区域 -->
-                        <div class="upload-area" id="fileUploadArea">
-                            <input type="file" id="fileInput" accept="image/*,video/*" multiple style="display: none;">
-                            <div class="upload-icon">
-                                <i class="iconfont icon-upload"></i>
-                            </div>
-                            <div class="upload-text">点击或拖拽文件到此处上传</div>
-                            <div class="upload-hint">支持图片(jpg/png/gif/webp)和视频(mp4/webm/mov)格式</div>
-                            
-                            <div class="upload-progress" id="uploadProgress" style="display: none;">
-                                <div class="progress-bar">
-                                    <div class="progress-fill" id="progressFill"></div>
-                                </div>
-                                <div class="progress-text" id="progressText">0%</div>
-                            </div>
-                            
-                            <div class="upload-files-list" id="uploadFilesList"></div>
-                        </div>
-                    </div>
+					<div class="diary-edit-right">
+					    <!-- 【移到最顶部】媒体链接输入框+解析按钮 -->
+					    <div class="form-group" style="margin-bottom: 24px;">
+					        <label class="form-label">媒体链接上传（一行一个）</label>
+					        <textarea class="form-textarea media-links-textarea" id="mediaLinksTextarea" placeholder="请输入图片/视频网络链接，一行一个！"></textarea>
+					        <button class="btn-secondary" id="parseMediaLinksBtn" style="margin-top: 8px; padding: 8px 20px; font-size: 14px; width: 100%;">
+					            <i class="iconfont icon-confirm"></i> 解析链接并生成预览
+					        </button>
+					    </div>
+						<!-- 图片预览和删除（移到输入框下方） -->
+						<div class="media-preview-section" id="imagePreviewSection">
+						    <div class="media-preview-title">
+						        <span>图片预览</span>
+						        <span id="imageCount">(0张)</span>
+						    </div>
+						    <div class="media-grid" id="imagePreviewGrid"></div>
+						</div>
+						
+						<!-- 视频预览和删除（移到图片预览下方） -->
+						<div class="media-preview-section" id="videoPreviewSection">
+						    <div class="media-preview-title">
+						        <span>视频预览</span>
+						        <span id="videoCount">(0个)</span>
+						    </div>
+						    <div class="media-grid" id="videoPreviewGrid"></div>
+						</div>
+					</div>
                 </div>
                 
                 <div class="modal-footer">
@@ -1653,7 +1599,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             initAuth();
             initEventListeners();
-            initUploadFunctionality();
             loadUsers();
             loadDiaries();
             updateStats();
@@ -1718,7 +1663,14 @@
             document.getElementById('closeUserModalBtn').addEventListener('click', () => {
                 closeModal('userEditModal');
             });
-            
+            // 新增：媒体链接解析按钮点击事件
+            document.getElementById('parseMediaLinksBtn').addEventListener('click', parseMediaLinks);
+            // 支持回车解析：聚焦输入框时按Enter触发解析
+            document.getElementById('mediaLinksTextarea').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter' && e.ctrlKey) { // 按住Ctrl+Enter解析，避免误触
+                    parseMediaLinks();
+                }
+            });
             document.getElementById('closeDiaryModalBtn').addEventListener('click', () => {
                 closeModal('diaryEditModal');
             });
@@ -1763,250 +1715,6 @@
                     }
                 });
             });
-        }
-        
-        // 初始化上传功能
-        function initUploadFunctionality() {
-            const uploadArea = document.getElementById('fileUploadArea');
-            const fileInput = document.getElementById('fileInput');
-            const progressFill = document.getElementById('progressFill');
-            const progressText = document.getElementById('progressText');
-            const uploadProgress = document.getElementById('uploadProgress');
-            const uploadFilesList = document.getElementById('uploadFilesList');
-
-            // 点击上传区域触发文件选择
-            uploadArea.addEventListener('click', () => {
-                fileInput.click();
-            });
-
-            // 处理文件选择
-            fileInput.addEventListener('change', (e) => {
-                const files = e.target.files;
-                if (files.length > 0) {
-                    Array.from(files).forEach(file => {
-                        uploadToGitHub(file);
-                    });
-                    // 清空文件输入，允许重复选择同一文件
-                    fileInput.value = '';
-                }
-            });
-
-            // 拖拽事件处理
-            uploadArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                uploadArea.classList.add('dragover');
-            });
-
-            uploadArea.addEventListener('dragleave', () => {
-                uploadArea.classList.remove('dragover');
-            });
-
-            uploadArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                uploadArea.classList.remove('dragover');
-                const files = e.dataTransfer.files;
-                if (files.length > 0) {
-                    Array.from(files).forEach(file => {
-                        uploadToGitHub(file);
-                    });
-                }
-            });
-
-            // 单个文件上传到GitHub
-            async function uploadToGitHub(file) {
-                const githubToken = GITHUB_TOKEN; // 直接使用代码中拆分的 Token
-                if (!githubToken) {
-                    showToast('GitHub Token 未配置');
-                    return;
-                }
-            
-                // 验证文件类型
-                const fileType = file.type.split('/')[0];
-                if (!['image', 'video'].includes(fileType)) {
-                    showToast(`不支持的文件类型：${file.name}`);
-                    return;
-                }
-            
-                // 验证文件大小（GitHub限制100MB，但建议控制在50MB内）
-                const maxSize = 70 * 1024 * 1024; // 50MB
-                if (file.size > maxSize) {
-                    showToast(`${file.name} 超过70MB限制，请压缩后上传`);
-                    return;
-                }
-            
-                // 创建上传状态项
-                const fileId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-                addFileToUploadList(fileId, file.name, 'uploading');
-            
-                // 显示进度条
-                uploadProgress.style.display = 'block';
-                progressFill.style.width = '0%';
-                progressText.textContent = '0%';
-            
-                try {
-                    // 读取文件为Base64
-                    const reader = new FileReader();
-                    reader.readAsDataURL(file);
-                    
-                    reader.onload = async () => {
-                        try {
-                            const base64Data = reader.result.split(',')[1]; // 移除data:image/xxx;base64,前缀
-                            const fileName = generateFileName(file);
-                            const filePath = `${GITHUB_IMAGE_PATH}/${fileName}`;
-                            
-                            // 更新进度到25%
-                            progressFill.style.width = '25%';
-                            progressText.textContent = '25%';
-            
-                            // 检查文件是否已存在
-                            const checkUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}`;
-                            let sha = null;
-                            
-                            try {
-                                const checkResponse = await fetch(checkUrl, {
-                                    headers: {
-                                        'Authorization': `token ${githubToken}`,
-                                        'Accept': 'application/vnd.github.v3+json',
-                                        'User-Agent': 'Mozilla/5.0'
-                                    }
-                                });
-                                
-                                if (checkResponse.ok) {
-                                    const existingFile = await checkResponse.json();
-                                    sha = existingFile.sha; // 获取文件的sha值，用于更新
-                                }
-                            } catch (error) {
-                                // 文件不存在，正常上传
-                                console.log('文件不存在，将创建新文件');
-                            }
-            
-                            // 更新进度到50%
-                            progressFill.style.width = '50%';
-                            progressText.textContent = '50%';
-            
-                            // 准备上传数据
-                            const uploadData = {
-                                message: `Upload ${fileName}`,
-                                content: base64Data,
-                                branch: GITHUB_IMAGE_BRANCH
-                            };
-                            
-                            // 如果文件已存在，添加sha值以更新文件
-                            if (sha) {
-                                uploadData.sha = sha;
-                            }
-            
-                            // 上传到GitHub
-                            const uploadUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}`;
-                            const uploadResponse = await fetch(uploadUrl, {
-                                method: 'PUT',
-                                headers: {
-                                    'Authorization': `token ${githubToken}`,
-                                    'Accept': 'application/vnd.github.v3+json',
-                                    'Content-Type': 'application/json',
-                                    'User-Agent': 'Mozilla/5.0'
-                                },
-                                body: JSON.stringify(uploadData)
-                            });
-            
-                            if (uploadResponse.ok) {
-                                const result = await uploadResponse.json();
-                                
-                                // 生成GitHub raw链接
-                                const cdnUrl = `https://github.com/${GITHUB_REPO}/blob/${GITHUB_IMAGE_BRANCH}/${filePath}?raw=true`;
-                                
-                                // 更新进度到100%
-                                progressFill.style.width = '100%';
-                                progressText.textContent = '100%';
-                                
-                                addFileToUploadList(fileId, file.name, 'success');
-                                
-                                // 根据文件类型添加到媒体数据
-                                if (fileType === 'image') {
-                                    editingDiaryMedia.images.push(cdnUrl);
-                                    updateImagePreview(); // 更新图片预览
-                                } else {
-                                    editingDiaryMedia.videos.push(cdnUrl);
-                                    updateVideoPreview(); // 更新视频预览
-                                }
-                                
-                                showToast(`${file.name} 上传成功`);
-                            } else {
-                                const errorText = await uploadResponse.text();
-                                throw new Error(`GitHub上传失败 [${uploadResponse.status}]: ${errorText}`);
-                            }
-                        } catch (error) {
-                            console.error('GitHub上传失败:', error);
-                            addFileToUploadList(fileId, file.name, 'error', error.message);
-                            showToast(`${file.name} 上传失败：${error.message}`);
-                        } finally {
-                            setTimeout(() => uploadProgress.style.display = 'none', 1000);
-                        }
-                    };
-                    
-                    reader.onerror = (error) => {
-                        console.error('文件读取失败:', error);
-                        addFileToUploadList(fileId, file.name, 'error', '文件读取失败');
-                        showToast(`${file.name} 读取失败`);
-                        uploadProgress.style.display = 'none';
-                    };
-                    
-                } catch (error) {
-                    console.error('上传初始化失败:', error);
-                    addFileToUploadList(fileId, file.name, 'error', error.message);
-                    showToast(`${file.name} 上传失败：${error.message}`);
-                    uploadProgress.style.display = 'none';
-                }
-            }
-
-            // 生成唯一的文件名
-            function generateFileName(file) {
-                const timestamp = Date.now();
-                const randomStr = Math.random().toString(36).substring(2, 8);
-                const originalName = file.name.replace(/\.[^/.]+$/, ""); // 移除扩展名
-                const safeName = originalName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-                const extension = file.name.split('.').pop().toLowerCase();
-                
-                return `${safeName}_${timestamp}_${randomStr}.${extension}`;
-            }
-
-            // 添加文件到上传列表
-            function addFileToUploadList(fileId, fileName, status, message = '') {
-                let statusClass = '';
-                let statusText = '';
-
-                switch (status) {
-                    case 'uploading':
-                        statusClass = 'status-uploading';
-                        statusText = '上传中...';
-                        break;
-                    case 'success':
-                        statusClass = 'status-success';
-                        statusText = '上传成功';
-                        break;
-                    case 'error':
-                        statusClass = 'status-error';
-                        statusText = `失败：${message}`;
-                        break;
-                }
-
-                // 检查是否已存在该文件的状态项
-                let fileItem = document.getElementById(`file-item-${fileId}`);
-                if (!fileItem) {
-                    fileItem = document.createElement('div');
-                    fileItem.id = `file-item-${fileId}`;
-                    fileItem.className = 'upload-file-item';
-                    uploadFilesList.appendChild(fileItem);
-                }
-
-                fileItem.innerHTML = `
-                    <div class="file-name" title="${fileName}">${fileName}</div>
-                    <div class="file-status ${statusClass}">${statusText}</div>
-                `;
-
-                // 自动滚动到底部
-                uploadFilesList.scrollTop = uploadFilesList.scrollHeight;
-            }
         }
         
         // 更新图片预览（修改后：从editingDiaryMedia读取）
@@ -2089,7 +1797,53 @@
                 });
             });
         }
+        // 新增：解析媒体链接，自动识别图片/视频并添加到预览
+        function parseMediaLinks() {
+            const textarea = document.getElementById('mediaLinksTextarea');
+            const linkContent = textarea.value.trim();
+            if (!linkContent) {
+                showToast('请输入媒体链接后再解析！');
+                return;
+            }
         
+            // 按行分割链接，过滤空行
+            const links = linkContent.split('\n').map(link => link.trim()).filter(link => link);
+            if (links.length === 0) {
+                showToast('未检测到有效链接！');
+                return;
+            }
+        
+            // 定义图片/视频后缀正则（匹配http/https开头的网络链接）
+            const imgReg = /^https?:\/\/.+\.(jpg|png|gif|webp)$/i;
+            const videoReg = /^https?:\/\/.+\.(mp4|webm|mov)$/i;
+            let addImgCount = 0;
+            let addVideoCount = 0;
+        
+            // 遍历解析每个链接
+            links.forEach(link => {
+                if (imgReg.test(link)) {
+                    // 图片链接：避免重复添加
+                    if (!editingDiaryMedia.images.includes(link)) {
+                        editingDiaryMedia.images.push(link);
+                        addImgCount++;
+                    }
+                } else if (videoReg.test(link)) {
+                    // 视频链接：避免重复添加
+                    if (!editingDiaryMedia.videos.includes(link)) {
+                        editingDiaryMedia.videos.push(link);
+                        addVideoCount++;
+                    }
+                }
+            });
+        
+            // 清空输入框，更新预览
+            textarea.value = '';
+            updateImagePreview();
+            updateVideoPreview();
+        
+            // 提示解析结果
+            showToast(`解析完成！新增${addImgCount}张图片，${addVideoCount}个视频（重复链接已忽略）`);
+        }
         // 切换视图
         function switchView(view) {
             currentView = view;
@@ -2652,7 +2406,7 @@
                     images: [...diary.imgSrcList],
                     videos: [...diary.videoSrcList]
                 };
-                
+                document.getElementById('mediaLinksTextarea').value = '';
                 // 初始化媒体预览
                 updateImagePreview();
                 updateVideoPreview();
