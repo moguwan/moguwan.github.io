@@ -1595,12 +1595,12 @@
         }; // 当前编辑日记的媒体文件
 
         document.addEventListener('DOMContentLoaded', function() {
-            initAuth();
-            initEventListeners();
-            switchView('diaries');
-			loadDiaries();
-            loadUsers();
-            updateStats();
+            initAuth(); // 1. 先验证管理员权限
+            initEventListeners(); // 2. 再绑定所有事件
+            loadUsers(); // 3. 先加载用户数据（仅加载，不跨视图渲染）
+            loadDiaries(); // 4. 再加载日记数据（仅加载，不跨视图渲染）
+            updateStats(); // 5. 更新统计数据
+            switchView('diaries'); // 6. 最后切换到日记视图（渲染最终内容，无后续覆盖）
         });
 
         // 验证管理员权限
@@ -1906,57 +1906,59 @@
                 renderDiaryTable();
             }
         }
-		// 加载用户数据
-		async function loadUsers() {
-		    try {
-		        const requestHeaders = {
-		            "Authorization": `token ${GITHUB_TOKEN}`,
-		            "Accept": "application/vnd.github.v3+json",
-		            "User-Agent": "Mozilla/5.0"
-		        };
-		
-		        const res = await fetch(
-		            `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
-		            { headers: requestHeaders, method: "GET" }
-		        );
-		
-		        if (!res.ok) {
-		            throw new Error('获取用户数据失败');
-		        }
-		
-		        const issue = await res.json();
-		        const userLines = issue.body.split('\n').filter(line => line.includes('|'));
-		        
-		        currentUsers = userLines.map((line, index) => {
-		            const parts = line.split('|');
-		            const account = parts[0]?.trim() || '';
-		            const pwd = parts[1]?.trim() || '';
-		            const email = parts[2]?.trim() || '';
-		            const nickname = parts[3]?.trim() || account;
-		            const isAdmin = parts[4]?.trim() === 'true' || parts[4]?.trim() === '管理员';
-		            const isFrozen = parts[5]?.trim() === '冻结';
-		            
-		            return {
-		                id: index + 1,
-		                account: account,
-		                password: pwd,
-		                email: email,
-		                nickname: nickname,
-		                isAdmin: isAdmin,
-		                isFrozen: isFrozen,
-		                registerTime: Date.now() - (currentUsers.length - index) * 24 * 60 * 60 * 1000
-		            };
-		        });
-		        renderUserTable();
-		        updateStats();
-		    } catch (err) {
-		        console.error('加载用户失败：', err);
-		        showToast('加载用户数据失败');
-		        currentUsers = getMockUsers();
-		        renderUserTable();
-		        updateStats();
-		    }
-		}
+
+        // 加载用户数据
+        async function loadUsers() {
+            try {
+                const requestHeaders = {
+                    "Authorization": `token ${GITHUB_TOKEN}`,
+                    "Accept": "application/vnd.github.v3+json",
+                    "User-Agent": "Mozilla/5.0"
+                };
+
+                const res = await fetch(
+                    `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
+                    { headers: requestHeaders, method: "GET" }
+                );
+
+                if (!res.ok) {
+                    throw new Error('获取用户数据失败');
+                }
+
+                const issue = await res.json();
+                const userLines = issue.body.split('\n').filter(line => line.includes('|'));
+                
+                currentUsers = userLines.map((line, index) => {
+                    const parts = line.split('|');
+                    const account = parts[0]?.trim() || '';
+                    const pwd = parts[1]?.trim() || '';
+                    const email = parts[2]?.trim() || '';
+                    const nickname = parts[3]?.trim() || account;
+                    const isAdmin = parts[4]?.trim() === 'true' || parts[4]?.trim() === '管理员';
+                    const isFrozen = parts[5]?.trim() === '冻结';
+                    
+                    return {
+                        id: index + 1,
+                        account: account,
+                        password: pwd,
+                        email: email,
+                        nickname: nickname,
+                        isAdmin: isAdmin,
+                        isFrozen: isFrozen,
+                        registerTime: Date.now() - (currentUsers.length - index) * 24 * 60 * 60 * 1000
+                    };
+                });
+				if (currentView === 'users') renderUserTable();
+				updateStats();
+            } catch (err) {
+                console.error('加载用户失败：', err);
+                showToast('加载用户数据失败');
+                currentUsers = getMockUsers();
+                if (currentView === 'users') renderUserTable();
+                updateStats();
+            }
+        }
+
         // 加载日记数据
         async function loadDiaries() {
             try {
@@ -2326,9 +2328,6 @@
                 });
             });
         }
-		
-		document.head.appendChild(style);
-        // 打开用户编辑模态框
         function openUserEditModal(user) {
             const modal = document.getElementById('userEditModal');
             const title = document.getElementById('userModalTitle');
