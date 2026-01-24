@@ -9,7 +9,6 @@
     <meta name="author" content="MY HOME">
     <title>MY HOME - 管理员后台</title>
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/dmego-home-page@latest/assets/css/iconfont.css">
-    
     <!-- 液态玻璃SVG滤镜 -->
     <svg style="display: none">
       <filter id="glass-distortion">
@@ -233,7 +232,8 @@
         
         /* ========== 左侧功能区 ========== */
         .admin-sidebar {
-            width: 180px;
+			padding-bottom: 18px;
+            width: 160px;
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
@@ -2132,20 +2132,12 @@
                         </td>
                         <td>
                             <div class="action-buttons">
-                                <button class="action-btn btn-edit edit-user-btn" data-account="${user.account}">
-                                    <i class="iconfont icon-edit"></i> 编辑
-                                </button>
+                                <button class="action-btn btn-edit edit-user-btn" data-account="${user.account}">编辑</button>
                                 ${!user.isFrozen ? 
-                                    `<button class="action-btn btn-freeze freeze-user-btn" data-account="${user.account}">
-                                        <i class="iconfont icon-lock"></i> 冻结
-                                    </button>` :
-                                    `<button class="action-btn btn-edit unfreeze-user-btn" data-account="${user.account}">
-                                        <i class="iconfont icon-unlock"></i> 解冻
-                                    </button>`
+                                    `<button class="action-btn btn-freeze freeze-user-btn" data-account="${user.account}">冻结</button>` :
+                                    `<button class="action-btn btn-edit unfreeze-user-btn" data-account="${user.account}">解冻</button>`
                                 }
-                                <button class="action-btn btn-delete delete-user-btn" data-account="${user.account}">
-                                    <i class="iconfont icon-delete"></i> 删除
-                                </button>
+                                <button class="action-btn btn-delete delete-user-btn" data-account="${user.account}">删除</button>
                             </div>
                         </td>
                     `;
@@ -2153,72 +2145,58 @@
                     tbody.appendChild(row);
                 });
             }
-            
-            // 更新分页
-            renderPagination(totalPages, 'pagination');
             
             // 绑定按钮事件
             bindUserTableEvents();
         }
-
-        // 渲染日记表格
-        function renderDiaryTable() {
-            const tbody = document.getElementById('tableBody');
-            
-            // 分页
-            const totalPages = Math.ceil(currentDiaries.length / itemsPerPage);
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const pageDiaries = currentDiaries.slice(startIndex, endIndex);
-            
-            if (pageDiaries.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="empty-state">
-                            <div class="icon"><i class="iconfont icon-file-text"></i></div>
-                            <div class="text">暂无日记数据</div>
-                        </td>
-                    </tr>
-                `;
-            } else {
-                tbody.innerHTML = '';
-                
-                pageDiaries.forEach((diary) => {
-                    const row = document.createElement('tr');
-                    
-                    // 格式化日期 - 确保没有多余的冒号
-                    const formattedDate = diary.date || '';
-                    
-                    row.innerHTML = `
-                        <td>${diary.id}</td>
-                        <td>${diary.title}</td>
-                        <td title="${diary.content}">${diary.content.substring(0, 50)}${diary.content.length > 50 ? '...' : ''}</td>
-                        <td>${formattedDate}</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="action-btn btn-edit edit-diary-btn" data-id="${diary.id}">
-                                    <i class="iconfont icon-edit"></i> 编辑
-                                </button>
-                                <button class="action-btn btn-delete delete-diary-btn" data-id="${diary.id}">
-                                    <i class="iconfont icon-delete"></i> 删除
-                                </button>
-                                <button class="action-btn btn-freeze preview-diary-btn" data-id="${diary.id}">
-                                    <i class="iconfont icon-eye"></i> 预览
-                                </button>
-                            </div>
-                        </td>
-                    `;
-                    
-                    tbody.appendChild(row);
-                });
-            }
-            
-            // 更新分页
-            renderPagination(totalPages, 'pagination');
-            
-            // 绑定按钮事件
-            bindDiaryTableEvents();
-        }
+		// 渲染日记表格（已取消分页，显示全部日记）
+		function renderDiaryTable() {
+		    const tbody = document.getElementById('tableBody');
+		    // 隐藏分页容器（日记管理不再需要分页）
+		    document.getElementById('pagination').style.display = 'none';
+		
+		    if (currentDiaries.length === 0) {
+		        tbody.innerHTML = `
+		            <tr>
+		                <td colspan="5" class="empty-state">
+		                    <div class="icon"><i class="iconfont icon-file-text"></i></div>
+		                    <div class="text">暂无日记数据</div>
+		                </td>
+		            </tr>
+		        `;
+		    } else {
+		        tbody.innerHTML = '';
+		        // 直接遍历全部日记，无分页截取
+		        currentDiaries.forEach((diary) => {
+		            const row = document.createElement('tr');
+		            // 格式化日期 - 确保没有多余的冒号
+		            const formattedDate = diary.date || '';
+		            
+		            row.innerHTML = `
+		                <td>${diary.id}</td>
+		                <td>${diary.title}</td>
+		                <td title="${diary.content}">${diary.content.substring(0, 50)}${diary.content.length > 50 ? '...' : ''}</td>
+		                <td>${formattedDate}</td>
+		                <td>
+		                    <div class="action-buttons">
+		                        <button class="action-btn btn-edit edit-diary-btn" data-id="${diary.id}">
+		                            <i class="iconfont icon-edit"></i> 编辑
+		                        </button>
+		                        <button class="action-btn btn-delete delete-diary-btn" data-id="${diary.id}">
+		                            <i class="iconfont icon-delete"></i> 删除
+		                        </button>
+		                        <button class="action-btn btn-freeze preview-diary-btn" data-id="${diary.id}">
+		                            <i class="iconfont icon-eye"></i> 预览
+		                        </button>
+		                    </div>
+		                </td>
+		            `;
+		            tbody.appendChild(row);
+		        });
+		    }
+		    // 绑定日记表格事件 + 初始化拖拽排序
+		    bindDiaryTableEvents();
+		}
 
         // 渲染分页
         function renderPagination(totalPages, containerId) {
@@ -2352,7 +2330,8 @@
                 });
             });
         }
-
+		
+		document.head.appendChild(style);
         // 打开用户编辑模态框
         function openUserEditModal(user) {
             const modal = document.getElementById('userEditModal');
