@@ -2362,80 +2362,77 @@
             
             openModal('userEditModal');
         }
-
-        // 打开日记编辑模态框
-        function openDiaryEditModal(diary) {
-            const modal = document.getElementById('diaryEditModal');
-            const title = document.getElementById('diaryModalTitle');
-            const form = document.getElementById('diaryEditForm');
-            
-            if (diary) {
-				// 编辑现有日记
-                title.textContent = '编辑日记';
-                document.getElementById('editDiaryTitle').value = diary.title;
-                document.getElementById('editDiaryContent').value = diary.content;
-                // 初始化媒体数据（替代原textarea赋值）
-                editingDiaryMedia = {
-                    images: [...diary.imgSrcList],
-                    videos: [...diary.videoSrcList]
-                };
-                document.getElementById('mediaLinksTextarea').value = '';
-                // 初始化媒体预览
-                updateImagePreview();
-                updateVideoPreview();
-                
-                // 格式化日期为datetime-local格式
-                let dateValue = '';
-                try {
-                    // 尝试解析日期
-                    const dateObj = new Date(diary.date);
-                    if (!isNaN(dateObj.getTime())) {
-                        dateValue = dateObj.toISOString().slice(0, 16);
-                    } else {
-                        // 如果解析失败，使用当前时间
-                        dateValue = new Date().toISOString().slice(0, 16);
-                    }
-                } catch (e) {
-                    dateValue = new Date().toISOString().slice(0, 16);
-                }
-                document.getElementById('editDiaryDate').value = dateValue;
-                
-                // 设置数据属性
-                form.dataset.mode = 'edit';
-                form.dataset.id = diary.id;
-            } else {
-				// 添加新日记
-                title.textContent = '添加新日记';
-                form.reset();
-                
-                // 重置媒体数据
-                editingDiaryMedia = {
-                    images: [],
-                    videos: []
-                };
-                
-                // 初始化媒体预览
-                updateImagePreview();
-                updateVideoPreview();
-                
-                // 获取本地当前时间并格式化为datetime-local兼容格式
-                const now = new Date();
-                const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const day = String(now.getDate()).padStart(2, '0');
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const localDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
-                
-                document.getElementById('editDiaryDate').value = localDateTime;
-                
-                // 设置数据属性
-                form.dataset.mode = 'add';
-                delete form.dataset.id;
-            }
-            
-            openModal('diaryEditModal');
-        }
+		function openDiaryEditModal(diary) {
+		    const modal = document.getElementById('diaryEditModal');
+		    const title = document.getElementById('diaryModalTitle');
+		    const form = document.getElementById('diaryEditForm');
+		    
+		    if (diary) {
+		        // 编辑现有日记（以下为替换的核心代码）
+		        title.textContent = '编辑日记';
+		        document.getElementById('editDiaryTitle').value = diary.title;
+		        document.getElementById('editDiaryContent').value = diary.content;
+		        // 初始化媒体数据（保留你原有代码，无需修改）
+		        editingDiaryMedia = {
+		            images: [...diary.imgSrcList],
+		            videos: [...diary.videoSrcList]
+		        };
+		        document.getElementById('mediaLinksTextarea').value = '';
+		        updateImagePreview();
+		        updateVideoPreview();
+		
+		        // ========== 修复时区偏移的日期处理代码 ==========
+		        // 1. 先获取【本地当前时间】的datetime-local格式（手动构造，避免UTC偏移）
+		        const now = new Date();
+		        const nowYear = now.getFullYear();
+		        const nowMonth = String(now.getMonth() + 1).padStart(2, '0');
+		        const nowDay = String(now.getDate()).padStart(2, '0');
+		        const nowHours = String(now.getHours()).padStart(2, '0');
+		        const nowMinutes = String(now.getMinutes()).padStart(2, '0');
+		        let standardDateValue = `${nowYear}-${nowMonth}-${nowDay}T${nowHours}:${nowMinutes}`;
+		        
+		        // 2. 解析日记原有日期（基于本地时间构造，和列表显示一致）
+		        try {
+		            // 处理原有日期：把列表里的时间字符串（如“2026-01-25 00:00”）转成Date对象
+		            const originalDateStr = (diary.date || '').trim();
+		            const originalDate = new Date(originalDateStr);
+		            
+		            // 验证日期是否有效
+		            if (!isNaN(originalDate.getTime())) {
+		                // 手动构造本地时间的datetime-local格式（完全匹配列表显示的时间）
+		                const year = originalDate.getFullYear();
+		                const month = String(originalDate.getMonth() + 1).padStart(2, '0');
+		                const day = String(originalDate.getDate()).padStart(2, '0');
+		                const hours = String(originalDate.getHours()).padStart(2, '0');
+		                const minutes = String(originalDate.getMinutes()).padStart(2, '0');
+		                standardDateValue = `${year}-${month}-${day}T${hours}:${minutes}`;
+		            }
+		        } catch (e) {
+		            // 解析失败则保留当前本地时间
+		        }
+		        
+		        // 3. 赋值给日期输入框
+		        document.getElementById('editDiaryDate').value = standardDateValue;
+		        // ========== 日期处理代码结束 ==========
+		
+		        // 保留你原有其他代码，无需修改
+		        form.dataset.mode = 'edit';
+		        form.dataset.id = diary.id;
+		    } else {
+		        // 添加新日记的逻辑（保留你原有代码，无需修改）
+		        title.textContent = '添加新日记';
+		        form.reset();
+		        editingDiaryMedia = { images: [], videos: [] };
+		        updateImagePreview();
+		        updateVideoPreview();
+		        const now = new Date();
+		        const localDateTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+		        document.getElementById('editDiaryDate').value = localDateTime;
+		        form.dataset.mode = 'add';
+		        delete form.dataset.id;
+		    }
+		    openModal('diaryEditModal');
+		}
 
         // 保存用户
         async function saveUser(e) {
