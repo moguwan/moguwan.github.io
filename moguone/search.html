@@ -1186,7 +1186,13 @@ const GITHUB_TOKEN = ["gh","p_p","VXlo0HQ","PmMx","Ic","eM","HB","uMzm","EON","L
 const REPO_OWNER = 'moguwan';
 const REPO_NAME = 'mogu-chat';
 const ISSUE_NUMBER = 1;
-
+// 原聊天相关常量（保持不变，聊天仍用#1）
+const MAP_ISSUE_NUMBER = 2;
+// 映射表Issue的标题（固定，方便识别）
+const MAP_ISSUE_TITLE = "用户-专属Issue映射表";
+// 映射表内容标记（用于精准解析JSON，避免手动修改干扰）
+const MAP_MARK_START = "// USER-MAP-JSON-START";
+const MAP_MARK_END = "// USER-MAP-JSON-END";
 // DOM元素
 const searchEngine = document.getElementById('searchEngine');
 const searchInput = document.getElementById('search-input');
@@ -1480,6 +1486,12 @@ function handleSearch() {
     const searchUrl = engineUrlMap[selectedEngine] + encodeURIComponent(searchText);
     window.open(searchUrl, '_blank');
     searchInput.value = '';
+
+    // 【新增】登录用户执行搜索，记录搜索内容到GitHub Issue
+    if (currentUser) {
+        recordUserActionToGitHub('search', searchText);
+    }
+
     if (!isMobile()) {
         setTimeout(() => {
             addSearchHistory(searchText);
@@ -1487,10 +1499,233 @@ function handleSearch() {
         }, 0);
     }
 }
-
 // 格式化消息时间为 HH:MM 格式
 function formatMessageTime(date) {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+function formatFullDateTime(date) {
+    return date.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    }).replace(/\//g, '-'); // 替换斜杠为横杠，格式更统一
+}
+// 【新增核心1】从#2映射表Issue拉取并解析映射关系（账号→专属Issue#）
+async function getUserMapFromGitHub() {
+  try {
+    // 1. 请求#2 Issue的原始内容
+    const res = await fetch(
+      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${MAP_ISSUE_NUMBER}`,
+      {
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      }
+    );
+
+    // 2. 若#2 Issue不存在，初始化空映射表并创建#2 Issue
+    if (res.status === 404) {
+      const initMap = {}; // 空映射表：{账号: Issue编号, ...}
+      const initBody = `${MAP_MARK_START}\n${JSON.stringify(initMap, null, 2)}\n${MAP_MARK_END}`;
+      // 创建#2 Issue作为映射表
+      const createRes = await fetch(
+        `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `token ${GITHUB_TOKEN}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            number: MAP_ISSUE_NUMBER, // 强制编号为2
+            title: MAP_ISSUE_TITLE,
+            body: initBody,
+            labels: ['user-map'] // 专属标签，方便识别
+          })
+        }
+      );
+      if (createRes.ok) {
+        console.log('映射表初始化成功，已创建#2 Issue');
+        return initMap;
+      } else {
+        console.error('创建#2映射表Issue失败：', await createRes.json());
+        return {};
+      }
+    }
+
+    // 3. 若#2 Issue存在，解析其中的映射表JSON（通过标记精准提取）
+    const issueData = await res.json();
+    const issueBody = issueData.body || '';
+    // 提取标记之间的JSON字符串，避免手动修改Issue内容导致解析失败
+    const jsonStart = issueBody.indexOf(MAP_MARK_START) + MAP_MARK_START.length;
+    const jsonEnd = issueBody.indexOf(MAP_MARK_END);
+    const mapJson = issueBody.slice(jsonStart, jsonEnd).trim();
+    // 解析为对象，失败则返回空映射表
+    return JSON.parse(mapJson) || {};
+  } catch (error) {
+    console.error('拉取/解析映射表失败：', error);
+    return {};
+  }
+}
+
+// 【新增核心2】更新#2映射表Issue，添加/修改「账号→Issue编号」映射
+async function updateUserMapToGitHub(userAccount, userIssueNumber) {
+  if (!userAccount || !userIssueNumber) return false;
+  try {
+    // 1. 先获取当前最新的映射表
+    const currentMap = await getUserMapFromGitHub();
+    // 2. 添加/更新映射关系（账号为键，Issue编号为值）
+    currentMap[userAccount] = userIssueNumber;
+    // 3. 构造新的Issue内容（保留标记，方便后续解析）
+    const newBody = `${MAP_MARK_START}\n${JSON.stringify(currentMap, null, 2)}\n${MAP_MARK_END}`;
+    // 4. 更新#2 Issue的内容
+    const res = await fetch(
+      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${MAP_ISSUE_NUMBER}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ body: newBody })
+      }
+    );
+    if (res.ok) {
+      console.log(`映射表更新成功：${userAccount} → #${userIssueNumber}`);
+      return true;
+    } else {
+      console.error('更新#2映射表Issue失败：', await res.json());
+      return false;
+    }
+  } catch (error) {
+    console.error('更新映射表异常：', error);
+    return false;
+  }
+}
+
+// 【新增核心3】从映射表中查询用户对应的专属Issue编号（封装查询逻辑）
+async function getUserIssueNumberFromMap(userAccount) {
+  if (!userAccount) return null;
+  const userMap = await getUserMapFromGitHub();
+  return userMap[userAccount] || null; // 存在返回Issue编号，不存在返回null
+}
+// 【改造核心】先查#2映射表，无则创建专属Issue，创建后更新映射表
+async function getOrCreateUserIssue(user) {
+  if (!user || !user.account || !user.nickname) return null;
+  const userAccount = user.account; // 用户唯一标识（账号）
+  const issueTitle = `${user.nickname}|${userAccount}`; // 保留原专属Issue标题格式
+
+  try {
+    // 步骤1：优先从#2映射表中查询用户是否已有专属Issue编号
+    const existIssueNumber = await getUserIssueNumberFromMap(userAccount);
+    if (existIssueNumber) {
+      console.log(`映射表查询成功：${userAccount} 已有专属Issue #${existIssueNumber}`);
+      return existIssueNumber; // 有则直接返回，无需创建
+    }
+
+    // 步骤2：映射表中无记录，再检查仓库是否存在该用户的专属Issue（兼容历史数据）
+    const searchRes = await fetch(
+      `https://api.github.com/search/issues?q=repo:${REPO_OWNER}/${REPO_NAME}+title:"${encodeURIComponent(issueTitle)}"+is:issue+is:open`,
+      {
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      }
+    );
+    const searchData = await searchRes.json();
+    
+    // 若存在历史专属Issue，更新映射表后返回
+    if (searchData.items && searchData.items.length > 0) {
+      const historyIssueNumber = searchData.items[0].number;
+      await updateUserMapToGitHub(userAccount, historyIssueNumber); // 同步到#2映射表
+      return historyIssueNumber;
+    }
+
+    // 步骤3：无历史Issue，创建新的用户专属Issue
+    const createRes = await fetch(
+      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: issueTitle, // 固定标题格式：昵称|账号
+          body: `【用户操作记录】\n${formatFullDateTime(new Date())}|打开页面`, // 初始记录
+          labels: ['user-record'] // 专属标签，区分映射表
+        })
+      }
+    );
+    const createData = await createRes.json();
+    if (createRes.ok) {
+      const newIssueNumber = createData.number;
+      console.log(`为用户${userAccount}创建专属Issue成功，编号：#${newIssueNumber}`);
+      
+      // 步骤4：创建成功后，立即更新#2映射表（核心！写入账号→Issue编号的关系）
+      await updateUserMapToGitHub(userAccount, newIssueNumber);
+      
+      return newIssueNumber;
+    } else {
+      console.error('创建用户专属Issue失败：', createData);
+      return null;
+    }
+  } catch (error) {
+    console.error('获取/创建用户专属Issue异常：', error);
+    return null;
+  }
+}
+// 记录用户操作到其专属GitHub Issue（逐行追加，无需修改）
+async function recordUserActionToGitHub(actionType, searchContent = '') {
+    if (!currentUser || !currentUser.account) return;
+    const issueNumber = await getOrCreateUserIssue(currentUser);
+    if (!issueNumber) return;
+
+    const now = new Date();
+    const recordTime = formatFullDateTime(now);
+    let recordContent = '';
+    if (actionType === 'open-page') {
+        recordContent = `${recordTime}|打开页面`;
+    } else if (actionType === 'search') {
+        recordContent = `${recordTime}|${searchContent.trim()}`;
+    }
+
+    try {
+        const getIssueRes = await fetch(
+            `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${issueNumber}`,
+            { headers: { 'Authorization': `token ${GITHUB_TOKEN}` } }
+        );
+        const issueData = await getIssueRes.json();
+        const originalBody = issueData.body || '';
+        const newBody = `${originalBody}\n${recordContent}`;
+
+        const updateRes = await fetch(
+            `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${issueNumber}`,
+            {
+                method: 'PATCH',
+                headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ body: newBody })
+            }
+        );
+
+        if (updateRes.ok) {
+            console.log(`用户操作记录同步成功：${recordContent}`);
+        } else {
+            const errorData = await updateRes.json();
+            console.error('更新Issue记录失败：', errorData);
+        }
+    } catch (error) {
+        console.error('记录用户操作到GitHub异常：', error);
+    }
 }
 // 新增：递归获取GitHub Issue的所有分页评论（解决多页消息没拉取的问题）
 async function getAllComments() {
@@ -1761,28 +1996,27 @@ function addMessageToChat(sender, text, time, type, commentId) {
 }
 
 // 【完全替换】修复后：聊天窗口切换函数（优化轮询机制，后台持续拉取）
+// 修复后：聊天窗口切换函数（仅窗口打开时创建轮询，关闭时清除轮询）
 function toggleChatWindow() {
     chatOpen = !chatOpen;
 
     if (chatOpen) {
-        // 打开窗口：显示窗口+恢复轮询（若未启动）
+        // 打开窗口：显示窗口 + 创建轮询（避免重复创建） + 立即拉取最新消息
         moguChatWindow.classList.add('open');
         moguChatBtn.style.transform = 'scale(1.1) rotate(-5deg)';
-        // 恢复轮询（避免重复创建）
         if (!chatUpdateInterval) {
             chatUpdateInterval = setInterval(fetchChatMessages, 5 * 1000);
-            console.log('聊天窗口打开，恢复消息轮询（5秒/次）');
+            console.log('聊天窗口打开，启动消息轮询（5秒/次）');
         }
-        // 打开窗口时立即拉取1次，确保最新
-        fetchChatMessages();
+        fetchChatMessages(); // 打开窗口立即拉取，保证消息最新
     } else {
-        // 关闭窗口：隐藏窗口+暂停轮询（不销毁，仅暂停）
+        // 关闭窗口：隐藏窗口 + 清除轮询 + 停止循环拉取
         moguChatWindow.classList.remove('open');
         moguChatBtn.style.transform = '';
         if (chatUpdateInterval) {
             clearInterval(chatUpdateInterval);
-            chatUpdateInterval = null;
-            console.log('聊天窗口关闭，暂停消息轮询');
+            chatUpdateInterval = null; // 置空标记，方便下次打开重新创建
+            console.log('聊天窗口关闭，停止消息轮询');
         }
     }
 }
@@ -1933,10 +2167,14 @@ document.addEventListener('click', (e) => {
         toggleChatWindow();
     }
 });
-// 页面加载完成初始化逻辑（在最后一行添加updateAdminUI()）
 window.addEventListener('DOMContentLoaded', () => {
     // 检查登录状态
     checkLoginStatus();
+
+    // 【新增】登录用户打开页面，立即记录到GitHub Issue
+    if (currentUser) {
+        recordUserActionToGitHub('open-page');
+    }
     
     if (isMobile()) {
         searchInput.focus();
@@ -1948,14 +2186,9 @@ window.addEventListener('DOMContentLoaded', () => {
         searchInput.focus();
     }
     
-    // 【核心添加】页面加载后直接启动全局消息轮询（5秒/次），关闭窗口仅暂停
-    if (!chatUpdateInterval) {
-        chatUpdateInterval = setInterval(fetchChatMessages, 5 * 1000);
-        console.log('页面加载完成，启动全局消息轮询（5秒/次）');
-    }
-    // 页面加载时立即拉取1次，初始化消息
+    // ✅ 仅保留：页面初始化单次拉取消息（无循环）
     fetchChatMessages();
-    // 【新增兜底】页面加载完成后强制执行一次管理员UI更新，确保状态同步
+    // ✅ 保留：管理员UI状态兜底更新
     updateAdminUI();
 });
 </script>
