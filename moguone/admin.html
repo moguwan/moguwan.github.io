@@ -1340,9 +1340,9 @@
         <div class="admin-content-area">
             <!-- 内容区头部 -->
             <div class="content-header">
-                <h2 class="content-title">用户管理</h2>
+                <h2 class="content-title">日记管理</h2>
                 <button class="btn-primary" id="addItemBtn">
-                    <i class="iconfont icon-plus"></i> 添加新用户
+                    <i class="iconfont icon-plus"></i> 添加新日记
                 </button>
             </div>
             
@@ -1585,7 +1585,7 @@
         let currentUser = null;
         let currentUsers = [];
         let currentDiaries = [];
-        let currentView = 'users'; // 'users' 或 'diaries'
+        let currentView = 'diaries'; // 'users' 或 'diaries'
         let currentPage = 1;
         const itemsPerPage = 8;
         let pendingAction = null; // 用于确认模态框
@@ -1594,12 +1594,12 @@
             videos: []
         }; // 当前编辑日记的媒体文件
 
-        // 初始化页面
         document.addEventListener('DOMContentLoaded', function() {
             initAuth();
             initEventListeners();
+            switchView('diaries');
+			loadDiaries();
             loadUsers();
-            loadDiaries();
             updateStats();
         });
 
@@ -1948,15 +1948,17 @@
                         registerTime: Date.now() - (currentUsers.length - index) * 24 * 60 * 60 * 1000
                     };
                 });
-
-                renderUserTable();
-                updateStats();
+				currentUsers = getMockUsers();
+				// 仅当当前视图是「用户管理」时，才渲染用户表格
+				if (currentView === 'users') renderUserTable();
+				updateStats();
             } catch (err) {
                 console.error('加载用户失败：', err);
                 showToast('加载用户数据失败');
                 // 使用模拟数据作为后备
                 currentUsers = getMockUsers();
-                renderUserTable();
+                // 仅当当前视图是「用户管理」时，才渲染用户表格
+                if (currentView === 'users') renderUserTable();
                 updateStats();
             }
         }
