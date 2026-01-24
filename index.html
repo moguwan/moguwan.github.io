@@ -1934,6 +1934,138 @@ table {
   display: inline-block;
   margin: 0 1px;
 }
+/* 管理员权限提示弹窗-遮罩层（全屏+模糊+淡入动画） */
+.admin-tip-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 999999; /* 最高层级，避免被遮挡 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 与页面原有动画一致 */
+    padding: 20px;
+    box-sizing: border-box;
+}
+/* 遮罩层显示状态（淡入） */
+.admin-tip-mask.show {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* 弹窗主体（玻璃质感+缩放+位移动画） */
+.admin-tip-box {
+    width: 100%;
+    max-width: 420px;
+    padding: 30px 25px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    transform: translateY(20px) scale(0.96); /* 初始状态：下移+缩小 */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.1s; /* 延迟动画，更流畅 */
+}
+/* 弹窗显示状态（复位+缩放正常） */
+.admin-tip-mask.show .admin-tip-box {
+    transform: translateY(0) scale(1);
+}
+
+/* 弹窗标题/描述文字 */
+.admin-tip-title {
+    font-size: 20px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-title);
+    letter-spacing: 0.5px;
+}
+.admin-tip-desc {
+    font-size: 15px;
+    color: var(--color-text-sub);
+    text-align: center;
+    line-height: 1.7;
+    padding: 0 10px;
+}
+
+/* 按钮组（横向排列） */
+.admin-tip-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+    width: 100%;
+    justify-content: center;
+}
+
+/* 通用按钮样式（沿用页面交互逻辑） */
+.admin-tip-btn {
+    padding: 12px 30px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+/* 退出按钮（浅色风格，匹配页面普通按钮） */
+.admin-tip-btn.exit-btn {
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    border-color: rgba(255, 255, 255, 0.9);
+    color: var(--color-text-main);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+/* 去登录按钮（主色风格，突出操作，匹配页面active按钮） */
+.admin-tip-btn.login-btn {
+    background: linear-gradient(135deg, #0078d4 0%, #0066b8 100%);
+    border-color: #0078d4;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.15);
+}
+
+/* 按钮hover/active效果（与页面导航按钮一致） */
+.admin-tip-btn.exit-btn:hover {
+    background: rgba(0, 120, 212, 0.08);
+    border-color: rgba(0, 120, 212, 0.4);
+    color: #0078d4;
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.1);
+}
+.admin-tip-btn.login-btn:hover {
+    background: linear-gradient(135deg, #0066b8 0%, #005599 100%);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 16px rgba(0, 120, 212, 0.2);
+}
+.admin-tip-btn:active {
+    transform: translateY(0) scale(var(--active-scale)); /* 复用页面缩放变量 */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* 适配移动端 */
+@media (max-width: 768px) {
+    .admin-tip-box {
+        max-width: 90%;
+        padding: 25px 20px;
+    }
+    .admin-tip-buttons {
+        flex-direction: column; /* 移动端按钮竖向排列 */
+        gap: 10px;
+    }
+    .admin-tip-btn {
+        width: 100%;
+        padding: 11px 0;
+    }
+}
     </style>
 </head>
 <body>
@@ -2039,7 +2171,6 @@ table {
     <div class="sidebar-top" id="sidebarTop">
         <div class="arrow-up">↑</div>
     </div>
-    <!-- 首次访问提示框 -->
     <div class="first-visit-tip" id="firstVisitTip">
         <span class="tip-text">点击大标题可查看详情</span>
         <button class="tip-close-btn" id="tipCloseBtn">✕</button>
@@ -2051,6 +2182,19 @@ table {
             <div class="tip-modal-text">Please enter search keywords</div>
         </div>
     </div>
+	<div class="admin-tip-mask" id="adminTipMask">
+	    <div class="admin-tip-box glass-effect">
+	        <button class="tip-modal-close-btn" id="adminTipCloseBtn">✕</button>
+	        <div class="tip-modal-icon" style="color: #0078d4; font-size: 36px;">!</div>
+	        <div class="admin-tip-title">权限提示</div>
+	        <div class="admin-tip-desc">本页面仅提供管理员浏览，非管理员无访问权限</div>
+	        <!-- 双选择按钮：退出 + 去登录 -->
+	        <div class="admin-tip-buttons">
+	            <button class="admin-tip-btn exit-btn" id="adminExitBtn">退出</button>
+	            <button class="admin-tip-btn login-btn" id="adminToLoginBtn">去登录账号</button>
+	        </div>
+	    </div>
+	</div>
     <div class="toast-notification" id="toastNotification">
         <span class="icon loading-spinner" style="display: none;"></span>
         <span class="icon success-icon">✓</span>
@@ -3766,9 +3910,76 @@ async function initPageWithLoader() {
     }, 100);
 }
 document.addEventListener('DOMContentLoaded', function() {
+    // ========== 第一步：提前绑定管理员弹窗所有按钮事件（核心修改，移到最上方） ==========
+    (function initAdminTipEvent() {
+        const adminTipMask = document.getElementById('adminTipMask');
+        const closeBtn = document.getElementById('adminTipCloseBtn'); // 弹窗关闭按钮
+        const exitBtn = document.getElementById('adminExitBtn');     // 退出按钮
+        const toLoginBtn = document.getElementById('adminToLoginBtn'); // 去登录按钮
+
+        // 【退出按钮】：按需求跳转到search.html + 关闭弹窗 + 恢复滚动
+        exitBtn.addEventListener('click', () => {
+            window.location.href = 'moguone/search.html'; // 核心：跳转到search.html
+            adminTipMask.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        });
+
+        // 【去登录按钮】：按需求跳转到login.html + 关闭弹窗 + 恢复滚动
+        toLoginBtn.addEventListener('click', () => {
+            window.location.href = 'moguone/login.html'; // 核心：跳转到登录页
+            adminTipMask.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        });
+
+        // 【弹窗关闭按钮】：跳转到search.html（与退出按钮保持一致，提升体验）
+        closeBtn.addEventListener('click', () => {
+            window.location.href = 'moguone/search.html';
+            adminTipMask.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        });
+
+        // 【点击遮罩空白处】：跳转到search.html（与页面原有弹窗逻辑一致）
+        adminTipMask.addEventListener('click', (e) => {
+            if (e.target === adminTipMask) {
+                window.location.href = 'moguone/search.html';
+                adminTipMask.classList.remove('show');
+                document.body.style.overflow = 'auto';
+            }
+        });
+    })();
+
+    // ========== 原有代码：以下部分保持不变 ==========
     const loader = document.getElementById('loader');
     loader.classList.remove('loaded');
     initLoginState();
+
+	// ===== 管理员权限验证：新逻辑（显示定制弹窗，提供双选择） =====
+	// 1. 统一获取登录状态和管理员标识
+	const userInfo = localStorage.getItem(USER_LOCAL_KEY);
+	const isAdmin = currentUser && currentUser.isAdmin === true;
+	const adminTipMask = document.getElementById('adminTipMask'); // 获取新弹窗遮罩
+	
+	// 2. 验证规则：未登录 / 非管理员 → 均显示定制弹窗（不直接跳转）
+	if (!userInfo || !isAdmin) {
+	    // 显示定制弹窗，禁止页面滚动
+	    adminTipMask.classList.add('show');
+	    document.body.style.overflow = 'hidden';
+	    // 终止后续代码执行，禁止加载页面内容
+	    return;
+	}
+	// ===== 权限验证结束 =====
+    initCustomBg();
+    initRandomBg();
+	
+	// 2. 验证规则：未登录 / 非管理员 → 均显示定制弹窗（不直接跳转）
+	if (!userInfo || !isAdmin) {
+	    // 显示定制弹窗，禁止页面滚动
+	    adminTipMask.classList.add('show');
+	    document.body.style.overflow = 'hidden';
+	    // 终止后续代码执行，禁止加载页面内容
+	    return;
+	}
+	// ===== 权限验证结束 =====
     initCustomBg();
     initRandomBg();
     document.getElementById('bgChangeBtn').addEventListener('click', changeRandomBg);
@@ -3876,10 +4087,45 @@ document.addEventListener('DOMContentLoaded', function() {
 	        }, 8000);
 	    }
 	}
+	// 绑定管理员权限弹窗 - 按钮点击事件
+	(function initAdminTipEvent() {
+	    const adminTipMask = document.getElementById('adminTipMask');
+	    const closeBtn = document.getElementById('adminTipCloseBtn'); // 弹窗关闭按钮
+	    const exitBtn = document.getElementById('adminExitBtn');     // 退出按钮
+	    const toLoginBtn = document.getElementById('adminToLoginBtn'); // 去登录按钮
 	
+	    // 1. 退出按钮：返回上一页（浏览器历史记录）
+	    exitBtn.addEventListener('click', () => {
+	        window.history.back(); // 核心功能：返回上一页，实现「退出」效果
+	        adminTipMask.classList.remove('show');
+	        document.body.style.overflow = 'auto';
+	    });
+	
+	    // 2. 去登录按钮：跳转到你的登录页面（与现有登录按钮路径一致）
+	    toLoginBtn.addEventListener('click', () => {
+	        window.location.href = 'moguone/login.html'; // 跳转到登录页
+	    });
+	
+	    // 3. 弹窗关闭按钮：关闭弹窗 + 返回上一页（提升体验）
+	    closeBtn.addEventListener('click', () => {
+	        window.history.back();
+	        adminTipMask.classList.remove('show');
+	        document.body.style.overflow = 'auto';
+	    });
+	
+	    // 4. 点击遮罩层空白处：关闭弹窗 + 返回上一页（与页面原有弹窗逻辑一致）
+	    adminTipMask.addEventListener('click', (e) => {
+	        if (e.target === adminTipMask) {
+	            window.history.back();
+	            adminTipMask.classList.remove('show');
+	            document.body.style.overflow = 'auto';
+	        }
+	    });
+	})();
 	// 初始化首次访问提示框
 	initFirstVisitTip();
 });
 </script>
+
 </body>
 </html>
