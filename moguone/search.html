@@ -251,6 +251,54 @@ align-items: center;
 gap: 10px;
 z-index: 9999;
 }
+/* 新增：用户信息点击区域 */
+.user-profile-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.user-profile-btn:hover {
+    opacity: 0.8;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0078d4 0%, #0066b8 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.user-name {
+    font-weight: 500;
+    color: #2d3748;
+}
+
+.logout-btn {
+    padding: 6px 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #64748b;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.logout-btn:hover {
+    background: #f1f5f9;
+    color: #475569;
+}
 .user-avatar {
 width: 40px;
 height: 40px;
@@ -1041,6 +1089,126 @@ font-size: 10px;
     font-size: 13px;
   }
 }
+/* 公告弹窗样式 */
+.notice-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.95);
+  width: 100%;
+  max-width: 450px;
+  background: linear-gradient(145deg, #ffffff, #f8f9fa);
+  border-radius: 20px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  z-index: 999999;
+  padding: 28px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  display: none;
+}
+.notice-modal.show {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+
+.notice-header {
+  font-size: 20px;
+  font-weight: 600;
+  color: #0078d4;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.notice-header svg {
+  width: 20px;
+  height: 20px;
+  fill: #0078d4;
+}
+
+.notice-content {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.notice-content::-webkit-scrollbar {
+  width: 4px;
+}
+.notice-content::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 2px;
+}
+.notice-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+.notice-content::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.notice-checkbox-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding: 8px 0;
+  cursor: pointer;
+}
+
+.notice-checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #cbd5e1;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.notice-checkbox.checked {
+  background: #0078d4;
+  border-color: #0078d4;
+}
+
+.notice-checkbox.checked::after {
+  content: "✓";
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.notice-checkbox-label {
+  font-size: 13px;
+  color: #64748b;
+  user-select: none;
+}
+
+.notice-confirm-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #0078d4 0%, #0066b8 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.notice-confirm-btn:hover {
+  background: linear-gradient(135deg, #0066b8 0%, #005599 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 120, 212, 0.2);
+}
 </style>
 </head>
 <body>
@@ -1151,6 +1319,23 @@ font-size: 10px;
     <button class="modal-btn confirm danger" id="clearMsgConfirm">确认清空</button>
   </div>
 </div>
+<!-- 3. 公告弹窗 -->
+<div class="notice-modal" id="noticeModal" style="display: none;">
+  <div class="notice-header">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+    </svg>
+    系统公告
+  </div>
+  <div class="notice-content" id="noticeContent">
+    <!-- 公告内容将通过JavaScript动态设置 -->
+  </div>
+  <div class="notice-checkbox-wrap" id="noticeCheckbox">
+    <div class="notice-checkbox"></div>
+    <span class="notice-checkbox-label">不再显示此公告</span>
+  </div>
+  <button class="notice-confirm-btn" id="noticeConfirm">我知道了</button>
+</div>
 <script>
 // 用户相关配置
 // 通用弹窗控制函数：type为弹窗类型（logout/clearMsg），show为是否显示
@@ -1180,6 +1365,10 @@ function toggleModal(type, show) {
     }
   }
 }
+//全局变量
+const USER_DATABASE_ISSUE_NUMBER = 11; // 用户数据库的Issue编号
+const USER_DATABASE_REPO_OWNER = 'moguwan';
+const USER_DATABASE_REPO_NAME = 'moguwan.github.io';
 const USER_LOCAL_KEY = 'MOGU_CHAT_USER';
 const ADMIN_ACCOUNT = '2926197119'; // 管理员账号，可自行修改（比如你的专属账号）
 const GITHUB_TOKEN = ["gh","p_p","VXlo0HQ","PmMx","Ic","eM","HB","uMzm","EON","LPX","700","10","M","SL"].join('');
@@ -1222,11 +1411,15 @@ let isHistoryFetched = false;
 const MAX_HISTORY = 10;
 const MAX_RANK = 10;
 const MAX_MESSAGE_LENGTH = 200; // 消息最大长度限制
-function checkLoginStatus() {
+async function checkLoginStatus() {
     const userData = localStorage.getItem(USER_LOCAL_KEY);
     if (userData) {
         try {
             currentUser = JSON.parse(userData);
+            
+            // 从GitHub获取完整用户信息
+            await updateCurrentUserFromGitHub();
+            
             // 关键：通过账号匹配ADMIN_ACCOUNT设置管理员标识
             currentUser.isAdmin = currentUser.account === ADMIN_ACCOUNT;
             updateUIForLoggedInUser();
@@ -1239,26 +1432,42 @@ function checkLoginStatus() {
     updateUIForGuest();
     return false;
 }
-// 正确的已登录UI更新函数（无重复、无无效变量、确保调用管理员UI更新）
 function updateUIForLoggedInUser() {
     if (!currentUser) return;
     
-    // 显示用户信息（头像+昵称+退出按钮）
+    // 显示用户信息（头像+昵称+退出按钮），并添加点击跳转功能
     const userInitial = currentUser.nickname ? currentUser.nickname.charAt(0).toUpperCase() : 'U';
+    const userAvatar = currentUser.avatar || `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="%230078d4"/><text x="20" y="23" font-size="16" text-anchor="middle" fill="white">${userInitial}</text></svg>`;
+    
     userStatusArea.innerHTML = `
         <div class="user-info">
-            <div class="user-avatar">${userInitial}</div>
-            <div class="user-name">${currentUser.nickname || currentUser.account}</div>
-            <button class="logout-btn" onclick="logout()">退出</button>
+            <div class="user-profile-btn" id="userProfileBtn">
+                <div class="user-avatar" style="background-image: url('${userAvatar}'); background-size: cover; background-position: center;">
+                    ${!currentUser.avatar ? userInitial : ''}
+                </div>
+                <div class="user-name">${currentUser.nickname || currentUser.account}</div>
+            </div>
+            <button class="logout-btn" id="logoutBtn">退出</button>
         </div>
     `;
+    
+    // 添加点击事件跳转到个人信息设置页面
+    document.getElementById('userProfileBtn').addEventListener('click', () => {
+        window.location.href = 'profile.html';
+    });
+    
+    // 为退出按钮添加点击事件
+    document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.stopPropagation(); // 阻止事件冒泡
+        logout();
+    });
     
     // 启用聊天功能
     moguChatInput.disabled = false;
     moguChatInput.placeholder = "输入消息...";
     moguChatSend.disabled = false;
     
-    // 关键：在函数内调用管理员UI更新（确保登录后立即判断并显示管理员功能）
+    // 关键：在函数内调用管理员UI更新
     updateAdminUI();
 }
 // 更新UI为访客状态
@@ -1276,16 +1485,11 @@ function updateUIForGuest() {
 // 最终正确的管理员UI更新函数（用类覆盖!important，100%生效）
 function updateAdminUI() {
     const adminElements = document.querySelectorAll('.admin-only');
-    // 控制台打印：排查是否触发、当前用户是否为管理员（方便调试）
-    console.log('当前用户信息：', currentUser);
-    console.log('是否为管理员：', currentUser && currentUser.isAdmin);
-    console.log('找到的管理员元素数量：', adminElements.length);
     
     if (currentUser && currentUser.isAdmin) {
         // 管理员：添加admin-show类，强制显示（覆盖!important）
         adminElements.forEach(el => {
             el.classList.add('admin-show');
-            console.log('为元素添加admin-show类：', el);
         });
     } else {
         // 非管理员：移除admin-show类，恢复隐藏
@@ -1389,7 +1593,123 @@ function deleteHistoryItem(keyword) {
     delete countMap[keyword];
     saveSearchCount(countMap);
 }
+// 从GitHub Issue #11获取所有用户数据
+async function getUserDatabaseFromGitHub() {
+  try {
+    const response = await fetch(
+      `https://api.github.com/repos/${USER_DATABASE_REPO_OWNER}/${USER_DATABASE_REPO_NAME}/issues/${USER_DATABASE_ISSUE_NUMBER}`,
+      {
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      }
+    );
 
+    if (!response.ok) {
+      console.error('获取用户数据库失败:', response.status);
+      return [];
+    }
+
+    const issueData = await response.json();
+    const body = issueData.body || '';
+    
+    // 按行解析用户数据
+    const lines = body.split('\n').filter(line => line.trim() !== '');
+    const users = [];
+    
+    for (const line of lines) {
+      const parts = line.split('|');
+      if (parts.length >= 7) {
+        const user = {
+          account: parts[0].trim(),
+          password: parts[1].trim(),
+          email: parts[2].trim(),
+          nickname: parts[3].trim(),
+          isAdmin: parts[4].trim().toLowerCase() === 'true',
+          avatar: parts[5].trim(),
+          signature: parts[6].trim()
+        };
+        users.push(user);
+      }
+    }
+    
+    console.log(`从GitHub获取到${users.length}个用户数据`);
+    return users;
+  } catch (error) {
+    console.error('获取用户数据库异常:', error);
+    return [];
+  }
+}
+
+// 更新GitHub Issue #11中的用户数据
+async function updateUserDatabaseInGitHub(users) {
+  try {
+    // 将用户数据转换为文本格式
+    const userLines = users.map(user => 
+      `${user.account}|${user.password}|${user.email}|${user.nickname}|${user.isAdmin}|${user.avatar}|${user.signature}`
+    ).join('\n');
+    
+    const response = await fetch(
+      `https://api.github.com/repos/${USER_DATABASE_REPO_OWNER}/${USER_DATABASE_REPO_NAME}/issues/${USER_DATABASE_ISSUE_NUMBER}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          body: userLines
+        })
+      }
+    );
+
+    if (response.ok) {
+      console.log('用户数据库更新成功');
+      return true;
+    } else {
+      console.error('更新用户数据库失败:', await response.json());
+      return false;
+    }
+  } catch (error) {
+    console.error('更新用户数据库异常:', error);
+    return false;
+  }
+}
+
+// 从GitHub数据库获取单个用户完整信息
+async function getCompleteUserInfoFromGitHub(account) {
+  try {
+    const users = await getUserDatabaseFromGitHub();
+    const user = users.find(u => u.account === account);
+    return user || null;
+  } catch (error) {
+    console.error('获取用户完整信息失败:', error);
+    return null;
+  }
+}
+
+// 更新本地用户信息（从GitHub同步）
+async function updateCurrentUserFromGitHub() {
+  if (!currentUser || !currentUser.account) return;
+  
+  const completeUserInfo = await getCompleteUserInfoFromGitHub(currentUser.account);
+  if (completeUserInfo) {
+    // 保留原有的密码（因为GitHub数据库中存储的是加密密码）
+    currentUser.nickname = completeUserInfo.nickname;
+    currentUser.email = completeUserInfo.email;
+    currentUser.avatar = completeUserInfo.avatar;
+    currentUser.signature = completeUserInfo.signature;
+    currentUser.isAdmin = completeUserInfo.isAdmin;
+    
+    // 更新本地存储
+    localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
+    
+    // 更新UI
+    updateUIForLoggedInUser();
+  }
+}
 function renderHistory() {
     if (isMobile()) return;
     const history = getSearchHistory();
@@ -1789,13 +2109,21 @@ async function fetchChatMessages() {
       historyMessages.forEach(msg => {
         // 解析逻辑：用“:”分割，兼容有无空格的情况
         const parts = msg.body.split(':');
-        let sender, text;
+        let sender, text, avatar = null;
         if (parts.length >= 2) {
-          sender = parts[0].trim(); // 提取用户名（自动去除前后空格）
-          text = parts.slice(1).join(':').trim(); // 内容可能含冒号，合并后去空格
+            const senderPart = parts[0].trim();
+            // 检查是否包含头像链接（使用|分隔）
+            if (senderPart.includes('|')) {
+                const senderInfo = senderPart.split('|');
+                sender = senderInfo[0].trim();
+                avatar = senderInfo[1] || null;
+            } else {
+                sender = senderPart;
+            }
+            text = parts.slice(1).join(':').trim();
         } else {
-          sender = 'Unknown'; // 无用户名的情况
-          text = msg.body.trim();
+            sender = 'Unknown';
+            text = msg.body.trim();
         }
 
         // 格式化消息时间
@@ -1864,7 +2192,7 @@ async function fetchChatMessages() {
     } else {
       console.log(`轮询成功，当前无新消息，最新ID：${lastMessageId}`);
     }
-
+	
   } catch (error) {
     if (error.message.includes('Failed to fetch')) {
       console.error('网络错误：', error);
@@ -1873,6 +2201,7 @@ async function fetchChatMessages() {
       console.error('拉取消息出错：', error);
       showCustomAlert('获取消息失败，请重试');
     }
+	addMessageToChat(sender, text, time, messageType, msg.id, avatar);
   }
 }
 
@@ -1898,9 +2227,8 @@ async function sendChatMessage() {
     
     const timestamp = formatMessageTime(new Date());
     const senderName = currentUser.nickname || currentUser.account;
-    
-    // 发送格式：用户名: 消息内容
-    const messageWithSender = `${senderName}: ${message}`;
+    // 在发送消息时，将用户名和头像一起发送
+    const messageWithSender = `${senderName}|${currentUser.avatar || ''}: ${message}`;
     
     // 本地先显示消息
     const localMsgId = `msg_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
@@ -1972,17 +2300,32 @@ async function clearAllChatMessages() {
     if (!currentUser || !currentUser.isAdmin || isLoading) return;
     toggleModal('clearMsg', true);
 }
-// 修复后的消息渲染函数（统一显示用户名，添加管理员删除按钮）
-function addMessageToChat(sender, text, time, type, commentId) {
+function addMessageToChat(sender, text, time, type, commentId, senderAvatar = null) {
     const messageDiv = document.createElement('div');
-    // 为消息项添加唯一ID+GitHub评论ID（用于删除）
     const msgUniqueId = `msg_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
     messageDiv.id = msgUniqueId;
     messageDiv.className = `message-item ${type}`;
-    messageDiv.dataset.commentId = commentId; // 绑定GitHub评论ID，用于API删除
-    // 渲染消息内容+管理员专属删除按钮
+    messageDiv.dataset.commentId = commentId;
+    
+    // 获取发送者头像（如果有）
+    let avatarHtml = '';
+    if (senderAvatar) {
+        avatarHtml = `<div class="message-avatar" style="width: 24px; height: 24px; border-radius: 50%; margin-right: 8px; background-image: url('${senderAvatar}'); background-size: cover; background-position: center;"></div>`;
+    } else if (currentUser && (currentUser.nickname || currentUser.account) === sender && currentUser.avatar) {
+        // 如果是当前用户自己发的消息，使用当前用户的头像
+        avatarHtml = `<div class="message-avatar" style="width: 24px; height: 24px; border-radius: 50%; margin-right: 8px; background-image: url('${currentUser.avatar}'); background-size: cover; background-position: center;"></div>`;
+    } else {
+        // 默认头像（首字母）
+        const initial = sender ? sender.charAt(0).toUpperCase() : '?';
+        avatarHtml = `<div class="message-avatar" style="width: 24px; height: 24px; border-radius: 50%; margin-right: 8px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">${initial}</div>`;
+    }
+    
+    // 修改消息HTML结构，添加头像
     messageDiv.innerHTML = `
-        <div class="message-sender">${sender}</div>
+        <div style="display: flex; align-items: center; margin-bottom: 4px;">
+            ${avatarHtml}
+            <div class="message-sender">${sender}</div>
+        </div>
         <div class="message-text">${text}</div>
         <div class="message-time">${time}</div>
         <!-- 管理员专属：单条消息删除按钮 -->
@@ -2045,12 +2388,12 @@ document.getElementById('logoutCancel').addEventListener('click', () => {
 });
 // 退出登录-确认
 document.getElementById('logoutConfirm').addEventListener('click', () => {
-  toggleModal('logout', false);
-  // 执行原退出登录逻辑
-  localStorage.removeItem(USER_LOCAL_KEY);
-  currentUser = null;
-  updateUIForGuest();
-  showCustomAlert('已退出登录');
+    toggleModal('logout', false);
+    // 执行原退出登录逻辑
+    localStorage.removeItem(USER_LOCAL_KEY);
+    currentUser = null;
+    updateUIForGuest();
+    showCustomAlert('已退出登录');
 });
 
 // 清空消息-取消
@@ -2167,9 +2510,156 @@ document.addEventListener('click', (e) => {
         toggleChatWindow();
     }
 });
-window.addEventListener('DOMContentLoaded', () => {
-    // 检查登录状态
-    checkLoginStatus();
+// 公告相关功能
+const NOTICE_LOCAL_KEY = 'MOGU_SEARCH_NOTICE';
+let isNoticeShown = false;
+
+// 公告内容（可以在这里修改公告内容）
+const noticeContent = `
+<p><strong>欢迎使用 Mogu Search！</strong></p>
+<p>🎉 <strong>由于更新的时候忘记备份了<br>大部分people的账号被删掉了<br>账号不在的麻烦重新注册一下吧</strong></p>
+<p>🎉 <strong>新版本特性：</strong></p>
+<ul>
+  <li>✨ 全新的搜索界面设计</li>
+  <li>💬 集成chat功能（支持实时对话）</li>
+  <li>📊 搜索历史和排行榜功能</li>
+  <li>🔐 用户登录系统（支持个性化设置）</li>
+  <li>📱 移动端适配优化</li>
+</ul>
+<p>📢 <strong>使用须知：</strong></p>
+<ul>
+  <li>聊天功能需要登录后使用</li>
+  <li>搜索历史最多保存10条记录</li>
+  <li>支持Bing、Google、百度三大搜索引擎</li>
+</ul>
+<p>💡 <strong>温馨提示：</strong></p>
+<ul>
+  <li>勾选"不再显示"可关闭此公告</li>
+  <li>如有问题请联系管理员</li>
+</ul>
+<p style="text-align: center; color: #0078d4; margin-top: 15px;">
+  感谢您的使用！祝您搜索愉快！🚀
+</p>
+`;
+
+// 检查是否应该显示公告
+function shouldShowNotice() {
+  const noticeData = localStorage.getItem(NOTICE_LOCAL_KEY);
+  if (!noticeData) return true; // 没有存储记录，需要显示
+  
+  try {
+    const data = JSON.parse(noticeData);
+    // 检查是否勾选了不再显示
+    if (data.dontShowAgain) {
+      return false; // 用户勾选了不再显示，不显示
+    }
+    
+    // 也可以在这里添加其他逻辑，比如按时间间隔显示
+    return true;
+  } catch (e) {
+    console.error('解析公告数据失败:', e);
+    return true; // 解析失败时显示
+  }
+}
+
+// 保存公告状态
+function saveNoticeState(dontShowAgain) {
+  const noticeData = {
+    dontShowAgain: dontShowAgain,
+    lastShown: new Date().toISOString(),
+    version: '1.0.0' // 可用于后续版本更新时重新显示
+  };
+  localStorage.setItem(NOTICE_LOCAL_KEY, JSON.stringify(noticeData));
+}
+
+// 显示公告弹窗
+function showNotice() {
+  if (isNoticeShown) return;
+  
+  const mask = document.getElementById('modalMask');
+  const noticeModal = document.getElementById('noticeModal');
+  const noticeContentEl = document.getElementById('noticeContent');
+  
+  // 设置公告内容
+  noticeContentEl.innerHTML = noticeContent;
+  
+  // 显示遮罩和公告
+  mask.style.display = 'block';
+  noticeModal.style.display = 'block';
+  
+  // 添加显示动画
+  setTimeout(() => {
+    mask.classList.add('show');
+    noticeModal.classList.add('show');
+  }, 10);
+  
+  isNoticeShown = true;
+}
+
+// 隐藏公告弹窗
+function hideNotice() {
+  const mask = document.getElementById('modalMask');
+  const noticeModal = document.getElementById('noticeModal');
+  
+  // 移除显示动画
+  mask.classList.remove('show');
+  noticeModal.classList.remove('show');
+  
+  // 延迟隐藏DOM元素
+  setTimeout(() => {
+    mask.style.display = 'none';
+    noticeModal.style.display = 'none';
+  }, 300);
+  
+  isNoticeShown = false;
+}
+
+// 初始化公告功能
+function initNotice() {
+  // 检查是否需要显示公告
+  if (shouldShowNotice()) {
+    // 页面加载完成后延迟显示公告，让其他内容先加载
+    setTimeout(() => {
+      showNotice();
+    }, 500);
+  }
+  
+  // 获取DOM元素
+  const noticeCheckbox = document.getElementById('noticeCheckbox');
+  const checkboxIcon = noticeCheckbox.querySelector('.notice-checkbox');
+  const noticeConfirm = document.getElementById('noticeConfirm');
+  const mask = document.getElementById('modalMask');
+  
+  // 复选框点击事件
+  noticeCheckbox.addEventListener('click', () => {
+    checkboxIcon.classList.toggle('checked');
+  });
+  
+  // 确认按钮点击事件
+  noticeConfirm.addEventListener('click', () => {
+    const dontShowAgain = checkboxIcon.classList.contains('checked');
+    saveNoticeState(dontShowAgain);
+    hideNotice();
+  });
+  
+  // 点击遮罩层也可以关闭公告（可选）
+  mask.addEventListener('click', (e) => {
+    if (e.target === mask && isNoticeShown) {
+      hideNotice();
+    }
+  });
+  
+  // 按ESC键关闭公告
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isNoticeShown) {
+      hideNotice();
+    }
+  });
+}
+window.addEventListener('DOMContentLoaded', async () => {
+	initNotice();
+    // 检查登录状态（现在是异步的）
+    await checkLoginStatus();
 
     // 【新增】登录用户打开页面，立即记录到GitHub Issue
     if (currentUser) {
