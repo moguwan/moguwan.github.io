@@ -2653,6 +2653,7 @@ function formatTime(timestamp) {
     const minute = date.getMinutes().toString().padStart(2, '0');
     return `${year}-${month}-${day} ${hour}:${minute}`;
 }
+// 修改后的 renderCommentArea 函数
 function renderCommentArea(newsIndex) {
     const commentArea = document.getElementById('modalCommentArea');
     commentArea.innerHTML = '';
@@ -2674,7 +2675,7 @@ function renderCommentArea(newsIndex) {
         return;
     }
 
-    // 评论输入框（仅保留发表评论）
+    // 评论输入框
     const inputBox = document.createElement('div');
     inputBox.className = 'comment-input-box';
     const commentInput = document.createElement('textarea');
@@ -2714,16 +2715,16 @@ function renderCommentArea(newsIndex) {
         submitBtn.disabled = true;
         submitBtn.textContent = '提交中...';
         
-        // 构造评论数据
+        // 构造评论数据 - 添加当前用户的头像
         const newComment = {
-            avatar: userInfo.avatar || DEFAULT_AVATAR,
+            avatar: userInfo.avatar || getCurrentUserAvatar(), // 使用当前用户的头像
             nickname: userInfo.nickname || "未知用户",
             content: content,
             time: Date.now(),
             openid: userInfo.openid || "unknown"
         };
         
-        // 保存评论（仅提交到GitHub）
+        // 保存评论
         const saveResult = await saveCommentData(newsIndex, newComment);
         if (saveResult) {
             // 清空输入框
@@ -2739,7 +2740,7 @@ function renderCommentArea(newsIndex) {
                 toast.classList.remove('show');
             }, 2000);
             
-            // 关键修改：重新从GitHub获取最新评论列表
+            // 重新从GitHub获取最新评论列表
             commentList.innerHTML = `
               <div class="comment-empty apple-loading-comment" style="text-align:center; padding:20px; color:#0078d4; font-weight:300; letter-spacing:0.5px; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">
                 <span style="display:inline-flex; align-items:center; gap:8px;">
@@ -2753,7 +2754,7 @@ function renderCommentArea(newsIndex) {
               </div>
             `;
             
-            // 从GitHub重新加载评论
+            // 重新加载评论
             getCommentData(newsIndex).then(comments => {
                 commentList.innerHTML = '';
                 const sortedComments = [...comments].sort((a, b) => b.time - a.time);
@@ -2765,7 +2766,7 @@ function renderCommentArea(newsIndex) {
                     emptyTip.textContent = '暂无评论，快来抢沙发吧～';
                     commentList.appendChild(emptyTip);
                 } else {
-                    // 渲染评论列表（仅主评论，无回复/删除）
+                    // 渲染评论列表（包含头像）
                     sortedComments.forEach(comment => {
                         const commentItem = document.createElement('div');
                         commentItem.className = 'comment-item';
@@ -2820,17 +2821,7 @@ function renderCommentArea(newsIndex) {
         </span>
       </div>
     `;
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes apple-breathe {
-        0%, 100% { opacity: 0.4; transform: scale(0.9); }
-        50% { opacity: 1; transform: scale(1.1); }
-      }
-	  
-    `;
-    commentList.appendChild(style);
-    commentWrap.appendChild(commentList);
-
+    
     // 加载评论数据
     getCommentData(newsIndex).then(comments => {
         commentList.innerHTML = '';
@@ -2843,7 +2834,7 @@ function renderCommentArea(newsIndex) {
             emptyTip.textContent = '暂无评论，快来抢沙发吧～';
             commentList.appendChild(emptyTip);
         } else {
-            // 渲染评论列表（仅主评论，无回复/删除）
+            // 渲染评论列表（包含头像）
             sortedComments.forEach(comment => {
                 const commentItem = document.createElement('div');
                 commentItem.className = 'comment-item';
@@ -2877,6 +2868,7 @@ function renderCommentArea(newsIndex) {
         }
     });
 
+    commentWrap.appendChild(commentList);
     commentArea.appendChild(commentWrap);
 }
 function openLoginModal() {
