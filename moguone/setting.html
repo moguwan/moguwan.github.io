@@ -913,15 +913,15 @@ audio {
                                     <img src="https://img.wjwj.top/2026/01/20/d6346e9c8e93165079c5ab74f856358c.png" alt="用户头像" id="avatarPreview">
                                 </div>
                                 <div class="avatar-upload-controls">
-                                    <button class="avatar-upload-btn" id="avatarUploadBtn">
-                                        <i class="iconfont icon-upload"></i> 上传新头像
-                                    </button>
-                                    <input type="file" id="avatarFileInput" accept="image/jpg,image/png,image/jpeg,image/webp" style="display:none;">
-                                    <div class="upload-progress" id="uploadProgress">
-                                        <div class="upload-progress-bar" id="uploadProgressBar"></div>
+                                    <div class="setting-form-group">
+                                        <label class="setting-label">头像链接</label>
+                                        <input type="text" class="setting-input" id="avatarUrlInput" placeholder="请输入头像图片链接（支持JPG、PNG、WebP等格式）">
+                                        <button class="avatar-upload-btn" id="avatarSaveBtn" style="width: 100%; margin-top: 10px;">
+                                            <i class="iconfont icon-save"></i> 保存头像链接
+                                        </button>
+                                        <div class="avatar-status" id="avatarStatus"></div>
                                     </div>
-                                    <div class="avatar-status" id="avatarStatus"></div>
-                                    <p class="avatar-tips">支持 JPG、PNG、WebP 格式，建议尺寸 200x200 像素</p>
+                                    <p class="avatar-tips">输入图片URL链接，建议尺寸 200x200 像素，支持 http:// 或 https:// 链接</p>
                                 </div>
                             </div>
                         </div>
@@ -1325,152 +1325,132 @@ function initMusicPlayer() {
         }));
     }
 }
-
 function initAvatarUpload() {
-    const avatarUploadBtn = document.getElementById('avatarUploadBtn');
-    const avatarFileInput = document.getElementById('avatarFileInput');
+    const avatarSaveBtn = document.getElementById('avatarSaveBtn');
+    const avatarUrlInput = document.getElementById('avatarUrlInput');
     const avatarPreview = document.getElementById('avatarPreview');
-    const uploadProgress = document.getElementById('uploadProgress');
-    const uploadProgressBar = document.getElementById('uploadProgressBar');
     const avatarStatus = document.getElementById('avatarStatus');
     
-    avatarUploadBtn.addEventListener('click', () => {
-        avatarFileInput.click();
-    });
+    // 如果当前用户有自定义头像，显示在输入框
+    if (currentUser && currentUser.avatar && currentUser.avatar !== DEFAULT_AVATAR) {
+        avatarUrlInput.value = currentUser.avatar;
+        avatarPreview.src = currentUser.avatar + '?t=' + new Date().getTime();
+    }
     
-    avatarFileInput.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        
+    avatarSaveBtn.addEventListener('click', async () => {
         if (!currentUser) {
             showTipModal('请先登录！');
             return;
         }
         
-        if (!file.type.match('image.*')) {
-            showTipModal('请选择图片文件！');
+        const avatarUrl = avatarUrlInput.value.trim();
+        if (!avatarUrl) {
+            showTipModal('请输入头像链接！');
             return;
         }
         
-        if (file.size > 2 * 1024 * 1024) {
-            showTipModal('图片大小不能超过2MB！');
+        // 验证URL格式
+        if (!isValidUrl(avatarUrl)) {
+            showTipModal('请输入有效的图片链接！');
             return;
         }
         
-        avatarUploadBtn.disabled = true;
-        avatarUploadBtn.innerHTML = '<i class="iconfont icon-loading rotate"></i> 上传中...';
-        uploadProgress.style.display = 'block';
-        uploadProgressBar.style.width = '0%';
+        avatarSaveBtn.disabled = true;
+        avatarSaveBtn.innerHTML = '<i class="iconfont icon-loading rotate"></i> 验证中...';
         
-        avatarStatus.textContent = '准备上传...';
+        avatarStatus.textContent = '正在验证图片链接...';
         avatarStatus.className = 'avatar-status loading';
         avatarStatus.style.display = 'block';
         
         try {
-            let oldAvatarSha = null;
-            const oldAvatarUrl = currentUser.avatar;
-            const isDefaultAvatar = !oldAvatarUrl || oldAvatarUrl === DEFAULT_AVATAR || oldAvatarUrl.includes(DEFAULT_AVATAR);
-            
-            if (!isDefaultAvatar && oldAvatarUrl.includes('githubusercontent.com')) {
-                const filePath = extractFilePathFromGitHubUrl(oldAvatarUrl);
-                console.log('旧头像URL:', oldAvatarUrl);
-                console.log('提取的文件路径:', filePath);
-                
-                if (filePath) {
-                    try {
-                        const fileInfo = await getGitHubFileInfo(filePath);
-                        if (fileInfo && fileInfo.sha) {
-                            oldAvatarSha = fileInfo.sha;
-                            console.log('获取到旧头像SHA:', oldAvatarSha.substring(0, 8) + '...');
-                        } else {
-                            console.log('无法获取旧头像SHA，可能文件不存在');
-                        }
-                    } catch (error) {
-                        console.log('无法获取旧头像信息:', error);
-                    }
-                }
+            // 验证图片链接是否有效
+            const isValid = await validateImageUrl(avatarUrl);
+            if (!isValid) {
+                throw new Error('图片链接无效或不可访问');
             }
             
-            uploadProgressBar.style.width = '30%';
-            avatarStatus.textContent = '正在上传头像...';
+            // 更新本地用户信息
+            currentUser.avatar = avatarUrl;
+            localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
             
-            const fileExtension = file.name.split('.').pop().toLowerCase();
-            const timestamp = Date.now();
-            const userId = currentUser.account || 'user';
-            const fileName = `${userId}_${timestamp}.${fileExtension}`;
-            const filePath = `${AVATAR_STORAGE_PATH}${fileName}`;
+            // 更新GitHub上的用户信息
+            const success = await updateUserOnGitHub();
             
-            const base64Content = await readFileAsBase64(file);
-            
-            uploadProgressBar.style.width = '60%';
-            avatarStatus.textContent = '正在保存到GitHub...';
-            
-            const uploadResult = await uploadToGitHub(filePath, base64Content, '上传用户头像', oldAvatarSha);
-            
-            if (uploadResult && uploadResult.content) {
-                const rawUrl = uploadResult.content.download_url;
+            if (success) {
+                // 更新预览
+                avatarPreview.src = avatarUrl + '?t=' + new Date().getTime();
                 
-                avatarPreview.src = rawUrl + '?t=' + timestamp;
-                
-                currentUser.avatar = rawUrl;
-                localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
-                try {
-                    await updateUserOnGitHub();
-                    console.log('头像URL已同步到GitHub');
-                } catch (e) {
-                    console.warn('头像URL同步到GitHub失败:', e);
-                }
-                uploadProgressBar.style.width = '100%';
-                avatarStatus.textContent = '头像上传成功！';
+                avatarStatus.textContent = '头像链接保存成功！';
                 avatarStatus.className = 'avatar-status success';
-                if (oldAvatarSha && !isDefaultAvatar) {
-                    try {
-                        avatarStatus.textContent = '正在清理旧头像...';
-                        const oldFilePath = extractFilePathFromGitHubUrl(oldAvatarUrl);
-                        console.log('准备删除的文件路径:', oldFilePath);
-                        console.log('准备删除的SHA:', oldAvatarSha);
-                        
-                        if (oldFilePath) {
-                            console.log('调用deleteFromGitHub...');
-                            const deleteResult = await deleteFromGitHub(oldFilePath, '删除旧头像');
-                            console.log('删除结果:', deleteResult ? '成功' : '失败');
-                            if (deleteResult) {
-                                console.log('旧头像删除成功');
-                            }
-                        } else {
-                            console.log('无法提取文件路径，跳过删除');
-                        }
-                    } catch (deleteError) {
-                        console.error('删除旧头像失败:', deleteError);
-                    }
+                
+                showToast('头像保存成功！');
+                
+                // 更新首页用户信息
+                try {
+                    // 这里可以调用更新首页用户信息的函数
+                    updateHomePageUserInfo();
+                } catch (e) {
+                    console.log('更新首页信息失败:', e);
                 }
-                
-                showToast('头像上传成功！');
-                
-                setTimeout(() => {
-                    uploadProgress.style.display = 'none';
-                    avatarStatus.style.display = 'none';
-                }, 2000);
             } else {
-                throw new Error('上传失败，未返回有效结果');
+                throw new Error('GitHub更新失败');
             }
         } catch (error) {
-            console.error('头像上传失败：', error);
+            console.error('保存头像链接失败：', error);
             
-            avatarStatus.textContent = '上传失败: ' + (error.message || '未知错误');
+            avatarStatus.textContent = '保存失败: ' + (error.message || '未知错误');
             avatarStatus.className = 'avatar-status error';
             
-            showTipModal('头像上传失败：' + (error.message || '请稍后重试'));
+            showTipModal('头像保存失败：' + (error.message || '请检查链接是否正确'));
         } finally {
-            avatarUploadBtn.disabled = false;
-            avatarUploadBtn.innerHTML = '<i class="iconfont icon-upload"></i> 上传新头像';
-            avatarFileInput.value = '';
+            avatarSaveBtn.disabled = false;
+            avatarSaveBtn.innerHTML = '<i class="iconfont icon-save"></i> 保存头像链接';
+            
             setTimeout(() => {
-                uploadProgress.style.display = 'none';
                 avatarStatus.style.display = 'none';
             }, 3000);
         }
     });
+    
+    // 实时预览
+    avatarUrlInput.addEventListener('input', function() {
+        const url = this.value.trim();
+        if (isValidUrl(url)) {
+            // 延迟一点显示预览，避免频繁请求
+            clearTimeout(this.previewTimeout);
+            this.previewTimeout = setTimeout(() => {
+                avatarPreview.src = url;
+            }, 500);
+        }
+    });
+}
+
+// 新增辅助函数
+function isValidUrl(string) {
+    try {
+        const url = new URL(string);
+        return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch (_) {
+        return false;
+    }
+}
+
+async function validateImageUrl(url) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+        img.src = url;
+        
+        // 设置超时
+        setTimeout(() => resolve(false), 5000);
+    });
+}
+
+// 更新首页用户信息（可以在首页调用来更新）
+function updateHomePageUserInfo() {
+    // 这个函数可以在首页被调用，或者在设置页面保存后刷新首页
+    console.log('用户头像已更新，请刷新首页查看效果');
 }
 
 function readFileAsBase64(file) {
@@ -1654,7 +1634,6 @@ function validateEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
 }
-
 async function updateUserOnGitHub() {
     const requestHeaders = {
         "Authorization": `token ${GITHUB_TOKEN}`,
@@ -1680,19 +1659,17 @@ async function updateUserOnGitHub() {
         const updatedLines = lines.map(line => {
             if (line.startsWith(account + '|')) {
                 const parts = line.split('|');
-                parts[2] = currentUser.email || '';
-                parts[3] = currentUser.nickname || currentUser.account;
-                parts[4] = currentUser.isAdmin !== undefined ? (currentUser.isAdmin ? 'true' : 'false') : 'false';
-                
+                // 格式：账号|密码|邮箱|用户名|是否管理员|头像|个人简介
                 if (parts.length >= 6) {
-                    parts[5] = currentUser.avatar || DEFAULT_AVATAR;
+                    parts[5] = currentUser.avatar || DEFAULT_AVATAR; // 更新头像字段
+                    if (parts.length >= 7) {
+                        parts[6] = currentUser.bio || '';
+                    } else {
+                        parts.push(currentUser.bio || '');
+                    }
                 } else {
+                    // 旧格式，添加头像和简介字段
                     parts.push(currentUser.avatar || DEFAULT_AVATAR);
-                }
-                
-                if (parts.length >= 7) {
-                    parts[6] = currentUser.bio || '';
-                } else {
                     parts.push(currentUser.bio || '');
                 }
                 
