@@ -2082,7 +2082,7 @@ async function getAllComments() {
   console.log(`共拉取到${allComments.length}条评论（所有分页）`);
   return allComments;
 }
-// 替换后完整的fetchChatMessages函数（含两处核心修改）
+// 修复后：精准解析“用户名|头像链接: 消息”格式（不改动Issue）
 async function fetchChatMessages() {
 	if (!isHistoryFetched) {
 	    const oldSystemMsg = document.querySelector('.message-item.other .message-sender');
@@ -2092,101 +2092,89 @@ async function fetchChatMessages() {
 	  }
 
   try {
-    // 步骤1：首次拉取 → 获取所有分页的评论（解决多页消息缺失）
+    // 步骤1：首次拉取 → 获取所有分页的评论
     if (!isHistoryFetched) {
-      const allMessages = await getAllComments(); // 调用分页拉取函数
+      const allMessages = await getAllComments();
       
       if (allMessages.length === 0) {
         console.log('当前无任何评论');
         return;
       }
 
-      // 按评论创建时间正序排序（id越小，创建时间越早）
       const historyMessages = [...allMessages].sort((a, b) => a.id - b.id);
       console.log(`首次拉取到${historyMessages.length}条历史消息，开始渲染`);
       
-      // 遍历渲染所有历史消息（优化解析：支持“用户名:内容”/“用户名: 内容”两种格式）
+      // 核心修复：用“: ”（冒号+空格）拆分，匹配发送时的格式
       historyMessages.forEach(msg => {
-        // 解析逻辑：用“:”分割，兼容有无空格的情况
-        const parts = msg.body.split(':');
-        let sender, text, avatar = null;
+        let sender = 'Unknown', text = msg.body.trim(), avatar = null;
+        // 按“: ”拆分（发送时是“用户名|头像: 消息”，所以这里精准拆分）
+        const parts = msg.body.split(': ');
         if (parts.length >= 2) {
             const senderPart = parts[0].trim();
-            // 检查是否包含头像链接（使用|分隔）
+            // 拆分“用户名|头像链接”
             if (senderPart.includes('|')) {
-                const senderInfo = senderPart.split('|');
-                sender = senderInfo[0].trim();
-                avatar = senderInfo[1] || null;
+                const [senderName, senderAvatar] = senderPart.split('|').map(item => item.trim());
+                sender = senderName;
+                avatar = senderAvatar || null; // 提取头像链接
             } else {
                 sender = senderPart;
             }
-            text = parts.slice(1).join(':').trim();
-        } else {
-            sender = 'Unknown';
-            text = msg.body.trim();
+            // 消息内容（若消息里有“: ”也能保留）
+            text = parts.slice(1).join(': ').trim();
         }
 
-        // 格式化消息时间
         const time = formatMessageTime(new Date(msg.created_at));
-        
-        // 【修改点1：历史消息 - 增加身份判断，动态设置显示类型】
-        let messageType = 'other'; // 默认左侧
-        // 已登录且消息发送者是当前用户 → 右侧（user）
+        let messageType = 'other';
         if (currentUser) {
           const currentUserName = currentUser.nickname || currentUser.account;
           if (sender === currentUserName) {
             messageType = 'user';
           }
         }
-        // 渲染到聊天窗口（传动态的messageType，替代固定的other）
-        addMessageToChat(sender, text, time, messageType, msg.id);
+        // 传递头像，同时显示正确消息
+        addMessageToChat(sender, text, time, messageType, msg.id, avatar);
       });
 
-      // 标记历史消息已拉取，避免重复渲染
       isHistoryFetched = true;
-      // 初始化新消息基准ID（后续只拉取比这个ID大的新消息）
       lastMessageId = Math.max(...allMessages.map(msg => msg.id));
-      console.log(`历史消息渲染完成，最新消息ID：${lastMessageId}`);
-      // 自动滚动到最新消息
       moguChatMessages.scrollTop = moguChatMessages.scrollHeight;
       return;
     }
 
-    // 步骤2：非首次拉取 → 只拉取最新的新消息（效率优化）
+    // 步骤2：非首次拉取新消息
     const latestComments = await fetch(
       `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${ISSUE_NUMBER}/comments?per_page=100&page=1`,
       { headers: { 'Authorization': `token ${GITHUB_TOKEN}` } }
     ).then(res => res.json());
     
-    // 筛选出ID大于基准值的新消息
     const newMessages = latestComments.filter(msg => msg.id > lastMessageId);
     if (newMessages.length > 0) {
       console.log(`拉取到${newMessages.length}条新消息，开始渲染`);
-      // 新消息按时间正序渲染
       newMessages.sort((a, b) => a.id - b.id).forEach(msg => {
-        const parts = msg.body.split(':');
-        let sender, text;
+        let sender = 'Unknown', text = msg.body.trim(), avatar = null;
+        // 同样用“: ”拆分新消息
+        const parts = msg.body.split(': ');
         if (parts.length >= 2) {
-          sender = parts[0].trim();
-          text = parts.slice(1).join(':').trim();
-        } else {
-          sender = 'Unknown';
-          text = msg.body.trim();
+            const senderPart = parts[0].trim();
+            if (senderPart.includes('|')) {
+                const [senderName, senderAvatar] = senderPart.split('|').map(item => item.trim());
+                sender = senderName;
+                avatar = senderAvatar || null;
+            } else {
+                sender = senderPart;
+            }
+            text = parts.slice(1).join(': ').trim();
         }
         const time = formatMessageTime(new Date(msg.created_at));
-        
-        let messageType = 'other'; // 默认左侧
-        // 已登录且消息发送者是当前用户 → 改为右侧（user）
+        let messageType = 'other';
         if (currentUser) {
           const currentUserName = currentUser.nickname || currentUser.account;
           if (sender === currentUserName) {
             messageType = 'user';
           }
         }
-        // 渲染时传动态的messageType，替代原来固定的'other'
-        addMessageToChat(sender, text, time, messageType, msg.id);
+        addMessageToChat(sender, text, time, messageType, msg.id, avatar);
       });
-      // 更新基准ID
       lastMessageId = Math.max(lastMessageId, ...newMessages.map(msg => msg.id));
       moguChatMessages.scrollTop = moguChatMessages.scrollHeight;
     } else {
@@ -2201,7 +2189,6 @@ async function fetchChatMessages() {
       console.error('拉取消息出错：', error);
       showCustomAlert('获取消息失败，请重试');
     }
-	addMessageToChat(sender, text, time, messageType, msg.id, avatar);
   }
 }
 
@@ -2517,7 +2504,7 @@ let isNoticeShown = false;
 // 公告内容（可以在这里修改公告内容）
 const noticeContent = `
 <p><strong>欢迎使用 Mogu Search！</strong></p>
-<p>🎉 <strong>由于更新的时候忘记备份了</p>
+<p><strong>由于更新的时候忘记备份了</p>
 <p>大部分people的账号被删掉了</p>
 <p>账号不在的麻烦重新注册一下吧🌸</strong></p>
 <p style="text-align: center; color: #0078d4; margin-top: 15px;">
