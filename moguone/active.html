@@ -19,6 +19,7 @@
   --text-sub: #64748b;
   --ease-spring: cubic-bezier(0.25, 0.8, 0.25, 1);
   --danger: #ef4444;
+  --danger-hover: #dc2626;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -81,12 +82,20 @@ body {
   cursor: pointer; display: flex; flex-direction: column; height: 220px;
 }
 .active-card:hover { transform: translateY(-5px); background: white; box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
-.card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; position: relative; }
 .card-title { font-size: 1.25rem; font-weight: 700; color: var(--text-main); line-height: 1.3; }
 .card-heat { 
   font-size: 0.8rem; font-weight: 700; color: #f59e0b; background: #fef3c7; 
   padding: 4px 8px; border-radius: 8px; display: flex; align-items: center; gap: 4px; 
 }
+.card-delete-btn {
+  position: absolute; top: 0; right: 0; width: 24px; height: 24px;
+  background: none; border: none; color: var(--danger); cursor: pointer;
+  opacity: 0; transition: opacity 0.2s; z-index: 10;
+  display: flex; align-items: center; justify-content: center;
+}
+.active-card:hover .card-delete-btn { opacity: 1; }
+.card-delete-btn:hover { color: var(--danger-hover); }
 .card-desc { font-size: 0.9rem; color: var(--text-sub); flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .card-footer { margin-top: auto; display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.05); }
 .card-owner { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 500; color: var(--text-sub); }
@@ -119,6 +128,10 @@ body {
 .btn-leave:hover { background: #fecaca; }
 .btn-back { background: #f1f5f9; color: var(--text-sub); }
 .btn-back:hover { background: #e2e8f0; }
+.btn-edit { background: #e0e7ff; color: var(--primary); }
+.btn-edit:hover { background: #c7d2fe; }
+.btn-delete-room { background: #fee2e2; color: var(--danger); }
+.btn-delete-room:hover { background: #fecaca; }
 
 .room-chat-area { 
   flex: 1; display: flex; flex-direction: column; background: rgba(255,255,255,0.3); 
@@ -201,6 +214,8 @@ body {
   .room-sidebar { width: 100%; height: 200px; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.05); }
   .navbar { padding: 0 20px; }
   .create-btn span { display: none; }
+  .sidebar-footer { flex-wrap: wrap; }
+  .sidebar-footer .action-btn { flex: 1 0 45%; }
 }
 </style>
 </head>
@@ -253,7 +268,7 @@ body {
         </div>
         <div class="member-list-title">Members (<span id="memberCount">0</span>)</div>
         <ul class="member-list" id="memberList"></ul>
-        <div class="sidebar-footer">
+        <div class="sidebar-footer" id="roomSidebarFooter">
           <button class="action-btn btn-back" onclick="switchView('lobby')">Back</button>
           <button class="action-btn btn-leave" id="leaveBtn" onclick="handleLeaveActive()">Leave</button>
         </div>
@@ -290,6 +305,25 @@ body {
   </div>
 </div>
 
+<!-- 新增：编辑Active弹窗 -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-card">
+    <div class="modal-title">Edit Your Active</div>
+    <div class="form-group">
+      <label class="form-label">Active Name (Topic)</label>
+      <input type="text" class="form-input" id="editName" placeholder="e.g. League of Legends">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-textarea" id="editDesc" placeholder="What is this active about?"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+      <button class="btn-confirm" id="confirmEditBtn">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="confirmModal">
   <div class="modal-card">
     <div class="modal-title" id="confirmTitle">Confirm</div>
@@ -322,7 +356,8 @@ let currentActive = null;
 let chatInterval = null;
 let lastCommentId = 0;
 let isSending = false;
-let processedCommentIds = new Set(); 
+let processedCommentIds = new Set();
+let currentEditActive = null; // 新增：存储当前正在编辑的Active
 
 // --- DOM ELEMENTS ---
 const customAlert = document.getElementById('customAlert');
@@ -333,6 +368,7 @@ const confirmModal = document.getElementById('confirmModal');
 const confirmTitle = document.getElementById('confirmTitle');
 const confirmContent = document.getElementById('confirmContent');
 const confirmBtnAction = document.getElementById('confirmBtnAction');
+const roomSidebarFooter = document.getElementById('roomSidebarFooter'); // 新增：房间底部按钮容器
 let currentConfirmCallback = null;
 
 // --- UTILS ---
@@ -387,6 +423,8 @@ async function init() {
 
   // Load Actives
   await fetchRegistryAndRender();
+  // 新增：绑定编辑确认按钮事件
+  document.getElementById('confirmEditBtn').addEventListener('click', handleEditConfirm);
 }
 
 // --- GITHUB API HELPERS ---
@@ -452,6 +490,7 @@ async function fetchRegistryAndRender() {
   document.getElementById('activeLoading').classList.add('hidden');
 }
 
+// --- 核心修改：渲染Active列表，新增删除按钮（仅所有者可见） ---
 function renderActiveList() {
   activeGrid.innerHTML = '';
   if (activeList.length === 0) {
@@ -467,12 +506,26 @@ function renderActiveList() {
     if (isOwner) badge = `<span class="status-badge owner">Owner</span>`;
     else if (isMember) badge = `<span class="status-badge joined">Joined</span>`;
 
+    // 新增：删除按钮（仅所有者显示，hover卡片时可见）
+    let deleteBtn = '';
+    if (isOwner) {
+      deleteBtn = `
+        <button class="card-delete-btn" data-active-id="${active.id}" onclick="handleDeleteActiveClick(event, '${active.id}')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      `;
+    }
+
     const div = document.createElement('div');
     div.className = 'active-card';
     div.innerHTML = `
       <div class="card-header">
         <div class="card-title">${active.name}</div>
         <div class="card-heat">🔥 ${active.members.length}</div>
+        ${deleteBtn}
       </div>
       <div class="card-desc">${active.desc}</div>
       <div class="card-footer">
@@ -485,8 +538,67 @@ function renderActiveList() {
   });
 }
 
+// --- 新增：编辑Active弹窗相关方法 ---
 function openCreateModal() { document.getElementById('createModal').style.display = 'flex'; }
 function closeCreateModal() { document.getElementById('createModal').style.display = 'none'; }
+// 打开编辑弹窗，填充当前Active数据
+function openEditModal(active) {
+  currentEditActive = active;
+  document.getElementById('editName').value = active.name;
+  document.getElementById('editDesc').value = active.desc;
+  document.getElementById('editModal').style.display = 'flex';
+}
+// 关闭编辑弹窗
+function closeEditModal() {
+  document.getElementById('editModal').style.display = 'none';
+  currentEditActive = null;
+}
+
+// --- 新增：处理编辑确认 ---
+async function handleEditConfirm() {
+  if (!currentEditActive) return;
+  const name = document.getElementById('editName').value.trim();
+  const desc = document.getElementById('editDesc').value.trim();
+  const btn = document.getElementById('confirmEditBtn');
+
+  // 校验：名称和描述不能为空
+  if (!name || !desc) {
+    showAlert('Please fill all fields');
+    return;
+  }
+
+  btn.textContent = 'Saving...';
+  btn.disabled = true;
+
+  try {
+    // 更新当前编辑的Active数据
+    currentEditActive.name = name;
+    currentEditActive.desc = desc;
+    // 更新activeList中的对应数据
+    const idx = activeList.findIndex(a => a.id === currentEditActive.id);
+    if (idx !== -1) activeList[idx] = currentEditActive;
+    // 同步到GitHub注册表
+    const isSuccess = await updateRegistryIssue({ actives: activeList });
+    if (isSuccess) {
+      showAlert('Active updated successfully!');
+      closeEditModal();
+      fetchRegistryAndRender(); // 刷新列表
+      // 如果当前在该Active房间，更新房间标题和描述
+      if (currentActive && currentActive.id === currentEditActive.id) {
+        document.getElementById('roomTitle').textContent = name;
+        document.getElementById('roomDesc').textContent = desc;
+      }
+    } else {
+      throw new Error('Update failed');
+    }
+  } catch (e) {
+    console.error(e);
+    showAlert('Error updating active');
+  } finally {
+    btn.textContent = 'Save Changes';
+    btn.disabled = false;
+  }
+}
 
 document.getElementById('confirmCreateBtn').addEventListener('click', async () => {
   const name = document.getElementById('createName').value.trim();
@@ -595,20 +707,67 @@ async function handleLeaveActive() {
   );
 }
 
-// --- CHAT ROOM LOGIC ---
+// --- 新增：处理删除Active点击事件 ---
+function handleDeleteActiveClick(e, activeId) {
+  e.stopPropagation(); // 阻止冒泡，避免触发进入Active的事件
+  const active = activeList.find(a => a.id === activeId);
+  if (!active) return;
+  // 显示确认删除弹窗（危险操作，红色按钮）
+  showConfirmModal(
+    'Delete Active',
+    `Are you sure to delete "${active.name}"? This action cannot be undone!`,
+    () => deleteActive(activeId),
+    true
+  );
+}
 
+// --- 新增：删除Active核心逻辑 ---
+async function deleteActive(activeId) {
+  try {
+    showAlert('Deleting...');
+    // 从activeList中移除该Active
+    activeList = activeList.filter(a => a.id !== activeId);
+    // 同步到GitHub注册表
+    const isSuccess = await updateRegistryIssue({ actives: activeList });
+    if (isSuccess) {
+      showAlert('Active deleted successfully!');
+      // 如果当前在该Active房间，返回大厅
+      if (currentActive && currentActive.id === activeId) {
+        switchView('lobby');
+        currentActive = null;
+      }
+      fetchRegistryAndRender(); // 刷新列表
+    } else {
+      throw new Error('Delete failed');
+    }
+  } catch (e) {
+    console.error(e);
+    showAlert('Error deleting active');
+    fetchRegistryAndRender(); // 刷新列表恢复数据
+  }
+}
+
+// --- CHAT ROOM LOGIC ---
+// 核心修改：新增页面滚动条控制，进入房间隐藏，返回大厅恢复
 function switchView(viewName) {
   if (viewName === 'lobby') {
     document.getElementById('viewLobby').classList.add('active');
     document.getElementById('viewRoom').classList.remove('active');
     stopChatPolling();
     currentActive = null;
+    // 恢复房间底部默认按钮
+    resetRoomSidebarFooter();
+    // 恢复页面滚动条
+    document.body.style.overflowY = 'auto';
   } else {
     document.getElementById('viewLobby').classList.remove('active');
     document.getElementById('viewRoom').classList.add('active');
+    // 隐藏页面滚动条（保留聊天框/成员列表滚动）
+    document.body.style.overflowY = 'hidden';
   }
 }
 
+// --- 核心修改：进入房间时，为所有者添加编辑/删除按钮 ---
 function enterRoom(active) {
   currentActive = active;
   document.getElementById('roomTitle').textContent = active.name;
@@ -619,8 +778,30 @@ function enterRoom(active) {
   lastCommentId = 0; 
   processedCommentIds.clear(); // Clear processed list on room entry
   
+  // 新增：判断是否为所有者，修改房间底部按钮
+  const isOwner = active.ownerAccount === currentUser.account;
+  if (isOwner) {
+    // 所有者：替换为 编辑、删除、返回 按钮
+    roomSidebarFooter.innerHTML = `
+      <button class="action-btn btn-back" onclick="switchView('lobby')">Back</button>
+      <button class="action-btn btn-edit" onclick="openEditModal(currentActive)">Edit</button>
+      <button class="action-btn btn-delete-room" onclick="handleDeleteActiveClick(event, '${active.id}')">Delete</button>
+    `;
+  } else {
+    // 普通成员：恢复默认按钮
+    resetRoomSidebarFooter();
+  }
+  
   switchView('room');
   startChatPolling();
+}
+
+// --- 新增：恢复房间底部默认按钮 ---
+function resetRoomSidebarFooter() {
+  roomSidebarFooter.innerHTML = `
+    <button class="action-btn btn-back" onclick="switchView('lobby')">Back</button>
+    <button class="action-btn btn-leave" id="leaveBtn" onclick="handleLeaveActive()">Leave</button>
+  `;
 }
 
 function renderMembers() {
@@ -674,7 +855,6 @@ async function kickMember(accountToKick) {
 }
 
 // --- POLLING & CHAT MESSAGES ---
-
 function startChatPolling() {
   if (chatInterval) clearInterval(chatInterval);
   fetchChat(); 
@@ -689,15 +869,12 @@ function stopChatPolling() {
 async function fetchChat() {
   if (!currentActive) return;
   try {
-    // FIXED: Removed 'sort=created&direction=desc' and '.reverse()'
     const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${currentActive.issueNumber}/comments?per_page=100`, {
       headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
     });
     
     if (!res.ok) return;
     const comments = await res.json();
-    
-    // GitHub returns oldest to newest by default. We iterate naturally.
     
     const newComments = comments.filter(c => c.id > lastCommentId && !processedCommentIds.has(c.id));
     
