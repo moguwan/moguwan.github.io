@@ -1,4125 +1,1014 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="MY HOME 个人主页">
-    <meta name="keywords" content="Homepage,JavaTool,个人主页">
-    <meta name="author" content="MY HOME">
-    <title>MoGuOne</title>
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_0khxww3tj3q9.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/dmego-home-page@latest/assets/css/iconfont.css">
-    
-    <svg style="display: none">
-      <filter id="glass-distortion">
-        <feTurbulence type="fractalNoise" baseFrequency="0.001 0.005" numOctaves="1" seed="17" result="turbulence" />
-        <feComponentTransfer in="turbulence" result="mapped">
-          <feFuncR type="gamma" amplitude="1" exponent="10" offset="0.5" />
-          <feFuncG type="gamma" amplitude="0" exponent="1" offset="0" />
-          <feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5" />
-        </feComponentTransfer>
-        <feGaussianBlur in="turbulence" stdDeviation="3" result="softMap" />
-        <feSpecularLighting in="softMap" surfaceScale="5" specularConstant="1" specularExponent="100" lighting-color="white" result="specLight">
-          <fePointLight x="-200" y="-200" z="300" />
-        </feSpecularLighting>
-        <feComposite in="specLight" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litImage" />
-        <feDisplacementMap in="SourceGraphic" in2="softMap" scale="200" xChannelSelector="R" yChannelSelector="G" />
-      </filter>
-    </svg>
-
-    <style type="text/css">
-#loader {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #ffffff;
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    transition: opacity 0.6s ease, visibility 0.6s ease;
-}
-.loading-left-bg, .loading-right-bg {
-    position: absolute;
-    top: 0;
-    width: 50%;
-    height: 100%;
-    background: #f5faf7;
-    transition: transform 0.6s ease;
-}
-.loading-left-bg { left: 0; }
-.loading-right-bg { right: 0; }
-#loader.loaded .loading-left-bg { transform: translateX(-100%); }
-#loader.loaded .loading-right-bg { transform: translateX(100%); }
-#loader.loaded { opacity: 0; visibility: hidden; }
-.spinner-box { text-align: center; }
-.loading-taichi svg {
-    width: 80px;
-    height: 80px;
-    fill: #2d8b69;
-    transition: fill 0.3s ease;
-}
-.loading-word {
-    margin-top: 20px;
-    color: #3a9e7c;
-    font-size: 16px;
-    letter-spacing: 3px;
-    transition: color 0.3s ease;
-}
-.iconfont {
-    font-family: "iconfont" !important;
-    font-size: inherit;
-    font-style: normal;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-.glass-effect {
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(12px) saturate(180%) contrast(1.1) brightness(1.05);
-    -webkit-backdrop-filter: blur(12px) saturate(180%) contrast(1.1) brightness(1.05);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.08),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.2),
-        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
-    position: relative;
-    overflow: hidden;
-}
-.glass-effect-light {
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-    font-family: "Inter", "SF Pro Display", "Microsoft YaHei", sans-serif;
-}
-html, body {
-    overflow-x: hidden !important;
-    position: relative;
-    width: 100%;
-}
-html {
-    scrollbar-width: thin;
-    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
-}
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="description" content="MY HOME 个人主页">
+<meta name="keywords" content="Homepage,JavaTool,个人主页">
+<meta name="author" content="MY HOME">
+<title>MoGuOne</title>
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+<link rel="preload" href="//at.alicdn.com/t/c/font_4552607_0khxww3tj3q9.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="https://unpkg.com/dmego-home-page@latest/assets/css/iconfont.css">
+<style>
 :root {
-    --bg-base: #f5f7fa;
-    --bg-mask: linear-gradient(rgba(245, 247, 250, 0.95), rgba(245, 247, 250, 0.9));
-    --bg-card: rgba(255, 255, 255, 0.92);
-    --bg-card-light: rgba(255, 255, 255, 0.85);
-    --bg-nav: rgba(255, 255, 255, 0.85);
-    --bg-footer: rgba(255, 255, 255, 0.85);
-    --color-text-main: #2d3748;
-    --color-text-sub: #94a3b8;
-    --color-text-title: #1a202c;
-    --color-green: #0078d4;
-    --color-green-deep: #0066b8;
-    --border-color: rgba(0, 0, 0, 0.08);
-    --border-color-light: rgba(0, 0, 0, 0.05);
-    --shadow-color: rgba(0, 120, 212, 0.12);
-    --scrollbar-thumb: rgba(0, 120, 212, 0.5);
-    --scrollbar-track: rgba(245, 247, 250, 0.9);
-    --glass-bg: rgba(255, 255, 255, 0.85);
-    --glass-border: rgba(255, 255, 255, 0.9);
-    --glass-shadow: 
-        0 4px 16px rgba(0, 0, 0, 0.06),
-        0 4px 12px rgba(0, 0, 0, 0.04);
-    --glass-inset-light: rgba(255, 255, 255, 0.95);
-    --glass-inset-dark: rgba(0, 0, 0, 0.05);
-    --hover-glow: rgba(0, 120, 212, 0.18);
-    --active-scale: 0.98;
-    --font-family-main: "Inter", "SF Pro Display", "Microsoft YaHei", sans-serif;
-    --font-weight-light: 350;
-    --font-weight-normal: 400;
-    --font-weight-medium: 500;
-    --font-weight-bold: 600;
-}
-body {
-    font-family: var(--font-family-main);
-    min-height: 100vh;
-    color: var(--color-text-main);
-    scroll-behavior: smooth;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-position: center center;
-    background-color: transparent;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    z-index: 1;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-text-stroke: 0.2px transparent;
-    text-rendering: optimizeLegibility;
-    font-size: 15px;
-    line-height: 1.75;
-    width: 100%;
-    transition: font-size 0.3s ease, color 0.3s ease, font-weight 0.3s ease;
-    letter-spacing: 0.3px;
-}
-body::before {
-    display: none;
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--bg-mask);
-    z-index: -2;
-}
-a {
-    text-decoration: none;
-    color: inherit;
-}
-ul {
-    list-style: none;
-}
-img {
-    max-width: 100%;
-    border-radius: 8px;
-    object-fit: cover;
-    object-position: center;
-    opacity: 1;
-    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    transform: translateZ(0);
-    will-change: opacity, transform;
-}
-img.lazy-img {
-    opacity: 0;
-}
-img.loaded {
-    opacity: 1;
-}
-img:hover {
-    transform: scale(1.02);
-}
-.sidebar-author img {
-    opacity: 1 !important;
-    display: block !important;
-    margin: 0 auto 10px auto;
-}
-video {
-    max-width: 100%;
-    border-radius: 8px;
-    object-fit: cover;
-    object-position: center;
-    opacity: 0;
-    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    cursor: pointer;
-    transform: translateZ(0);
-    will-change: transform;
-}
-video.loaded {
-    opacity: 1;
-}
-.rotate {
-    transition: transform 4s linear infinite;
-}
-.rotate:hover {
-    transform: rotate(360deg);
-}
-.container {
-    flex: 1;
-    position: relative;
-    z-index: 3;
-    width: 100%;
-    max-width: 100vw;
-    padding-bottom: 80px;
-}
-.container-main {
-    display: flex;
-    gap: 20px;
-    max-width: 1200px;
-    margin: 20px auto;
-    padding: 0 20px;
-    position: relative;
-    z-index: 5;
-    width: 100%;
-    min-height: calc(100vh - 200px);
-    align-items: flex-start;
-}
-#header-nav {
-    width: calc(100% - 40px);
-    margin: 0px auto 0 auto;
-    border-radius: 20px;
-    padding: 5px 20px;
-    position: sticky;
-    top: 15px;
-    z-index: 99;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(16px) saturate(200%) contrast(1.1) brightness(1.08);
-    -webkit-backdrop-filter: blur(16px) saturate(200%) contrast(1.1) brightness(1.08);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 
-        0 4px 16px rgba(0, 0, 0, 0.06),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
-        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
-    position: relative;
-}
-.nav-center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    gap: 25px;
-    margin: 0;
-    padding: 0;
-    z-index: 0;
-    max-width: calc(100% - 200px);
-    box-sizing: border-box;
-}
-.main-nav-link-wrap {
-    margin: 0;
-    display: inline-block;
-}
-.main-nav-link {
-    padding: 12px 32px;
-    font-size: 15px;
-    font-weight: var(--font-weight-medium);
-    color: var(--color-text-main);
-    border-radius: 24px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    backdrop-filter: blur(10px) saturate(200%);
-    -webkit-backdrop-filter: blur(10px) saturate(200%);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 
-        0 4px 12px rgba(0, 0, 0, 0.05),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
-        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
-    transform: translateZ(0);
-}
-.main-nav-link.active {
-    color: #fff !important;
-    background: linear-gradient(135deg, #0078d4 0%, #0066b8 100%) !important;
-    border-color: #0078d4 !important;
-    font-weight: var(--font-weight-bold);
-    box-shadow: 
-        0 6px 16px rgba(0, 120, 212, 0.2),
-        0 4px 8px rgba(0, 120, 212, 0.15),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.3),
-        inset -1px -1px 0 rgba(0, 0, 0, 0.1);
-    transform: scale(1.03);
-}
-.main-nav-link:hover:not(.active) {
-    color: #0066b8 !important;
-    background: rgba(0, 120, 212, 0.12) !important;
-    border-color: #0078d4 !important;
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 
-        0 6px 16px rgba(0, 120, 212, 0.15),
-        0 4px 8px rgba(0, 120, 212, 0.1),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
-        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
-}
-.main-nav-link:active {
-    transform: translateY(0) scale(var(--active-scale));
-    box-shadow: 0 2px 8px rgba(0, 120, 212, 0.1) !important;
-}
-.main-nav-link::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(0, 120, 212, 0.12);
-    transform: translate(-50%, -50%);
-    transition: width 0.7s ease, height 0.7s ease;
-}
-.main-nav-link:active::after {
-    width: 320px;
-    height: 320px;
-}
-.nav-right {
-    display: flex;
-    align-items:center;
-    justify-content:flex-end;
-    flex-shrink:0;
-    margin:0;padding:0;
-    flex: 0 0 auto;
-    margin-left: auto;
-    width: auto;
-    padding-left: 20px;
-}
-.github-login-btn, .user-name-display {
-    padding: 10px 20px;
-    font-size:14px;
-    color: var(--color-text-main);
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    border-radius:20px;
-    cursor:pointer;
-    transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display:flex;
-    align-items:center;
-    gap:6px;
-    backdrop-filter:blur(8px) saturate(180%);
-    -webkit-backdrop-filter:blur(8px) saturate(180%);
-    box-shadow: 
-        0 2px 8px rgba(0, 0, 0, 0.05),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
-        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
-}
-.github-login-btn:hover, .user-name-display:hover {
-    background: rgba(0, 120, 212, 0.08);
-    color: #0078d4;
-    transform: translateY(-3px) scale(1.02);
-    border-color: rgba(0, 120, 212, 0.4);
-    box-shadow: 0 6px 16px rgba(0, 120, 212, 0.15);
-}
-.github-login-btn:active, .user-name-display:active {transform:translateY(0) scale(var(--active-scale));}
-.user-name-display {color: #0078d4;}
-.bg-switch-wrap {width:90px;height:26px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin:0;padding:0;}
-.bg-switch-btn {
-    width:90px;
-    height: 36px;
-    border-radius: 24px;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:4px;
-    color: var(--color-text-main);
-    font-size:13px;
-    transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter:blur(3px) saturate(150%);
-    -webkit-backdrop-filter:blur(3px) saturate(150%);
-    box-shadow: 
-        0 2px 8px rgba(0, 0, 0, 0.05),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
-        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
-}
-.bg-switch-btn:hover {
-    background: rgba(0, 120, 212, 0.12);
-    border-color: #0078d4;
-    color: #0078d4;
-    box-shadow: 0 6px 16px rgba(0, 120, 212, 0.15);
-    transform: translateY(-3px) scale(1.03);
-}
-.bg-switch-btn:active {transform:translateY(0) scale(var(--active-scale));}
-.sidebar-author-name {
-    font-size: 19px;
-    font-weight: var(--font-weight-bold);
-    letter-spacing: 1px;
-    color: var(--color-text-title);
-}
-.sidebar-description {
-    font-size: 14px;
-    font-weight: var(--font-weight-light);
-    color: var(--color-text-sub);
-}
-.sidebar-menu-link {
-    font-size: 15px;
-    font-weight: var(--font-weight-normal);
-    color: var(--color-text-main);
-}
-.sidebar-menu-link:hover {
-    font-weight: var(--font-weight-bold);
-    color: #0078d4;
-}
-.main-nav-link {
-    color: var(--color-text-main);
-    border-color: rgba(255, 255, 255, 0.9);
-    box-shadow: 
-        0 4px 12px rgba(0, 0, 0, 0.05),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
-        inset -1px -1px 0 rgba(0, 0, 0, 0.06);
-}
-.main-nav-link:hover:not(.active) {
-    color: #0066b8 !important;
-    background: rgba(0, 120, 212, 0.12) !important;
-    border-color: #0078d4 !important;
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 
-        0 6px 16px rgba(0, 120, 212, 0.15),
-        0 4px 8px rgba(0, 120, 212, 0.1);
-}
-.main-nav-link.active {
-    color: #fff !important;
-    font-weight: var(--font-weight-bold);
-    background: linear-gradient(135deg, #0078d4 0%, #0066b8 100%) !important;
-    border-color: #0078d4 !important;
-}
-.article-title {
-    font-size: 40px;
-    font-weight: var(--font-weight-bold);
-    color: #0078d4;
-    letter-spacing: 1px;
-    text-shadow: 0 2px 4px rgba(0, 120, 212, 0.05);
-    transition: all 0.25s ease-out;
-    cursor: default;
-    margin-bottom: 20px;
-}
-.article-title:hover {
-    color: #0066b8;
-    transform: scale(1.03);
-}
-.article-signature {
-    font-size: 16px;
-    font-weight: var(--font-weight-light);
-    line-height: 1.8;
-    color: var(--color-text-main);
-}
-.article-signature strong {
-    font-weight: var(--font-weight-bold);
-    color: #0078d4;
-}
-.search-input {
-    font-size: 16px;
-    font-weight: var(--font-weight-normal);
-}
-.search-btn {
-    font-size: 16px;
-    font-weight: var(--font-weight-medium);
-}
-.news-title {
-    font-size: 24px;
-    font-weight: var(--font-weight-bold);
-    letter-spacing: 0.5px;
-    color: var(--color-text-title) !important;
-}
-.news-content {
-    font-size: 16px;
-    font-weight: var(--font-weight-normal);
-    line-height: 1.8;
-    color: var(--color-text-main) !important;
-}
-.news-date {
-    font-size: 13px;
-    font-weight: var(--font-weight-light);
-    opacity: 0.9;
-}
-.modal-news-title {
-    font-size: 28px;
-    font-weight: var(--font-weight-bold);
-    letter-spacing: 1px;
-    color: #1a202c !important;
-}
-.modal-news-desc {
-    font-size: 16px;
-    font-weight: var(--font-weight-normal);
-    line-height: 1.8;
-    color: #2d3748 !important;
-}
-.modal-news-date {
-    font-size: 12px;
-    font-weight: var(--font-weight-light);
-    color: #94a3b8 !important;
-}
-.update-log-title {
-    font-size: 15px;
-    font-weight: var(--font-weight-bold);
-}
-.update-log-version {
-    font-size: 14px;
-    font-weight: var(--font-weight-bold);
-}
-.update-log-content {
-    font-size: 13px;
-    font-weight: var(--font-weight-light);
-    line-height: 1.7;
-}
-#footer {
-    font-size: 13px;
-    font-weight: var(--font-weight-light);
-}
-#footer a {
-    font-weight: var(--font-weight-bold);
-}
-.music-text {
-    font-size: 12px;
-    font-weight: var(--font-weight-light);
-}
-.bg-switch-btn {
-    font-size: 13px;
-    font-weight: var(--font-weight-normal);
-}
-.news-item:hover .news-title {
-    color: #0078d4 !important;
-    font-weight: 700;
-}
-#sidebar {
-  width:270px;
-  position:sticky !important;
-  top: 88px;
-  flex-shrink:0;
-  margin-top:0;
-  margin-left: -15px;
-  margin-right: 8px;
-  height: auto;
-  align-self:flex-start;
-  z-index:9;
-}
-.sidebar-wrap {
-  background: linear-gradient(145deg, #ffffff, #f8f9fa);
-  border-radius: 20px;
-  padding:25px;
-  box-shadow: 
-        0 4px 16px rgba(0, 0, 0, 0.06),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
-        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  transition:box-shadow 0.3s ease, transform 0.3s ease;
-  backdrop-filter: blur(20px) saturate(200%) contrast(1.1);
-  -webkit-backdrop-filter: blur(20px) saturate(200%) contrast(1.1);
-  position:relative;
-}
-.sidebar-wrap:hover {box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);}
-.update-log-time-text {font-size:12px;color:var(--color-text-sub);padding-left:15px;margin-top:2px;}
-.sidebar-author {text-align:center;}
-.sidebar-author img {
-    width:100px;height:100px;border-radius:50%;
-    border: 2px solid rgba(0, 120, 212, 0.2);
-    margin-bottom:10px;
-    box-shadow: 
-        0 4px 16px rgba(0, 120, 212, 0.15),
-        0 2px 8px rgba(0, 0, 0, 0.05);
-    transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.sidebar-author img:hover {
-    transform: scale(1.15) rotate(5deg);
-    box-shadow: 
-        0 6px 20px rgba(0, 120, 212, 0.25),
-        0 4px 12px rgba(0, 0, 0, 0.08);
-    border-color: #0078d4;
-}
-.sidebar-author-name {font-size:18px;font-weight:var(--font-weight-bold);color:var(--color-text-title);margin-bottom:5px;}
-.sidebar-description {color:var(--color-text-sub);font-size:14px;font-weight:var(--font-weight-light);}
-.sidebar-social {display:flex;justify-content:center;gap:20px;font-size:22px;margin:0px 0;}
-.sidebar-social a {color:var(--color-text-sub);transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);}
-.sidebar-social a:hover {color:#0078d4;transform:translateY(-4px) scale(1.3);text-shadow: 0 0 10px rgba(0, 120, 212, 0.3);}
-.sidebar-menu-link-wrap {margin:15px 0;}
-.sidebar-menu-link {color:var(--color-text-sub);font-size:15px;padding:8px 0;display:block;transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);font-weight:var(--font-weight-normal);}
-.sidebar-menu-link:hover {color:#0078d4;padding-left:8px;transform:translateX(2px);font-weight:var(--font-weight-bold);}
-.sidebar-stat-wrap {
-    padding: 0px 0;
-    border-radius: 12px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-}
-.stat-item {
-    text-align: center; 
-    flex: 1; 
-    user-select: none;
-    pointer-events: none;
-}
-.sidebar-stat-title {
-    font-size: 15px;
-    font-weight: var(--font-weight-bold);
-    color: #0078d4;
-    margin-bottom: 10px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid rgba(0, 120, 212, 0.1);
-    text-align: center;
-}
-.sidebar-stat-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 6px 0;
-    font-size: 14px;
-}
-.stat-icon {
-    width: 20px;
-    text-align: center;
-}
-.stat-text {
-    font-size: 12px;
-    color: var(--color-text-sub);
-}
-.stat-num {
-    font-size: 22px;
-    font-weight: var(--font-weight-bold);
-    color: #0078d4;
-    margin-bottom: -5px;
-}
-.sidebar-update-log {
-    margin-top:3px;
-    padding:16px;
-    padding-top:5px;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    border-radius:16px;
-    border:1px solid rgba(255,255,255,0.9);
-    max-height:220px;
-    overflow-y:auto;
-    overflow-x:hidden;
-    scrollbar-width:none;
-    -ms-overflow-style:none;
-    backdrop-filter:blur(10px) saturate(180%);
-    -webkit-backdrop-filter:blur(10px) saturate(180%);
-    box-shadow: 
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
-        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
-}
-.sidebar-update-log::-webkit-scrollbar {display:none;}
-.update-log-title {font-size:15px;font-weight:var(--font-weight-bold);color:#0078d4;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid rgba(0, 120, 212, 0.1);}
-.update-log-version {font-size:14px;font-weight:var(--font-weight-bold);color:var(--color-text-title);margin:10px 0 4px 0;}
-.update-log-content {font-size:13px;color:var(--color-text-sub);padding-left:15px;line-height:1.7;font-weight:var(--font-weight-light);}
-.update-log-time {margin-top:15px;padding-top:10px;border-top:1px solid var(--border-color-light);font-size:12px;color:var(--color-text-sub);text-align:center;}
-#content {
-  flex: 1;
-  width: 100%;
-  position:relative;
-  z-index:6;
-  margin: 0 auto;
-  text-align: left; 
-}
-#main {
-  flex:1;
-  position:relative;
-  z-index:6;
-  max-width: 100%;
-  margin: 0 auto;
-}
-.article-inner {
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    border-radius: 20px;
-    padding: 35px 40px 40px 40px;
-    margin-bottom: 25px;
-    backdrop-filter: blur(20px) saturate(200%) contrast(1.1);
-    -webkit-backdrop-filter: blur(20px) saturate(200%) contrast(1.1);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 
-        0 4px 16px rgba(0, 0, 0, 0.06),
-        0 4px 12px rgba(0, 0, 0, 0.04),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
-        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
-    position: relative;
-    transition: all 0.3s ease;
-    margin: 10px auto 50px auto;
-}
-.article-inner .search-box-container {
-    width: 100%;
-    display: flex;
-    gap: 10px;
-    margin: 30px 0 0 0;
-    align-items:center;
-    justify-content:center;
-}
-.article-inner:hover {
-    box-shadow: 
-        0 6px 20px rgba(0, 0, 0, 0.08),
-        0 4px 12px rgba(0, 0, 0, 0.05),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95);
-}
-.article-title {font-size:28px;text-align:center;color:var(--color-text-title);margin-bottom:20px;font-weight:var(--font-weight-bold);letter-spacing:1px;}
-.article-signature {text-align:center;line-height:2;font-size:16px;color:var(--color-text-sub);padding:0 10px;font-weight:var(--font-weight-light);}
-.search-box-container {width:100%;display:flex;gap:10px;align-items:center;justify-content:center;}
-.search-input {
-    flex:1;
-    height: 44px;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    border-radius: 12px;
-    padding:0 20px;
-    color:var(--color-text-main);
-    font-size:16px;
-    outline:none;
-    transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter:blur(10px) saturate(150%);
-    -webkit-backdrop-filter:blur(10px) saturate(150%);
-    box-shadow: 
-        0 2px 8px rgba(0, 0, 0, 0.05),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
-        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
-    font-family:var(--font-family-main);
-}
-.search-input::placeholder {color: var(--color-text-sub);font-size:15px;font-weight:var(--font-weight-light);}
-.search-input:focus {
-    border-color: #0078d4;
-    box-shadow: 
-        0 0 0 4px rgba(0, 120, 212, 0.12),
-        0 4px 12px rgba(0, 0, 0, 0.05),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95);
-}
-.search-btn {
-    height: 44px;
-    padding:0 28px;
-    background: linear-gradient(135deg, #0078d4 0%, #0066b8 100%);
-    border: 1px solid #0078d4;
-    border-radius:12px;
-    color: white;
-    font-size:16px;
-    cursor:pointer;
-    transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    backdrop-filter:blur(10px) saturate(180%);
-    -webkit-backdrop-filter:blur(10px) saturate(180%);
-    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.15);
-    font-weight:var(--font-weight-medium);
-}
-.search-btn:hover {
-    background: linear-gradient(135deg, #0066b8 0%, #005599 100%);
-    transform:translateY(-2px) scale(1.02);
-    border-color: #0066b8;
-    box-shadow: 0 6px 16px rgba(0, 120, 212, 0.2);
-}
-.search-btn:active {transform:translateY(0) scale(var(--active-scale));box-shadow:0 2px 8px rgba(0, 120, 212, 0.15) !important;}
-.search-empty-tips {text-align:center;color:var(--color-text-sub);padding:40px 20px;font-size:15px;width:100%;font-weight:var(--font-weight-light);}
-
-.news-container {width:100%;display:flex;flex-direction:column-reverse;gap:20px;position:relative;z-index:999;}
-.news-item {
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 
-        0 4px 16px rgba(0, 0, 0, 0.06),
-        0 4px 12px rgba(0, 0, 0, 0.04),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
-        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
-    padding:25px;
-    position:relative;
-    z-index:9999;
-    color:var(--color-text-main);
-    margin-bottom:4px;
-    width:100%;
-    overflow:hidden;
-    transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    opacity: 0;
-    will-change: transform, opacity;
-    display:flex;
-    justify-content:space-between;
-    gap:20px;
-    align-items:flex-start;
-    backdrop-filter: blur(20px) saturate(200%) contrast(1.1);
-    -webkit-backdrop-filter: blur(20px) saturate(200%) contrast(1.1);
-}
-.news-item.active {
-    transform: translate3d(0, 0, 0);
-    opacity: 1;
-}
-.news-item.out {
-    opacity: 0;
-}
-.news-item:nth-child(even) {flex-direction: row;}
-.news-item:nth-child(odd) {flex-direction: row-reverse;justify-content: space-between;}
-.news-item.out:nth-child(odd) {
-    transform: translate3d(-100%, 0, 0);
-}
-.news-item.out:nth-child(even) {
-    transform: translate3d(100%, 0, 0);
-}
-.news-text-box {flex:0 0 60%;display:flex;flex-direction:column;justify-content:space-between;min-height:200px;}
-.news-media-box {
-    flex:0 0 35%;
-    height:200px;
-    border-radius:12px;
-    overflow:hidden;
-    border:1px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 
-        0 2px 8px rgba(0, 0, 0, 0.05),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95);
-    /* 新增：图片加载前的占位背景 */
-    background: #f5f7fa;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative; /* 新增：为伪元素定位提供参考 */
-}
-.news-media-box::before {
-    content: "🖼️ 图片加载中...";
-    color: #94a3b8;
-    font-size: 14px;
-    display: block;
-    position: absolute; /* 新增：固定提示文字位置 */
-    z-index: 0; /* 确保在图片下方 */
-}
-.news-media-box.loaded::before {
-    display: none !important; /* 强制隐藏 */
-}
-.news-item:hover {
-    transform: translateY(-6px) scale(1.01) translateZ(0) rotate(0deg) !important;
-    box-shadow: 
-        0 6px 20px rgba(0, 0, 0, 0.08),
-        0 4px 12px rgba(0, 0, 0, 0.05),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95);
-    border-color: #0078d4;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-}
-.news-title {font-size:24px;color:var(--color-text-title)!important;font-weight:var(--font-weight-bold);margin-bottom:12px;letter-spacing:1px;cursor:pointer;transition: all 0.3s ease;}
-.news-title:hover {color:#0078d4 !important;}
-.news-content {font-size:16px;color:var(--color-text-main)!important;line-height:1.8;font-weight:var(--font-weight-normal);}
-.news-date {
-    font-size: 13px;
-    color: #0078d4;
-    opacity: 0.95;
-    z-index: 10;
-    pointer-events: none;
-    margin-top: auto;
-    padding-top: 10px;
-    font-weight: var(--font-weight-light);
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  --primary: #0078d4;
+  --primary-hover: #0066b8;
+  --text-main: #1e293b;
+  --text-sub: #64748b;
+  --bg-base: #f8fafc;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+  --card-radius: 20px;
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.news-img-item, .news-video-item {
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    object-position:center;
-    cursor:pointer;
-    transition:all 0.3s ease;
-    display:block;
-    /* 新增：覆盖占位提示 */
-    position: relative;
-    z-index: 1;
-}
-.news-img-item:hover, .news-video-item:hover {transform:scale(1.03);box-shadow: 0 4px 12px rgba(0, 120, 212, 0.15);}
-.news-loading {text-align:center;color:#0078d4;padding:40px 20px;font-size:15px;}
-.comment-area {margin-top:15px;padding-top:15px;border-top:1px solid rgba(255,255,255,0.08);width:100%;display:none;}
-.comment-title {display:none;}
-.utter-container {opacity:0;visibility:hidden;max-height:0;overflow:hidden;}
-
-.news-like-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    color: #0078d4;
-    font-size: 16px;
-    padding: 2px 6px;
-    border-radius: 6px;
-    cursor: pointer;
-    user-select: none;
-    transition: all 0.2s ease;
-    font-weight: var(--font-weight-medium);
-    pointer-events: auto;
-}
-.news-like-btn:hover {
-    color: #0066b8;
-    transform: scale(1.05);
-}
-.news-like-btn.liked {
-    color: #0078d4 !important;
-}
-.news-like-count {
-    font-size: 12px;
-    font-weight: var(--font-weight-medium);
-}
-.modal-news-like-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    color: #0078d4;
-    font-size: 14px;
-    padding: 2px 6px;
-    border-radius: 6px;
-    cursor: pointer;
-    user-select: none;
-    transition: all 0.2s ease;
-    font-weight: var(--font-weight-medium);
-    pointer-events: auto;
-}
-.modal-news-like-btn:hover {
-    color: #0066b8;
-    transform: scale(1.05);
-}
-.modal-news-like-btn.liked {
-    color: #0078d4 !important;
-}
-.modal-news-like-count {
-    font-size: 11px;
-    font-weight: var(--font-weight-medium);
-}
-.toast-notification {
-    position: fixed;
-    top: 200px;
-    right: 20px;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    backdrop-filter: blur(12px) saturate(180%);
-    -webkit-backdrop-filter: blur(12px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    border-radius: 8px;
-    padding: 10px 18px;
-    color: var(--color-text-main);
-    font-size: 14px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    z-index: 999999;
-    opacity: 0;
-    transform: translateX(100%);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.toast-notification.show {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-.toast-notification .icon {
-    color: #0078d4;
-    font-size: 16px;
-    font-weight: bold;
-}
-.toast-notification .loading-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid #0078d4;
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.toast-notification .success-icon {
-  font-size: 16px;
-  font-weight: bold;
-  color: #0078d4;
-}
-.tip-modal-mask {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    z-index: 99999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 20px 10px;
-    box-sizing: border-box;
-}
-.tip-modal-mask.show {
-    opacity: 1;
-    pointer-events: all;
-}
-.tip-modal-box {
-    width: 100%;
-    max-width: 380px;
-    padding: 25px 20px;
-    border-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    transform: translateY(15px) scale(0.95);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-}
-.tip-modal-mask.show .tip-modal-box {
-    transform: translateY(0) scale(1);
-}
-.tip-modal-icon {
-    font-size: 32px;
-    color: #0078d4 !important;
-    font-weight: bold;
-}
-.tip-modal-text {
-    font-size: 16px;
-    color: var(--color-text-title) !important;
-    text-align: center;
-    font-weight: var(--font-weight-medium);
-    line-height: 1.6;
-}
-.tip-modal-close-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    cursor: pointer;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter: blur(8px) saturate(180%);
-    -webkit-backdrop-filter: blur(8px) saturate(180%);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    color: #0078d4;
-}
-.tip-modal-close-btn:hover {
-    background: rgba(0, 120, 212, 0.15);
-    color: #0078d4;
-    transform: rotate(120deg) scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.15);
-    border-color: rgba(0, 120, 212, 0.3);
-}
-.tip-modal-close-btn:active {
-    transform: rotate(90deg) scale(var(--active-scale));
-}
-#bgModalMask {
-    padding: 20px !important;
-    align-items: flex-start !important;
-    overflow-y: auto !important;
-}
-#bgModalMask .tip-modal-box {
-    padding: 15px !important;
-    margin: 0 auto !important;
-    margin-top: 15px !important;
-    top: 0 !important;
-    left: 0 !important;
-    transform: none !important;
-    width: 95% !important;
-    max-width: 1200px !important;
-    max-height: 90vh !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-}
-#bgModalMask .tip-modal-box > div:first-child,
-#bgModalMask .tip-modal-box > div:nth-child(2),
-#bgModalMask .tip-modal-box > div:nth-child(3) {
-    padding: -1px 0 8px 0 !important;
-    margin: 0 !important;
-    width: 100% !important;
-}
-#bgThumbList .bg-thumb-item {
-    width: 100% !important;
-    height: 110px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border-radius: 10px !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-}
-#bgThumbList .bg-thumb-item img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-    display: block !important;
-}
-#bgThumbList {
-    width: 100% !important;
-    height: auto !important;
-    margin: 0px !important;
-    padding: 0px !important;
-    padding-top: 0 !important;
-    display: grid !important;
-    grid-template-columns: repeat(4, 1fr) !important;
-    gap: 12px !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-    position: relative !important;
-    top: 0 !important;
-    left: 0 !important;
-    max-height: calc(85vh - 120px) !important;
-}
-.bg-tab-group {
-    display: flex;
-    gap: 10px;
-    margin: 8px 0 15px 0;
-    width: 100%;
-}
-.bg-tab-btn {
-    flex: 1;
-    height: 38px;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    border-radius: 10px;
-    color: var(--color-text-sub);
-    font-size: 15px;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter: blur(10px) saturate(180%);
-    -webkit-backdrop-filter: blur(10px) saturate(180%);
-    font-weight: var(--font-weight-medium);
-}
-.bg-tab-btn.active {
-    color: #fff !important;
-    background: linear-gradient(135deg, #0078d4 0%, #0066b8 100%) !important;
-    border-color: #0078d4 !important;
-    font-weight: var(--font-weight-bold);
-    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.15);
-}
-.bg-tab-btn:hover:not(.active) {
-    color: #0078d4 !important;
-    background: rgba(0, 120, 212, 0.12) !important;
-    border-color: rgba(0, 120, 212, 0.4) !important;
-    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.15);
-}
-.bg-thumb-item {
-    width: 100% !important;
-    height: 90px !important;
-    border-radius: 10px !important;
-    overflow: hidden !important;
-    cursor: pointer !important;
-    border: 2px solid transparent !important;
-    transition: all 0.25s ease !important;
-    position: relative !important;
-    box-shadow: 
-        0 2px 8px rgba(0, 0, 0, 0.05),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95) !important;
-    background: rgba(255, 255, 255, 0.9) !important;
-    border: 1px solid rgba(255, 255, 255, 0.9) !important;
-}
-.bg-thumb-item:hover {
-    transform: scale(1.03) !important;
-    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.15) !important;
-}
-.bg-thumb-item.active {
-    border-color: #0078d4 !important;
-    box-shadow: 
-        0 0 0 3px rgba(0, 120, 212, 0.15),
-        0 4px 12px rgba(0, 120, 212, 0.15) !important;
-}
-.bg-thumb-item img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-    object-position: center !important;
-    display: block !important;
-    opacity: 1 !important;
-}
-.bg-thumb-del {
-    position:absolute;
-    top:5px;
-    right:5px;
-    width:24px;
-    height:24px;
-    border-radius:50%;
-    background:rgba(0,0,0,0.8);
-    color:#fff;
-    font-size:12px;
-    display:flex;align-items:center;justify-content:center;
-    cursor:pointer;
-    opacity:0;
-    transition:opacity 0.25s ease;
-    z-index: 99;
-}
-.bg-thumb-item:hover .bg-thumb-del {
-    opacity:1;
-}
-#bgModalCloseBtn {
-    position: fixed !important;
-    top: 15px !important;
-    right: 15px !important;
-    width: 45px !important;
-    height: 45px !important;
-    font-size: 20px !important;
-    z-index: 9999999 !important;
-}
-
-.img-preview-mask {position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.95);z-index:10000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);}
-.img-preview-mask.show {opacity:1;pointer-events:all;}
-.preview-img, .preview-video {
-    max-width:90vw;
-    max-height:90vh;
-    border-radius:8px;
-    transform-origin:center center;
-    transform:scale(0.95);
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display:none;
-    object-fit:contain;
-    margin:0 auto;
-}
-.preview-img.show-animate, .preview-video.show-animate {
-    transform:scale(1);
-    opacity: 1;
-}
-.preview-img {z-index:10001;}
-.preview-video {z-index:10001;background:#000;}
-.img-preview-mask.show .preview-img, .img-preview-mask.show .preview-video {display:block;transform:scale(1);}
-.preview-close-btn {
-    position: fixed;
-    top: 25px;
-    right: 25px;
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    cursor: pointer;
-    font-size: 20px;
-    display:flex;align-items:center;justify-content:center;
-    z-index: 10002;
-    backdrop-filter: blur(8px) saturate(180%);
-    -webkit-backdrop-filter: blur(8px) saturate(180%);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    color: #0078d4;
-}
-.preview-close-btn:hover {
-    background: rgba(0, 120, 212, 0.15);
-    color: #0078d4;
-    transform: rotate(120deg) scale(1.2);
-    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.15);
-    border-color: rgba(0, 120, 212, 0.3);
-}
-.preview-nav-btn {
-    position: fixed;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    color: #0078d4;
-    font-size: 20px;
-    cursor: pointer;
-    z-index: 10003;
-    backdrop-filter: blur(8px) saturate(180%);
-    -webkit-backdrop-filter: blur(8px) saturate(180%);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.preview-prev-btn {
-    left: 30px;
-}
-.preview-next-btn {
-    right: 30px;
-}
-.preview-nav-btn:hover {
-    background: rgba(0, 120, 212, 0.15);
-    color: #0078d4;
-    transform: translateY(-50%) scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.15);
-    border-color: rgba(0, 120, 212, 0.3);
-}
-.preview-nav-btn:active {
-    transform: translateY(-50%) scale(var(--active-scale));
-}
-.preview-nav-btn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-    transform: translateY(-50%);
-    box-shadow: none;
-}
-.preview-pagination {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 6px 16px;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 20px;
-    color: var(--color-text-title);
-    font-size: 14px;
-    font-weight: var(--font-weight-medium);
-    z-index: 10003;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-}
-.news-modal-mask {position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);padding:20px;box-sizing:border-box;}
-.news-modal-mask.show {opacity:1;pointer-events:all;}
-.news-modal-box {
-    background:linear-gradient(145deg, #ffffff, #f8f9fa);
-    border-radius:20px;
-    border:1px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-    width:100%;
-    max-width: 1200px;
-    max-height:calc(100vh - 40px);
-    color:var(--color-text-main);
-    position:relative;
-    transform:translateY(20px);
-    transition:transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    opacity:0;
-    display: flex;
-    flex-direction: row;
-    overflow: hidden;
-    margin:auto;
-    margin-top: 80px; /* 新增：顶部留出80px空间，避开关闭按钮 */
-    backdrop-filter:blur(20px) saturate(180%) contrast(1.1);
-    -webkit-backdrop-filter:blur(20px) saturate(180%) contrast(1.1);
-}
-.news-modal-mask.show .news-modal-box {transform:translateY(0);opacity:1;}
-.modal-close-btn {
-    position: fixed; /* 改为fixed，相对于视口定位 */
-    top: 30px; /* 距离顶部30px */
-    right: 30px; /* 距离右侧30px */
-    width: 50px; /* 增大尺寸，更显眼 */
-    height: 50px;
-    border-radius: 50%;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    border: 2px solid #0078d4; /* 增加边框颜色，更突出 */
-    cursor: pointer;
-    font-size: 24px; /* 增大叉号字体 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 999999; /* 提高层级，确保不被遮挡 */
-    backdrop-filter: blur(8px) saturate(180%);
-    -webkit-backdrop-filter: blur(8px) saturate(180%);
-    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.2); /* 增加阴影，更立体 */
-    color: #0078d4;
-    margin: 0;
-    padding: 0;
-}
-
-/* 保留hover/active样式，确保交互效果 */
-.modal-close-btn:hover {
-    background: rgba(0, 120, 212, 0.15);
-    color: #0078d4;
-    transform: rotate(120deg) scale(1.2);
-    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.15);
-    border-color: rgba(0, 120, 212, 0.3);
-}
-.modal-close-btn:active {transform: rotate(90deg) scale(var(--active-scale));}
-.modal-close-btn:hover {
-    background: rgba(0, 120, 212, 0.15);
-    color: #0078d4;
-    transform: rotate(120deg) scale(1.2);
-    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.15);
-    border-color: rgba(0, 120, 212, 0.3);
-}
-.modal-close-btn:active {transform: rotate(90deg) scale(var(--active-scale));}
-.modal-news-content {
-    padding:45px 30px 25px 30px;
-    width: 60%; 
-    overflow-y: auto;
-    max-height: calc(100vh - 90px);
-    box-sizing: border-box;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-}
-.modal-news-title {font-size:25px;color:var(--color-text-title);font-weight:var(--font-weight-bold);margin-bottom:15px;letter-spacing:1px;}
-.modal-news-desc {font-size:16px;color:var(--color-text-main);line-height:1.8;margin-bottom:20px;font-weight:var(--font-weight-normal);}
-.modal-news-imgs {display:flex;flex-wrap:wrap;gap:12px;margin-bottom:15px;}
-.modal-news-img-item {width:calc(33.33% - 8px);height:180px;object-fit:cover;border-radius:8px;border:1px solid rgba(0, 120, 212, 0.1);cursor:pointer;transition:all 0.3s ease;position:relative;}
-.modal-news-img-item:hover {transform:scale(1.03);box-shadow: 0 4px 12px rgba(0, 120, 212, 0.15);}
-.modal-news-date {
-    font-size: 12px;
-    color: var(--color-text-sub);
-    text-align: right;
-    margin-bottom: 20px;
-    font-weight: var(--font-weight-light);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    justify-content: flex-end;
-}
-.modal-comment-area {
-    padding:0 30px 25px 30px;
-    border-top:1px solid rgba(0, 0, 0, 0.08);
-    margin-top:10px;
-    width: 40%;
-    overflow-y: auto;
-    max-height: calc(100vh - 90px);
-    box-sizing: border-box;
-    border-left:1px solid rgba(0, 0, 0, 0.08);
-    border-top: none;
-    margin-top: 0;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-}
-.modal-utter-container {width:100%!important;min-height:200px;max-height:400px;}
-.modal-utter-container iframe {width:100%!important;border:0!important;min-height:200px!important;}
-.news-modal-box::-webkit-scrollbar {display:none;}
-.news-modal-box {-ms-overflow-style:none;scrollbar-width:none;}
-.news-modal-box {color: #2d3748 !important;}
-.news-modal-box .modal-news-title,.news-modal-box .modal-news-desc,.news-modal-box .modal-news-date {color: #2d3748 !important;}
-#footer {
-    width: auto;
-    height: 50px;
-    color: var(--color-text-sub);
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    position: fixed;
-    bottom: 15px;
-    left: 15px;
-    transform: translateX(0);
-    z-index: 98;
-    display: flex;
-    align-items: center;
-    padding: 0;
-    border-radius: 25px;
-    backdrop-filter: blur(20px) saturate(200%);
-    -webkit-backdrop-filter: blur(20px) saturate(200%);
-    box-shadow: 
-        0 4px 16px rgba(0, 0, 0, 0.06),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
-        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.9);
-}
-#footer.music-paused {
-    width: 50px;
-    border-radius: 50%;
-}
-
-#footer.music-playing {
-    width: 200px;
-    border-radius: 25px;
-}
-#footer:hover {
-    box-shadow: 
-        0 6px 20px rgba(0, 0, 0, 0.08),
-        0 4px 12px rgba(0, 0, 0, 0.05),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95);
-}
-#footer a {color: #0078d4;transition: color 0.2s ease;font-weight:var(--font-weight-medium);}
-#footer a:hover {text-decoration:underline;color: #0066b8;}
-.footer-right {display:flex;align-items:center;gap:8px;margin:0 auto;}
-.music-player {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    position: relative;
-    left: 0;
-    top: 0;
-    transform: none;
-    padding: 0 15px;
-    width: 100%;
-    height: 100%;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-#footer.music-paused .music-text {
-    opacity: 0;
-    width: 0;
-    overflow: hidden;
-    margin-left: -10px;
-}
-
-#footer.music-playing .music-text {
-    opacity: 1;
-    width: auto;
-    margin-left: 0;
-}
-.music-btn {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    color: #0078d4;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-size: 16px;
-    position: relative;
-    backdrop-filter: blur(8px) saturate(180%);
-    -webkit-backdrop-filter: blur(8px) saturate(180%);
-    border: 1px solid rgba(255,255,255,0.9);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    flex-shrink: 0;
-    overflow: hidden;
-    z-index: 100;
-}
-.music-btn:hover {background: #0078d4;color:#fff;transform:scale(1.2);border-color: #0078d4;box-shadow: 0 4px 12px rgba(0, 120, 212, 0.15);}
-.music-btn:active {transform: scale(var(--active-scale));}
-.play-icon::before {content:'';width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:13px solid currentColor;margin-left:2px;}
-.pause-icon::before {content:'';width:12px;height:14px;background:linear-gradient(to right, currentColor 0, currentColor 3px, transparent 3px, transparent 6px, currentColor 6px, currentColor 9px);}
-.music-text {font-size:12px;color:var(--color-text-sub);font-weight:var(--font-weight-light);}
-audio {display:none;}
-.sidebar-top {position:fixed;bottom:90px;right:30px;z-index:99;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);border:1px solid rgba(255, 255, 255, 0.9);background:linear-gradient(145deg, #ffffff, #f8f9fa);backdrop-filter:blur(12px) saturate(180%);-webkit-backdrop-filter:blur(12px) saturate(180%);box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);color: var(--color-text-sub);}
-.sidebar-top:hover {background:#0078d4;color:#fff;transform:translateY(-6px) scale(1.2);box-shadow: 0 6px 16px rgba(0, 120, 212, 0.2);border-color: #0078d4;}
-.sidebar-top:active {transform: translateY(0) scale(var(--active-scale));}
-.sidebar-tools {position:fixed;bottom:140px;right:30px;z-index:99;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);border:1px solid rgba(255, 255, 255, 0.9);background:linear-gradient(145deg, #ffffff, #f8f9fa);backdrop-filter:blur(12px) saturate(180%);-webkit-backdrop-filter:blur(12px) saturate(180%);font-size:18px;color: var(--color-text-sub);box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);}
-.sidebar-tools:hover {background:#0078d4;color:#fff;transform:translateY(-6px) scale(1.2);box-shadow: 0 6px 16px rgba(0, 120, 212, 0.2);border-color: #0078d4;}
-.sidebar-tools:active {transform: translateY(0) scale(var(--active-scale));}
-::-webkit-scrollbar {width:8px;height:8px;}
-::-webkit-scrollbar-track {background:var(--scrollbar-track);border-radius:10px;}
-::-webkit-scrollbar-thumb {background:var(--scrollbar-thumb);border-radius:10px;transition:all 0.2s ease;}
-::-webkit-scrollbar-thumb:hover {background:#0078d4;}
-::-webkit-scrollbar-thumb:active {background:#0066b8;}
-.sidebar-wrap::-webkit-scrollbar { width: 6px; }
-@media (max-width: 1024px) {
-    #footer.music-playing {
-        width: 160px;
-    }
-    .music-text {
-        font-size: 11px;
-    }
-    .news-modal-box {
-        flex-direction: column;
-        max-width: 100%;
-    }
-    .modal-news-content {
-        width: 100%;
-        height: auto;
-        max-height: 50vh;
-        overflow-y: auto;
-        overscroll-behavior: contain;
-    }
-    .modal-comment-area {
-        width: 100%;
-        height: auto;
-        max-height: 40vh;
-        overflow-y: auto;
-        border-left: none;
-        border-top:1px solid rgba(0, 0, 0, 0.08);
-        margin-top: 10px;
-        overscroll-behavior: contain;
-    }
-    html, body {overflow-x:hidden!important;}
-    .container-main {flex-direction:column;gap:30px;margin:20px auto;}
-    #sidebar {position:static;width:100%;left:auto;top:auto;transform:none;margin-bottom:0;height:auto;}
-    #content {width:100%;margin-left:0!important;padding:0!important;}
-    .sidebar-wrap {max-height:none;overflow-y:visible;}
-    .article-title {font-size:24px;}
-    .main-nav-link-wrap {margin:0 6px;}
-    .sidebar-top {bottom:80px;right:20px;}
-    .sidebar-tools {bottom:130px;right:20px;}
-    #footer {width:calc(100% - 30px);left:15px;bottom:10px;padding:12px 15px;height:auto;flex-wrap:wrap;gap:8px;justify-content:center;}
-    .music-text {display:none;}
-    .news-item {flex-direction:column;gap:15px;padding:20px;}
-    .news-text-box {flex:1;min-height:auto;}
-    .news-media-box {flex:1;width:100%;height:180px;}
-    .news-title {font-size:20px;}
-    .news-content {font-size:15px;}
-    .github-login-btn, .user-name-display {border-radius:24px !important;padding:9px 18px !important;}
-    .news-modal-box {max-width:100%;margin:20px 0;}
-    .modal-news-img-item {width:calc(50% - 8px);height:150px;}
-    .modal-news-content {padding:20px 18px;}
-    .modal-comment-area {padding:0 18px 20px 18px;}
-    .search-box-container {padding:0 5px;}
-    .search-input {height:38px;font-size:14px;}
-    .search-btn {height:38px;padding:0 25px;font-size:14px;justify-content:center;}
-    .search-btn .iconfont {margin-right:6px;}
-}
-@media (max-width:768px) {
-    .news-media-box {height:160px;}
-    .modal-news-img-item {width:100%;height:200px;}
-    .nav-center {flex-wrap:wrap;gap:8px;}
-    #header-nav {width:calc(100% - 20px);margin:10px auto 0 auto;padding:10px 15px;}
-}
 * {
-    max-width: 100%;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  user-select: none;
 }
-.news-modal-box {
-    background:linear-gradient(145deg, #ffffff, #f8f9fa);
-    border-radius:20px;
-    border:1px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-    width:100%;
-    max-width: 1200px;
-    max-height:calc(100vh - 40px);
-    color:var(--color-text-main);
-    position:relative;
-    transform:translateY(20px);
-    transition:transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    opacity:0;
-    display: flex;
-    flex-direction: row;
-    overflow: hidden;
-    margin:auto;
-    backdrop-filter:blur(20px) saturate(180%) contrast(1.1);
-    -webkit-backdrop-filter:blur(20px) saturate(180%) contrast(1.1);
+
+body {
+  min-height: 100vh;
+  color: var(--text-main);
+  background-color: var(--bg-base);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+  transition: background 1s ease;
+  overflow-x: hidden;
 }
-img, video, iframe {
-    max-width: 100%;
-    height: auto;
+
+#loader {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.8s ease, visibility 0.8s ease;
 }
-table {
-    max-width: 100%;
-    overflow-x: auto;
-    display: block;
-}
-.qq-login-btn, .user-info-display {
-    padding:10px 20px;
-    font-size:14px;
-    color: var(--color-text-main);
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    border-radius:20px;
-    cursor:pointer;
-    transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display:flex;
-    align-items:center;
-    gap:6px;
-    backdrop-filter:blur(8px) saturate(180%);
-    -webkit-backdrop-filter:blur(8px) saturate(180%);
-    box-shadow: 
-        0 2px 8px rgba(0, 0, 0, 0.05),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
-        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    -webkit-touch-callout: none;
-}
-.qq-login-btn:hover, .user-info-display:hover {
-    background: rgba(0, 120, 212, 0.12);
-    color: #0078d4;
-    transform: translateY(-3px) scale(1.02);
-    border-color: rgba(0, 120, 212, 0.4);
-    box-shadow: 0 6px 16px rgba(0, 120, 212, 0.15);
-}
-.qq-login-btn:active, .user-info-display:active {transform:translateY(0) scale(var(--active-scale));}
-.user-info-display {color: #0078d4;}
-.user-info-display {
+#loader.loaded { opacity: 0; visibility: hidden; pointer-events: none; }
+.loading-icon svg { width: 60px; height: 60px; fill: var(--primary); animation: spin 2s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { margin-top: 20px; font-size: 14px; letter-spacing: 2px; color: var(--text-sub); opacity: 0.8; animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
   position: relative;
-  cursor: pointer;
+  z-index: 10;
 }
-.user-dropdown-trigger {
+
+#header-nav {
+  position: sticky;
+  top: 20px;
+  z-index: 100;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 50px;
+  box-shadow: var(--glass-shadow);
+  margin-bottom: 40px;
+  transition: transform 0.3s var(--ease-smooth);
+}
+
+/* 导航栏主题按钮样式优化 */
+.bg-switch-btn {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.3s var(--ease-spring);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 0 4px;
-}
-.user-dropdown-menu {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  min-width: 100px;
-  background: linear-gradient(145deg, #ffffff, #f8f9fa);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  border-radius: 12px;
-  box-shadow: 
-        0 4px 16px rgba(0, 0, 0, 0.06),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
-        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
-  backdrop-filter: blur(12px) saturate(180%) contrast(1.1);
-  -webkit-backdrop-filter: blur(12px) saturate(180%) contrast(1.1);
-  padding: 10px 0;
-  display: none;
-  z-index: 9999;
-}
-.user-dropdown-menu.show {
-  display: block;
-  animation: dropdownFade 0.3s ease forwards;
-}
-@keyframes dropdownFade {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.dropdown-item {
-  padding: 8px 18px;
   font-size: 14px;
-  color: var(--color-text-main);
-  text-align: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 600;
 }
-.dropdown-item:hover {
-  background: rgba(0, 120, 212, 0.15);
-  color: #0078d4;
-  padding-right: 22px;
-}
-.user-avatar {width:24px;height:24px;border-radius:50%;object-fit:cover;border:1px solid rgba(0, 120, 212, 0.3);}
-.comment-wrap {width:100%;margin-top:20px;border-top:1px solid rgba(0, 0, 0, 0.08);padding-top:20px;}
-.comment-title {font-size:18px;font-weight:var(--font-weight-bold);color:#0078d4;margin-bottom:15px;text-align:left;display:block !important;}
-.comment-input-box {width:100%;display:flex;gap:10px;margin-bottom:20px;}
-.comment-input {
-    flex:1;
-    min-height: 42px;
-    max-height: 200px;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    border:1px solid rgba(255, 255, 255, 0.9);
-    border-radius:12px;
-    padding: 12px 15px;
-    color:var(--color-text-main);
-    font-size:15px;
-    outline:none;
-    transition:all 0.3s ease;
-    backdrop-filter:blur(10px) saturate(150%);
-    -webkit-backdrop-filter:blur(10px) saturate(150%);
-    box-shadow: 
-        0 2px 8px rgba(0, 0, 0, 0.05),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
-        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
-    resize: none;
-    overflow: hidden;
-    line-height: 1.5;
-}
-.comment-input:focus {border-color:#0078d4;box-shadow: 0 0 0 4px rgba(0, 120, 212, 0.12);}
-.comment-submit-btn {
-    height:42px;
-    padding:0 20px;
-    background: linear-gradient(135deg, #0078d4 0%, #0066b8 100%);
-    border:1px solid #0078d4;
-    border-radius:12px;
-    color:white;
-    font-size:14px;
-    cursor:pointer;
-    transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.15);
-}
-.comment-submit-btn:hover {
-    background: linear-gradient(135deg, #0066b8 0%, #005599 100%);
-    transform:translateY(-3px) scale(1.02);
-    border-color: #0066b8;
-    box-shadow: 0 6px 16px rgba(0, 120, 212, 0.2);
-}
-.comment-submit-btn:disabled {color:var(--color-text-sub);border-color:rgba(0, 0, 0, 0.08);cursor:not-allowed;background: #f8f9fa;transform:none;box-shadow:none;}
-.comment-list {width:100%;display:flex;flex-direction:column;gap:15px;}
-.comment-item {
-    width:100%;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    border-radius:12px;
-    padding:15px;
-    border:1px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 
-        0 2px 8px rgba(0, 0, 0, 0.05);
-    text-align:left;
-}
-.comment-user-info {display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-.comment-user-avatar {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1px solid rgba(0, 120, 212, 0.2);
-    background: rgba(0, 120, 212, 0.1);
-}
-.comment-user-name {font-size:14px;font-weight:var(--font-weight-medium);color:#0078d4;}
-.comment-time {font-size:12px;color:var(--color-text-sub);margin-left:auto;}
-.comment-content {font-size:15px;color:var(--color-text-main);line-height:1.7;padding-left:36px;}
-.comment-empty {text-align:center;color:var(--color-text-sub);padding:20px 0;font-size:14px;}
-.comment-login-tip {text-align:center;color:#0078d4;padding:20px 0;font-size:14px;cursor:pointer;}
-.comment-login-tip:hover {text-decoration:underline;}
-.news-nav-btns {
-    position: fixed;
-    top: 50%;
-    right: 50px;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    z-index: 99999;
+.bg-switch-btn:hover { background: rgba(0,0,0,0.05); }
+.bg-switch-btn:hover .iconfont {
+  transform: rotate(180deg);
+  transition: transform 0.5s ease;
 }
 
-.news-nav-btn {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    backdrop-filter: blur(12px) saturate(180%);
-    -webkit-backdrop-filter: blur(12px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    color: #0078d4;
-    font-size: 20px;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 
-        0 4px 12px rgba(0, 0, 0, 0.05);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.nav-center { display: flex; gap: 8px; }
+.nav-link {
+  padding: 10px 24px;
+  border-radius: 25px;
+  text-decoration: none;
+  color: var(--text-sub);
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s var(--ease-spring);
+  position: relative;
+}
+.nav-link.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
+}
+.nav-link:not(.active):hover {
+  background: rgba(255,255,255,0.5);
+  color: var(--primary);
+  transform: translateY(-2px);
 }
 
-.news-nav-btn:hover {
-    background: #0078d4;
-    color: #fff;
-    transform: scale(1.1);
-    box-shadow: 0 6px 16px rgba(0, 120, 212, 0.2);
+.user-area { position: relative; }
+.login-btn, .user-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+  transition: all 0.3s var(--ease-spring);
 }
+.login-btn:hover, .user-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  color: var(--primary);
+}
+.user-dropdown {
+  position: absolute;
+  top: 120%;
+  right: 0;
+  width: 140px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 6px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px) scale(0.95);
+  transform-origin: top right;
+  transition: all 0.2s var(--ease-spring);
+}
+.user-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+.dropdown-item {
+  padding: 10px 16px;
+  font-size: 13px;
+  color: var(--text-main);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.dropdown-item:hover { background: #f1f5f9; color: var(--primary); }
 
-.news-nav-btn:disabled {
-    opacity: 0.2;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    color: var(--color-text-sub);
+.hero-dashboard {
+  display: grid;
+  grid-template-columns: 280px 1fr 280px;
+  gap: 20px;
+  margin-bottom: 50px;
 }
-
-@media (max-width: 768px) {
-    .news-nav-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 16px;
-    }
-    .news-nav-btns {
-        right: 15px;
-        gap: 10px;
-    }
+.dashboard-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--card-radius);
+  padding: 24px;
+  box-shadow: var(--glass-shadow);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
-@keyframes apple-breathe {
-  0%, 100% { opacity: 0.4; transform: scale(0.9); }
-  50% { opacity: 1; transform: scale(1.1); }
-}
-/* 首次访问提示框样式 - 与页面玻璃质感风格统一 */
-.first-visit-tip {
-    position: fixed;
-    top: 220px;          /* 距离顶部20px */
-    right: 20px;        /* 距离右侧20px（右上角） */
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    backdrop-filter: blur(12px) saturate(180%);
-    -webkit-backdrop-filter: blur(12px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    border-radius: 12px;
-    padding: 12px 18px;
-    box-shadow: 
-        0 4px 16px rgba(0, 0, 0, 0.06),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
-        inset -1px -1px 0 rgba(0, 0, 0, 0.05);
-    z-index: 999999;    /* 最高层级，确保不被遮挡 */
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--color-text-title);
-    font-size: 14px;
-    opacity: 0;         /* 默认隐藏 */
-    transform: translateY(-20px); /* 初始向上偏移 */
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* 平滑动画 */
-}
-
-/* 显示提示框的样式 */
-.first-visit-tip.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* 提示文字样式 */
-.first-visit-tip .tip-text {
-    font-size: 14px;
-    color: #0078d4;     /* 页面主色调 */
-    font-weight: var(--font-weight-medium);
-}
-
-/* 关闭按钮样式 */
-.first-visit-tip .tip-close-btn {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: rgba(0, 120, 212, 0.1);
-    border: none;
-    color: #0078d4;
-    font-size: 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    flex-shrink: 0;
-}
-
-/* 关闭按钮hover效果 */
-.first-visit-tip .tip-close-btn:hover {
-    background: #0078d4;
-    color: white;
-    transform: rotate(90deg) scale(1.1);
-}
-.apple-loading-comment {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  font-weight: 300;
-  letter-spacing: 0.5px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.apple-loading-dot {
-  width: 4px;
-  height: 4px;
+.profile-card { align-items: center; text-align: center; }
+.profile-avatar {
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  background: rgba(0, 120, 212, 0.8);
-  display: inline-block;
-  margin: 0 1px;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  margin-bottom: 12px;
+  transition: transform 0.4s var(--ease-spring);
 }
-/* 管理员权限提示弹窗-遮罩层（全屏+模糊+淡入动画） */
-.admin-tip-mask {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    z-index: 999999; /* 最高层级，避免被遮挡 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 与页面原有动画一致 */
-    padding: 20px;
-    box-sizing: border-box;
+.profile-avatar:hover { transform: scale(1.1) rotate(5deg); }
+.profile-name { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.profile-bio { font-size: 13px; color: var(--text-sub); line-height: 1.5; }
+
+.header-center {
+  align-items: center;
+  text-align: center;
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  backdrop-filter: none;
 }
-/* 遮罩层显示状态（淡入） */
-.admin-tip-mask.show {
-    opacity: 1;
-    pointer-events: all;
+.site-title {
+  font-size: 42px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 10px;
+  letter-spacing: -1px;
+}
+.site-quote { font-size: 15px; color: var(--text-sub); margin-bottom: 30px; }
+
+/* --- 搜索框样式重构 START --- */
+.search-box {
+  position: relative;
+  width: 100%;
+  max-width: 500px; /* 加宽一点 */
+  margin: 0 auto;
+  transition: transform 0.3s var(--ease-spring);
+}
+.search-box:hover {
+  transform: translateY(-2px); /* 悬浮时轻微上浮 */
 }
 
-/* 弹窗主体（玻璃质感+缩放+位移动画） */
-.admin-tip-box {
-    width: 100%;
-    max-width: 420px;
-    padding: 30px 25px;
-    border-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 18px;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-    transform: translateY(20px) scale(0.96); /* 初始状态：下移+缩小 */
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.1s; /* 延迟动画，更流畅 */
+.search-input {
+  width: 100%;
+  height: 54px; /* 增加高度 */
+  padding: 0 65px 0 24px; /* 右侧留出按钮空间 */
+  border-radius: 27px;
+  border: 2px solid rgba(255,255,255,0.5); /* 柔和的边框 */
+  background: rgba(255,255,255,0.45); /* 更加通透 */
+  backdrop-filter: blur(12px); /* 磨砂感更强 */
+  font-size: 16px;
+  color: var(--text-main);
+  outline: none;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+  transition: all 0.3s ease;
 }
-/* 弹窗显示状态（复位+缩放正常） */
-.admin-tip-mask.show .admin-tip-box {
-    transform: translateY(0) scale(1);
-}
-
-/* 弹窗标题/描述文字 */
-.admin-tip-title {
-    font-size: 20px;
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text-title);
-    letter-spacing: 0.5px;
-}
-.admin-tip-desc {
-    font-size: 15px;
-    color: var(--color-text-sub);
-    text-align: center;
-    line-height: 1.7;
-    padding: 0 10px;
+.search-input::placeholder { color: #94a3b8; opacity: 0.8; }
+.search-input:focus {
+  background: rgba(255,255,255,0.9);
+  border-color: var(--primary);
+  box-shadow: 0 8px 30px rgba(0, 120, 212, 0.15); /* 聚焦光晕 */
 }
 
-/* 按钮组（横向排列） */
-.admin-tip-buttons {
-    display: flex;
-    gap: 15px;
-    margin-top: 10px;
-    width: 100%;
-    justify-content: center;
+.search-btn {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: 42px; /* 稍微加大按钮 */
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%); /* 渐变色 */
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
+  transition: all 0.4s var(--ease-spring);
+  z-index: 2;
 }
+.search-btn i { font-size: 18px; font-weight: bold; }
+.search-btn:hover {
+  transform: scale(1.1) rotate(15deg); /* 悬停动效 */
+  background: linear-gradient(135deg, #0066b8 0%, #2563eb 100%);
+  box-shadow: 0 6px 18px rgba(0, 120, 212, 0.45);
+}
+.search-btn:active { transform: scale(0.95); }
+/* --- 搜索框样式重构 END --- */
 
-/* 通用按钮样式（沿用页面交互逻辑） */
-.admin-tip-btn {
-    padding: 12px 30px;
-    border-radius: 12px;
-    font-size: 15px;
-    font-weight: var(--font-weight-medium);
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid transparent;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-}
-/* 退出按钮（浅色风格，匹配页面普通按钮） */
-.admin-tip-btn.exit-btn {
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    border-color: rgba(255, 255, 255, 0.9);
-    color: var(--color-text-main);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-/* 去登录按钮（主色风格，突出操作，匹配页面active按钮） */
-.admin-tip-btn.login-btn {
-    background: linear-gradient(135deg, #0078d4 0%, #0066b8 100%);
-    border-color: #0078d4;
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.15);
-}
+.stats-card { gap: 15px; }
+.stat-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+.stat-row:last-child { border-bottom: none; }
+.stat-label { font-size: 13px; color: var(--text-sub); }
+.stat-value { font-size: 16px; font-weight: 700; color: var(--text-main); }
+.update-log { max-height: 100px; overflow-y: auto; font-size: 12px; color: var(--text-sub); line-height: 1.6; margin-top: 10px; }
 
-/* 按钮hover/active效果（与页面导航按钮一致） */
-.admin-tip-btn.exit-btn:hover {
-    background: rgba(0, 120, 212, 0.08);
-    border-color: rgba(0, 120, 212, 0.4);
-    color: #0078d4;
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.1);
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px;
+  padding-bottom: 100px;
 }
-.admin-tip-btn.login-btn:hover {
-    background: linear-gradient(135deg, #0066b8 0%, #005599 100%);
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 6px 16px rgba(0, 120, 212, 0.2);
+.news-card {
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+  transition: all 0.4s var(--ease-spring);
+  opacity: 0;
+  transform: translateY(20px);
+  cursor: pointer;
+  border: 1px solid rgba(0,0,0,0.02);
 }
-.admin-tip-btn:active {
-    transform: translateY(0) scale(var(--active-scale)); /* 复用页面缩放变量 */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+.news-card.visible { opacity: 1; transform: translateY(0); }
+.news-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0, 120, 212, 0.12); }
+.news-cover {
+  height: 200px;
+  background: #f1f5f9;
+  position: relative;
+  overflow: hidden;
 }
+.news-cover img, .news-cover video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+.news-card:hover .news-cover img { transform: scale(1.08); }
+.news-body { padding: 24px; }
+.news-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; line-height: 1.4; }
+.news-desc { font-size: 14px; color: var(--text-sub); line-height: 1.6; height: 44px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; margin-bottom: 20px; }
+.news-meta { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 15px; font-size: 12px; color: #94a3b8; }
+.like-btn { display: flex; align-items: center; gap: 4px; transition: color 0.2s; cursor: pointer; }
+.like-btn:hover { color: var(--primary); }
 
-/* 适配移动端 */
+#footer {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  padding: 6px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  z-index: 900;
+  border: 1px solid rgba(255,255,255,0.6);
+  transition: all 0.4s var(--ease-spring);
+  width: 54px;
+  overflow: hidden;
+}
+#footer.playing { width: 280px; padding: 6px 20px 6px 6px; }
+.music-cover {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--text-main);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.play-icon {
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 6px 0 6px 10px;
+  border-color: transparent transparent transparent #fff;
+  margin-left: 3px; 
+}
+.pause-icon {
+  width: 10px; height: 12px;
+  border-left: 3px solid #fff;
+  border-right: 3px solid #fff;
+}
+.music-info { margin-left: 15px; white-space: nowrap; opacity: 0; transition: opacity 0.3s; font-size: 13px; font-weight: 500; }
+#footer.playing .music-info { opacity: 1; }
+
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-mask.show { opacity: 1; pointer-events: auto; }
+.modal-box {
+  width: 90%;
+  max-width: 1000px;
+  height: 85vh;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+  transform: scale(0.95);
+  transition: transform 0.4s var(--ease-spring);
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
+.modal-mask.show .modal-box { transform: scale(1); }
+.modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.3s var(--ease-spring);
+  color: var(--text-main);
+  font-size: 18px;
+}
+.modal-close:hover { transform: rotate(90deg) scale(1.1); background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+.modal-left { flex: 3; padding: 40px; overflow-y: auto; background: #fff; }
+.modal-right { flex: 2; background: #f8fafc; border-left: 1px solid #e2e8f0; padding: 30px; display: flex; flex-direction: column; }
+
+.comment-input {
+  width: 100%;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+  font-size: 14px;
+  transition: all 0.3s;
+  outline: none;
+  resize: none;
+  min-height: 80px;
+  user-select: text;
+}
+.comment-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0, 120, 212, 0.1); }
+.comment-btn {
+  margin-top: 15px;
+  padding: 10px 24px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-end;
+  transition: transform 0.2s;
+}
+.comment-btn:hover { transform: scale(1.05); background: var(--primary-hover); }
+
+.bg-modal-content {
+  background: #fff;
+  padding: 30px;
+  border-radius: 20px;
+  max-width: 600px;
+  width: 90%;
+  text-align: center;
+}
+.bg-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; max-height: 400px; overflow-y: auto; }
+.bg-item { height: 100px; border-radius: 10px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
+.bg-item:hover, .bg-item.active { border-color: var(--primary); transform: scale(1.05); }
+.bg-item img { width: 100%; height: 100%; object-fit: cover; }
+
+.toast {
+  position: fixed;
+  top: 100px;
+  right: 30px;
+  background: #fff;
+  padding: 12px 24px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 9999;
+  transform: translateX(150%);
+  transition: transform 0.4s var(--ease-spring);
+}
+.toast.show { transform: translateX(0); }
+.toast-icon { color: #10b981; font-size: 18px; }
+
+@media (max-width: 1024px) {
+  .hero-dashboard { grid-template-columns: 1fr; gap: 30px; }
+  .dashboard-card { width: 100%; }
+  .header-center { order: -1; margin-bottom: 20px; }
+}
 @media (max-width: 768px) {
-    .admin-tip-box {
-        max-width: 90%;
-        padding: 25px 20px;
-    }
-    .admin-tip-buttons {
-        flex-direction: column; /* 移动端按钮竖向排列 */
-        gap: 10px;
-    }
-    .admin-tip-btn {
-        width: 100%;
-        padding: 11px 0;
-    }
+  .modal-box { flex-direction: column; height: 95vh; }
+  .modal-left { flex: 1; padding: 25px; }
+  .modal-right { flex: 1; border-left: none; border-top: 1px solid #e2e8f0; }
+  .nav-center { display: none; }
+  .news-grid { grid-template-columns: 1fr; }
 }
-    </style>
+</style>
 </head>
 <body>
-    <div id="loader">
-        <div class="loading-left-bg loading-bg"></div>
-        <div class="loading-right-bg loading-bg"></div>
-        <div class="spinner-box">
-            <div class="loading-taichi rotate">
-                <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" xmlns="https://www.w3.org/2000/svg">
-                    <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" />
-                    <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" />
-                </svg>
-            </div>
-            <div class="loading-word">春天是她最爱的季节...</div>
-        </div>
-    </div>
 
-    <div class="container">
-        <nav id="header-nav">
-            <div class="theme-bg-switch-group">
-                <div class="bg-switch-wrap">
-                    <button class="bg-switch-btn" id="bgChangeBtn">
-                        <i class="iconfont icon-refresh"></i>
-                        background
-                    </button>
-                </div>
-            </div>
-            <div class="nav-center">
-				<span class="main-nav-link-wrap"><a class="main-nav-link" href="moguone/search.html">Search</a></span>
-                <span class="main-nav-link-wrap"><a class="main-nav-link active" href="index.html">Home</a></span>
-                <span class="main-nav-link-wrap"><a class="main-nav-link" href="moguone/tool.html">Tool</a></span>
-            </div>
-            <div class="nav-right" id="userLoginArea">
-                <a href="moguone/login.html" class="github-login-btn" id="loginBtn">
-                    <i class="iconfont icon-user"></i> Login
-                </a>
-                <div class="user-info-display" id="userInfoBox" style="display: none;">
-                  <div class="user-dropdown-trigger">
-                    <span id="userNickName">Name</span>
-                  </div>
-                  <div class="user-dropdown-menu">
-                    <div class="dropdown-item" id="userSettingBtn">Personal Center</div>
-                    <div class="dropdown-item" id="logoutBtn">Logout</div>
-                  </div>
-                </div>
-            </div>
-        </nav>
-        <div class="container-main">
-            <aside id="sidebar">
-                <div class="sidebar-wrap" data-aos="fade-up">
-                    <div class="sidebar-author">
-                        <img src="https://img.wjwj.top/2026/01/16/a27c17b713d7998cebb06b1dde372d64.jpg" alt="个人头像">
-                        <div class="sidebar-author-name">Mo GuOne</div>
-                        <div class="sidebar-description">热爱是所有的理由和答案</div>
-                    </div>
-                    <div class="sidebar-social">
-                        <a href="https://moguwan.github.io/index.html" title="Github" target="_blank"><i class='social iconfont icon-github'></i></a>
-                        <a href="https://www.zhihu.com/" title="知乎" target="_blank"><i class='social iconfont icon-zhihu'></i></a>
-                        <a href="https://wj.qq.com/s2/25528684/0be2/" title="邮箱"><i class='social iconfont icon-email'></i></a>
-                    </div>
-                    <div class="sidebar-menu">
-                        <div class="sidebar-stat-wrap">
-                            <div class="stat-item">
-                                <div class="stat-num" id="totalCount">0</div>
-                                <div class="stat-text">总访问量</div>
-                            </div>
-                        </div>
-                        <div class="sidebar-update-log"><div class="update-log-title">📌 版本更新日志</div></div>
-                    </div>
-                </div>
-            </aside>
-        
-            <div id="content">
-                <section id="main">
-                    <article class="article-inner" data-aos="fade-up">
-                        <h1 class="article-title" data-aos="slide-up">MY HOME</h1>
-                        <p class="article-signature" data-aos="slide-up">
-                            你会不会忽然的出现，在街角的咖啡店。<strong>—陈奕迅 《好久不见》</strong><br> 
-                            <p class="article-signature" data-aos="slide-up">
-                                点击下方的大标题可以打开详情页以及查看发表评论,评论加载有点慢 请耐心等待😄<br>
-                            </p>
-                        </p>
-                        <div class="search-box-container">
-                            <input type="text" class="search-input" id="searchInput" placeholder="搜索日记标题/内容关键词...">
-                            <button class="search-btn" id="searchBtn"><i class="iconfont icon-search"></i> Search</button>
-                            <button class="search-btn" id="resetBtn"><i class="iconfont icon-close"></i> Reset</button>
-                        </div>
-                    </article>
-                    <div class="news-container" id="newsScroll"></div>
-                </section>
-            </div>
+<div id="loader">
+  <div class="loading-icon">
+    <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"/><path d="M512 140c-205.4 0-372 166.6-372 372s166.6 372 372 372 372-166.6 372-372-166.6-372-372-372z" opacity=".5"/></svg>
+  </div>
+  <div class="loading-text">MOGU ONE</div>
+</div>
+
+<div class="container">
+  
+  <nav id="header-nav">
+    <button class="bg-switch-btn" id="bgChangeBtn" title="切换背景主题">
+      <i class="iconfont icon-refresh"></i>
+      <span>Theme</span>
+    </button>
+    <div class="nav-center">
+      <a href="moguone/search.html" class="nav-link">Search</a>
+      <a href="index.html" class="nav-link active">Home</a>
+      <a href="moguone/tool.html" class="nav-link">Tool</a>
+    </div>
+    <div class="user-area" id="userArea">
+      <button class="login-btn" id="loginBtn">
+        <i class="iconfont icon-user"></i> Login
+      </button>
+      <div class="user-btn" id="userBtn" style="display: none;">
+        <span id="userName">User</span>
+        <div class="user-dropdown">
+          <div class="dropdown-item" id="goProfile">个人中心</div>
+          <div class="dropdown-item" id="goAdmin" style="display:none;">管理后台</div>
+          <div class="dropdown-item" id="doLogout">退出登录</div>
         </div>
+      </div>
     </div>
-    <footer id="footer">
-    <div class="music-player">
-        <div class="music-btn play-icon" id="playBtn"></div>
-        <div class="music-text">Top Barry - 一半一半</div>
-        <audio id="music" loop preload="auto">
-            <source src="moguone/song/一半一半.mp3" type="audio/mpeg">
-        </audio>
-    </div>
-</footer>
-    <div class="sidebar-top" id="sidebarTop">
-        <div class="arrow-up">↑</div>
-    </div>
-    <div class="first-visit-tip" id="firstVisitTip">
-        <span class="tip-text">点击大标题可查看详情</span>
-        <button class="tip-close-btn" id="tipCloseBtn">✕</button>
-    </div>
-    <div class="tip-modal-mask" id="tipModalMask">
-        <div class="tip-modal-box glass-effect">
-            <button class="tip-modal-close-btn" id="tipModalCloseBtn">✕</button>
-            <div class="tip-modal-icon">!</div>
-            <div class="tip-modal-text">Please enter search keywords</div>
-        </div>
-    </div>
-	<div class="admin-tip-mask" id="adminTipMask">
-	    <div class="admin-tip-box glass-effect">
-	        <button class="tip-modal-close-btn" id="adminTipCloseBtn">✕</button>
-	        <div class="tip-modal-icon" style="color: #0078d4; font-size: 36px;">!</div>
-	        <div class="admin-tip-title">权限提示</div>
-	        <div class="admin-tip-desc">本页面仅提供管理员浏览，非管理员无访问权限</div>
-	        <!-- 双选择按钮：退出 + 去登录 -->
-	        <div class="admin-tip-buttons">
-	            <button class="admin-tip-btn exit-btn" id="adminExitBtn">退出</button>
-	            <button class="admin-tip-btn login-btn" id="adminToLoginBtn">去登录账号</button>
-	        </div>
-	    </div>
-	</div>
-    <div class="toast-notification" id="toastNotification">
-        <span class="icon loading-spinner" style="display: none;"></span>
-        <span class="icon success-icon">✓</span>
-        <span class="text">Success</span>
-    </div>
+  </nav>
+
+  
+  <section class="hero-dashboard">
     
-    <div class="img-preview-mask" id="imgPreviewMask">
-        <button class="preview-close-btn" id="previewCloseBtn">✕</button>
-        <button class="preview-nav-btn preview-prev-btn" id="previewPrevBtn">◀</button>
-        <button class="preview-nav-btn preview-next-btn" id="previewNextBtn">▶</button>
-        <div class="preview-pagination" id="previewPagination">1/1</div>
-        <img src="" alt="预览图片" class="preview-img" id="previewImg">
-        <video class="preview-video" id="previewVideo" controls playsinline webkit-playsinline x5-playsinline preload="auto"></video>
-    </div>
-    <div class="tip-modal-mask" id="bgModalMask">
-        <button class="tip-modal-close-btn" id="bgModalCloseBtn">✕</button>
-        <div class="tip-modal-box glass-effect">
-            <div style="font-size:18px; font-weight:bold; color:#0078d4; margin-bottom:10px;">壁纸选择中心 ✨</div>
-            <div class="bg-tab-group">
-                <button class="bg-tab-btn active" id="customBgTab">我的壁纸 (自定义)</button>
-                <button class="bg-tab-btn" id="officialBgTab">官方壁纸</button>
-            </div>
-            <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap: wrap;">
-                <button class="search-btn" id="addBgBtn" style="padding:0 20px;">+ 自定义添加壁纸</button>
-                <input type="file" id="bgFileInput" accept="image/jpg,image/png,image/webp" style="display:none;">
-                <span style="font-size:12px;color:var(--color-text-sub);margin:auto 0;">支持JPG/PNG/WEBP，图片自动永久保存</span>
-            </div>
-            <div id="bgThumbList"></div>
-        </div>
-    </div>
-    <div class="news-modal-mask" id="newsModalMask">
-        <button class="modal-close-btn" id="modalCloseBtn">✕</button> <!-- 移到这里 -->
-        <div class="news-nav-btns">
-            <button class="news-nav-btn news-next-btn" id="newsNextBtn">↑</button>
-            <button class="news-nav-btn news-prev-btn" id="newsPrevBtn">↓</button>
-        </div>
-        <div class="news-modal-box">
-            <div class="modal-news-content" id="modalNewsContent"></div>
-            <div class="modal-comment-area" id="modalCommentArea"></div>
-        </div>
+    <div class="dashboard-card profile-card">
+      <img src="https://img.wjwj.top/2026/01/16/a27c17b713d7998cebb06b1dde372d64.jpg" class="profile-avatar" alt="Avatar">
+      <div class="profile-name">Mo GuOne</div>
+      <div class="profile-bio">热爱是所有的理由和答案</div>
+      <div class="sidebar-social" style="display:flex;gap:15px;margin-top:15px;justify-content:center;">
+        <a href="https://github.com" target="_blank" style="color:#64748b;"><i class="iconfont icon-github"></i></a>
+        <a href="mailto:test@test.com" style="color:#64748b;"><i class="iconfont icon-email"></i></a>
+      </div>
     </div>
 
-    <script type="text/javascript">
-const GITHUB_TOKEN = ["gh","p_p","VX","lo","0HQ","PmMx","Ic","eM","HB","uMzm","EON","LPX","700","10","M","SL"].join('');
-const COUNT_ISSUE_NUMBER = 7;
-const NEWS_ISSUE_NUMBER = 322;
-const NEWS_SEPARATOR = '---';
-const COUNT_REG = /总访问量：(\d+)/;
-const NEWS_VIEW_PREFIX = "浏览";
-const NEWS_VIEW_SUFFIX = "量：";
-const NEWS_VIEW_REG = /浏览(\d+)量：(\d+)/g;
-const NEWS_LIKE_PREFIX = "点赞";
-const NEWS_LIKE_SUFFIX = "数量：";
-const NEWS_LIKE_REG = /点赞(\d+)数量：(\d+)/g;
-let newsLikeCounts = {};
-const COMMENT_MAP_ISSUE_NUMBER = 299; // 评论映射存储的 Issue 编号
-const DEFAULT_AVATAR = "https://img.wjwj.top/2026/01/20/d6346e9c8e93165079c5ab74f856358c.png";
-const USER_LOCAL_KEY = 'MY_CUSTOM_USER_INFO';
-const USER_ISSUE_NUMBER = 11; // 用户信息存储的 Issue 编号
-let currentUser = null;
-let bgUrlList = [];
-let customBgList = [];
-let allBgList = [];
-const BG_CUSTOM_KEY = 'custom_bg_list';
-const BG_INDEX_KEY = 'saveBgIndex';
-let currentBgTab = 'custom';
-let isAnimating = false;
-let imgObserver = null;
-let videoObserver = null;
-let newsDataList = [];
-let currentModalIndex = -1;
-let scrollTopVal = 0;
-let newsAnimateObserver = null;
-const GITHUB_REPO = "moguwan/moguwan.github.io";
-let isLogin = false;
-let userInfo = {
-    avatar: '',
-    nickname: '',
-    openid: ''
+    
+    <div class="dashboard-card header-center">
+      <div class="site-title">MY HOME</div>
+      <div class="site-quote">你会不会忽然的出现，在街角的咖啡店。</div>
+      <div class="search-box">
+        <input type="text" class="search-input" id="searchInput" placeholder="搜索日记 / Search...">
+        <button class="search-btn" id="searchBtn"><i class="iconfont icon-search"></i></button>
+      </div>
+    </div>
+
+    
+    <div class="dashboard-card stats-card">
+      <div class="stat-row">
+        <span class="stat-label">总访问量</span>
+        <span class="stat-value" id="totalCount">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">状态</span>
+        <span class="stat-value" style="color:#10b981;">Active ●</span>
+      </div>
+      <div class="stat-label" style="margin-top:15px;">更新日志</div>
+      <div class="update-log sidebar-update-log"></div>
+    </div>
+  </section>
+
+  
+  <div class="news-grid" id="newsContainer"></div>
+
+</div>
+
+
+<div id="footer">
+  <div class="music-cover" id="playBtn">
+    <div class="play-icon"></div>
+  </div>
+  <div class="music-info">Top Barry - 一半一半</div>
+  <audio id="music" loop preload="auto" src="moguone/song/一半一半.mp3"></audio>
+</div>
+
+
+<div class="modal-mask" id="newsModal">
+  <div class="modal-box">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-left" id="modalContent"></div>
+    <div class="modal-right" id="modalComments">
+      <div style="flex:1;overflow-y:auto;margin-bottom:15px;" id="commentList"></div>
+      <div style="border-top:1px solid #eee;padding-top:15px;">
+        <textarea class="comment-input" id="commentInput" placeholder="写下你的评论..."></textarea>
+        <button class="comment-btn" id="submitComment">发送</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal-mask" id="bgModal">
+  <div class="bg-modal-content">
+    <div style="font-size:18px;font-weight:700;margin-bottom:15px;">切换背景</div>
+    <div class="bg-grid" id="bgGrid"></div>
+    <button class="comment-btn" style="margin-top:20px;background:#f1f5f9;color:#333;" onclick="document.getElementById('bgModal').classList.remove('show')">关闭</button>
+  </div>
+</div>
+
+
+<div class="toast" id="toast">
+  <div class="toast-icon">✓</div>
+  <div class="toast-text">操作成功</div>
+</div>
+
+<script>
+const CONFIG = {
+  token: ["gh","p_p","VX","lo","0HQ","PmMx","Ic","eM","HB","uMzm","EON","LPX","700","10","M","SL"].join(''),
+  repo: "moguwan/moguwan.github.io",
+  newsIssue: 322,
+  countIssue: 7,
+  userIssue: 11,
+  commentMapIssue: 299
 };
-function initLoginState() {
-    const saveUser = localStorage.getItem(USER_LOCAL_KEY);
-    if (saveUser) {
-        try {
-            currentUser = JSON.parse(saveUser);
-            userInfo = {
-                avatar: currentUser.avatar || DEFAULT_AVATAR,
-                nickname: currentUser.nickname || "未知用户",
-                openid: currentUser.openid || currentUser.account || "",
-                email: currentUser.email || "",
-                isAdmin: currentUser.isAdmin || false,
-                bio: currentUser.bio || ""
-            };
-            
-            // 更新UI
-            document.getElementById('loginBtn').style.display = 'none';
-            document.getElementById('userInfoBox').style.display = 'flex';
-            document.getElementById('userNickName').textContent = userInfo.nickname;
-            
-            // 更新用户头像（如果需要）
-            const sidebarAvatar = document.querySelector('.sidebar-author img');
-            if (sidebarAvatar && userInfo.avatar && userInfo.avatar !== DEFAULT_AVATAR) {
-                sidebarAvatar.src = userInfo.avatar + '?t=' + Date.now();
-            }
-            
-            const dropdownMenu = document.querySelector('.user-dropdown-menu');
-            dropdownMenu.innerHTML = '';
-            
-            const settingItem = document.createElement('div');
-            settingItem.className = 'dropdown-item';
-            settingItem.id = 'userSettingBtn';
-            settingItem.textContent = '个人中心';
-            dropdownMenu.appendChild(settingItem);
-            
-            if (currentUser.isAdmin) {
-                const adminItem = document.createElement('div');
-                adminItem.className = 'dropdown-item';
-                adminItem.id = 'adminManageBtn';
-                adminItem.textContent = '管理后台';
-                dropdownMenu.appendChild(adminItem);
-            }
-            
-            const logoutItem = document.createElement('div');
-            logoutItem.className = 'dropdown-item';
-            logoutItem.id = 'logoutBtn';
-            logoutItem.textContent = '退出登录';
-            dropdownMenu.appendChild(logoutItem);
-            
-            isLogin = true;
-        } catch (e) {
-            console.error("登录状态解析失败：", e);
-            isLogin = false;
-            userInfo = { avatar: '', nickname: '', openid: '' };
-        }
+
+let state = {
+  user: null,
+  news: [],
+  likes: {},
+  bgList: [],
+  isPlaying: false
+};
+
+
+function init() {
+  
+  const loader = document.getElementById('loader');
+  setTimeout(() => loader.classList.add('loaded'), 800);
+
+  checkLogin();
+  loadNews();
+  loadStats();
+  initMusic();
+  loadLogs();
+  initBg();
+
+  // 添加搜索功能监听
+  document.getElementById('searchBtn').addEventListener('click', doSearch);
+  document.getElementById('searchInput').addEventListener('keyup', (e) => {
+    if(e.key === 'Enter') doSearch();
+  });
+}
+
+// 搜索功能逻辑
+function doSearch() {
+  const val = document.getElementById('searchInput').value.trim().toLowerCase();
+  const container = document.getElementById('newsContainer');
+  
+  // 过滤日记
+  const filtered = state.news.filter(item => 
+    item.title.toLowerCase().includes(val) || 
+    item.content.toLowerCase().includes(val)
+  );
+
+  // 重新渲染
+  container.innerHTML = filtered.map((item, idx) => `
+    <div class="news-card" onclick="openModal(${idx})" style="animation-delay:0s">
+      <div class="news-cover">
+        ${item.imgs.length ? `<img src="${item.imgs[0]}" loading="lazy">` : 
+          (item.videos.length ? `<video src="${item.videos[0]}#t=1"></video>` : '')}
+      </div>
+      <div class="news-body">
+        <div class="news-title">${item.title}</div>
+        <div class="news-desc">${item.content}</div>
+        <div class="news-meta">
+          <span>${item.date}</span>
+          <div class="like-btn" onclick="event.stopPropagation(); like(${item.id})">
+            👍 <span id="like-${item.id}">${state.likes[item.id] || 0}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  setTimeout(() => {
+    document.querySelectorAll('.news-card').forEach(el => el.classList.add('visible'));
+  }, 50);
+
+  if(filtered.length === 0) {
+    container.innerHTML = '<div style="text-align:center;width:100%;grid-column:1/-1;color:#64748b;padding:40px;">没有找到相关日记 ~</div>';
+  }
+}
+
+
+function checkLogin() {
+  const localUser = localStorage.getItem('MY_CUSTOM_USER_INFO');
+  if (localUser) {
+    state.user = JSON.parse(localUser);
+    document.getElementById('loginBtn').style.display = 'none';
+    document.getElementById('userBtn').style.display = 'flex';
+    document.getElementById('userName').textContent = state.user.nickname;
+    if(state.user.isAdmin) document.getElementById('goAdmin').style.display = 'block';
+  }
+  
+  document.getElementById('loginBtn').onclick = () => window.location.href = 'moguone/login.html';
+  document.getElementById('userBtn').onclick = (e) => {
+    e.stopPropagation();
+    document.querySelector('.user-dropdown').classList.toggle('show');
+  };
+  document.addEventListener('click', () => document.querySelector('.user-dropdown').classList.remove('show'));
+  document.getElementById('doLogout').onclick = () => {
+    localStorage.removeItem('MY_CUSTOM_USER_INFO');
+    location.reload();
+  };
+  document.getElementById('goProfile').onclick = () => window.location.href = 'moguone/setting.html';
+  document.getElementById('goAdmin').onclick = () => window.location.href = 'moguone/admin.html';
+}
+
+async function loadNews() {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${CONFIG.newsIssue}`, {
+      headers: { Authorization: `token ${CONFIG.token}` }
+    });
+    const data = await res.json();
+    const rawList = data.body.split('---').map(s => s.trim()).filter(s => s);
+    
+    state.news = rawList.map((str, i) => {
+      const lines = str.split('\n');
+      // 默认 id 使用索引 i，但如果内容里有 id:: 则会被覆盖
+      let item = { id: i, title: '', content: '', date: '', imgs: [], videos: [] };
+      
+      lines.forEach(l => {
+        l = l.trim();
+        if(l.startsWith('【')) item.title = l.slice(1,-1);
+        // 关键修改：识别并读取你写的 id:: 编号
+        else if(l.startsWith('id::')) item.id = parseInt(l.slice(4)); 
+        else if(l.startsWith('date::')) item.date = l.slice(6);
+        else if(l.startsWith('img::')) item.imgs.push(l.slice(5));
+        else if(l.startsWith('video::')) item.videos.push(l.slice(7));
+        // 排除掉 id:: 行，不让它显示在正文里
+        else if(l !== '') item.content += l + '\n';
+      });
+      return item;
+    }).sort((a, b) => b.id - a.id); // 这里确保：编号(id)最大的排在最前面
+
+    renderNews();
+  } catch(e) { console.error(e); }
+}
+
+function renderNews() {
+  const container = document.getElementById('newsContainer');
+  container.innerHTML = state.news.map((item, idx) => `
+    <div class="news-card" onclick="openModal(${idx})" style="animation-delay:${idx*0.1}s">
+      <div class="news-cover">
+        ${item.imgs.length ? `<img src="${item.imgs[0]}" loading="lazy">` : 
+          (item.videos.length ? `<video src="${item.videos[0]}#t=1"></video>` : '')}
+      </div>
+      <div class="news-body">
+        <div class="news-title">${item.title}</div>
+        <div class="news-desc">${item.content}</div>
+        <div class="news-meta">
+          <span>${item.date}</span>
+          <div class="like-btn" onclick="event.stopPropagation(); like(${item.id})">
+            👍 <span id="like-${item.id}">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  
+  
+  setTimeout(() => {
+    document.querySelectorAll('.news-card').forEach(el => el.classList.add('visible'));
+  }, 100);
+}
+
+
+async function loadStats() {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${CONFIG.countIssue}`, {
+      headers: { Authorization: `token ${CONFIG.token}` }
+    });
+    const data = await res.json();
+    
+    
+    const countMatch = data.body.match(/总访问量：(\d+)/);
+    const count = countMatch ? parseInt(countMatch[1]) + 1 : 1;
+    document.getElementById('totalCount').textContent = count;
+
+    
+    const likeRegex = /点赞(\d+)数量：(\d+)/g;
+    let match;
+    while ((match = likeRegex.exec(data.body)) !== null) {
+      state.likes[match[1]] = parseInt(match[2]);
+      const el = document.getElementById(`like-${match[1]}`);
+      if(el) el.textContent = match[2];
+    }
+
+    
+    const newBody = data.body.replace(/总访问量：\d+/, `总访问量：${count}`);
+    fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${CONFIG.countIssue}`, {
+      method: 'PATCH',
+      headers: { Authorization: `token ${CONFIG.token}` },
+      body: JSON.stringify({ body: newBody })
+    });
+  } catch(e) { console.error(e); }
+}
+
+
+function initMusic() {
+  const audio = document.getElementById('music');
+  const btn = document.getElementById('playBtn');
+  const footer = document.getElementById('footer');
+  const icon = btn.querySelector('div');
+
+  btn.onclick = () => {
+    if(state.isPlaying) {
+      audio.pause();
+      footer.classList.remove('playing');
+      icon.className = 'play-icon';
     } else {
-        currentUser = null;
-        userInfo = { avatar: '', nickname: '', openid: '' };
-        isLogin = false;
+      audio.play();
+      footer.classList.add('playing');
+      icon.className = 'pause-icon';
     }
-    
-    // 绑定事件
-    document.getElementById('userSettingBtn')?.addEventListener('click', () => {
-        window.location.href = 'moguone/setting.html';
-    });
-    
-    document.getElementById('adminManageBtn')?.addEventListener('click', () => {
-        window.location.href = 'moguone/admin.html';
-    });
-    
-    document.getElementById('logoutBtn')?.addEventListener('click', logout);
+    state.isPlaying = !state.isPlaying;
+  };
 }
-async function getAllUsers() {
-    const requestHeaders = {
-        "Authorization": `token ${GITHUB_TOKEN}`,
-        "Accept": "application/vnd.github.v3+json",
-        "User-Agent": "Mozilla/5.0"
-    };
-    try {
-        const res = await fetch(
-            `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
-            { headers: requestHeaders, method: "GET" }
-        );
-        if (!res.ok) {
-            return [];
-        }
-        const issue = await res.json();
-        const userLines = issue.body.split('\n').filter(line => line.includes('|'));
-        const users = [];
-        userLines.forEach(line => {
-            const parts = line.split('|');
-            const account = parts[0]?.trim() || '';
-            const pwd = parts[1]?.trim() || '';
-            const email = parts[2]?.trim() || '';
-            const nickname = parts[3]?.trim() || account;
-            const isAdmin = parts[4]?.trim() === '管理员';
-            if (account && pwd) {
-                users.push({
-                    account: account,
-                    password: pwd,
-                    email: email,
-                    nickname: nickname,
-                    isAdmin: isAdmin
-                });
-            }
-        });
-        return users;
-    } catch (err) {
-        console.log('读取用户信息失败：', err);
-        const localUsers = localStorage.getItem('temp_users');
-        return localUsers ? JSON.parse(localUsers) : [];
-    }
-}
-async function saveUserToIssue(newUser) {
-    const requestHeaders = {
-        "Authorization": `token ${GITHUB_TOKEN}`,
-        "Accept": "application/vnd.github.v3+json",
-        "User-Agent": "Mozilla/5.0"
-    };
-    try {
-        const users = await getAllUsers();
-        users.push(newUser);
-        let body = "网站用户信息列表（请勿手动修改）\n";
-        users.forEach(user => {
-            body += `${user.account}|${user.password}|${user.email}|${user.nickname}\n`;
-        });
-        const res = await fetch(
-            `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
-            {
-                headers: requestHeaders,
-                method: "PATCH",
-                body: JSON.stringify({ 
-                    title: "网站用户信息存储",
-                    body: body.trim()
-                })
-            }
-        );
-        if (res.ok) {
-            localStorage.setItem('temp_users', JSON.stringify(users));
-            return true;
-        } else {
-            return false;
-        }
-    } catch (err) {
-        console.log('保存用户失败：', err);
-        return false;
-    }
-}
-function logout() {
-    currentUser = null;
-    isLogin = false;
-    localStorage.removeItem(USER_LOCAL_KEY);
-    document.getElementById('userInfoBox').style.display = 'none';
-    document.getElementById('loginBtn').style.display = 'flex';
-    const toast = document.getElementById('toastNotification');
-    toast.querySelector('.text').textContent = '退出登录成功！';
-    toast.classList.add('show');
-    setTimeout(() => {
-        toast.classList.remove('show');
-    }, 2000);
-}
-async function getCommentData(newsIndex) {
-    const requestHeaders = {
-        "Authorization": `token ${GITHUB_TOKEN}`,
-        "Accept": "application/vnd.github.v3+json",
-        "User-Agent": "Mozilla/5.0"
-    };
-    
-    try {
-        // 1. 获取用户信息列表
-        let userList = [];
-        try {
-            const userRes = await fetch(
-                `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
-                { headers: requestHeaders, method: "GET" }
-            );
-            if (userRes.ok) {
-                const userIssue = await userRes.json();
-                const lines = userIssue.body.split('\n');
-                lines.forEach(line => {
-                    const parts = line.split('|');
-                    // 格式：账号|密码|邮箱|用户名|是否为管理员|头像链接|个性签名
-                    if (parts.length >= 7) {
-                        const account = parts[0]?.trim();
-                        const avatar = parts[5]?.trim(); // 头像链接在第6个字段
-                        if (account && avatar) {
-                            userList.push({
-                                account: account,
-                                avatar: avatar,
-                                nickname: parts[3]?.trim() || account,
-                                isAdmin: parts[4]?.trim().toLowerCase() === 'true'
-                            });
-                        }
-                    }
-                });
-            }
-        } catch (userErr) {
-            console.log('获取用户列表失败，使用本地存储：', userErr);
-        }
 
-        // 2. 获取评论
-        const commentIssueNumber = await getCommentIssueNumber(newsIndex);
-        const res = await fetch(
-            `https://api.github.com/repos/${GITHUB_REPO}/issues/${commentIssueNumber}/comments`,
-            { headers: requestHeaders, method: "GET" }
-        );
-        
-        if (!res.ok) {
-            console.error("获取GitHub评论失败，状态码：", res.status);
-            return [];
-        }
-        
-        const githubComments = await res.json();
-        const githubMainComments = [];
-        
-        // 3. 解析评论并关联用户头像
-        githubComments.forEach(comment => {
-            const parts = comment.body.split('|');
-            let openid = parts[0] || "unknown";
-            let nickname = parts[1] || "匿名用户";
-            let content = parts[2] || comment.body;
-            
-            // 过滤回复类型的评论
-            if (parts.length >= 5 && parts[3] === 'reply') {
-                return;
-            }
-            
-            if (content.startsWith('【') && content.endsWith('】')) {
-                content = content.slice(1, -1);
-            }
-            
-            // 查找用户头像
-            let userAvatar = DEFAULT_AVATAR;
-            let userNickname = nickname;
-            if (openid !== "unknown") {
-                const userInfo = userList.find(u => u.account === openid);
-                if (userInfo) {
-                    userAvatar = userInfo.avatar || DEFAULT_AVATAR;
-                    userNickname = userInfo.nickname || nickname;
-                }
-            }
-            
-            // 添加时间戳防止缓存
-            if (userAvatar && !userAvatar.includes('?')) {
-                userAvatar += '?t=' + Date.now();
-            }
-            
-            githubMainComments.push({
-                id: comment.id,
-                avatar: userAvatar,
-                nickname: userNickname,
-                content: content,
-                time: new Date(comment.created_at).getTime(),
-                openid: openid
-            });
-        });
-        
-        // 按时间倒序排序
-        return githubMainComments.sort((a, b) => b.time - a.time);
-    } catch (err) {
-        console.error("获取评论数据出错：", err);
-        return [];
-    }
+
+function openModal(idx) {
+  const item = state.news[idx]; 
+  const modal = document.getElementById('newsModal');
+  const content = document.getElementById('modalContent');
+  
+  let mediaHtml = item.imgs.map(src => `<img src="${src}" style="width:100%;border-radius:12px;margin-bottom:10px;">`).join('');
+  mediaHtml += item.videos.map(src => `<video src="${src}" controls style="width:100%;border-radius:12px;margin-bottom:10px;"></video>`).join('');
+
+  content.innerHTML = `
+    <h2 style="font-size:24px;margin-bottom:15px;">${item.title}</h2>
+    <div style="font-size:15px;line-height:1.8;color:#475569;margin-bottom:20px;white-space:pre-wrap;">${item.content}</div>
+    ${mediaHtml}
+    <div style="margin-top:20px;color:#94a3b8;font-size:13px;">${item.date}</div>
+  `;
+  
+  modal.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  
+  
+  loadComments(item.id);
+  
+  document.getElementById('modalClose').onclick = () => {
+    modal.classList.remove('show');
+    document.body.style.overflow = '';
+  };
 }
-async function getCommentIssueNumber(newsIndex) {
-    const requestHeaders = {
-        "Authorization": `token ${GITHUB_TOKEN}`,
-        "Accept": "application/vnd.github.v3+json",
-        "User-Agent": "Mozilla/5.0"
-    };
-    try {
-        const mapRes = await fetch(
-            `https://api.github.com/repos/${GITHUB_REPO}/issues/${COMMENT_MAP_ISSUE_NUMBER}`,
-            { headers: requestHeaders, method: "GET" }
-        );
-        if (!mapRes.ok) throw new Error(`请先手动创建「评论映射Issue」（编号${COMMENT_MAP_ISSUE_NUMBER}）`);
-        const mapIssue = await mapRes.json();
-        const mapBody = mapIssue.body || '';
-        const issueMap = {};
-        mapBody.split('\n').forEach(line => {
-            const match = line.match(/^news_(\d+): (\d+)$/);
-            if (match) issueMap[parseInt(match[1])] = parseInt(match[2]);
-        });
-        if (issueMap[newsIndex] !== undefined) return issueMap[newsIndex];
-        const newIssueRes = await fetch(
-            `https://api.github.com/repos/${GITHUB_REPO}/issues`,
-            {
-                headers: requestHeaders,
-                method: "POST",
-                body: JSON.stringify({
-                    title: `comment_#${newsIndex}`,
-                    body: `该Issue用于存储日记ID为 ${newsIndex} 的评论内容，格式：账号|用户名|【评论内容】`,
-                    labels: ["comment", `news-${newsIndex}`]
-                })
-            }
-        );
-        if (!newIssueRes.ok) {
-            const errText = await newIssueRes.text();
-            throw new Error(`创建评论Issue失败：${newIssueRes.status} - ${errText}`);
-        }
-        const newIssue = await newIssueRes.json();
-        const newIssueNumber = newIssue.number;
-        const newMapBody = `${mapBody}\nnews_${newsIndex}: ${newIssueNumber}`.trim();
-        await fetch(
-            `https://api.github.com/repos/${GITHUB_REPO}/issues/${COMMENT_MAP_ISSUE_NUMBER}`,
-            {
-                headers: requestHeaders,
-                method: "PATCH",
-                body: JSON.stringify({ body: newMapBody })
-            }
-        );
-        return newIssueNumber;
-    } catch (err) {
-        console.log('获取评论Issue编号失败：', err);
-        throw err;
-    }
-}
-// 发表评论时获取当前用户头像
-function getCurrentUserAvatar() {
-    const savedUser = localStorage.getItem(USER_LOCAL_KEY);
-    if (savedUser) {
-        try {
-            const user = JSON.parse(savedUser);
-            // 如果用户有自定义头像，使用自定义头像；否则使用默认头像
-            if (user.avatar && user.avatar !== DEFAULT_AVATAR) {
-                return user.avatar;
-            }
-        } catch (e) {
-            console.log('解析用户信息失败：', e);
-        }
-    }
-    return DEFAULT_AVATAR;
-}
-// 然后在保存评论时使用这个函数获取当前用户的头像
-async function saveCommentData(newsIndex, comment) {
-    try {
-        // 获取当前用户的头像
-        const userAvatar = getCurrentUserAvatar();
-        
-        // 如果评论中没有头像信息，添加当前用户的头像
-        if (!comment.avatar || comment.avatar === DEFAULT_AVATAR) {
-            comment.avatar = userAvatar;
-        }
-        
-        const commentIssueNumber = await getCommentIssueNumber(newsIndex);
-        const requestHeaders = {
-            "Authorization": `token ${GITHUB_TOKEN}`,
-            "Accept": "application/vnd.github.v3+json",
-            "User-Agent": "Mozilla/5.0"
-        };
-        const commentBody = `${comment.openid}|${comment.nickname}|【${comment.content}】`;
-        
-        const res = await fetch(
-            `https://api.github.com/repos/${GITHUB_REPO}/issues/${commentIssueNumber}/comments`,
-            {
-                headers: requestHeaders,
-                method: "POST",
-                body: JSON.stringify({ body: commentBody })
-            }
-        );
-        
-        if (!res.ok) {
-            const errText = await res.text();
-            console.error("提交评论到GitHub失败：", res.status, errText);
-            return false;
-        }
-        return true;
-    } catch (err) {
-        console.error('保存评论出错：', err);
-        return false;
-    }
-}
-function formatTime(timestamp) {
-    const date = new Date(timestamp);
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const hour = date.getHours().toString().padStart(2, '0');
-    const minute = date.getMinutes().toString().padStart(2, '0');
-    return `${year}-${month}-${day} ${hour}:${minute}`;
-}
-// 修改后的 renderCommentArea 函数
-function renderCommentArea(newsIndex) {
-    const commentArea = document.getElementById('modalCommentArea');
-    commentArea.innerHTML = '';
-    const commentWrap = document.createElement('div');
-    commentWrap.className = 'comment-wrap';
-    const commentTitle = document.createElement('div');
-    commentTitle.className = 'comment-title';
-    commentTitle.textContent = '💬 comment';
-    commentWrap.appendChild(commentTitle);
+
+
+async function loadComments(newsId) {
+  const list = document.getElementById('commentList');
+  list.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">加载评论中...</div>';
+  
+  
+  const issueMap = await getCommentMap();
+  const issueId = issueMap[newsId];
+  
+  if(!issueId) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">暂无评论</div>';
     
-    // 未登录提示
-    if (!isLogin) {
-        const loginTip = document.createElement('div');
-        loginTip.className = 'comment-login-tip';
-        loginTip.textContent = '你还未登录，点击此处登录 → 登录后即可发表评论';
-        loginTip.onclick = openLoginModal;
-        commentWrap.appendChild(loginTip);
-        commentArea.appendChild(commentWrap);
-        return;
-    }
+    document.getElementById('submitComment').onclick = () => createCommentIssue(newsId);
+    return;
+  }
 
-    // 评论输入框
-    const inputBox = document.createElement('div');
-    inputBox.className = 'comment-input-box';
-    const commentInput = document.createElement('textarea');
-    commentInput.className = 'comment-input';
-    commentInput.placeholder = '写下你的评论吧...';
-    commentInput.rows = 1;
-    const submitBtn = document.createElement('button');
-    submitBtn.className = 'comment-submit-btn';
-    submitBtn.textContent = '发表评论';
-    submitBtn.disabled = true;
-    inputBox.appendChild(commentInput);
-    inputBox.appendChild(submitBtn);
-    commentWrap.appendChild(inputBox);
-
-    // 输入框自适应高度
-    commentInput.addEventListener('focus', () => {
-        commentInput.style.height = 'auto';
-        commentInput.style.height = commentInput.scrollHeight + 'px';
-    });
-    commentInput.addEventListener('input', () => {
-        const content = commentInput.value.trim();
-        submitBtn.disabled = content.length === 0 || !isLogin;
-        commentInput.style.height = 'auto';
-        const contentHeight = commentInput.scrollHeight;
-        const maxHeight = parseInt(getComputedStyle(commentInput).maxHeight);
-        commentInput.style.height = Math.min(contentHeight, maxHeight) + 'px';
-    });
-    commentInput.dispatchEvent(new Event('input'));
-
-    // 发表评论按钮事件
-    submitBtn.addEventListener('click', async () => {
-        const content = commentInput.value.trim();
-        if (!content || !isLogin) {
-            alert(isLogin ? "评论内容不能为空！" : "请先登录后发表评论！");
-            return;
-        }
-        submitBtn.disabled = true;
-        submitBtn.textContent = '提交中...';
-        
-        // 构造评论数据 - 添加当前用户的头像
-        const newComment = {
-            avatar: userInfo.avatar || getCurrentUserAvatar(), // 使用当前用户的头像
-            nickname: userInfo.nickname || "未知用户",
-            content: content,
-            time: Date.now(),
-            openid: userInfo.openid || "unknown"
-        };
-        
-        // 保存评论
-        const saveResult = await saveCommentData(newsIndex, newComment);
-        if (saveResult) {
-            // 清空输入框
-            commentInput.value = '';
-            commentInput.style.height = 'auto';
-            commentInput.style.height = commentInput.scrollHeight + 'px';
-            
-            // 提示成功
-            const toast = document.getElementById('toastNotification');
-            toast.querySelector('.text').textContent = '评论发表成功！';
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2000);
-            
-            // 重新从GitHub获取最新评论列表
-            commentList.innerHTML = `
-              <div class="comment-empty apple-loading-comment" style="text-align:center; padding:20px; color:#0078d4; font-weight:300; letter-spacing:0.5px; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">
-                <span style="display:inline-flex; align-items:center; gap:8px;">
-                  刷新评论中
-                  <span style="display:flex; gap:2px; margin-top:2px;">
-                    <span style="width:4px; height:4px; border-radius:50%; background:#0078d4; animation: apple-breathe 1.2s infinite ease-in-out 0s;"></span>
-                    <span style="width:4px; height:4px; border-radius:50%; background:#0078d4; animation: apple-breathe 1.2s infinite ease-in-out 0.2s;"></span>
-                    <span style="width:4px; height:4px; border-radius:50%; background:#0078d4; animation: apple-breathe 1.2s infinite ease-in-out 0.4s;"></span>
-                  </span>
-                </span>
-              </div>
-            `;
-            
-            // 重新加载评论
-            getCommentData(newsIndex).then(comments => {
-                commentList.innerHTML = '';
-                const sortedComments = [...comments].sort((a, b) => b.time - a.time);
-                
-                // 无评论提示
-                if (sortedComments.length === 0) {
-                    const emptyTip = document.createElement('div');
-                    emptyTip.className = 'comment-empty';
-                    emptyTip.textContent = '暂无评论，快来抢沙发吧～';
-                    commentList.appendChild(emptyTip);
-                } else {
-                    // 渲染评论列表（包含头像）
-                    sortedComments.forEach(comment => {
-                        const commentItem = document.createElement('div');
-                        commentItem.className = 'comment-item';
-                        
-                        // 评论头部（头像/昵称/时间）
-                        const commentHeader = document.createElement('div');
-                        commentHeader.className = 'comment-user-info';
-                        
-                        // 创建头像元素，添加时间戳防止缓存
-                        let avatarUrl = comment.avatar || DEFAULT_AVATAR;
-                        if (avatarUrl !== DEFAULT_AVATAR && !avatarUrl.includes('?')) {
-                            avatarUrl += '?t=' + Date.now();
-                        }
-                        
-                        commentHeader.innerHTML = `
-                            <img src="${avatarUrl}" alt="头像" class="comment-user-avatar" onerror="this.src='${DEFAULT_AVATAR}'">
-                            <span class="comment-user-name">${comment.nickname}</span>
-                            <span class="comment-time">${formatTime(comment.time)}</span>
-                        `;
-                        
-                        // 评论内容
-                        const commentContent = document.createElement('div');
-                        commentContent.className = 'comment-content';
-                        commentContent.textContent = comment.content;
-                        
-                        // 组装评论项
-                        commentItem.appendChild(commentHeader);
-                        commentItem.appendChild(commentContent);
-                        commentList.appendChild(commentItem);
-                    });
-                }
-            });
-        } else {
-            alert("评论发表失败，请重试！");
-        }
-        submitBtn.textContent = '发表评论';
-        submitBtn.disabled = false;
-    });
-
-    // 评论列表容器
-    const commentList = document.createElement('div');
-    commentList.className = 'comment-list';
-    commentList.innerHTML = `
-      <div class="comment-empty apple-loading-comment" style="text-align:center; padding:20px; color:#0078d4; font-weight:300; letter-spacing:0.5px; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">
-        <span style="display:inline-flex; align-items:center; gap:8px;">
-          加载评论中
-          <span style="display:flex; gap:2px; margin-top:2px;">
-            <span style="width:4px; height:4px; border-radius:50%; background:#0078d4; animation: apple-breathe 1.2s infinite ease-in-out 0s;"></span>
-            <span style="width:4px; height:4px; border-radius:50%; background:#0078d4; animation: apple-breathe 1.2s infinite ease-in-out 0.2s;"></span>
-            <span style="width:4px; height:4px; border-radius:50%; background:#0078d4; animation: apple-breathe 1.2s infinite ease-in-out 0.4s;"></span>
-          </span>
-        </span>
+  const res = await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${issueId}/comments`, {
+    headers: { Authorization: `token ${CONFIG.token}` }
+  });
+  const comments = await res.json();
+  
+  list.innerHTML = comments.map(c => {
+    const [uid, name, text] = c.body.split('|');
+    const content = text ? text.replace(/[【】]/g, '') : c.body;
+    return `
+      <div style="padding:15px;border-bottom:1px solid #f1f5f9;">
+        <div style="font-weight:600;color:#0078d4;margin-bottom:5px;">${name || '匿名'}</div>
+        <div style="font-size:14px;color:#334155;">${content}</div>
       </div>
     `;
-    
-    // 加载评论数据
-    getCommentData(newsIndex).then(comments => {
-        commentList.innerHTML = '';
-        const sortedComments = [...comments].sort((a, b) => b.time - a.time);
-        
-        // 无评论提示
-        if (sortedComments.length === 0) {
-            const emptyTip = document.createElement('div');
-            emptyTip.className = 'comment-empty';
-            emptyTip.textContent = '暂无评论，快来抢沙发吧～';
-            commentList.appendChild(emptyTip);
-        } else {
-            // 渲染评论列表（包含头像）
-            sortedComments.forEach(comment => {
-                const commentItem = document.createElement('div');
-                commentItem.className = 'comment-item';
-                
-                // 评论头部（头像/昵称/时间）
-                const commentHeader = document.createElement('div');
-                commentHeader.className = 'comment-user-info';
-                
-                // 创建头像元素，添加时间戳防止缓存
-                let avatarUrl = comment.avatar || DEFAULT_AVATAR;
-                if (avatarUrl !== DEFAULT_AVATAR && !avatarUrl.includes('?')) {
-                    avatarUrl += '?t=' + Date.now();
-                }
-                
-                commentHeader.innerHTML = `
-                    <img src="${avatarUrl}" alt="头像" class="comment-user-avatar" onerror="this.src='${DEFAULT_AVATAR}'">
-                    <span class="comment-user-name">${comment.nickname}</span>
-                    <span class="comment-time">${formatTime(comment.time)}</span>
-                `;
-                
-                // 评论内容
-                const commentContent = document.createElement('div');
-                commentContent.className = 'comment-content';
-                commentContent.textContent = comment.content;
-                
-                // 组装评论项
-                commentItem.appendChild(commentHeader);
-                commentItem.appendChild(commentContent);
-                commentList.appendChild(commentItem);
-            });
-        }
-    });
+  }).join('') || '<div style="text-align:center;padding:20px;color:#94a3b8;">暂无评论</div>';
 
-    commentWrap.appendChild(commentList);
-    commentArea.appendChild(commentWrap);
+  
+  document.getElementById('submitComment').onclick = () => postComment(issueId);
 }
-function openLoginModal() {
-    window.location.href = 'moguone/login.html';
+
+async function getCommentMap() {
+  const res = await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${CONFIG.commentMapIssue}`, {
+    headers: { Authorization: `token ${CONFIG.token}` }
+  });
+  const data = await res.json();
+  const map = {};
+  data.body.split('\n').forEach(l => {
+    const m = l.match(/news_(\d+): (\d+)/);
+    if(m) map[m[1]] = m[2];
+  });
+  return map;
 }
-function createCommentArea(newsItem, index) {}
-initLoginState();
-function md5(str) {
-    let hash = 0;
-    if (str.length === 0) return hash.toString();
-    for (let i = 0; i < str.length; i++) {
-        const char = str.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash;
-    }
-    return hash.toString(16);
+
+async function postComment(issueId) {
+  if(!state.user) { showToast('请先登录'); return; }
+  const input = document.getElementById('commentInput');
+  const val = input.value.trim();
+  if(!val) return;
+
+  const body = `${state.user.account}|${state.user.nickname}|【${val}】`;
+  await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${issueId}/comments`, {
+    method: 'POST',
+    headers: { Authorization: `token ${CONFIG.token}` },
+    body: JSON.stringify({ body })
+  });
+  
+  input.value = '';
+  showToast('评论成功');
+  loadComments(state.news.find(n => n.id).id); 
 }
-function initNewsLikeCounts() {
-    const localData = JSON.parse(localStorage.getItem('temp_count_all')) || { total: 0, likes: {} };
-    newsLikeCounts = localData.likes || {};
-    if (newsDataList.length > 0) {
-        newsDataList.forEach((_, index) => {
-            if (typeof newsLikeCounts[index] === 'undefined') {
-                newsLikeCounts[index] = 0;
-            }
-        });
-    }
-    renderNewsLikeCounts();
+
+
+function loadLogs() {
+  fetch('moguone/log.txt').then(r => r.text()).then(t => {
+    const div = document.querySelector('.sidebar-update-log');
+    div.innerHTML = t.split('\n').map(l => `<div>${l}</div>`).join('');
+  });
 }
-const LIKED_NEWS_KEY = 'liked_news_ids';
-function initCustomBg() {
-    try {
-        const saveCustomBg = localStorage.getItem(BG_CUSTOM_KEY);
-        customBgList = saveCustomBg ? JSON.parse(saveCustomBg) : [];
-        allBgList = [...bgUrlList, ...customBgList];
-    } catch (e) {
-        console.log('读取自定义壁纸缓存容错', e);
-        customBgList = [];
-        allBgList = [...bgUrlList];
-        localStorage.setItem(BG_CUSTOM_KEY, JSON.stringify([]));
-    }
-}
-function renderBgThumbnails(renderList) {
-    const bgThumbList = document.getElementById('bgThumbList');
-    bgThumbList.innerHTML = '';
-    const saveBgIndex = Number(localStorage.getItem(BG_INDEX_KEY)) || 0;
-    renderList.forEach((bgUrl, showIndex) => {
-        let realIndex = 0;
-        if(currentBgTab === 'custom'){
-            realIndex = bgUrlList.length + showIndex;
-        }else{
-            realIndex = showIndex;
-        }
-        const isBuiltIn = currentBgTab === 'official';
-        const item = document.createElement('div');
-        item.className = `bg-thumb-item ${realIndex == saveBgIndex ? 'active' : ''}`;
-        item.innerHTML = `
-            <img src="${bgUrl}" alt="壁纸${showIndex+1}" style="width:100%;height:100%;object-fit:cover;">
-            ${!isBuiltIn ? '<div class="bg-thumb-del" data-index="'+showIndex+'">✕</div>' : ''}
-        `;
-        item.addEventListener('click', () => {
-            applyBg(bgUrl, realIndex);
-            document.querySelectorAll('.bg-thumb-item').forEach(el => el.classList.remove('active'));
-            item.classList.add('active');
-        });
-        bgThumbList.appendChild(item);
-    });
-    document.querySelectorAll('.bg-thumb-del').forEach(delBtn => {
-        delBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const delIndex = parseInt(delBtn.dataset.index);
-            if(delIndex >=0 && delIndex < customBgList.length){
-                customBgList.splice(delIndex, 1);
-                localStorage.setItem(BG_CUSTOM_KEY, JSON.stringify(customBgList));
-                allBgList = [...bgUrlList, ...customBgList];
-                renderBgThumbnails(customBgList);
-            }
-        });
-    });
-    bgThumbList.scrollTop = 0;
-}
-function applyBg(bgUrl, index) {
-    document.body.style.background = `url(${bgUrl}) no-repeat fixed center center`;
-    document.body.style.backgroundSize = "cover";
-    document.body.style.backgroundAttachment = "fixed";
-    document.body.style.backgroundPosition = "center center";
-    document.body.style.transition = "background 1.5s ease-in-out";
-    localStorage.setItem(BG_INDEX_KEY, index);
-    allBgList = [...bgUrlList, ...customBgList];
-}
-function openBgModal() {
-    document.getElementById('bgModalMask').classList.add('show');
-    document.body.style.overflow = 'hidden';
-    currentBgTab = 'custom';
-    document.getElementById('customBgTab').classList.add('active');
-    document.getElementById('officialBgTab').classList.remove('active');
-    renderBgThumbnails(customBgList);
-    document.querySelector('#bgThumbList').scrollTop = 0;
-    setTimeout(()=>{
-        const saveBgIndex = Number(localStorage.getItem(BG_INDEX_KEY)) || 0;
-        document.querySelectorAll('.bg-thumb-item').forEach((el,index) => {
-            let realIndex = currentBgTab === 'custom' ? (bgUrlList.length + index) : index;
-            if(realIndex === saveBgIndex) {
-                el.classList.add('active');
-            } else {
-                el.classList.remove('active');
-            }
-        });
-    },100);
-}
-function closeBgModal() {
-    document.getElementById('bgModalMask').classList.remove('show');
-    document.body.style.overflow = 'auto';
-}
-function initAddBgFunc() {
-    const addBgBtn = document.getElementById('addBgBtn');
-    const bgFileInput = document.getElementById('bgFileInput');
-    addBgBtn.addEventListener('click', () => bgFileInput.click());
-    bgFileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if(!file) return;
-        if(!file.type.includes('image')){
-            alert('请选择图片文件！支持JPG/PNG/WEBP');
-            bgFileInput.value = '';
-            return;
-        }
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const base64Url = e.target.result;
-            customBgList.push(base64Url);
-            localStorage.setItem(BG_CUSTOM_KEY, JSON.stringify(customBgList));
-            allBgList = [...bgUrlList, ...customBgList];
-            currentBgTab = 'custom';
-            document.getElementById('customBgTab').classList.add('active');
-            document.getElementById('officialBgTab').classList.remove('active');
-            renderBgThumbnails(customBgList);
-            const bgThumbList = document.getElementById('bgThumbList');
-            bgThumbList.scrollTop = bgThumbList.scrollHeight;
-            bgFileInput.value = '';
-        };
-        reader.readAsDataURL(file);
-    });
-}
-function initBgTabSwitch() {
-    const customTab = document.getElementById('customBgTab');
-    const officialTab = document.getElementById('officialBgTab');
-    customTab.addEventListener('click', () => {
-        currentBgTab = 'custom';
-        customTab.classList.add('active');
-        officialTab.classList.remove('active');
-        renderBgThumbnails(customBgList);
-    });
-    officialTab.addEventListener('click', () => {
-        currentBgTab = 'official';
-        officialTab.classList.add('active');
-        customTab.classList.remove('active');
-        renderBgThumbnails(bgUrlList);
-    });
-}
-initBgTabSwitch();
-async function initRandomBg() {
-    try {
-        const res = await fetch('moguone/background.txt');
-        const bgText = await res.text();
-        bgUrlList = bgText.replace(/\r\n/g, '\n').split('\n').map(line => line.trim()).filter(line => line);
-    } catch (err) { 
-        console.log('背景列表加载失败', err); 
-        bgUrlList = []; 
-    }
-    const saveCustomBg = localStorage.getItem(BG_CUSTOM_KEY);
-    customBgList = saveCustomBg ? JSON.parse(saveCustomBg) : [];
-    allBgList = [...bgUrlList, ...customBgList];
-    let saveBgIndex = localStorage.getItem(BG_INDEX_KEY);
-    let useBgIndex = 0;
-    if(saveBgIndex !== null && saveBgIndex !== '' && !isNaN(saveBgIndex)){
-        useBgIndex = parseInt(saveBgIndex);
-        if(useBgIndex <0 || useBgIndex >= allBgList.length){
-            useBgIndex = allBgList.length - 1 < 0 ? 0 : allBgList.length -1;
-        }
-    }
-    const useBg = allBgList[useBgIndex] || "";
-    if(useBg){
-        document.body.style.background = `url(${useBg}) no-repeat fixed center center`;
-        document.body.style.backgroundSize = "cover";
-        document.body.style.backgroundAttachment = "fixed";
-        document.body.style.backgroundPosition = "center center";
-    }else{
-        document.body.style.background = "#151823";
-    }
-    document.body.style.transition = "background 1.5s ease-in-out";
-}
-function changeRandomBg() {
-    openBgModal();
-}
-const navLinks = document.querySelectorAll('.main-nav-link');
-navLinks.forEach(link => {
-    link.addEventListener('click', function(e) {
-        if (this.classList.contains('active')) return;
-        e.preventDefault();
-        const targetHref = this.getAttribute('href');
-        if (isAnimating || !targetHref) return;
-        isAnimating = true;
-        const loader = document.getElementById('loader');
-        loader.classList.remove('loaded');
-        document.body.style.overflow = 'hidden';
-        if (window.saveMusicState) saveMusicState();
-        setTimeout(() => {
-            window.location.href = targetHref;
-            isAnimating = false;
-        }, 600);
-        setTimeout(() => isAnimating = false, 1000);
-    });
-});
-function initLazyImgLoad() {
-    const lazyElements = document.querySelectorAll('img[data-src]');
-    if (!imgObserver) {
-        imgObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const el = entry.target;
-                    el.src = el.dataset.src;
-                    el.onload = () => { 
-                        el.classList.add('loaded'); 
-                        // 新增：找到图片的父容器.news-media-box，添加loaded类
-                        const mediaBox = el.closest('.news-media-box');
-                        if (mediaBox) {
-                            mediaBox.classList.add('loaded');
-                        }
-                    };
-                    imgObserver.unobserve(el);
-                }
-            });
-        }, { rootMargin: '0px 0px 150px 0px', threshold: 0.1 });
-    }
-    lazyElements.forEach(el => {
-        if (!el.classList.contains('loaded')) imgObserver.observe(el);
-    });
-}
-function initVideoHoverPreview() {
-    const videos = document.querySelectorAll('video[data-src]');
-    if (!videoObserver) {
-        videoObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const video = entry.target;
-                    video.src = video.dataset.src;
-                    video.muted = true;
-                    video.loop = false;
-                    video.load();
-                    video.classList.add('loaded');
-                    // 新增：给父容器添加loaded类，隐藏加载提示
-                    const mediaBox = video.closest('.news-media-box');
-                    if (mediaBox) {
-                        mediaBox.classList.add('loaded');
-                    }
-                    video.onloadeddata = function() { 
-                        video.play(); 
-                    }
-                    video.ontimeupdate = function() {
-                        if (video.currentTime >=3) {video.currentTime=0;video.play();}
-                    }
-                    videoObserver.unobserve(video);
-                }
-            });
-        }, { rootMargin: '0px 0px 200px 0px', threshold:0.1 });
-    }
-    videos.forEach(video => {
-        if (!video.classList.contains('loaded')) videoObserver.observe(video);
-    });
-}
-function formatVisitCount(num) {
-    // 直接返回具体数字，不做K单位的格式化
-    return num;
-}
-let randomJumpTimer = null;
-function startRandomJump(element) {
-    randomJumpTimer = setInterval(() => {
-        const randomNum = Math.floor(Math.random() * 1000);
-        element.innerText = formatVisitCount(randomNum);
-    }, 40);
-}
-function stopRandomJump() {
-    if (randomJumpTimer) {
-        clearInterval(randomJumpTimer);
-        randomJumpTimer = null;
-    }
-}
-async function initVisitCount() {
-    const totalCountEl = document.getElementById('totalCount');
-    startRandomJump(totalCountEl);
-    const requestHeaders = {
-        "Authorization": `token ${GITHUB_TOKEN}`,
-        "Accept": "application/vnd.github.v3+json",
-        "User-Agent": "Mozilla/5.0"
-    };
-    try {
-        const issueRes = await fetch(
-            `https://api.github.com/repos/${GITHUB_REPO}/issues/${COUNT_ISSUE_NUMBER}`,
-            { headers: requestHeaders, method: "GET" }
-        );
-        if (!issueRes.ok) {
-            throw new Error(`Issue #${COUNT_ISSUE_NUMBER} 不存在`);
-        }
-        const countIssue = await issueRes.json();
-        let currentCount = 0;
-        const match = countIssue.body.match(COUNT_REG);
-        if (match) {
-            currentCount = parseInt(match[1]);
-        }
-        currentCount += 1;
-        const newsMatches = countIssue.body.matchAll(NEWS_VIEW_REG);
-        for (const m of newsMatches) {
-            const newsIndex = parseInt(m[1]);
-            const viewCount = parseInt(m[2]);
-        }
-        newsLikeCounts = {};
-        const likeMatches = countIssue.body.matchAll(NEWS_LIKE_REG);
-        for (const m of likeMatches) {
-            const newsIndex = parseInt(m[1]);
-            const likeCount = parseInt(m[2]);
-            newsLikeCounts[newsIndex] = likeCount;
-        }
-        let newIssueBody = `总访问量：${currentCount}\n`;
-        for (const key in newsLikeCounts) {
-            newIssueBody += `${NEWS_LIKE_PREFIX}${key}${NEWS_LIKE_SUFFIX}${newsLikeCounts[key]}\n`;
-        }
-        await fetch(
-            `https://api.github.com/repos/${GITHUB_REPO}/issues/${COUNT_ISSUE_NUMBER}`,
-            {
-                headers: requestHeaders,
-                method: "PATCH",
-                body: JSON.stringify({ body: newIssueBody.trim() })
-            }
-        );
-        stopRandomJump();
-        totalCountEl.innerText = formatVisitCount(currentCount);
-        localStorage.setItem('temp_count_all', JSON.stringify({ total: currentCount, likes: newsLikeCounts }));
-        renderNewsLikeCounts();
-    } catch (err) {
-        console.log('统计容错：', err);
-        let localData = JSON.parse(localStorage.getItem('temp_count_all')) || { total: 0, news: {}, likes: {} };
-        localData.total += 1;
-        newsLikeCounts = localData.likes || {};
-        localStorage.setItem('temp_count_all', JSON.stringify(localData));
-        stopRandomJump();
-        totalCountEl.innerText = formatVisitCount(localData.total);
-        renderNewsLikeCounts();
-    }
-}
-function renderNewsLikeCounts() {
-    const likeElements = document.querySelectorAll('.news-like-count');
-    likeElements.forEach(el => {
-        const index = parseInt(el.dataset.index);
-        const count = newsLikeCounts[index] || 0;
-        el.innerText = formatVisitCount(count);
-    });
-    const modalLikeElements = document.querySelectorAll('.modal-news-like-count');
-    modalLikeElements.forEach(el => {
-        const index = parseInt(el.dataset.index);
-        const count = newsLikeCounts[index] || 0;
-        el.innerText = formatVisitCount(count);
-    });
-    renderLikedStyle();
-}
-async function updateNewsLikeCount(index) {
-    if (typeof newsLikeCounts[index] === 'undefined') {
-        newsLikeCounts[index] = 0;
-    }
-    newsLikeCounts[index] += 1;
-    renderLikedStyle();
-    const requestHeaders = {
-        "Authorization": `token ${GITHUB_TOKEN}`,
-        "Accept": "application/vnd.github.v3+json",
-        "User-Agent": "Mozilla/5.0"
-    };
-    try {
-        const issueRes = await fetch(
-            `https://api.github.com/repos/${GITHUB_REPO}/issues/${COUNT_ISSUE_NUMBER}`,
-            { headers: requestHeaders, method: "GET" }
-        );
-        if (!issueRes.ok) throw new Error('Issue请求失败');
-        const countIssue = await issueRes.json();
-        let currentTotal = 0;
-        const totalMatch = countIssue.body.match(COUNT_REG);
-        if (totalMatch) currentTotal = parseInt(totalMatch[1]);
-        const tempNewsLikes = {};
-        const likeMatches = countIssue.body.matchAll(NEWS_LIKE_REG);
-        for (const m of likeMatches) {
-            tempNewsLikes[parseInt(m[1])] = parseInt(m[2]);
-        }
-        tempNewsLikes[index] = newsLikeCounts[index];
-        newsLikeCounts = tempNewsLikes;
-        let newIssueBody = `总访问量：${currentTotal}\n`;
-        for (const key in tempNewsLikes) {
-            newIssueBody += `${NEWS_LIKE_PREFIX}${key}${NEWS_LIKE_SUFFIX}${tempNewsLikes[key]}\n`;
-        }
-        await fetch(
-            `https://api.github.com/repos/${GITHUB_REPO}/issues/${COUNT_ISSUE_NUMBER}`,
-            {
-                headers: requestHeaders,
-                method: "PATCH",
-                body: JSON.stringify({ body: newIssueBody.trim() })
-            }
-        );
-        localStorage.setItem('temp_count_all', JSON.stringify({ 
-            total: currentTotal, 
-            likes: newsLikeCounts 
-        }));
-    } catch (err) {
-        console.log('新闻点赞量容错：', err);
-        let localData = JSON.parse(localStorage.getItem('temp_count_all')) || { total: 0, likes: {} };
-        localData.likes[index] = newsLikeCounts[index];
-        localStorage.setItem('temp_count_all', JSON.stringify(localData));
-    }
-}
-function renderLikedStyle() {
-    document.querySelectorAll('.news-like-btn').forEach(btn => {
-        const index = parseInt(btn.dataset.index);
-        const count = formatVisitCount(newsLikeCounts[index] || 0);
-        btn.innerHTML = `👍 <span class="news-like-count" data-index="${index}">${count}</span>`;
-        void btn.offsetWidth;
-    });
-    document.querySelectorAll('.modal-news-like-btn').forEach(btn => {
-        const index = parseInt(btn.dataset.index);
-        const count = formatVisitCount(newsLikeCounts[index] || 0);
-        btn.innerHTML = `👍 <span class="modal-news-like-count" data-index="${index}">${count}</span>`;
-        void btn.offsetWidth;
-    });
-}
-function openNewsModal(index) {
-    currentModalIndex = index;
-    const newsData = newsDataList[index];
-    const modalContent = document.getElementById('modalNewsContent');
-    let imgHtml = '';
-    if(newsData.imgSrcList.length>0||newsData.videoSrcList.length>0) {
-        imgHtml = `<div class="modal-news-imgs">`;
-        newsData.imgSrcList.forEach(url=>{
-            imgHtml+=`<img class="modal-news-img-item" data-src="${url}" alt="${newsData.title}" src="">`;
-        });
-        newsData.videoSrcList.forEach(url=>{
-            imgHtml+=`<video class="modal-news-img-item" tag="video" data-src="${url}" muted playsinline preload="metadata"></video>`;
-        });
-        imgHtml += `</div>`;
-    }
-    modalContent.innerHTML = `
-        <div class="modal-news-title">${newsData.title}</div>
-        <div class="modal-news-desc">${newsData.content}</div>
-        ${imgHtml}
-        <div class="modal-news-date"><span class="modal-news-like-btn" data-index="${index}">👍 <span class="modal-news-like-count" data-index="${index}">${formatVisitCount(newsLikeCounts[index] || 0)}</span></span> | 发布时间：${newsData.date}</div>
-    `;
-    const modalCommentArea = document.getElementById('modalCommentArea');
-    modalCommentArea.innerHTML = `
-      <div class="apple-loading-comment" style="text-align:center; padding:20px; color:#0078d4; font-weight:300; letter-spacing:0.5px;">
-        <span style="display:inline-flex; align-items:center; gap:8px;">
-          Loading
-          <span style="display:flex; gap:2px; margin-top:2px;">
-            <span style="width:4px; height:4px; border-radius:50%; background:#0078d4; animation: apple-breathe 1.2s infinite ease-in-out 0s;"></span>
-            <span style="width:4px; height:4px; border-radius:50%; background:#0078d4; animation: apple-breathe 1.2s infinite ease-in-out 0.2s;"></span>
-            <span style="width:4px; height:4px; border-radius:50%; background:#0078d4; animation: apple-breathe 1.2s infinite ease-in-out 0.4s;"></span>
-          </span>
-        </span>
+
+
+async function initBg() {
+  const res = await fetch('moguone/background.txt');
+  const txt = await res.text();
+  state.bgList = txt.split('\n').filter(s => s.trim());
+  
+  const savedBg = localStorage.getItem('bg_idx');
+  if(savedBg) document.body.style.backgroundImage = `url(${state.bgList[savedBg]})`;
+
+  document.getElementById('bgChangeBtn').onclick = () => {
+    document.getElementById('bgModal').classList.add('show');
+    const grid = document.getElementById('bgGrid');
+    grid.innerHTML = state.bgList.map((url, i) => `
+      <div class="bg-item" onclick="setBg(${i}, '${url}')">
+        <img src="${url}" loading="lazy">
       </div>
-      <style>
-        @keyframes apple-breathe {
-          0%, 100% { opacity: 0.4; transform: scale(0.9); }
-          50% { opacity: 1; transform: scale(1.1); }
-        }
-        .apple-loading-comment {
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-		
-      </style>
-    `;
-    const commentArea = document.getElementById('modalCommentArea');
-    if (!commentArea.dataset.loading) {
-        commentArea.dataset.loading = 'true';
-        getCommentData(index).then(() => {
-            renderNewsLikeCounts();
-            renderLikedStyle();
-            renderCommentArea(index);
-            delete commentArea.dataset.loading;
-        });
-    }
-    renderLikedStyle();
-    updateNavBtnStatus();
-    const modalMask = document.getElementById('newsModalMask');
-    modalMask.classList.add('show');
-    scrollTopVal=window.scrollY;
-    document.body.style.overflow='hidden';
-    setTimeout(()=>{
-        initPreviewAnimation();
-        initLazyImgLoad();
-        initVideoHoverPreview();
-        const modalLikeBtn = document.querySelector('.modal-news-like-btn');
-        if(modalLikeBtn) {
-            modalLikeBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                updateNewsLikeCount(index);
-            });
-        }
-    },100);
+    `).join('');
+  };
 }
-function createModalCommentArea(index) {
-    const modalCommentArea = document.getElementById('modalCommentArea');
-    modalCommentArea.innerHTML = '';
-    const utterContainer = document.createElement('div');
-    utterContainer.className='modal-utter-container';
-    modalCommentArea.appendChild(utterContainer);
-    const utterScript = document.createElement('script');
-    utterScript.src='https://utteranc.es/client.js';
-    utterScript.setAttribute('repo',GITHUB_REPO);
-    utterScript.setAttribute('issue-term',`news_${index}`);
-    utterScript.setAttribute('theme',getUtterancesTheme());
-    utterScript.setAttribute('crossorigin','anonymous');
-    utterScript.setAttribute('async',true);
-    utterContainer.appendChild(utterScript);
+
+window.setBg = (i, url) => {
+  document.body.style.backgroundImage = `url(${url})`;
+  localStorage.setItem('bg_idx', i);
+  document.getElementById('bgModal').classList.remove('show');
+};
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.querySelector('.toast-text').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
 }
-function closeNewsModal() {
-    const modalMask = document.getElementById('newsModalMask');
-    modalMask.classList.remove('show');
-    document.body.style.overflow='auto';
-    window.scrollTo(0,scrollTopVal);
-    currentModalIndex=-1;
-    document.querySelectorAll('.modal-news-img-item[tag=video]').forEach(v=>v.pause());
-    document.getElementById('modalCommentArea').innerHTML = '';
-}
-function switchNews(direction) {
-    if (currentModalIndex === -1 || newsDataList.length === 0) return;
-    let newIndex = currentModalIndex;
-    if (direction === 'prev') {
-        newIndex = currentModalIndex - 1;
-    } else if (direction === 'next') {
-        newIndex = currentModalIndex + 1;
-    }
-    if (newIndex < 0 || newIndex >= newsDataList.length) return;
-    closeNewsModal();
-    setTimeout(() => {
-        openNewsModal(newIndex);
-    }, 100);
-}
-function updateNavBtnStatus() {
-    const prevBtn = document.getElementById('newsPrevBtn');
-    const nextBtn = document.getElementById('newsNextBtn');
-    if (!prevBtn || !nextBtn || currentModalIndex === -1) return;
-    prevBtn.disabled = currentModalIndex === 0;
-    nextBtn.disabled = currentModalIndex === newsDataList.length - 1;
-}
-function showTipModal() {
-    const tipMask = document.getElementById('tipModalMask');
-    tipMask.classList.add('show');
-    document.body.style.overflow = 'hidden';
-}
-function hideTipModal() {
-    const tipMask = document.getElementById('tipModalMask');
-    tipMask.classList.remove('show');
-    document.body.style.overflow = 'auto';
-}
-function initNewsScrollAnimation() {
-    const newsItems = document.querySelectorAll('.news-item');
-    if (newsAnimateObserver) {
-        newsAnimateObserver.disconnect();
-        newsAnimateObserver = null;
-    }
-    newsAnimateObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            const newsItem = entry.target;
-            if (entry.isIntersecting) {
-                newsItem.classList.add('active');
-                newsItem.classList.remove('out');
-            } else {
-                newsItem.classList.add('out');
-                newsItem.classList.remove('active');
-            }
-        });
-    }, {
-        root: null,
-        rootMargin: "150px 0px 150px 0px",
-        threshold: 0
-    });
-    newsItems.forEach(item => {
-        newsAnimateObserver.observe(item);
-    });
-}
-function renderNewsList(newsList) {
-    const newsContainer = document.getElementById('newsScroll');
-    // 移除加载提示，直接显示内容
-    newsContainer.innerHTML = '';
-    if(newsList.length === 0) {
-        newsContainer.innerHTML = '<div class="search-empty-tips">🔍 没有找到匹配的内容，试试换个关键词吧</div>';
-        return;
-    }
+
+
+async function createCommentIssue(newsId) {
+    if(!state.user) { showToast('请先登录'); return; }
     
-    // 直接渲染所有文字内容，不等待图片加载
-    newsList.forEach((newsData) => {
-        const originalIndex = newsDataList.indexOf(newsData);
-        const item = document.createElement('div');
-        item.className='news-item active'; // 直接添加active类，立即显示
-        let mediaHtml = '';
-        let firstMedia = null;
-        if(newsData.imgSrcList.length>0){
-            firstMedia={type:'image',url:newsData.imgSrcList[0]};
-            // 图片使用data-src懒加载，src留空，确保不阻塞渲染
-            mediaHtml = `<img class="news-img-item lazy-img" data-src="${firstMedia.url}" alt="${newsData.title}" src="" style="width:100%;height:100%;object-fit:cover;">`;
-        }else if(newsData.videoSrcList.length>0){
-            firstMedia={type:'video',url:newsData.videoSrcList[0]};
-            mediaHtml = `<video class="news-video-item lazy-img" tag="video" data-src="${firstMedia.url}" muted playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;"></video>`;
-        }
-        // 立即渲染文字内容
-        item.innerHTML = `
-            <div class="news-text-box">
-                <div class="news-title">${newsData.title}</div>
-                <div class="news-content">${newsData.content}</div>
-                <div class="news-date"><span class="news-like-btn" data-index="${originalIndex}">👍 <span class="news-like-count" data-index="${originalIndex}">${formatVisitCount(newsLikeCounts[originalIndex] || 0)}</span></span> | 📅 ${newsData.date}</div>
-            </div>
-            <div class="news-media-box">${mediaHtml}</div>
-        `;
-        newsContainer.appendChild(item);
-        createCommentArea(item, originalIndex);
-        
-        // 绑定点击事件
-        const newsTitleEl = item.querySelector('.news-title');
-        newsTitleEl.addEventListener('click', () => {
-            openNewsModal(originalIndex);
-        });
-        const newsLikeBtn = item.querySelector('.news-like-btn');
-        newsLikeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            updateNewsLikeCount(originalIndex);
-        });
+    
+    const newIssueRes = await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues`, {
+        method: 'POST',
+        headers: { Authorization: `token ${CONFIG.token}` },
+        body: JSON.stringify({
+            title: `comment_#${newsId}`,
+            body: `Comment storage for news ${newsId}`
+        })
+    });
+    const newIssue = await newIssueRes.json();
+    
+    
+    const mapRes = await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${CONFIG.commentMapIssue}`, {
+      headers: { Authorization: `token ${CONFIG.token}` }
+    });
+    const mapData = await mapRes.json();
+    const newBody = mapData.body + `\nnews_${newsId}: ${newIssue.number}`;
+    
+    await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${CONFIG.commentMapIssue}`, {
+        method: 'PATCH',
+        headers: { Authorization: `token ${CONFIG.token}` },
+        body: JSON.stringify({ body: newBody })
     });
     
-    // 立即初始化懒加载，图片后台加载
-    initLazyImgLoad();
-    initVideoHoverPreview();
-    initPreviewAnimation();
-    initNewsScrollAnimation();
-    
-    // 立即隐藏加载提示，显示成功
-    showSuccessToast();
+    postComment(newIssue.number);
 }
-function loadNewsContent() {
-    const newsContainer = document.getElementById('newsScroll');
-        newsContainer.innerHTML = `<div class="news-loading">✨ 加载日记内容中...</div>`;
-        const requestHeaders = {
-            "Authorization": `token ${GITHUB_TOKEN}`,
-            "Accept": "application/vnd.github.v3+json",
-            "User-Agent": "Mozilla/5.0"
-        };
-        return new Promise((resolve) => {
-            fetch(`https://api.github.com/repos/${GITHUB_REPO}/issues/${NEWS_ISSUE_NUMBER}`, {
-                headers: requestHeaders,
-                method: "GET"
-            })
-            .then(res => {
-                if (!res.ok) throw new Error(`获取Issue失败，状态码：${res.status}`);
-                return res.json();
-            })
-            .then(issueData => {
-                const issueBody = issueData.body || '';
-                const newsList = issueBody.replace(/\r\n/g,'\n').split(NEWS_SEPARATOR).map(n=>n.trim()).filter(n=>n.length);
-                newsDataList = [];
-                newsList.forEach((newsStr, index) => {
-                    let title="最新日记",content="",imgSrcList=[],videoSrcList=[],date="2026-01-18 00:00";
-                    let id = 0;
-                    newsStr.split('\n').map(l=>l.trim()).filter(l=>l).forEach(line=>{
-                        if(line.startsWith('id::')) id = parseInt(line.slice(4)) || 0;
-                        else if(line.startsWith('【')&&line.endsWith('】')) title=line.slice(1,-1);
-                        else if(line.startsWith('img::')) imgSrcList.push(line.slice(5));
-                        else if(line.startsWith('video::')) videoSrcList.push(line.slice(7));
-                        else if(line.startsWith('date::')) date=line.slice(5);
-                        else content += line + '<br>';
-                    });
-                    newsDataList.push({id: id || (index + 1), title,content,imgSrcList,videoSrcList,date});
-                });
-                newsDataList = newsDataList.sort((a, b) => a.id - b.id);
-                initNewsLikeCounts(); 
-                renderNewsList(newsDataList);
-                renderNewsLikeCounts(); 
-                renderLikedStyle(); 
-                resolve();
-            })
-        .catch((err)=>{
-            console.error('加载日记失败：', err);
-            const toast = document.getElementById('toastNotification');
-            toast.classList.remove('show');
-            setTimeout(() => {
-                const spinner = toast.querySelector('.loading-spinner');
-                const successIcon = toast.querySelector('.success-icon');
-                toast.querySelector('.text').textContent = '日记加载失败，请重试';
-                spinner.style.display = 'none';
-                successIcon.style.display = 'inline-block';
-                toast.classList.add('show');
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                }, 3000);
-            }, 300);
-            newsContainer.innerHTML='';
-            const errorDom=document.createElement('div');
-            errorDom.className='news-item';
-            errorDom.style.color='#0078d4';
-            errorDom.style.textAlign='center';
-            errorDom.style.padding='30px';
-            errorDom.textContent='日记加载失败 ✘，请检查GitHub Issue配置或网络';
-            newsContainer.appendChild(errorDom);
-            fetch('moguone/news.txt')
-                .then(res => res.text())
-                .then(text => {
-                    const newsList = text.replace(/\r\n/g,'\n').split('---').map(n=>n.trim()).filter(n=>n.length);
-                    newsDataList = [];
-                    newsList.forEach((newsStr, index) => {
-                        let title="最新日记",content="",imgSrcList=[],videoSrcList=[],date="2026-01-18 00:00";
-                        let id = 0;
-                        newsStr.split('\n').map(l=>l.trim()).filter(l=>l).forEach(line=>{
-                            if(line.startsWith('id::')) id = parseInt(line.slice(4)) || 0;
-                            else if(line.startsWith('【')&&line.endsWith('】')) title=line.slice(1,-1);
-                            else if(line.startsWith('img::')) imgSrcList.push(line.slice(5));
-                            else if(line.startsWith('video::')) videoSrcList.push(line.slice(7));
-                            else if(line.startsWith('date::')) date=line.slice(5);
-                            else content += line + '<br>';
-                        });
-                        newsDataList.push({title,content,imgSrcList,videoSrcList,date});
-                    });
-                    initNewsLikeCounts();
-                    renderNewsList(newsDataList);
-                    renderNewsLikeCounts();
-                    renderLikedStyle();
-                });
-            resolve();
-        });
-    });
-}
-function showLoadingToast() {
-    const toast = document.getElementById('toastNotification');
-    const spinner = toast.querySelector('.loading-spinner');
-    const successIcon = toast.querySelector('.success-icon');
-    toast.querySelector('.text').innerHTML = '首次加载新日记较慢<br>请 扣手指 耐心等待';
-    spinner.style.display = 'inline-block';
-    successIcon.style.display = 'none';
-    toast.classList.add('show');
-}
-function showSuccessToast() {
-    const toast = document.getElementById('toastNotification');
-    const spinner = toast.querySelector('.loading-spinner');
-    const successIcon = toast.querySelector('.success-icon');
-    toast.classList.remove('show');
-    setTimeout(() => {
-        toast.querySelector('.text').textContent = '日记获取成功';
-        spinner.style.display = 'none';
-        successIcon.style.display = 'inline-block';
-        toast.classList.add('show');
-        setTimeout(() => {
-            toast.classList.remove('show');
-        }, 3000);
-    }, 300);
-}
-function initSearchFunc() {
-    const searchInput = document.getElementById('searchInput');
-    const searchBtn = document.getElementById('searchBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    let searchDebounce = null;
 
-    const doSearch = () => {
-        const keyword = searchInput.value.trim().toLowerCase();
-        if (!keyword) {
-            showTipModal();
-            searchInput.focus();
-            return;
-        }
-        const filterList = newsDataList.filter(item => {
-            return item.title.toLowerCase().includes(keyword) || item.content.toLowerCase().includes(keyword);
-        });
-        renderNewsList(filterList);
-    }
-
-    searchBtn.addEventListener('click', doSearch);
-    searchInput.addEventListener('keyup', (e) => {
-        if(e.key === 'Enter') {
-            clearTimeout(searchDebounce);
-            doSearch();
-        }
-    });
-
-    resetBtn.addEventListener('click', () => {
-        searchInput.value = '';
-        document.getElementById('imgPreviewMask').classList.remove('show');
-        closeNewsModal();
-        renderNewsList(newsDataList);
-        searchInput.focus();
-        window.scrollTo({top: 0, behavior: 'smooth'});
-    });
-}
-function refreshNewsContent() {
-    loadNewsContent();
-    const toast = document.getElementById('toastNotification');
-    toast.querySelector('.text').textContent = '日记已刷新！';
-    toast.classList.add('show');
-    setTimeout(() => {
-        toast.classList.remove('show');
-    }, 2000);
-}
-function preloadAllMedia() {
-    if (!newsDataList || newsDataList.length === 0) return;
-    console.log('开始预加载所有日记的媒体资源...');
-    const preloadPromises = [];
-    newsDataList.forEach((newsData, index) => {
-        newsData.imgSrcList.forEach(imgUrl => {
-            preloadPromises.push(new Promise((resolve) => {
-                const img = new Image();
-                img.onload = resolve;
-                img.onerror = resolve;
-                img.src = imgUrl;
-            }));
-        });
-        newsData.videoSrcList.forEach(videoUrl => {
-            preloadPromises.push(new Promise((resolve) => {
-                const video = document.createElement('video');
-                video.preload = 'metadata';
-                video.onloadedmetadata = resolve;
-                video.onerror = resolve;
-                video.src = videoUrl;
-            }));
-        });
-    });
-    Promise.all(preloadPromises).then(() => {
-        console.log('所有日记媒体资源预加载完成！');
-        initLazyImgLoad();
-        initVideoHoverPreview();
-    });
-}
-function initPreviewAnimation() {
-    const mask = document.getElementById('imgPreviewMask');
-    const previewImg = document.getElementById('previewImg');
-    const previewVideo = document.getElementById('previewVideo');
-    const previewCloseBtn = document.getElementById('previewCloseBtn');
-    const previewPrevBtn = document.getElementById('previewPrevBtn');
-    const previewNextBtn = document.getElementById('previewNextBtn');
-    const previewPagination = document.getElementById('previewPagination');
-    let currentMediaList = [];
-    let currentMediaIndex = 0;
-    function updatePreviewContent(index) {
-        if (currentMediaList.length === 0) return;
-        previewImg.classList.remove('show-animate');
-        previewVideo.classList.remove('show-animate');
-        setTimeout(() => {
-            currentMediaIndex = index;
-            if (currentMediaIndex < 0) currentMediaIndex = currentMediaList.length - 1;
-            if (currentMediaIndex >= currentMediaList.length) currentMediaIndex = 0;
-            previewPrevBtn.disabled = currentMediaList.length <= 1 || currentMediaIndex === 0;
-            previewNextBtn.disabled = currentMediaList.length <= 1 || currentMediaIndex === currentMediaList.length - 1;
-            previewPagination.textContent = `${currentMediaIndex + 1}/${currentMediaList.length}`;
-            const media = currentMediaList[currentMediaIndex];
-            previewImg.style.display = 'none';
-            previewVideo.style.display = 'none';
-            previewVideo.pause();
-            previewVideo.currentTime = 0;
-            previewVideo.muted = false;
-            if (media.type === 'image') {
-                previewImg.src = media.url;
-                previewImg.style.display = 'block';
-                setTimeout(() => previewImg.classList.add('show-animate'), 50);
-            } else if (media.type === 'video') {
-                previewVideo.src = media.url;
-                previewVideo.style.display = 'block';
-                setTimeout(() => {
-                    previewVideo.classList.add('show-animate');
-                    previewVideo.play().catch(e => {});
-                }, 50);
-            }
-        }, 200);
-    }
-    previewPrevBtn.addEventListener('click', () => {
-        updatePreviewContent(currentMediaIndex - 1);
-    });
-    previewNextBtn.addEventListener('click', () => {
-        updatePreviewContent(currentMediaIndex + 1);
-    });
-    document.addEventListener('keydown', (e) => {
-        if (mask.classList.contains('show')) {
-            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                e.preventDefault();
-            }
-            if (e.key === 'ArrowLeft') {
-                updatePreviewContent(currentMediaIndex - 1);
-            } else if (e.key === 'ArrowRight') {
-                updatePreviewContent(currentMediaIndex + 1);
-            } else if (e.key === 'Escape') {
-                closePreview();
-            }
-        }
-        else if (document.getElementById('newsModalMask').classList.contains('show')) {
-            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                e.preventDefault();
-            }
-            if (e.key === 'ArrowUp') {
-                switchNews('next');
-            } else if (e.key === 'ArrowDown') {
-                switchNews('prev');
-            } else if (e.key === 'Escape') {
-                closeNewsModal();
-            }
-        }
-    });
-    function closePreview() {
-        mask.classList.remove('show');
-        if(!document.getElementById('newsModalMask').classList.contains('show')) {
-            document.body.style.overflow = 'auto';
-            window.scrollTo(0, scrollTopVal);
-        }
-        previewVideo.pause();
-        previewVideo.src = '';
-        previewVideo.muted = true;
-        previewImg.src = '';
-        currentMediaList = [];
-        currentMediaIndex = 0;
-    }
-    mask.addEventListener('click', function(e) {
-        if(e.target === mask) {
-            closePreview();
-        }
-    });
-    previewCloseBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        closePreview();
-    });
-    const mediaItems = document.querySelectorAll('.news-img-item, .news-video-item, .modal-news-img-item');
-    mediaItems.forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.stopPropagation();
-            scrollTopVal = window.scrollY;
-            document.body.style.overflow = 'hidden';
-            mask.classList.add('show');
-            const newsItem = this.closest('.news-item') || this.closest('.modal-news-imgs');
-            const currentNewsIndex = currentModalIndex >= 0 ? currentModalIndex : Array.from(document.querySelectorAll('.news-item')).indexOf(newsItem);
-            if (currentNewsIndex >= 0 && newsDataList[currentNewsIndex]) {
-                const newsData = newsDataList[currentNewsIndex];
-                currentMediaList = [];
-                newsData.imgSrcList.forEach(url => {
-                    currentMediaList.push({ type: 'image', url });
-                });
-                newsData.videoSrcList.forEach(url => {
-                    currentMediaList.push({ type: 'video', url });
-                });
-                const currentUrl = this.src || this.dataset.src;
-                currentMediaIndex = currentMediaList.findIndex(media => media.url === currentUrl);
-                if (currentMediaIndex === -1) currentMediaIndex = 0;
-                updatePreviewContent(currentMediaIndex);
-            } else {
-                currentMediaList = [{ 
-                    type: this.tagName === 'IMG' ? 'image' : 'video', 
-                    url: this.src || this.dataset.src 
-                }];
-                currentMediaIndex = 0;
-                previewImg.classList.remove('show-animate');
-                previewVideo.classList.remove('show-animate');
-                updatePreviewContent(0);
-            }
-        });
-    });
-}
-function initMusicPlayer() {
-    const playBtn = document.getElementById('playBtn');
-    const music = document.getElementById('music');
-    const footer = document.getElementById('footer');
-    music.volume = 0.5;
-    let isPlay = false;
-    const musicState = JSON.parse(localStorage.getItem('musicPlayerState')) || {
-        isPlay: false,
-        currentTime: 0,
-        volume: 0.5
-    };
-    music.volume = musicState.volume;
-    music.currentTime = musicState.currentTime;
-    isPlay = musicState.isPlay;
-    if (isPlay) {
-        playBtn.className = 'music-btn pause-icon';
-        footer.className = 'music-playing';
-        music.play().then(() => {}).catch(e => {});
-    } else {
-        playBtn.className = 'music-btn play-icon';
-        footer.className = 'music-paused';
-        music.pause();
-    }
-    playBtn.addEventListener('click', function() {
-        if (isPlay) {
-            music.pause();
-            playBtn.className = 'music-btn play-icon';
-            footer.className = 'music-paused';
-            isPlay = false;
-        } else {
-            music.play().then(() => {
-                playBtn.className = 'music-btn pause-icon';
-                footer.className = 'music-playing';
-                isPlay = true;
-            }).catch(e => {});
-        }
-        saveMusicState();
-    });
-    music.addEventListener('timeupdate', function() {
-        saveMusicState();
-    });
-    function saveMusicState() {
-        localStorage.setItem('musicPlayerState', JSON.stringify({
-            isPlay: isPlay,
-            currentTime: music.currentTime,
-            volume: music.volume
-        }));
-    }
-    setTimeout(() => {
-        if (!isPlay) {
-            music.play().then(() => {
-                playBtn.className = 'music-btn pause-icon';
-                footer.className = 'music-playing';
-                isPlay = true;
-                saveMusicState();
-            }).catch(e => {});
-        }
-    }, 1500);
-}
-async function initPageWithLoader() {
-    const loader = document.getElementById('loader');
-    document.body.style.overflow = 'hidden';
-    await loadNewsContent();
-    setTimeout(() => {
-        loader.classList.add('loaded');
-        document.body.style.overflow = 'auto';
-        initVisitCount();
-        initMusicPlayer();
-        initSearchFunc();
-        initAddBgFunc();
-    }, 100);
-}
-document.addEventListener('DOMContentLoaded', function() {
-    // ========== 第一步：提前绑定管理员弹窗所有按钮事件（核心修改，移到最上方） ==========
-    (function initAdminTipEvent() {
-        const adminTipMask = document.getElementById('adminTipMask');
-        const closeBtn = document.getElementById('adminTipCloseBtn'); // 弹窗关闭按钮
-        const exitBtn = document.getElementById('adminExitBtn');     // 退出按钮
-        const toLoginBtn = document.getElementById('adminToLoginBtn'); // 去登录按钮
-
-        // 【退出按钮】：按需求跳转到search.html + 关闭弹窗 + 恢复滚动
-        exitBtn.addEventListener('click', () => {
-            window.location.href = 'moguone/search.html'; // 核心：跳转到search.html
-            adminTipMask.classList.remove('show');
-            document.body.style.overflow = 'auto';
-        });
-
-        // 【去登录按钮】：按需求跳转到login.html + 关闭弹窗 + 恢复滚动
-        toLoginBtn.addEventListener('click', () => {
-            window.location.href = 'moguone/login.html'; // 核心：跳转到登录页
-            adminTipMask.classList.remove('show');
-            document.body.style.overflow = 'auto';
-        });
-
-        // 【弹窗关闭按钮】：跳转到search.html（与退出按钮保持一致，提升体验）
-        closeBtn.addEventListener('click', () => {
-            window.location.href = 'moguone/search.html';
-            adminTipMask.classList.remove('show');
-            document.body.style.overflow = 'auto';
-        });
-
-        // 【点击遮罩空白处】：跳转到search.html（与页面原有弹窗逻辑一致）
-        adminTipMask.addEventListener('click', (e) => {
-            if (e.target === adminTipMask) {
-                window.location.href = 'moguone/search.html';
-                adminTipMask.classList.remove('show');
-                document.body.style.overflow = 'auto';
-            }
-        });
-    })();
-
-    // ========== 原有代码：以下部分保持不变 ==========
-    const loader = document.getElementById('loader');
-    loader.classList.remove('loaded');
-    initLoginState();
-
-	// ===== 管理员权限验证：新逻辑（显示定制弹窗，提供双选择） =====
-	// 1. 统一获取登录状态和管理员标识
-	const userInfo = localStorage.getItem(USER_LOCAL_KEY);
-	const isAdmin = currentUser && currentUser.isAdmin === true;
-	const adminTipMask = document.getElementById('adminTipMask'); // 获取新弹窗遮罩
-	
-	// 2. 验证规则：未登录 / 非管理员 → 均显示定制弹窗（不直接跳转）
-	if (!userInfo || !isAdmin) {
-	    // 显示定制弹窗，禁止页面滚动
-	    adminTipMask.classList.add('show');
-	    document.body.style.overflow = 'hidden';
-	    // 终止后续代码执行，禁止加载页面内容
-	    return;
-	}
-	// ===== 权限验证结束 =====
-    initCustomBg();
-    initRandomBg();
-	
-	// 2. 验证规则：未登录 / 非管理员 → 均显示定制弹窗（不直接跳转）
-	if (!userInfo || !isAdmin) {
-	    // 显示定制弹窗，禁止页面滚动
-	    adminTipMask.classList.add('show');
-	    document.body.style.overflow = 'hidden';
-	    // 终止后续代码执行，禁止加载页面内容
-	    return;
-	}
-	// ===== 权限验证结束 =====
-    initCustomBg();
-    initRandomBg();
-    document.getElementById('bgChangeBtn').addEventListener('click', changeRandomBg);
-    document.getElementById('bgModalCloseBtn').addEventListener('click', function(e) {
-        e.stopPropagation();
-        closeBgModal();
-    });
-    fetch('moguone/log.txt').then(res => res.text()).then(text => {
-        const logContainer = document.querySelector('.sidebar-update-log');
-        text.replace(/\r\n/g, '\n').split('\n').filter(l => l.trim()).forEach(line => {
-            const dom = document.createElement('div');
-            if (line.startsWith('V')) {
-                dom.className = 'update-log-version';
-            } else if (line.startsWith('20')) {
-                dom.className = 'update-log-time-text';
-            } else {
-                dom.className = 'update-log-content';
-            }
-            dom.textContent = line.trim();
-            logContainer.appendChild(dom);
-        });
-    }).catch(() => {
-        const dom = document.createElement('div');
-        dom.className = 'update-log-content';
-        dom.style.color = '#0078d4';
-        dom.textContent = ' 日志加载失败 ✘，请检查文件路径 ';
-        document.querySelector('.sidebar-update-log').appendChild(dom);
-    });
-    initPageWithLoader();
-    document.getElementById('modalCloseBtn').addEventListener('click', function(e) {
-        e.stopPropagation();
-        closeNewsModal();
-    });
-    document.getElementById('newsPrevBtn').addEventListener('click', () => {
-        switchNews('prev');
-    });
-    document.getElementById('newsNextBtn').addEventListener('click', () => {
-        switchNews('next');
-    });
-    document.getElementById('newsModalMask').addEventListener('click', function(e) {
-        if(e.target === this) closeNewsModal();
-    });
-    document.getElementById('tipModalCloseBtn').addEventListener('click', function(e) {
-        e.stopPropagation();
-        hideTipModal();
-    });
-    document.getElementById('tipModalMask').addEventListener('click', function(e) {
-        if(e.target === this) hideTipModal();
-    });
-    document.getElementById('sidebarTop').addEventListener('click', () => {
-        window.scrollTo({top: 0, behavior: 'smooth'});
-    });
-    function initUserDropdown() {
-      const userInfoBox = document.getElementById('userInfoBox');
-      if (!userInfoBox) return;
-      const trigger = userInfoBox.querySelector('.user-dropdown-trigger');
-      const menu = userInfoBox.querySelector('.user-dropdown-menu');
-      trigger.addEventListener('click', (e) => {
-        e.stopPropagation();
-        menu.classList.toggle('show');
-      });
-      document.addEventListener('click', () => {
-        menu.classList.remove('show');
-      });
-      menu.addEventListener('click', (e) => {
-        e.stopPropagation();
-      });
-    }
-    initUserDropdown();
-	// ========== 首次访问提示框逻辑 ==========
-	function initFirstVisitTip() {
-	    // 存储用户访问标记的localStorage键名
-	    const firstVisitKey = 'hasVisitedMoGuOneWebsite';
-	    const firstVisitTip = document.getElementById('firstVisitTip');
-	    const tipCloseBtn = document.getElementById('tipCloseBtn');
-	    
-	    // 检查用户是否首次访问（localStorage无标记则为首次）
-	    const hasVisited = localStorage.getItem(firstVisitKey);
-	    if (!hasVisited) {
-	        // 延迟1秒显示（等页面加载完成，体验更好）
-	        setTimeout(() => {
-	            firstVisitTip.classList.add('show');
-	        }, 1000);
-	        
-	        // 点击关闭按钮隐藏提示框，并标记为已访问
-	        tipCloseBtn.addEventListener('click', () => {
-	            firstVisitTip.classList.remove('show');
-	            localStorage.setItem(firstVisitKey, 'true');
-	        });
-	        
-	        // 点击页面其他区域自动关闭提示框
-	        document.addEventListener('click', (e) => {
-	            if (!firstVisitTip.contains(e.target) && firstVisitTip.classList.contains('show')) {
-	                firstVisitTip.classList.remove('show');
-	                localStorage.setItem(firstVisitKey, 'true');
-	            }
-	        });
-	        
-	        // 自动关闭（8秒后），避免提示框一直显示
-	        setTimeout(() => {
-	            if (firstVisitTip.classList.contains('show')) {
-	                firstVisitTip.classList.remove('show');
-	                localStorage.setItem(firstVisitKey, 'true');
-	            }
-	        }, 8000);
-	    }
-	}
-	// 绑定管理员权限弹窗 - 按钮点击事件
-	(function initAdminTipEvent() {
-	    const adminTipMask = document.getElementById('adminTipMask');
-	    const closeBtn = document.getElementById('adminTipCloseBtn'); // 弹窗关闭按钮
-	    const exitBtn = document.getElementById('adminExitBtn');     // 退出按钮
-	    const toLoginBtn = document.getElementById('adminToLoginBtn'); // 去登录按钮
-	
-	    // 1. 退出按钮：返回上一页（浏览器历史记录）
-	    exitBtn.addEventListener('click', () => {
-	        window.history.back(); // 核心功能：返回上一页，实现「退出」效果
-	        adminTipMask.classList.remove('show');
-	        document.body.style.overflow = 'auto';
-	    });
-	
-	    // 2. 去登录按钮：跳转到你的登录页面（与现有登录按钮路径一致）
-	    toLoginBtn.addEventListener('click', () => {
-	        window.location.href = 'moguone/login.html'; // 跳转到登录页
-	    });
-	
-	    // 3. 弹窗关闭按钮：关闭弹窗 + 返回上一页（提升体验）
-	    closeBtn.addEventListener('click', () => {
-	        window.history.back();
-	        adminTipMask.classList.remove('show');
-	        document.body.style.overflow = 'auto';
-	    });
-	
-	    // 4. 点击遮罩层空白处：关闭弹窗 + 返回上一页（与页面原有弹窗逻辑一致）
-	    adminTipMask.addEventListener('click', (e) => {
-	        if (e.target === adminTipMask) {
-	            window.history.back();
-	            adminTipMask.classList.remove('show');
-	            document.body.style.overflow = 'auto';
-	        }
-	    });
-	})();
-	// 初始化首次访问提示框
-	initFirstVisitTip();
-});
+document.addEventListener('DOMContentLoaded', init);
 </script>
-
 </body>
 </html>
