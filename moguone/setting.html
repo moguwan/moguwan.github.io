@@ -1107,12 +1107,22 @@ function initBioTextarea() {
         }
     });
 }
-
-function initLoginState() {
+async function initLoginState() {
     const savedUser = localStorage.getItem(USER_LOCAL_KEY);
     if (savedUser) {
         try {
             currentUser = JSON.parse(savedUser);
+            
+            // 从GitHub获取最新的用户信息
+            const latestUserInfo = await getUserInfoFromGitHub(currentUser.account);
+            if (latestUserInfo) {
+                // 合并最新信息
+                currentUser = {
+                    ...currentUser,
+                    ...latestUserInfo
+                };
+                localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
+            }
             
             currentUser = {
                 account: currentUser.account || '',
@@ -1126,12 +1136,12 @@ function initLoginState() {
                 lastLoginTime: currentUser.lastLoginTime || new Date().toISOString()
             };
             
-            localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
-            
+            // 更新页面显示
             document.getElementById('accountDisplay').textContent = currentUser.account || '未登录';
             document.getElementById('usernameInput').value = currentUser.nickname || '';
             document.getElementById('emailInput').value = currentUser.email || '';
             document.getElementById('bioTextarea').value = currentUser.bio || '';
+            document.getElementById('avatarUrlInput').value = currentUser.avatar || DEFAULT_AVATAR;
             document.getElementById('charCount').textContent = `${(currentUser.bio || '').length}/100`;
             
             const avatarPreview = document.getElementById('avatarPreview');
@@ -1575,7 +1585,6 @@ async function deleteFromGitHub(filePath, commitMessage) {
         throw error;
     }
 }
-
 async function saveUserProfile() {
     if (!currentUser) {
         showTipModal('请先登录！');
@@ -1585,6 +1594,7 @@ async function saveUserProfile() {
     const username = document.getElementById('usernameInput').value.trim();
     const email = document.getElementById('emailInput').value.trim();
     const bio = document.getElementById('bioTextarea').value.trim();
+    const avatar = document.getElementById('avatarUrlInput').value.trim();
     
     if (!username) {
         showTipModal('请输入用户名称！');
@@ -1606,15 +1616,34 @@ async function saveUserProfile() {
     saveBtn.innerHTML = '<i class="iconfont icon-loading rotate"></i> 保存中...';
     
     try {
+        // 更新本地用户信息
         currentUser.nickname = username;
         currentUser.email = email;
         currentUser.bio = bio;
+        currentUser.avatar = avatar || DEFAULT_AVATAR;
         
+        // 验证头像链接
+        if (avatar && avatar !== DEFAULT_AVATAR) {
+            const isValid = await validateImageUrl(avatar);
+            if (!isValid) {
+                showTipModal('头像链接无效，请检查链接是否正确');
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="iconfont icon-save"></i> 保存更改';
+                return;
+            }
+        }
+        
+        // 更新本地存储
         localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
         
+        // 更新GitHub上的用户信息
         const success = await updateUserOnGitHub();
         
         if (success) {
+            // 更新头像预览
+            const avatarPreview = document.getElementById('avatarPreview');
+            avatarPreview.src = currentUser.avatar + '?t=' + new Date().getTime();
+            
             showToast('个人资料保存成功！');
         } else {
             showToast('个人资料已保存到本地（GitHub更新失败）');
@@ -1730,6 +1759,44 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+async function getUserInfoFromGitHub(account) {
+    const requestHeaders = {
+        "Authorization": `token ${GITHUB_TOKEN}`,
+        "Accept": "application/vnd.github.v3+json",
+        "User-Agent": "Mozilla/5.0"
+    };
+
+    try {
+        const res = await fetch(
+            `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
+            { headers: requestHeaders, method: "GET" }
+        );
+
+        if (!res.ok) return null;
+
+        const issue = await res.json();
+        const userLines = issue.body.split('\n').filter(line => line.includes('|'));
+        
+        for (const line of userLines) {
+            const parts = line.split('|');
+            if (parts[0] && parts[0].trim() === account) {
+                return {
+                    account: parts[0].trim(),
+                    password: parts[1].trim(),
+                    email: parts[2] ? parts[2].trim() : '',
+                    nickname: parts[3] ? parts[3].trim() : parts[0].trim(),
+                    isAdmin: parts[4] ? parts[4].trim().toLowerCase() === 'true' : false,
+                    avatar: parts[5] ? parts[5].trim() : DEFAULT_AVATAR,
+                    bio: parts[6] ? parts[6].trim() : ''
+                };
+            }
+        }
+        return null;
+    } catch (err) {
+        console.error('从GitHub获取用户信息失败：', err);
+        return null;
+    }
+}
 </script>
 </body>
 </html>
