@@ -2283,30 +2283,46 @@ function initLoginState() {
             userInfo = {
                 avatar: currentUser.avatar || DEFAULT_AVATAR,
                 nickname: currentUser.nickname || "未知用户",
-                openid: currentUser.openid || currentUser.account || ""
+                openid: currentUser.openid || currentUser.account || "",
+                email: currentUser.email || "",
+                isAdmin: currentUser.isAdmin || false,
+                bio: currentUser.bio || ""
             };
+            
+            // 更新UI
             document.getElementById('loginBtn').style.display = 'none';
             document.getElementById('userInfoBox').style.display = 'flex';
             document.getElementById('userNickName').textContent = userInfo.nickname;
+            
+            // 更新用户头像（如果需要）
+            const sidebarAvatar = document.querySelector('.sidebar-author img');
+            if (sidebarAvatar && userInfo.avatar && userInfo.avatar !== DEFAULT_AVATAR) {
+                sidebarAvatar.src = userInfo.avatar + '?t=' + Date.now();
+            }
+            
             const dropdownMenu = document.querySelector('.user-dropdown-menu');
             dropdownMenu.innerHTML = '';
+            
             const settingItem = document.createElement('div');
             settingItem.className = 'dropdown-item';
             settingItem.id = 'userSettingBtn';
-            settingItem.textContent = 'Center';
+            settingItem.textContent = '个人中心';
             dropdownMenu.appendChild(settingItem);
+            
             if (currentUser.isAdmin) {
                 const adminItem = document.createElement('div');
                 adminItem.className = 'dropdown-item';
                 adminItem.id = 'adminManageBtn';
-                adminItem.textContent = 'Control';
+                adminItem.textContent = '管理后台';
                 dropdownMenu.appendChild(adminItem);
             }
+            
             const logoutItem = document.createElement('div');
             logoutItem.className = 'dropdown-item';
             logoutItem.id = 'logoutBtn';
-            logoutItem.textContent = 'Logout';
+            logoutItem.textContent = '退出登录';
             dropdownMenu.appendChild(logoutItem);
+            
             isLogin = true;
         } catch (e) {
             console.error("登录状态解析失败：", e);
@@ -2318,12 +2334,16 @@ function initLoginState() {
         userInfo = { avatar: '', nickname: '', openid: '' };
         isLogin = false;
     }
+    
+    // 绑定事件
     document.getElementById('userSettingBtn')?.addEventListener('click', () => {
         window.location.href = 'moguone/setting.html';
     });
+    
     document.getElementById('adminManageBtn')?.addEventListener('click', () => {
         window.location.href = 'moguone/admin.html';
     });
+    
     document.getElementById('logoutBtn')?.addEventListener('click', logout);
 }
 async function getAllUsers() {
@@ -2415,7 +2435,6 @@ function logout() {
         toast.classList.remove('show');
     }, 2000);
 }
-// 获取评论数据，并关联用户头像
 async function getCommentData(newsIndex) {
     const requestHeaders = {
         "Authorization": `token ${GITHUB_TOKEN}`,
@@ -2436,13 +2455,16 @@ async function getCommentData(newsIndex) {
                 const lines = userIssue.body.split('\n');
                 lines.forEach(line => {
                     const parts = line.split('|');
-                    if (parts.length >= 5) { // 账号|密码|邮箱|用户名|头像
+                    // 格式：账号|密码|邮箱|用户名|是否为管理员|头像链接|个性签名
+                    if (parts.length >= 7) {
                         const account = parts[0]?.trim();
-                        const avatar = parts[4]?.trim();
+                        const avatar = parts[5]?.trim(); // 头像链接在第6个字段
                         if (account && avatar) {
                             userList.push({
                                 account: account,
-                                avatar: avatar
+                                avatar: avatar,
+                                nickname: parts[3]?.trim() || account,
+                                isAdmin: parts[4]?.trim().toLowerCase() === 'true'
                             });
                         }
                     }
@@ -2452,30 +2474,7 @@ async function getCommentData(newsIndex) {
             console.log('获取用户列表失败，使用本地存储：', userErr);
         }
 
-        // 2. 从本地存储补充用户头像
-        const savedUser = localStorage.getItem(USER_LOCAL_KEY);
-        if (savedUser) {
-            try {
-                const localUser = JSON.parse(savedUser);
-                if (localUser.account && localUser.avatar && localUser.avatar !== DEFAULT_AVATAR) {
-                    // 检查是否已存在该用户
-                    const existingUserIndex = userList.findIndex(u => u.account === localUser.account);
-                    if (existingUserIndex === -1) {
-                        userList.push({
-                            account: localUser.account,
-                            avatar: localUser.avatar
-                        });
-                    } else {
-                        // 更新现有用户头像
-                        userList[existingUserIndex].avatar = localUser.avatar;
-                    }
-                }
-            } catch (e) {
-                console.log('解析本地用户信息失败：', e);
-            }
-        }
-        
-        // 3. 获取评论
+        // 2. 获取评论
         const commentIssueNumber = await getCommentIssueNumber(newsIndex);
         const res = await fetch(
             `https://api.github.com/repos/${GITHUB_REPO}/issues/${commentIssueNumber}/comments`,
@@ -2490,7 +2489,7 @@ async function getCommentData(newsIndex) {
         const githubComments = await res.json();
         const githubMainComments = [];
         
-        // 4. 解析评论并关联用户头像
+        // 3. 解析评论并关联用户头像
         githubComments.forEach(comment => {
             const parts = comment.body.split('|');
             let openid = parts[0] || "unknown";
@@ -2499,7 +2498,7 @@ async function getCommentData(newsIndex) {
             
             // 过滤回复类型的评论
             if (parts.length >= 5 && parts[3] === 'reply') {
-                return; // 跳过回复
+                return;
             }
             
             if (content.startsWith('【') && content.endsWith('】')) {
@@ -2508,28 +2507,31 @@ async function getCommentData(newsIndex) {
             
             // 查找用户头像
             let userAvatar = DEFAULT_AVATAR;
+            let userNickname = nickname;
             if (openid !== "unknown") {
                 const userInfo = userList.find(u => u.account === openid);
-                if (userInfo && userInfo.avatar && userInfo.avatar !== DEFAULT_AVATAR) {
-                    userAvatar = userInfo.avatar;
-                    // 添加时间戳防止缓存
-                    if (!userAvatar.includes('?')) {
-                        userAvatar += '?t=' + Date.now();
-                    }
+                if (userInfo) {
+                    userAvatar = userInfo.avatar || DEFAULT_AVATAR;
+                    userNickname = userInfo.nickname || nickname;
                 }
+            }
+            
+            // 添加时间戳防止缓存
+            if (userAvatar && !userAvatar.includes('?')) {
+                userAvatar += '?t=' + Date.now();
             }
             
             githubMainComments.push({
                 id: comment.id,
                 avatar: userAvatar,
-                nickname: nickname,
+                nickname: userNickname,
                 content: content,
                 time: new Date(comment.created_at).getTime(),
                 openid: openid
             });
         });
         
-        // 直接返回GitHub的评论，按时间倒序排序
+        // 按时间倒序排序
         return githubMainComments.sort((a, b) => b.time - a.time);
     } catch (err) {
         console.error("获取评论数据出错：", err);
