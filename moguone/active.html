@@ -342,6 +342,10 @@ const DEFAULT_AVATAR = "https://img.wjwj.top/2026/01/26/30abddc90230cef0bc9896ca
 const GITHUB_TOKEN = ["gh","p_p","VXlo0HQ","PmMx","Ic","eM","HB","uMzm","EON","LPX","700","10","M","SL"].join('');
 const REPO_OWNER = 'moguwan';
 const REPO_NAME = 'mogu-chat';
+// 新增：管理员账号配置（可自行添加/修改管理员账号）
+const ADMIN_ACCOUNTS = ['2926197119','111111']; 
+// 新增：普通用户最大创建Active数量
+const MAX_NORMAL_USER_ACTIVES = 3;
 
 // Issue #3 is defined as the "Active Registry" (Stores the list of all forums)
 const REGISTRY_ISSUE_NUMBER = 3; 
@@ -607,8 +611,15 @@ document.getElementById('confirmCreateBtn').addEventListener('click', async () =
 
   if (!name || !desc) { showAlert('Please fill all fields'); return; }
 
-  const alreadyHas = activeList.find(a => a.ownerAccount === currentUser.account);
-  if (alreadyHas) { showAlert('You can only create one Active!'); return; }
+  // 核心修改：替换原创建数量校验逻辑，按角色区分限制
+  // 1. 获取当前用户已创建的Active数量
+  const userCreatedActivesCount = activeList.filter(a => a.ownerAccount === currentUser.account).length;
+  // 2. 判断是否为管理员（管理员无限制，普通用户最多3个）
+  const isAdmin = ADMIN_ACCOUNTS.includes(currentUser.account);
+  if (!isAdmin && userCreatedActivesCount >= MAX_NORMAL_USER_ACTIVES) {
+    showAlert(`You can only create up to ${MAX_NORMAL_USER_ACTIVES} Actives!`);
+    return;
+  }
   
   btn.textContent = 'Creating...';
   btn.disabled = true;
