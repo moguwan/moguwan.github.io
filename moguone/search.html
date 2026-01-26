@@ -1511,7 +1511,7 @@ document.addEventListener('click', e => {
   if (chatOpen && !moguChatWindow.contains(e.target) && !moguChatBtn.contains(e.target)) toggleChatWindow();
 });
 
-const noticeContent = `<p><strong>Welcome to Mogu Search!</strong></p><p>Account data was lost during updates.</p><p>Please re-register if your account is missing 🌸</p>`;
+const noticeContent = `<p><strong>Welcome to Mogu Search!</strong></p><p>由于没有备份</p><p>更新的时候误删了所有人的账号 大家重新注册登录一下吧~🌸</p>`;
 function initNotice() {
   const data = localStorage.getItem(NOTICE_LOCAL_KEY);
   if (data && JSON.parse(data).dontShowAgain) return;
