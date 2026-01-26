@@ -1,603 +1,562 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人信息设置 - Mogu Search</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Inter", "SF Pro Display", "Microsoft YaHei", sans-serif;
-        }
-        
-        body {
-            background-color: #f5f7fa;
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .profile-container {
-            width: 100%;
-            max-width: 500px;
-            background: linear-gradient(145deg, #ffffff, #f8f9fa);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-        }
-        
-        .profile-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .profile-title {
-            font-size: 28px;
-            font-weight: 600;
-            color: #0078d4;
-            margin-bottom: 8px;
-        }
-        
-        .profile-subtitle {
-            color: #64748b;
-            font-size: 14px;
-        }
-        
-        .profile-form {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .form-label {
-            font-size: 14px;
-            font-weight: 500;
-            color: #2d3748;
-        }
-        
-        .form-input {
-            padding: 14px 16px;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 16px;
-            color: #2d3748;
-            outline: none;
-            transition: all 0.2s ease;
-            background: #ffffff;
-        }
-        
-        .form-input:focus {
-            border-color: #0078d4;
-            box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.1);
-        }
-        
-        .avatar-preview {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            margin: 0 auto 16px;
-            overflow: hidden;
-            border: 3px solid #e2e8f0;
-            background: linear-gradient(135deg, #0078d4 0%, #0066b8 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 36px;
-            font-weight: bold;
-        }
-        
-        .avatar-preview.has-avatar {
-            background-size: cover;
-            background-position: center;
-        }
-        
-        .avatar-hint {
-            font-size: 12px;
-            color: #94a3b8;
-            text-align: center;
-            margin-top: 4px;
-        }
-        
-        .form-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-        }
-        
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            flex: 1;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #0078d4 0%, #0066b8 100%);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #0066b8 0%, #005599 100%);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 120, 212, 0.2);
-        }
-        
-        .btn-secondary {
-            background: #f1f5f9;
-            color: #64748b;
-        }
-        
-        .btn-secondary:hover {
-            background: #e2e8f0;
-            transform: translateY(-1px);
-        }
-        
-        .custom-alert {
-            position: fixed;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-30px);
-            background-color: #fff;
-            border: 1px solid #ff8080;
-            color: #dc2626;
-            padding: 14px 28px;
-            border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(255, 128, 128, 0.12);
-            font-size: 16px;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 9999;
-            cursor: default;
-        }
-        
-        .custom-alert.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(0);
-        }
-        
-        .success {
-            border: 1px solid #34d399;
-            color: #10b981;
-            box-shadow: 0 6px 20px rgba(52, 211, 153, 0.12);
-        }
-        
-        .back-link {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: #0078d4;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 500;
-        }
-        
-        .back-link:hover {
-            text-decoration: underline;
-        }
-        
-        @media (max-width: 768px) {
-            body {
-                padding: 16px;
-            }
-            
-            .profile-container {
-                padding: 24px 20px;
-            }
-            
-            .profile-title {
-                font-size: 24px;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --bg-color: #f8fafc;
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --glass-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
+  --text-main: #1e293b;
+  --text-sub: #64748b;
+  --ease-spring: cubic-bezier(0.25, 0.8, 0.25, 1);
+  --danger: #ef4444;
+  --success: #10b981;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  position: relative;
+  overflow: hidden;
+}
+
+.ambient-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  overflow: hidden;
+  background: radial-gradient(circle at 0% 0%, #e0e7ff 0%, transparent 50%), radial-gradient(circle at 100% 100%, #f3e8ff 0%, transparent 50%);
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.6;
+  animation: floatOrb 20s infinite ease-in-out;
+}
+
+.orb-1 {
+  width: 400px;
+  height: 400px;
+  background: #818cf8;
+  top: -100px;
+  left: -100px;
+  animation-delay: 0s;
+}
+
+.orb-2 {
+  width: 300px;
+  height: 300px;
+  background: #c084fc;
+  bottom: 10%;
+  right: -50px;
+  animation-delay: -5s;
+}
+
+@keyframes floatOrb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, 50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+}
+
+.back-link {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--text-sub);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 20px;
+  background: rgba(255,255,255,0.6);
+  border-radius: 16px;
+  transition: all 0.3s var(--ease-spring);
+  backdrop-filter: blur(10px);
+}
+
+.back-link:hover {
+  background: white;
+  transform: translateX(-4px);
+  color: var(--primary);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.profile-container {
+  width: 100%;
+  max-width: 480px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: var(--glass-shadow);
+  transform: translateY(0);
+  animation: slideUp 0.6s var(--ease-spring);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.profile-title {
+  font-size: 28px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+
+.profile-subtitle {
+  color: var(--text-sub);
+  font-size: 14px;
+}
+
+.avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.avatar-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e2e8f0, #f1f5f9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: 700;
+  color: #94a3b8;
+  margin-bottom: 16px;
+  border: 4px solid white;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.4s var(--ease-spring);
+}
+
+.avatar-preview:hover {
+  transform: scale(1.05);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 8px;
+  margin-left: 4px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 16px;
+  border: 1px solid transparent;
+  background: rgba(255,255,255,0.6);
+  font-size: 14px;
+  color: var(--text-main);
+  outline: none;
+  transition: all 0.3s;
+  font-weight: 500;
+}
+
+.form-input:focus {
+  background: white;
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  transform: translateY(-1px);
+}
+
+.form-input::placeholder {
+  color: #94a3b8;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.btn {
+  flex: 1;
+  padding: 14px;
+  border-radius: 16px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s var(--ease-spring);
+}
+
+.btn-secondary {
+  background: white;
+  color: var(--text-sub);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+.btn-secondary:hover {
+  background: #f8fafc;
+  transform: translateY(-2px);
+  color: var(--text-main);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+}
+
+.btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.custom-alert {
+  position: fixed;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: white;
+  padding: 12px 24px;
+  border-radius: 50px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-main);
+  z-index: 10000;
+  opacity: 0;
+  transition: all 0.5s var(--ease-spring);
+}
+
+.custom-alert.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.custom-alert.error { color: var(--danger); }
+.custom-alert.success { color: var(--success); }
+
+@media (max-width: 768px) {
+  .profile-container {
+    width: 90%;
+    padding: 24px;
+  }
+  .back-link {
+    top: 20px;
+    left: 20px;
+  }
+}
+
+.loading-dots:after {
+  content: ' .';
+  animation: dots 1s steps(5, end) infinite;
+}
+@keyframes dots {
+  0%, 20% { color: rgba(0,0,0,0); text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0);}
+  40% { color: white; text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0);}
+  60% { text-shadow: .25em 0 0 white, .5em 0 0 rgba(0,0,0,0);}
+  80%, 100% { text-shadow: .25em 0 0 white, .5em 0 0 white;}
+}
+</style>
 </head>
 <body>
-    <a href="search.html" class="back-link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-        </svg>
-        返回搜索页面
-    </a>
-    
-    <div class="profile-container">
-        <div class="profile-header">
-            <h1 class="profile-title">个人信息设置</h1>
-            <p class="profile-subtitle">修改您的个人信息</p>
-        </div>
-        
-        <form class="profile-form" id="profileForm">
-            <div class="form-group">
-                <div class="avatar-preview" id="avatarPreview">
-                    <!-- 头像预览 -->
-                </div>
-                <p class="avatar-hint">点击下方输入框修改头像链接</p>
-            </div>
-            
-            <div class="form-group">
-                <label for="username" class="form-label">用户名</label>
-                <input type="text" id="username" class="form-input" placeholder="请输入用户名" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="avatar" class="form-label">头像链接</label>
-                <input type="text" id="avatar" class="form-input" placeholder="请输入头像图片链接（支持 jpg, png, gif）">
-                <p class="avatar-hint">例如：https://example.com/avatar.jpg</p>
-            </div>
-            
-            <div class="form-group">
-                <label for="signature" class="form-label">个性签名</label>
-                <input type="text" id="signature" class="form-input" placeholder="请输入个性签名">
-            </div>
-            
-            <div class="form-actions">
-                <button type="button" class="btn btn-secondary" id="cancelBtn">取消</button>
-                <button type="submit" class="btn btn-primary" id="saveBtn">保存设置</button>
-            </div>
-        </form>
+
+<div class="ambient-bg">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+</div>
+
+<a href="search.html" class="back-link">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  Back
+</a>
+
+<div class="profile-container">
+  <div class="profile-header">
+    <h1 class="profile-title">Edit Profile</h1>
+    <p class="profile-subtitle">Update your personal details</p>
+  </div>
+  
+  <form id="profileForm">
+    <div class="avatar-section">
+      <div class="avatar-preview" id="avatarPreview">U</div>
     </div>
     
-    <div class="custom-alert" id="customAlert">提示信息</div>
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <input type="text" id="username" class="form-input" placeholder="Enter username" required>
+    </div>
     
-    <script>
-        // 常量定义
-        const USER_LOCAL_KEY = 'MOGU_CHAT_USER';
-        const GITHUB_TOKEN = ["gh","p_p","VXlo0HQ","PmMx","Ic","eM","HB","uMzm","EON","LPX","700","10","M","SL"].join('');
-        const USER_DATABASE_REPO_OWNER = 'moguwan';
-        const USER_DATABASE_REPO_NAME = 'moguwan.github.io';
-        const USER_DATABASE_ISSUE_NUMBER = 11;
-        
-        const customAlert = document.getElementById('customAlert');
-        let alertTimer = null;
-        let currentUser = null;
-        
-        // 从GitHub Issue #11获取所有用户数据
-        async function getUserDatabaseFromGitHub() {
-          try {
-            const response = await fetch(
-              `https://api.github.com/repos/${USER_DATABASE_REPO_OWNER}/${USER_DATABASE_REPO_NAME}/issues/${USER_DATABASE_ISSUE_NUMBER}`,
-              {
-                headers: {
-                  'Authorization': `token ${GITHUB_TOKEN}`,
-                  'Accept': 'application/vnd.github.v3+json'
-                }
-              }
-            );
+    <div class="form-group">
+      <label class="form-label">Avatar URL</label>
+      <input type="text" id="avatar" class="form-input" placeholder="https://example.com/image.png">
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">Signature</label>
+      <input type="text" id="signature" class="form-input" placeholder="Your personalized signature">
+    </div>
+    
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+      <button type="submit" class="btn btn-primary" id="saveBtn">Save Changes</button>
+    </div>
+  </form>
+</div>
 
-            if (!response.ok) {
-              console.error('获取用户数据库失败:', response.status);
-              return [];
-            }
+<div class="custom-alert" id="customAlert"></div>
 
-            const issueData = await response.json();
-            const body = issueData.body || '';
-            
-            // 按行解析用户数据
-            const lines = body.split('\n').filter(line => line.trim() !== '');
-            const users = [];
-            
-            for (const line of lines) {
-              const parts = line.split('|');
-              if (parts.length >= 7) {
-                const user = {
-                  account: parts[0].trim(),
-                  password: parts[1].trim(),
-                  email: parts[2].trim(),
-                  nickname: parts[3].trim(),
-                  isAdmin: parts[4].trim().toLowerCase() === 'true',
-                  avatar: parts[5].trim(),
-                  signature: parts[6].trim()
-                };
-                users.push(user);
-              }
-            }
-            
-            console.log(`从GitHub获取到${users.length}个用户数据`);
-            return users;
-          } catch (error) {
-            console.error('获取用户数据库异常:', error);
-            return [];
+<script>
+const USER_LOCAL_KEY = 'MOGU_CHAT_USER';
+const GITHUB_TOKEN = ["gh","p_p","VXlo0HQ","PmMx","Ic","eM","HB","uMzm","EON","LPX","700","10","M","SL"].join('');
+const USER_DATABASE_REPO_OWNER = 'moguwan';
+const USER_DATABASE_REPO_NAME = 'moguwan.github.io';
+const USER_DATABASE_ISSUE_NUMBER = 11;
+
+const customAlert = document.getElementById('customAlert');
+let alertTimer = null;
+let currentUser = null;
+
+async function getUserDatabaseFromGitHub() {
+  try {
+    const response = await fetch(`https://api.github.com/repos/${USER_DATABASE_REPO_OWNER}/${USER_DATABASE_REPO_NAME}/issues/${USER_DATABASE_ISSUE_NUMBER}`, {
+      headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!response.ok) return [];
+    const issueData = await response.json();
+    const lines = (issueData.body || '').split('\n').filter(line => line.trim() !== '');
+    const users = [];
+    for (const line of lines) {
+      const parts = line.split('|').map(p => p.trim());
+      if (parts.length >= 5) {
+        let avatar = '';
+        let signature = '正常';
+        if (parts.length >= 6) {
+          if (parts[5].startsWith('http')) {
+            avatar = parts[5];
+            if (parts.length >= 7) signature = parts[6];
+          } else {
+            signature = parts[5];
           }
         }
-
-        // 更新GitHub Issue #11中的用户数据
-        async function updateUserDatabaseInGitHub(users) {
-          try {
-            // 将用户数据转换为文本格式
-            const userLines = users.map(user => 
-              `${user.account}|${user.password}|${user.email}|${user.nickname}|${user.isAdmin}|${user.avatar}|${user.signature}`
-            ).join('\n');
-            
-            const response = await fetch(
-              `https://api.github.com/repos/${USER_DATABASE_REPO_OWNER}/${USER_DATABASE_REPO_NAME}/issues/${USER_DATABASE_ISSUE_NUMBER}`,
-              {
-                method: 'PATCH',
-                headers: {
-                  'Authorization': `token ${GITHUB_TOKEN}`,
-                  'Accept': 'application/vnd.github.v3+json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  body: userLines
-                })
-              }
-            );
-
-            if (response.ok) {
-              console.log('用户数据库更新成功');
-              return true;
-            } else {
-              console.error('更新用户数据库失败:', await response.json());
-              return false;
-            }
-          } catch (error) {
-            console.error('更新用户数据库异常:', error);
-            return false;
-          }
-        }
-
-        // 从GitHub数据库获取单个用户完整信息
-        async function getCompleteUserInfoFromGitHub(account) {
-          try {
-            const users = await getUserDatabaseFromGitHub();
-            const user = users.find(u => u.account === account);
-            return user || null;
-          } catch (error) {
-            console.error('获取用户完整信息失败:', error);
-            return null;
-          }
-        }
-
-        // 更新当前用户在GitHub数据库中的信息
-        async function updateCurrentUserInGitHub() {
-          if (!currentUser || !currentUser.account) return false;
-          
-          try {
-            // 获取所有用户
-            const users = await getUserDatabaseFromGitHub();
-            
-            // 找到当前用户的索引
-            const userIndex = users.findIndex(u => u.account === currentUser.account);
-            
-            if (userIndex === -1) {
-              console.error('在用户数据库中未找到当前用户');
-              return false;
-            }
-            
-            // 更新用户信息（保留密码和邮箱，只更新可修改的字段）
-            users[userIndex].nickname = currentUser.nickname || currentUser.account;
-            users[userIndex].avatar = currentUser.avatar || '';
-            users[userIndex].signature = currentUser.signature || '';
-            
-            // 更新到GitHub
-            const success = await updateUserDatabaseInGitHub(users);
-            return success;
-          } catch (error) {
-            console.error('更新用户到GitHub失败:', error);
-            return false;
-          }
-        }
-        
-        // 检查登录状态
-        async function checkLoginStatus() {
-            const userData = localStorage.getItem(USER_LOCAL_KEY);
-            if (userData) {
-                try {
-                    currentUser = JSON.parse(userData);
-                    
-                    // 从GitHub获取完整用户信息并更新本地数据
-                    const completeUserInfo = await getCompleteUserInfoFromGitHub(currentUser.account);
-                    if (completeUserInfo) {
-                        // 保留原有的密码和登录状态
-                        currentUser.nickname = completeUserInfo.nickname;
-                        currentUser.email = completeUserInfo.email;
-                        currentUser.avatar = completeUserInfo.avatar;
-                        currentUser.signature = completeUserInfo.signature;
-                        currentUser.isAdmin = completeUserInfo.isAdmin;
-                        
-                        // 更新本地存储
-                        localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
-                    }
-                    
-                    return true;
-                } catch (e) {
-                    console.error('解析用户数据失败:', e);
-                    showCustomAlert('用户数据异常，请重新登录', 'error');
-                    setTimeout(() => {
-                        window.location.href = 'auth.html';
-                    }, 1500);
-                    return false;
-                }
-            } else {
-                showCustomAlert('请先登录', 'error');
-                setTimeout(() => {
-                    window.location.href = 'auth.html';
-                }, 1500);
-                return false;
-            }
-        }
-        
-        // 加载用户数据到表单
-        function loadUserData() {
-            if (!currentUser) return;
-            
-            document.getElementById('username').value = currentUser.nickname || currentUser.account || '';
-            document.getElementById('avatar').value = currentUser.avatar || '';
-            document.getElementById('signature').value = currentUser.signature || '';
-            
-            updateAvatarPreview();
-        }
-        
-        // 更新头像预览
-        function updateAvatarPreview() {
-            const avatarPreview = document.getElementById('avatarPreview');
-            const avatarUrl = document.getElementById('avatar').value.trim();
-            const username = document.getElementById('username').value.trim() || currentUser.account;
-            
-            if (avatarUrl) {
-                // 有头像链接，设置为背景图片
-                avatarPreview.style.backgroundImage = `url('${avatarUrl}')`;
-                avatarPreview.classList.add('has-avatar');
-                avatarPreview.textContent = '';
-            } else {
-                // 没有头像，显示首字母
-                avatarPreview.style.backgroundImage = '';
-                avatarPreview.classList.remove('has-avatar');
-                const initial = username ? username.charAt(0).toUpperCase() : 'U';
-                avatarPreview.textContent = initial;
-            }
-        }
-        
-        // 显示提示信息
-        function showCustomAlert(message, type = 'error') {
-            customAlert.textContent = message;
-            customAlert.className = 'custom-alert';
-            customAlert.classList.add('show');
-            if (type === 'success') {
-                customAlert.classList.add('success');
-            }
-            
-            if (alertTimer) clearTimeout(alertTimer);
-            alertTimer = setTimeout(() => {
-                customAlert.classList.remove('show');
-            }, 3000);
-        }
-        
-        // 验证头像链接
-        function validateAvatarUrl(url) {
-            if (!url.trim()) return true; // 空链接也是有效的（表示不使用头像）
-            
-            // 简单的URL验证
-            try {
-                const urlObj = new URL(url);
-                // 检查是否有效的图片URL（常见图片格式）
-                const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
-                const hasImageExtension = imageExtensions.some(ext => 
-                    urlObj.pathname.toLowerCase().endsWith(ext)
-                );
-                
-                if (!hasImageExtension) {
-                    showCustomAlert('请提供有效的图片链接（支持 jpg, png, gif, webp, svg 格式）', 'error');
-                    return false;
-                }
-                
-                return true;
-            } catch (e) {
-                showCustomAlert('请输入有效的图片链接地址', 'error');
-                return false;
-            }
-        }
-        
-        // 保存用户信息
-        async function saveUserData(e) {
-            e.preventDefault();
-            
-            if (!currentUser) return;
-            
-            const username = document.getElementById('username').value.trim();
-            const avatarUrl = document.getElementById('avatar').value.trim();
-            const signature = document.getElementById('signature').value.trim();
-            
-            if (!username) {
-                showCustomAlert('用户名不能为空', 'error');
-                return;
-            }
-            
-            if (!validateAvatarUrl(avatarUrl)) {
-                return;
-            }
-            
-            // 显示保存中状态
-            const saveBtn = document.getElementById('saveBtn');
-            const originalText = saveBtn.textContent;
-            saveBtn.textContent = '保存中...';
-            saveBtn.disabled = true;
-            
-            // 更新当前用户信息
-            currentUser.nickname = username;
-            currentUser.avatar = avatarUrl;
-            currentUser.signature = signature;
-            
-            try {
-                // 1. 更新到GitHub数据库
-                const gitHubSuccess = await updateCurrentUserInGitHub();
-                
-                if (!gitHubSuccess) {
-                    showCustomAlert('保存到服务器失败，请重试', 'error');
-                    saveBtn.textContent = originalText;
-                    saveBtn.disabled = false;
-                    return;
-                }
-                
-                // 2. 更新本地存储
-                localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
-                
-                showCustomAlert('个人信息保存成功！', 'success');
-                
-                // 延迟返回，让用户看到成功提示
-                setTimeout(() => {
-                    window.location.href = 'search.html';
-                }, 1500);
-                
-            } catch (error) {
-                console.error('保存用户信息失败:', error);
-                showCustomAlert('保存失败，请检查网络连接', 'error');
-                saveBtn.textContent = originalText;
-                saveBtn.disabled = false;
-            }
-        }
-        
-        // 初始化页面
-        document.addEventListener('DOMContentLoaded', async () => {
-            // 检查登录状态
-            const isLoggedIn = await checkLoginStatus();
-            if (isLoggedIn) {
-                loadUserData();
-            }
-            
-            // 头像输入框变化时更新预览
-            document.getElementById('avatar').addEventListener('input', updateAvatarPreview);
-            
-            // 用户名输入框变化时更新预览（如果没有头像）
-            document.getElementById('username').addEventListener('input', () => {
-                const avatarUrl = document.getElementById('avatar').value.trim();
-                if (!avatarUrl) {
-                    updateAvatarPreview();
-                }
-            });
-            
-            // 表单提交
-            document.getElementById('profileForm').addEventListener('submit', saveUserData);
-            
-            // 取消按钮
-            document.getElementById('cancelBtn').addEventListener('click', () => {
-                window.location.href = 'search.html';
-            });
-            
-            // 头像链接输入框添加示例
-            document.getElementById('avatar').addEventListener('focus', function() {
-                if (!this.value) {
-                    this.placeholder = '例如：https://img.wjwj.top/2026/01/26/30abddc90230cef0bc9896ca3eafd0d3.gif';
-                }
-            });
+        users.push({
+          account: parts[0],
+          password: parts[1],
+          email: parts[2],
+          nickname: parts[3],
+          isAdmin: parts[4].toLowerCase() === 'true',
+          avatar: avatar,
+          signature: signature
         });
-    </script>
+      }
+    }
+    return users;
+  } catch { return []; }
+}
+
+async function updateUserDatabaseInGitHub(users) {
+  try {
+    const userLines = users.map(user => 
+      `${user.account}|${user.password}|${user.email}|${user.nickname}|${user.isAdmin}|${user.avatar || ''}|${user.signature || '正常'}`
+    ).join('\n');
+    const response = await fetch(`https://api.github.com/repos/${USER_DATABASE_REPO_OWNER}/${USER_DATABASE_REPO_NAME}/issues/${USER_DATABASE_ISSUE_NUMBER}`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ body: userLines })
+    });
+    return response.ok;
+  } catch { return false; }
+}
+
+async function getCompleteUserInfoFromGitHub(account) {
+  try {
+    const users = await getUserDatabaseFromGitHub();
+    return users.find(u => u.account === account) || null;
+  } catch { return null; }
+}
+
+async function updateCurrentUserInGitHub() {
+  if (!currentUser || !currentUser.account) return false;
+  try {
+    const users = await getUserDatabaseFromGitHub();
+    const userIndex = users.findIndex(u => u.account === currentUser.account);
+    if (userIndex === -1) return false;
+    users[userIndex].nickname = currentUser.nickname || currentUser.account;
+    users[userIndex].avatar = currentUser.avatar || '';
+    users[userIndex].signature = currentUser.signature || '';
+    return await updateUserDatabaseInGitHub(users);
+  } catch { return false; }
+}
+
+async function checkLoginStatus() {
+  const userData = localStorage.getItem(USER_LOCAL_KEY);
+  if (userData) {
+    try {
+      currentUser = JSON.parse(userData);
+      const completeUserInfo = await getCompleteUserInfoFromGitHub(currentUser.account);
+      if (completeUserInfo) {
+        currentUser.nickname = completeUserInfo.nickname;
+        currentUser.email = completeUserInfo.email;
+        currentUser.avatar = completeUserInfo.avatar;
+        currentUser.signature = completeUserInfo.signature;
+        currentUser.isAdmin = completeUserInfo.isAdmin;
+        localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
+      }
+      return true;
+    } catch {
+      showCustomAlert('Session error, please login again', 'error');
+      setTimeout(() => window.location.href = 'auth.html', 1500);
+      return false;
+    }
+  } else {
+    showCustomAlert('Please login first', 'error');
+    setTimeout(() => window.location.href = 'auth.html', 1500);
+    return false;
+  }
+}
+
+function loadUserData() {
+  if (!currentUser) return;
+  document.getElementById('username').value = currentUser.nickname || currentUser.account || '';
+  document.getElementById('avatar').value = currentUser.avatar || '';
+  document.getElementById('signature').value = currentUser.signature || '';
+  updateAvatarPreview();
+}
+
+function updateAvatarPreview() {
+  const preview = document.getElementById('avatarPreview');
+  const url = document.getElementById('avatar').value.trim();
+  const username = document.getElementById('username').value.trim() || currentUser.account;
+  
+  if (url) {
+    preview.style.backgroundImage = `url('${url}')`;
+    preview.textContent = '';
+    preview.style.border = '4px solid white';
+  } else {
+    preview.style.backgroundImage = '';
+    preview.textContent = username ? username.charAt(0).toUpperCase() : 'U';
+    preview.style.border = '4px solid white';
+  }
+}
+
+function showCustomAlert(message, type = 'error') {
+  customAlert.textContent = message;
+  customAlert.className = `custom-alert ${type}`;
+  customAlert.classList.add('show');
+  if (alertTimer) clearTimeout(alertTimer);
+  alertTimer = setTimeout(() => customAlert.classList.remove('show'), 3000);
+}
+
+function validateAvatarUrl(url) {
+  if (!url.trim()) return true;
+  try {
+    const urlObj = new URL(url);
+    const exts = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+    if (!exts.some(ext => urlObj.pathname.toLowerCase().endsWith(ext))) {
+      showCustomAlert('Please use a valid image URL (jpg, png, gif)', 'error');
+      return false;
+    }
+    return true;
+  } catch {
+    showCustomAlert('Invalid URL format', 'error');
+    return false;
+  }
+}
+
+async function saveUserData(e) {
+  e.preventDefault();
+  if (!currentUser) return;
+  
+  const username = document.getElementById('username').value.trim();
+  const avatarUrl = document.getElementById('avatar').value.trim();
+  const signature = document.getElementById('signature').value.trim();
+  
+  if (!username) { showCustomAlert('Username cannot be empty', 'error'); return; }
+  if (!validateAvatarUrl(avatarUrl)) return;
+  
+  const saveBtn = document.getElementById('saveBtn');
+  const originalText = saveBtn.textContent;
+  saveBtn.innerHTML = 'Saving<span class="loading-dots"></span>';
+  saveBtn.disabled = true;
+  
+  currentUser.nickname = username;
+  currentUser.avatar = avatarUrl;
+  currentUser.signature = signature;
+  
+  try {
+    const success = await updateCurrentUserInGitHub();
+    if (!success) throw new Error('Failed to update');
+    localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
+    showCustomAlert('Profile updated successfully!', 'success');
+    setTimeout(() => window.location.href = 'search.html', 1500);
+  } catch {
+    showCustomAlert('Network error, please try again', 'error');
+    saveBtn.textContent = originalText;
+    saveBtn.disabled = false;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  if (await checkLoginStatus()) loadUserData();
+  document.getElementById('avatar').addEventListener('input', updateAvatarPreview);
+  document.getElementById('username').addEventListener('input', () => {
+    if (!document.getElementById('avatar').value.trim()) updateAvatarPreview();
+  });
+  document.getElementById('profileForm').addEventListener('submit', saveUserData);
+  document.getElementById('cancelBtn').addEventListener('click', () => window.location.href = 'search.html');
+});
+</script>
 </body>
 </html>
