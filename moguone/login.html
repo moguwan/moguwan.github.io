@@ -1087,52 +1087,50 @@
         clearError('regEmail');
         clearError('regVerifyCode');
     }
-
-    // 从GitHub Issue读取所有用户信息
-    async function getAllUsers() {
-        const requestHeaders = {
-            "Authorization": `token ${GITHUB_TOKEN}`,
-            "Accept": "application/vnd.github.v3+json",
-            "User-Agent": "Mozilla/5.0"
-        };
-    
-        try {
-            const res = await fetch(
-                `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
-                { headers: requestHeaders, method: "GET" }
-            );
-    
-            if (!res.ok) return [];
-    
-            const issue = await res.json();
-            // 解析用户信息（格式升级：账号|加密密码|邮箱|用户名|isAdmin|avatar|bio）
-            const userLines = issue.body.split('\n').filter(line => line.includes('|'));
-            const users = [];
-            
-            userLines.forEach(line => {
-                // 拆分字段，支持7个字段（账号|密码|邮箱|用户名|isAdmin|avatar|bio）
-                const parts = line.split('|');
-                if (parts[0] && parts[1]) {
-                    users.push({
-                        account: parts[0].trim(),
-                        password: parts[1].trim(),
-                        email: parts[2] ? parts[2].trim() : '',
-                        nickname: parts[3] ? parts[3].trim() : parts[0].trim(),
-                        isAdmin: parts[4] ? parts[4].trim().toLowerCase() === 'true' : false,
-                        avatar: parts[5] ? parts[5].trim() : DEFAULT_AVATAR,
-                        bio: parts[6] ? parts[6].trim() : '',
-                        createTime: new Date().toISOString() // 添加创建时间
-                    });
-                }
-            });
-            return users;
-        } catch (err) {
-            console.error('读取用户信息失败：', err);
-            // 本地缓存容错
-            const localUsers = localStorage.getItem('temp_users');
-            return localUsers ? JSON.parse(localUsers) : [];
-        }
-    }
+	async function getAllUsers() {
+	    const requestHeaders = {
+	        "Authorization": `token ${GITHUB_TOKEN}`,
+	        "Accept": "application/vnd.github.v3+json",
+	        "User-Agent": "Mozilla/5.0"
+	    };
+	
+	    try {
+	        const res = await fetch(
+	            `https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`,
+	            { headers: requestHeaders, method: "GET" }
+	        );
+	
+	        if (!res.ok) return [];
+	
+	        const issue = await res.json();
+	        // 解析用户信息（格式：账号|密码|邮箱|用户名|是否为管理员|头像链接|个性签名）
+	        const userLines = issue.body.split('\n').filter(line => line.includes('|'));
+	        const users = [];
+	        
+	        userLines.forEach(line => {
+	            // 拆分字段，支持7个字段
+	            const parts = line.split('|');
+	            if (parts[0] && parts[1]) {
+	                users.push({
+	                    account: parts[0].trim(),
+	                    password: parts[1].trim(),
+	                    email: parts[2] ? parts[2].trim() : '',
+	                    nickname: parts[3] ? parts[3].trim() : parts[0].trim(),
+	                    isAdmin: parts[4] ? parts[4].trim().toLowerCase() === 'true' : false,
+	                    avatar: parts[5] ? parts[5].trim() : DEFAULT_AVATAR,
+	                    bio: parts[6] ? parts[6].trim() : '',
+	                    createTime: new Date().toISOString()
+	                });
+	            }
+	        });
+	        return users;
+	    } catch (err) {
+	        console.error('读取用户信息失败：', err);
+	        // 本地缓存容错
+	        const localUsers = localStorage.getItem('temp_users');
+	        return localUsers ? JSON.parse(localUsers) : [];
+	    }
+	}
 
     // 将新用户保存到GitHub Issue（支持完整字段）
     async function saveUserToIssue(newUser) {
@@ -1371,7 +1369,6 @@
         }
     }
 
-    // 登录逻辑（修复核心：保存完整用户信息）
     async function handleLogin() {
         const account = document.getElementById('loginAccount').value.trim();
         const password = document.getElementById('loginPassword').value.trim();
@@ -1402,7 +1399,7 @@
             hideLoading();
             
             if (user) {
-                // 登录成功：保存完整的用户信息到本地存储（修复核心）
+                // 登录成功：保存完整的用户信息到本地存储
                 const userInfo = {
                     account: user.account,
                     password: user.password,
@@ -1425,7 +1422,7 @@
                     isAnimating = true;
                     
                     const loader = document.getElementById('loader');
-                    loader.classList.remove('loaded'); // 显示开合动画
+                    loader.classList.remove('loaded');
                     document.body.style.overflow = 'hidden';
                     
                     // 延迟跳转，匹配动画时长
