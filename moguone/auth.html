@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Mogu Chat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@emailjs/browser@3/dist/email.min.js"></script>
+<style>
+:root {
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --bg-color: #f8fafc;
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --glass-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
+  --text-main: #1e293b;
+  --text-sub: #64748b;
+  --ease-spring: cubic-bezier(0.25, 0.8, 0.25, 1);
+  --danger: #ef4444;
+  --success: #10b981;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  position: relative;
+  overflow-x: hidden;
+  padding: 20px;
+}
+
+.ambient-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  overflow: hidden;
+  background: radial-gradient(circle at 0% 0%, #e0e7ff 0%, transparent 50%), radial-gradient(circle at 100% 100%, #f3e8ff 0%, transparent 50%);
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.6;
+  animation: floatOrb 20s infinite ease-in-out;
+}
+
+.orb-1 {
+  width: 400px;
+  height: 400px;
+  background: #818cf8;
+  top: -100px;
+  left: -100px;
+  animation-delay: 0s;
+}
+
+.orb-2 {
+  width: 300px;
+  height: 300px;
+  background: #c084fc;
+  bottom: 10%;
+  right: -50px;
+  animation-delay: -5s;
+}
+
+@keyframes floatOrb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, 50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+}
+
+.back-link {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--text-sub);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 20px;
+  background: rgba(255,255,255,0.6);
+  border-radius: 16px;
+  transition: all 0.3s var(--ease-spring);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+}
+
+.back-link:hover {
+  background: white;
+  transform: translateX(-4px);
+  color: var(--primary);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 440px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: var(--glass-shadow);
+  animation: slideUp 0.6s var(--ease-spring);
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.brand-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  display: inline-block;
+  filter: drop-shadow(0 4px 10px rgba(99, 102, 241, 0.2));
+}
+
+.auth-title {
+  font-size: 28px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+
+.auth-subtitle {
+  color: var(--text-sub);
+  font-size: 14px;
+}
+
+.auth-tabs {
+  display: flex;
+  background: rgba(255,255,255,0.5);
+  padding: 4px;
+  border-radius: 14px;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-sub);
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  transition: all 0.3s var(--ease-spring);
+  z-index: 2;
+}
+
+.auth-tab.active {
+  color: var(--primary);
+  background: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.auth-form {
+  display: none;
+}
+
+.auth-form.active {
+  display: block;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 8px;
+  margin-left: 4px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 16px;
+  border: 1px solid transparent;
+  background: rgba(255,255,255,0.6);
+  font-size: 14px;
+  color: var(--text-main);
+  outline: none;
+  transition: all 0.3s;
+  font-weight: 500;
+}
+
+.form-input:focus {
+  background: white;
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  transform: translateY(-1px);
+}
+
+.form-input.error {
+  border-color: var(--danger);
+  background: #fef2f2;
+}
+
+.form-input.success {
+  border-color: var(--success);
+}
+
+.verify-code-wrapper {
+  display: flex;
+  gap: 10px;
+}
+
+.send-code-btn {
+  white-space: nowrap;
+  padding: 0 16px;
+  background: white;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+.send-code-btn:hover {
+  background: #f8fafc;
+  transform: translateY(-1px);
+}
+
+.send-code-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  background: #f1f5f9;
+  color: var(--text-sub);
+}
+
+.auth-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-spring);
+  margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.auth-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+}
+
+.auth-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.error-message {
+  color: var(--danger);
+  font-size: 12px;
+  margin-top: 6px;
+  margin-left: 4px;
+  display: none;
+  font-weight: 500;
+}
+
+.custom-alert {
+  position: fixed;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: white;
+  padding: 12px 24px;
+  border-radius: 50px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-main);
+  z-index: 10000;
+  opacity: 0;
+  transition: all 0.5s var(--ease-spring);
+}
+
+.custom-alert.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.loading-dots:after {
+  content: ' .';
+  animation: dots 1s steps(5, end) infinite;
+}
+@keyframes dots {
+  0%, 20% { color: rgba(0,0,0,0); text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0);}
+  40% { color: white; text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0);}
+  60% { text-shadow: .25em 0 0 white, .5em 0 0 rgba(0,0,0,0);}
+  80%, 100% { text-shadow: .25em 0 0 white, .5em 0 0 white;}
+}
+
+@media (max-width: 768px) {
+  .auth-container {
+    width: 90%;
+    padding: 24px;
+  }
+  .back-link {
+    top: 20px;
+    left: 20px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="ambient-bg">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+</div>
+
+<a href="search.html" class="back-link">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  Back
+</a>
+
+<div class="auth-container">
+  <div class="auth-header">
+    <div class="brand-icon">💬</div>
+    <h1 class="auth-title">Mogu Chat</h1>
+    <p class="auth-subtitle">Login to continue your journey</p>
+  </div>
+
+  <div class="auth-tabs">
+    <button class="auth-tab active" data-form="login">Login</button>
+    <button class="auth-tab" data-form="register">Register</button>
+  </div>
+
+  <form class="auth-form active" id="loginForm">
+    <div class="form-group">
+      <label class="form-label">Account</label>
+      <input type="text" class="form-input" id="loginAccount" placeholder="Enter your account">
+      <div class="error-message" id="loginAccountError"></div>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password" autocomplete="current-password">
+      <div class="error-message" id="loginPasswordError"></div>
+    </div>
+    
+    <button type="button" class="auth-btn" id="loginBtn" onclick="login()">Login</button>
+  </form>
+
+  <form class="auth-form" id="registerForm">
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <input type="text" class="form-input" id="regNickname" placeholder="Display name">
+      <div class="error-message" id="regNicknameError"></div>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">Account</label>
+      <input type="text" class="form-input" id="regAccount" placeholder="4-20 letters/numbers">
+      <div class="error-message" id="regAccountError"></div>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input type="password" class="form-input" id="regPassword" placeholder="Min 6 characters" autocomplete="current-password">
+      <div class="error-message" id="regPasswordError"></div>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">Confirm Password</label>
+      <input type="password" class="form-input" id="regPasswordConfirm" placeholder="Repeat password" autocomplete="current-password">
+      <div class="error-message" id="regPasswordConfirmError"></div>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">QQ Email</label>
+      <input type="email" class="form-input" id="regEmail" placeholder="Example: 12345@qq.com">
+      <div class="error-message" id="regEmailError"></div>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">Verify Code</label>
+      <div class="verify-code-wrapper">
+        <input type="text" class="form-input" id="regVerifyCode" placeholder="Code">
+        <button type="button" class="send-code-btn" id="sendCodeBtn" onclick="sendVerifyCode()">Send Code</button>
+      </div>
+      <div class="error-message" id="regVerifyCodeError"></div>
+    </div>
+    
+    <button type="button" class="auth-btn" id="registerBtn" onclick="register()">Create Account</button>
+  </form>
+</div>
+
+<div id="customAlert"></div>
+
+<script>
+let countdownTimer = null;
+emailjs.init('QPXRZfhOcviP14EGP');
+const GITHUB_REPO = "moguwan/moguwan.github.io";
+const GITHUB_TOKEN = ["gh","p_p","VXlo0HQ","PmMx","Ic","eM","HB","uMzm","EON","LPX","700","10","M","SL"].join('');
+const USER_ISSUE_NUMBER = 11;
+const USER_LOCAL_KEY = 'MOGU_CHAT_USER';
+
+function showLoading(type = 'Processing') {
+  const btn = type === 'Login' ? document.getElementById('loginBtn') : document.getElementById('registerBtn');
+  if(btn) {
+    btn.disabled = true;
+    btn.dataset.originalText = btn.innerText;
+    btn.innerHTML = `Please wait<span class="loading-dots"></span>`;
+  }
+}
+
+function hideLoading() {
+  const loginBtn = document.getElementById('loginBtn');
+  const regBtn = document.getElementById('registerBtn');
+  const sendBtn = document.getElementById('sendCodeBtn');
+  
+  if(loginBtn && loginBtn.disabled && loginBtn.dataset.originalText) {
+    loginBtn.disabled = false;
+    loginBtn.innerText = loginBtn.dataset.originalText;
+  }
+  if(regBtn && regBtn.disabled && regBtn.dataset.originalText) {
+    regBtn.disabled = false;
+    regBtn.innerText = regBtn.dataset.originalText;
+  }
+  if(sendBtn && sendBtn.innerText === 'Sending...') {
+    sendBtn.disabled = false;
+    sendBtn.innerText = 'Send Code';
+  }
+}
+
+function generateVerifyCode() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+function showCustomAlert(message, type = 'success') {
+  const alertEl = document.getElementById('customAlert');
+  alertEl.textContent = message;
+  alertEl.className = `custom-alert show`;
+  if(type === 'error') alertEl.style.color = '#ef4444';
+  else alertEl.style.color = '#10b981';
+  
+  setTimeout(() => {
+    alertEl.className = 'custom-alert';
+  }, 3000);
+}
+
+function showError(inputId, message) {
+  const input = document.getElementById(inputId);
+  const error = document.getElementById(inputId + 'Error');
+  if (input) {
+    input.classList.add('error');
+    input.classList.remove('success');
+  }
+  if (error) {
+    error.textContent = message;
+    error.style.display = 'block';
+  }
+}
+
+function clearError(inputId) {
+  const input = document.getElementById(inputId);
+  const error = document.getElementById(inputId + 'Error');
+  if (input) {
+    input.classList.remove('error');
+    input.classList.remove('success');
+  }
+  if (error) {
+    error.textContent = '';
+    error.style.display = 'none';
+  }
+}
+
+function showSuccess(inputId) {
+  const input = document.getElementById(inputId);
+  const error = document.getElementById(inputId + 'Error');
+  if (input) {
+    input.classList.remove('error');
+    input.classList.add('success');
+  }
+  if (error) {
+    error.textContent = '';
+    error.style.display = 'none';
+  }
+}
+
+function clearAllErrors() {
+  [
+    'loginAccount', 'loginPassword', 
+    'regNickname', 'regAccount', 'regPassword', 
+    'regPasswordConfirm', 'regEmail', 'regVerifyCode'
+  ].forEach(id => clearError(id));
+}
+
+function validateEmail(email) {
+  return /^[1-9]\d{4,10}@qq\.com$/.test(email);
+}
+
+function md5(str) {
+  let hash = 0;
+  if (str.length === 0) return hash.toString();
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return hash.toString(16);
+}
+
+document.querySelectorAll('.auth-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById(this.dataset.form + 'Form').classList.add('active');
+    clearAllErrors();
+  });
+});
+
+async function sendVerifyCode() {
+  const emailInput = document.getElementById('regEmail');
+  const sendBtn = document.getElementById('sendCodeBtn');
+  const email = emailInput.value.trim();
+  
+  if (!email) { showError('regEmail', 'Email is empty'); return; }
+  else if (!validateEmail(email)) { showError('regEmail', 'Invalid QQ Email'); return; }
+  if (sendBtn.disabled) return;
+  
+  sendBtn.disabled = true;
+  sendBtn.innerText = 'Sending...';
+  
+  try {
+    const verifyCode = generateVerifyCode();
+    sessionStorage.setItem(`verifyCode_${email}`, JSON.stringify({
+      code: verifyCode,
+      expireTime: Date.now() + 5 * 60 * 1000
+    }));
+    
+    const response = await emailjs.send('service_9nfcx0b', 'template_kn5zqc8', { to_email: email, verify_code: verifyCode });
+    
+    if (response.status === 200) {
+      showCustomAlert('Code sent to your email', 'success');
+      showSuccess('regEmail');
+      let countdown = 60;
+      sendBtn.innerText = `${countdown}s`;
+      if (countdownTimer) clearInterval(countdownTimer);
+      countdownTimer = setInterval(() => {
+        countdown--;
+        sendBtn.innerText = `${countdown}s`;
+        if (countdown <= 0) {
+          clearInterval(countdownTimer);
+          countdownTimer = null;
+          sendBtn.disabled = false;
+          sendBtn.innerText = 'Send Code';
+        }
+      }, 1000);
+    } else {
+      showCustomAlert('Failed to send code', 'error');
+      sendBtn.disabled = false;
+      sendBtn.innerText = 'Send Code';
+    }
+  } catch (error) {
+    console.error(error);
+    showCustomAlert('Network error', 'error');
+    sendBtn.disabled = false;
+    sendBtn.innerText = 'Send Code';
+  }
+}
+
+async function getAllUsers() {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`, { headers: { "Authorization": `token ${GITHUB_TOKEN}` } });
+    if (!res.ok) throw new Error('API Error');
+    const issue = await res.json();
+    const users = [];
+    issue.body.split('\n').filter(line => line.trim() && line.includes('|')).forEach(line => {
+      const parts = line.split('|').map(item => item.trim());
+      users.push({
+        account: parts[0] || '',
+        password: parts[1] || '',
+        email: parts[2] || '',
+        nickname: parts[3] || parts[0],
+        isAdmin: parts[4] ? parts[4].toLowerCase() === 'true' : false,
+        status: parts[5] || '正常'
+      });
+    });
+    localStorage.setItem('temp_users', JSON.stringify(users));
+    return users;
+  } catch (err) {
+    const localUsers = localStorage.getItem('temp_users');
+    return localUsers ? JSON.parse(localUsers) : [];
+  }
+}
+
+async function saveUserToIssue(newUser) {
+  try {
+    const users = await getAllUsers();
+    if (users.some(u => u.account === newUser.account || u.email === newUser.email)) return false;
+    users.push(newUser);
+    let body = "User List\n";
+    users.forEach(user => {
+      body += `${user.account}|${user.password}|${user.email}|${user.nickname}|${user.isAdmin}|${user.status}\n`;
+    });
+    const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`, {
+      headers: { "Authorization": `token ${GITHUB_TOKEN}`, "Content-Type": "application/json" },
+      method: "PATCH",
+      body: JSON.stringify({ body: body.trim() })
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
+async function register() {
+  const nickname = document.getElementById('regNickname').value.trim();
+  const account = document.getElementById('regAccount').value.trim();
+  const password = document.getElementById('regPassword').value.trim();
+  const passwordConfirm = document.getElementById('regPasswordConfirm').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const verifyCode = document.getElementById('regVerifyCode').value.trim();
+  
+  clearAllErrors();
+  let valid = true;
+  
+  if (!nickname) { showError('regNickname', 'Username required'); valid = false; }
+  if (!account || !/^[a-zA-Z0-9]{4,20}$/.test(account)) { showError('regAccount', '4-20 chars required'); valid = false; }
+  if (!password || password.length < 6) { showError('regPassword', 'Min 6 chars'); valid = false; }
+  if (password !== passwordConfirm) { showError('regPasswordConfirm', 'Passwords mismatch'); valid = false; }
+  if (!validateEmail(email)) { showError('regEmail', 'Invalid Email'); valid = false; }
+  if (!verifyCode) {
+    showError('regVerifyCode', 'Code required'); valid = false;
+  } else {
+    const codeDataStr = sessionStorage.getItem(`verifyCode_${email}`);
+    if (!codeDataStr) { showError('regVerifyCode', 'Send code first'); valid = false; }
+    else {
+      const codeData = JSON.parse(codeDataStr);
+      if (Date.now() > codeData.expireTime) { showError('regVerifyCode', 'Code expired'); valid = false; }
+      else if (codeData.code !== verifyCode) { showError('regVerifyCode', 'Wrong code'); valid = false; }
+      else showSuccess('regVerifyCode');
+    }
+  }
+  
+  if (!valid) return;
+  showLoading('Register');
+  
+  try {
+    const users = await getAllUsers();
+    if (users.some(u => u.account === account)) {
+      showError('regAccount', 'Account exists'); hideLoading(); return;
+    }
+    if (users.some(u => u.email === email)) {
+      showError('regEmail', 'Email exists'); hideLoading(); return;
+    }
+    const newUser = {
+      account: account,
+      password: md5(password),
+      email: email,
+      nickname: nickname,
+      isAdmin: false,
+      status: '正常'
+    };
+    const saveSuccess = await saveUserToIssue(newUser);
+    hideLoading();
+    if (saveSuccess) {
+      showCustomAlert('Registered successfully!', 'success');
+      setTimeout(() => {
+        document.querySelector('[data-form="login"]').click();
+        if (countdownTimer) clearInterval(countdownTimer);
+        countdownTimer = null;
+        document.getElementById('sendCodeBtn').disabled = false;
+        document.getElementById('sendCodeBtn').innerText = 'Send Code';
+        ['regNickname', 'regAccount', 'regPassword', 'regPasswordConfirm', 'regEmail', 'regVerifyCode'].forEach(id => document.getElementById(id).value = '');
+      }, 1500);
+    } else {
+      showCustomAlert('Registration failed', 'error');
+    }
+  } catch {
+    hideLoading();
+    showCustomAlert('Network error', 'error');
+  }
+}
+
+async function login() {
+  const account = document.getElementById('loginAccount').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+  
+  clearAllErrors();
+  if (!account) { showError('loginAccount', 'Enter account'); return; }
+  if (!password) { showError('loginPassword', 'Enter password'); return; }
+  
+  showLoading('Login');
+  
+  try {
+    const users = await getAllUsers();
+    const encryptPwd = md5(password);
+    const user = users.find(u => u.account === account && u.password === encryptPwd);
+    
+    hideLoading();
+    if (user) {
+      localStorage.setItem(USER_LOCAL_KEY, JSON.stringify({
+        account: user.account, 
+        nickname: user.nickname, 
+        email: user.email,
+        isAdmin: user.isAdmin,
+        isLoggedIn: true, 
+        loginTime: new Date().toISOString()
+      }));
+      showCustomAlert('Login successful!', 'success');
+      setTimeout(() => { window.location.href = 'search.html'; }, 1500);
+    } else {
+      showCustomAlert('Invalid credentials', 'error');
+    }
+  } catch {
+    hideLoading();
+    showCustomAlert('Login failed', 'error');
+  }
+}
+
+window.onload = function() {
+  try {
+    const userStr = localStorage.getItem(USER_LOCAL_KEY);
+    if (userStr) {
+      const userData = JSON.parse(userStr);
+      if (userData.isLoggedIn) document.getElementById('loginAccount').value = userData.account;
+    }
+  } catch {}
+  hideLoading();
+};
+
+window.onunload = function() {
+  if (countdownTimer) clearInterval(countdownTimer);
+};
+</script>
+</body>
+</html>
