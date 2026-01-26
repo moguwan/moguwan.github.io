@@ -1481,7 +1481,7 @@ function toggleChatWindow() {
   chatOpen = !chatOpen;
   if (chatOpen) {
     moguChatWindow.classList.add('open');
-    if (!chatUpdateInterval) chatUpdateInterval = setInterval(fetchChatMessages, 5000);
+    if (!chatUpdateInterval) chatUpdateInterval = setInterval(fetchChatMessages, 3000); // Changed to 3s
     fetchChatMessages();
   } else {
     moguChatWindow.classList.remove('open');
@@ -1579,7 +1579,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     renderRank();
     searchInput.focus();
   }
-  fetchChatMessages();
+  fetchChatMessages(); // 页面初次打开时拉取
   updateAdminUI();
 });
 </script>
