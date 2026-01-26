@@ -212,7 +212,7 @@ body {
 .play-icon { width: 0; height: 0; border-style: solid; border-width: 5px 0 5px 8px; border-color: transparent transparent transparent #fff; margin-left: 2px; }
 .pause-icon { width: 8px; height: 10px; border-left: 3px solid #fff; border-right: 3px solid #fff; }
 
-/* --- 回到顶部按钮 (修复版) --- */
+/* --- 回到顶部按钮 --- */
 .scroll-top-btn {
   position: fixed; bottom: 30px; right: 30px; width: 44px; height: 44px;
   background: #fff; border-radius: 50%; box-shadow: var(--shadow-lg);
@@ -259,7 +259,7 @@ body {
   border-radius: 8px; font-weight: 600; cursor: pointer; align-self: flex-end;
 }
 .comment-item { display: flex; gap: 12px; margin-bottom: 20px; }
-.comment-avatar { width: 36px; height: 36px; border-radius: 50%; }
+.comment-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
 .comment-user { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
 .comment-text { font-size: 14px; color: #555; }
 
@@ -270,13 +270,13 @@ body {
 .btn-primary-btn { background: var(--text-main); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; }
 .btn-outline { background: transparent; border: 1px solid #ddd; padding: 10px 24px; border-radius: 8px; cursor: pointer; margin-right: 10px; }
 
-/* Toast (修复显示问题) */
+/* Toast */
 .toast {
   position: fixed; top: 30px; left: 50%; transform: translateX(-50%) translateY(-100%);
   background: #333; color: #fff; padding: 10px 24px; border-radius: 30px;
   font-size: 14px; font-weight: 600; box-shadow: 0 10px 20px rgba(0,0,0,0.1);
   transition: all 0.4s var(--ease-out-back); z-index: 9999;
-  opacity: 0; visibility: hidden; pointer-events: none; /* 关键修复：确保不可见时完全隐藏 */
+  opacity: 0; visibility: hidden; pointer-events: none;
 }
 .toast.show { 
   transform: translateX(-50%) translateY(0); 
@@ -373,13 +373,6 @@ body {
   </div>
 </div>
 
-<div class="modal-mask" id="bgModal" style="display:none;">
-  <div class="bg-modal-content">
-    <div class="bg-grid" id="bgGrid"></div>
-  </div>
-</div>
-<button id="bgChangeBtn" style="display:none;"></button>
-
 <div class="modal-mask" id="accessModal" style="z-index: 99999;">
   <div class="access-modal-content">
     <div style="font-size: 40px; margin-bottom: 20px;">🔒</div>
@@ -410,6 +403,9 @@ const CONFIG = {
   commentMapIssue: 299
 };
 
+const DEFAULT_AVATAR = "https://img.wjwj.top/2026/01/20/d6346e9c8e93165079c5ab74f856358c.png";
+const DEFAULT_SIGNATURE = "无";
+
 let state = { user: null, news: [], likes: {}, bgList: [], isPlaying: false };
 
 function init() {
@@ -420,14 +416,12 @@ function init() {
   loadStats();
   initMusic();
   loadLogs();
-  initBg();
-  initScrollToTop(); // 修复：初始化回到顶部功能
+  initScrollToTop();
   
   document.getElementById('searchBtn').addEventListener('click', doSearch);
   document.getElementById('searchInput').addEventListener('keyup', (e) => { if(e.key === 'Enter') doSearch(); });
 }
 
-// 修复：回到顶部逻辑
 function initScrollToTop() {
     const btn = document.getElementById('scrollTopBtn');
     window.addEventListener('scroll', () => {
@@ -445,7 +439,6 @@ function doSearch() {
   const container = document.getElementById('newsContainer');
   const filtered = state.news.filter(item => item.title.toLowerCase().includes(val) || item.content.toLowerCase().includes(val));
   
-  // 核心修改：移除点赞按钮 HTML，只保留 Read Journal
   container.innerHTML = filtered.map((item, idx) => `
     <div class="news-card" onclick="openModal(${idx})" style="animation-delay:${idx * 0.1}s">
       ${item.imgs.length ? `
@@ -470,7 +463,6 @@ function doSearch() {
   `).join('');
   
   setTimeout(() => { document.querySelectorAll('.news-card').forEach(el => el.classList.add('visible')); }, 50);
-  
   if(filtered.length === 0) container.innerHTML = '<div style="text-align:center;width:100%;color:#999;padding:60px;">Nothing found in the journal.</div>';
 }
 
@@ -486,6 +478,9 @@ function checkLogin() {
     document.getElementById('userBtn').style.display = 'flex';
     document.getElementById('userName').textContent = state.user.nickname;
     document.getElementById('goAdmin').style.display = 'block';
+
+    // 静默更新用户信息 (Avatar, Signature etc.)
+    updateUserInfoFromRemote();
   } else {
     showAccessDenied();
     return;
@@ -496,6 +491,28 @@ function checkLogin() {
   document.getElementById('doLogout').onclick = logout;
   document.getElementById('goProfile').onclick = () => window.location.href = 'moguone/setting.html';
   document.getElementById('goAdmin').onclick = () => window.location.href = 'moguone/admin.html';
+}
+
+async function updateUserInfoFromRemote() {
+    try {
+        const res = await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${CONFIG.userIssue}`, { headers: { Authorization: `token ${CONFIG.token}` } });
+        const data = await res.json();
+        const lines = data.body.split('\n');
+        const userLine = lines.find(l => l.startsWith(state.user.account + '|'));
+        
+        if(userLine) {
+            const parts = userLine.split('|').map(s => s.trim());
+            // Account|Password|Email|Nickname|IsAdmin|Avatar|Signature
+            // We only update non-critical display info here to avoid overwriting auth token logic if any
+            state.user.nickname = parts[3] || state.user.nickname;
+            state.user.email = parts[2] || state.user.email;
+            state.user.avatar = parts[5] || DEFAULT_AVATAR;
+            state.user.signature = parts[6] || DEFAULT_SIGNATURE;
+            
+            localStorage.setItem('MY_CUSTOM_USER_INFO', JSON.stringify(state.user));
+            document.getElementById('userName').textContent = state.user.nickname;
+        }
+    } catch(e) { console.error('Silent update failed', e); }
 }
 
 function showAccessDenied() {
@@ -538,12 +555,6 @@ async function loadStats() {
     const countMatch = data.body.match(/总访问量：(\d+)/);
     const count = countMatch ? parseInt(countMatch[1]) + 1 : 1;
     document.getElementById('totalCount').textContent = count;
-    // 逻辑保留以防报错，但界面上已不显示点赞数
-    const likeRegex = /点赞(\d+)数量：(\d+)/g;
-    let match;
-    while ((match = likeRegex.exec(data.body)) !== null) {
-      state.likes[match[1]] = parseInt(match[2]);
-    }
     const newBody = data.body.replace(/总访问量：\d+/, `总访问量：${count}`);
     fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${CONFIG.countIssue}`, { method: 'PATCH', headers: { Authorization: `token ${CONFIG.token}` }, body: JSON.stringify({ body: newBody }) });
   } catch(e) { console.error(e); }
@@ -604,13 +615,15 @@ async function loadComments(newsId) {
   list.innerHTML = comments.map(c => {
     let parts = c.body.split('|');
     let uid, name, avatar, text;
+    // Handle standard User struct or Legacy comment struct
+    // We assume comment body stored as: Account|Nickname|Avatar|Content
     if (parts.length >= 4) { [uid, name, avatar, text] = parts; } 
-    else { [uid, name, text] = parts; avatar = "https://img.wjwj.top/2026/01/20/d6346e9c8e93165079c5ab74f856358c.png"; }
-    const content = text ? text.replace(/[【】]/g, '') : (parts.length > 1 ? c.body : c.body);
+    else { [uid, name, text] = parts; avatar = DEFAULT_AVATAR; }
+    const content = text ? text.replace(/[【】]/g, '') : c.body;
     
     return `
       <div class="comment-item">
-        <img src="${avatar}" class="comment-avatar" alt="${name}" onerror="this.src='https://img.wjwj.top/2026/01/20/d6346e9c8e93165079c5ab74f856358c.png'">
+        <img src="${avatar || DEFAULT_AVATAR}" class="comment-avatar" alt="${name}" onerror="this.src='${DEFAULT_AVATAR}'">
         <div style="flex:1;">
             <div class="comment-user">${name || 'Guest'}</div>
             <div class="comment-text">${content}</div>
@@ -637,7 +650,7 @@ async function postComment(issueId) {
   const input = document.getElementById('commentInput');
   const val = input.value.trim();
   if(!val) return;
-  const avatar = state.user.avatar || "https://img.wjwj.top/2026/01/20/d6346e9c8e93165079c5ab74f856358c.png";
+  const avatar = state.user.avatar || DEFAULT_AVATAR;
   const body = `${state.user.account}|${state.user.nickname}|${avatar}|【${val}】`;
   
   await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${issueId}/comments`, { method: 'POST', headers: { Authorization: `token ${CONFIG.token}` }, body: JSON.stringify({ body }) });
@@ -647,12 +660,6 @@ async function postComment(issueId) {
 }
 
 function loadLogs() { fetch('moguone/log.txt').then(r => r.text()).then(t => { document.querySelector('.sidebar-update-log').innerHTML = t.split('\n').map(l => `<div>${l}</div>`).join(''); }); }
-
-async function initBg() {
-  const btn = document.getElementById('bgChangeBtn');
-  if(btn) btn.style.display = 'none';
-}
-window.setBg = (i, url) => { }; 
 
 function showToast(msg) { 
     const t = document.getElementById('toast'); 
