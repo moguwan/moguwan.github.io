@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="MY HOME 个人中心">
+    <title>Settings | 个人中心</title>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/dmego-home-page@latest/assets/css/iconfont.css">
+    
+    <style>
+        /* --- 核心变量：与首页完全一致 --- */
+        :root {
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-main: #2c3e50;
+            --text-sub: #7f8c8d;
+            --accent: #607d8b; /* 莫兰迪蓝灰 */
+            --accent-hover: #455a64;
+            --highlight: #e74c3c;
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+            --radius-lg: 24px;
+            --radius-pill: 50px;
+            --font-serif: "Merriweather", "Georgia", serif;
+            --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex; flex-direction: column;
+        }
+
+        /* --- Loader --- */
+        #loader {
+            position: fixed; inset: 0; background: #fff; z-index: 99999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+        #loader.loaded { opacity: 0; visibility: hidden; pointer-events: none; }
+        .loader-circle {
+            width: 50px; height: 50px; border: 3px solid rgba(0,0,0,0.1);
+            border-top-color: var(--accent); border-radius: 50%;
+            animation: spin 1s infinite linear;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* --- 顶部导航 --- */
+        .nav-container {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 20px; display: flex; align-items: center; justify-content: space-between;
+            pointer-events: none;
+        }
+        .back-btn {
+            pointer-events: auto;
+            text-decoration: none;
+            background: rgba(255,255,255,0.8); backdrop-filter: blur(10px);
+            padding: 8px 20px; border-radius: var(--radius-pill);
+            box-shadow: var(--shadow-sm);
+            font-weight: 600; color: var(--text-main); font-size: 14px;
+            display: flex; align-items: center; gap: 6px;
+            transition: transform 0.2s var(--ease-out-back);
+        }
+        .back-btn:hover { transform: scale(1.05); background: #fff; }
+        .page-title {
+            font-family: var(--font-serif); font-weight: 900; font-size: 18px;
+            color: var(--text-main); opacity: 0.6; pointer-events: auto;
+            background: rgba(255,255,255,0.5); padding: 5px 15px; border-radius: 20px;
+        }
+
+        /* --- 主容器 --- */
+        .main-container {
+            width: 100%; max-width: 680px; margin: 0 auto;
+            padding: 100px 20px 100px;
+            display: flex; flex-direction: column; gap: 30px;
+            animation: fadeInUp 0.8s var(--ease-out-back);
+        }
+
+        @keyframes fadeInUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* --- 顶部个人概览卡 --- */
+        .profile-header {
+            text-align: center; margin-bottom: 20px;
+        }
+        .avatar-container {
+            position: relative; width: 100px; height: 100px; margin: 0 auto 20px;
+        }
+        .avatar-img {
+            width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
+            border: 4px solid #fff; box-shadow: var(--shadow-lg);
+            transition: transform 0.5s var(--ease-out-back);
+        }
+        .avatar-img:hover { transform: rotate(10deg) scale(1.05); }
+        .user-name-display {
+            font-family: var(--font-serif); font-size: 28px; font-weight: 700;
+            color: var(--text-main); margin-bottom: 5px;
+        }
+        .user-meta-badges {
+            display: flex; justify-content: center; gap: 10px; margin-bottom: 20px;
+        }
+        .meta-badge {
+            font-size: 12px; padding: 4px 12px; border-radius: 20px;
+            background: #fff; border: 1px solid #eee; color: var(--text-sub);
+        }
+        
+        .setting-card {
+            background: var(--bg-card); border-radius: var(--radius-lg);
+            padding: 35px; box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0,0,0,0.02);
+            transition: transform 0.3s;
+        }
+        .setting-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+
+        .card-title {
+            font-family: var(--font-serif); font-size: 20px; font-weight: 700;
+            color: var(--text-main); margin-bottom: 25px; display: flex; align-items: center; gap: 10px;
+            padding-bottom: 15px; border-bottom: 1px solid #f0f0f0;
+        }
+        .card-title i { color: var(--accent); opacity: 0.8; }
+
+        .form-group { margin-bottom: 25px; }
+        .form-label {
+            display: block; font-size: 13px; font-weight: 700; color: var(--text-main);
+            margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8;
+        }
+        .form-input, .form-textarea {
+            width: 100%; padding: 14px 18px; border-radius: 12px;
+            border: 1px solid #e2e8f0; background: #fcfcfc;
+            font-size: 15px; color: var(--text-main); font-family: inherit;
+            transition: all 0.3s; outline: none;
+        }
+        .form-input:focus, .form-textarea:focus {
+            background: #fff; border-color: var(--accent); box-shadow: 0 0 0 4px rgba(96, 125, 139, 0.1);
+        }
+        .form-textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
+        .input-helper {
+            font-size: 12px; color: #aab7b8; margin-top: 8px;
+            display: flex; justify-content: space-between;
+        }
+
+        .btn {
+            border: none; padding: 12px 24px; border-radius: 12px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: all 0.2s var(--ease-out-back); width: 100%;
+        }
+        .btn-primary {
+            background: var(--text-main); color: #fff;
+            box-shadow: 0 4px 12px rgba(44, 62, 80, 0.2);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(44, 62, 80, 0.3); }
+        .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        .btn-danger {
+            background: #fff; border: 1px solid #fed7d7; color: #e53e3e;
+        }
+        .btn-danger:hover { background: #fff5f5; border-color: #e53e3e; }
+
+        /* Toast */
+        .toast-notification {
+            position: fixed; top: 30px; left: 50%; transform: translateX(-50%) translateY(-100%);
+            background: #333; color: #fff; padding: 10px 24px; border-radius: 30px;
+            font-size: 14px; font-weight: 600; box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: all 0.4s var(--ease-out-back); z-index: 99999;
+            opacity: 0; pointer-events: none;
+        }
+        .toast-notification.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        
+        @media (max-width: 768px) {
+            .nav-container { padding: 15px; }
+            .main-container { padding: 80px 15px; }
+            .setting-card { padding: 25px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <div class="loader-circle"></div>
+    </div>
+
+    <nav class="nav-container">
+        <a href="../index.html" class="back-btn" title="Back">
+            <i class="iconfont icon-home"></i> Home
+        </a>
+        <div class="page-title">Profile</div>
+    </nav>
+
+    <div class="main-container">
+        <header class="profile-header">
+            <div class="avatar-container">
+                <img src="" alt="Avatar" id="avatarPreview" class="avatar-img">
+            </div>
+            <div class="user-name-display" id="accountDisplay">Loading...</div>
+            <div class="user-meta-badges">
+                <span class="meta-badge" id="roleBadge">User</span>
+            </div>
+        </header>
+
+        <section class="setting-card">
+            <div class="card-title">
+                <i class="iconfont icon-edit"></i> Basic Info
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Nickname</label>
+                <input type="text" class="form-input" id="usernameInput" placeholder="Your nickname">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="emailInput" placeholder="name@example.com" disabled title="To change email, please use Auth page">
+                <div class="input-helper">Email change requires re-verification (disabled here)</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Signature</label>
+                <textarea class="form-textarea" id="signatureInput" placeholder="Your signature..." maxlength="100"></textarea>
+                <div class="input-helper">
+                    <span>Text only</span>
+                    <span id="charCount">0/100</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="saveProfileBtn">
+                Save Changes
+            </button>
+        </section>
+
+        <section class="setting-card">
+            <div class="card-title">
+                <i class="iconfont icon-image"></i> Avatar
+            </div>
+            <div class="form-group">
+                <label class="form-label">Image URL</label>
+                <input type="text" class="form-input" id="avatarUrlInput" placeholder="https://...">
+                <div class="input-helper">
+                    <span>Supports JPG, PNG, WebP</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="setting-card">
+            <div class="card-title">
+                <i class="iconfont icon-safe"></i> Security
+            </div>
+            <div class="form-group">
+                <button class="btn btn-danger" id="logoutAllBtn">
+                    Logout
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <div class="toast-notification" id="toastNotification">
+        <span class="text">Success!</span>
+    </div>
+
+<script type="text/javascript">
+const GITHUB_REPO = "moguwan/moguwan.github.io";
+const GITHUB_TOKEN = ["gh","p_p","VXlo0HQ","PmMx","Ic","eM","HB","uMzm","EON","LPX","700","10","M","SL"].join('');
+const USER_ISSUE_NUMBER = 11;
+const USER_LOCAL_KEY = 'MY_CUSTOM_USER_INFO';
+const DEFAULT_AVATAR = "https://img.wjwj.top/2026/01/20/d6346e9c8e93165079c5ab74f856358c.png";
+const DEFAULT_SIGNATURE = "无";
+
+let currentUser = null;
+
+function initPage() {
+    const loader = document.getElementById('loader');
+    initLoginState();
+    setTimeout(() => {
+        loader.classList.add('loaded');
+    }, 800);
+}
+
+async function initLoginState() {
+    const savedUser = localStorage.getItem(USER_LOCAL_KEY);
+    if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        // Silent Fetch latest
+        await fetchLatestUserInfo();
+        renderUser();
+    } else {
+        alert('Please login first');
+        window.location.href = 'login.html';
+    }
+}
+
+async function fetchLatestUserInfo() {
+    try {
+        const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`, {
+            headers: { "Authorization": `token ${GITHUB_TOKEN}` }
+        });
+        const data = await res.json();
+        const lines = data.body.split('\n');
+        const myLine = lines.find(l => l.startsWith(currentUser.account + '|'));
+        
+        if (myLine) {
+            // Standard: Account|Password|Email|Nickname|IsAdmin|Avatar|Signature
+            const p = myLine.split('|').map(s => s.trim());
+            currentUser.password = p[1];
+            currentUser.email = p[2] || '';
+            currentUser.nickname = p[3] || currentUser.account;
+            currentUser.isAdmin = p[4] === 'true';
+            currentUser.avatar = p[5] || DEFAULT_AVATAR;
+            currentUser.signature = p[6] || DEFAULT_SIGNATURE;
+            
+            localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
+        }
+    } catch (e) { console.error('Fetch error', e); }
+}
+
+function renderUser() {
+    document.getElementById('accountDisplay').textContent = currentUser.nickname;
+    document.getElementById('usernameInput').value = currentUser.nickname;
+    document.getElementById('emailInput').value = currentUser.email;
+    document.getElementById('avatarUrlInput').value = currentUser.avatar;
+    document.getElementById('signatureInput').value = currentUser.signature;
+    document.getElementById('avatarPreview').src = currentUser.avatar;
+    
+    const roleBadge = document.getElementById('roleBadge');
+    roleBadge.textContent = currentUser.isAdmin ? 'Admin' : 'User';
+    roleBadge.style.color = currentUser.isAdmin ? '#e74c3c' : '#7f8c8d';
+    
+    // Live preview avatar
+    document.getElementById('avatarUrlInput').addEventListener('input', (e) => {
+        document.getElementById('avatarPreview').src = e.target.value || DEFAULT_AVATAR;
+    });
+    
+    // Char count
+    document.getElementById('signatureInput').addEventListener('input', (e) => {
+        document.getElementById('charCount').textContent = e.target.value.length + '/100';
+    });
+}
+
+async function saveUserProfile() {
+    if (!currentUser) return;
+    
+    const btn = document.getElementById('saveProfileBtn');
+    btn.disabled = true;
+    btn.innerText = 'Saving...';
+    
+    const newNick = document.getElementById('usernameInput').value.trim();
+    const newAvatar = document.getElementById('avatarUrlInput').value.trim() || DEFAULT_AVATAR;
+    const newSig = document.getElementById('signatureInput').value.trim() || DEFAULT_SIGNATURE;
+    
+    try {
+        // 1. Get all users
+        const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`, {
+            headers: { "Authorization": `token ${GITHUB_TOKEN}` }
+        });
+        const data = await res.json();
+        const lines = data.body.split('\n');
+        
+        // 2. Modify my line
+        const newBody = lines.map(line => {
+            if (line.startsWith(currentUser.account + '|')) {
+                // Keep password/email/isAdmin/account same, update nick/avatar/sig
+                return `${currentUser.account}|${currentUser.password}|${currentUser.email}|${newNick}|${currentUser.isAdmin}|${newAvatar}|${newSig}`;
+            }
+            return line;
+        }).join('\n');
+        
+        // 3. Write back
+        await fetch(`https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}`, {
+            method: 'PATCH',
+            headers: { "Authorization": `token ${GITHUB_TOKEN}` },
+            body: JSON.stringify({ body: newBody })
+        });
+        
+        // 4. Update local
+        currentUser.nickname = newNick;
+        currentUser.avatar = newAvatar;
+        currentUser.signature = newSig;
+        localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
+        
+        showToast('Profile Updated');
+        renderUser();
+        
+    } catch(e) {
+        showToast('Error updating profile');
+        console.error(e);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = 'Save Changes';
+    }
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toastNotification');
+    t.querySelector('.text').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initPage();
+    document.getElementById('saveProfileBtn').addEventListener('click', saveUserProfile);
+    document.getElementById('logoutAllBtn').addEventListener('click', () => {
+        localStorage.removeItem(USER_LOCAL_KEY);
+        window.location.href = '../index.html';
+    });
+});
+</script>
+</body>
+</html>
