@@ -1,1388 +1,980 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="dns-prefetch" href="https://cn.bing.com">
-<link rel="dns-prefetch" href="https://www.google.com">
-<link rel="dns-prefetch" href="https://www.baidu.com">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mogu Search</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+:root {
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --bg-color: #f8fafc;
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --glass-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
+  --text-main: #1e293b;
+  --text-sub: #64748b;
+  --ease-spring: cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
 * {
-margin: 0;
-padding: 0;
-box-sizing: border-box;
-font-family: "Inter", "SF Pro Display", "Microsoft YaHei", sans-serif;
--webkit-user-select: none;
--moz-user-select: none;
--ms-user-select: none;
-user-select: none;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
-#search-input {
--webkit-user-select: text;
--moz-user-select: text;
--ms-user-select: text;
-user-select: text;
-}
+
 body {
-background-color: #f5f7fa;
-display: flex;
-flex-direction: column;
-justify-content: flex-start;
-align-items: center;
-min-height: 100vh;
-padding: 15vh 20px 40px;
-position: relative;
-}
-.search-title {
-font-size: 40px;
-font-weight: 600;
-color: #0078d4;
-margin-bottom: 36px;
-letter-spacing: 1px;
-transition: all 0.25s ease-out;
-cursor: default;
-text-shadow: 0 2px 4px rgba(0, 120, 212, 0.05);
-}
-.search-title:hover {
-color: #0066b8;
-transform: scale(1.03);
-}
-.search-container {
-width: 100%;
-max-width: 720px;
-display: flex;
-align-items: center;
-gap: 10px;
-position: relative;
-margin-bottom: 20px;
-}
-.search-engine-wrap {
-position: relative;
-}
-.search-engine-select {
-padding: 18px 40px 18px 24px;
-font-size: 17px;
-border: none;
-border-radius: 24px;
-background: linear-gradient(145deg, #ffffff, #f8f9fa);
-color: #2d3748;
-outline: none;
-appearance: none;
-cursor: pointer;
-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-box-shadow: 
-0 4px 12px rgba(0, 0, 0, 0.05),
-inset 0 1px 0 rgba(255, 255, 255, 0.8);
-min-width: 110px;
-font-weight: 500;
-}
-.search-engine-arrow {
-position: absolute;
-right: 20px;
-top: 50%;
-transform: translateY(-50%);
-width: 10px;
-height: 10px;
-pointer-events: none;
-transition: all 0.2s ease;
-}
-.search-engine-arrow::before {
-content: "";
-display: block;
-width: 7px;
-height: 7px;
-border-right: 2px solid #0078d4;
-border-bottom: 2px solid #0078d4;
-transform: rotate(45deg);
-transition: all 0.2s ease;
-opacity: 0.7;
-}
-.search-engine-select:hover {
-box-shadow: 
-0 6px 16px rgba(0, 0, 0, 0.08),
-inset 0 1px 0 rgba(255, 255, 255, 0.9);
-transform: translateY(-1px);
-}
-.search-engine-select:focus {
-box-shadow: 
-0 0 0 4px rgba(0, 120, 212, 0.12),
-0 6px 16px rgba(0, 120, 212, 0.1),
-inset 0 1px 0 rgba(255, 255, 255, 0.9);
-transform: translateY(-2px);
-}
-.search-engine-select:hover + .search-engine-arrow::before,
-.search-engine-select:focus + .search-engine-arrow::before {
-opacity: 1;
-transform: rotate(45deg) scale(1.1);
-}
-.search-engine-select option {
-padding: 12px 16px;
-background: #ffffff;
-color: #2d3748;
-border-radius: 8px;
-font-weight: 500;
-}
-.search-engine-select option:hover {
-background: #e8f4ff;
-}
-#search-input {
-flex: 1;
-padding: 18px 24px;
-font-size: 17px;
-border: none;
-border-radius: 24px;
-outline: none;
-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-box-shadow: 
-0 4px 12px rgba(0, 0, 0, 0.05),
-inset 0 1px 0 rgba(255, 255, 255, 0.8);
-color: #2d3748;
-font-weight: 500;
-}
-#search-input:focus {
-box-shadow: 
-0 0 0 4px rgba(0, 120, 212, 0.12),
-0 6px 16px rgba(0, 120, 212, 0.1),
-inset 0 1px 0 rgba(255, 255, 255, 0.9);
-transform: translateY(-2px);
-}
-#search-input::placeholder {
-color: #94a3b8;
-font-size: 16px;
-font-weight: 400;
-}
-#search-btn {
-padding: 18px 36px;
-font-size: 17px;
-background: linear-gradient(135deg, #0078d4 0%, #0066b8 100%);
-color: white;
-border: none;
-border-radius: 24px;
-cursor: pointer;
-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-box-shadow: 0 4px 12px rgba(0, 120, 212, 0.15);
-font-weight: 500;
-}
-#search-btn:hover {
-background: linear-gradient(135deg, #0066b8 0%, #005599 100%);
-transform: translateY(-2px);
-box-shadow: 0 6px 16px rgba(0, 120, 212, 0.2);
-}
-#search-btn:active {
-transform: translateY(0);
-box-shadow: 0 2px 8px rgba(0, 120, 212, 0.15);
-}
-.history-rank-wrap {
-width: 100%;
-max-width: 720px;
-margin-top: 65px;
-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-opacity: 1;
-height: auto;
-overflow: hidden;
-}
-.history-rank-wrap.hidden {
-opacity: 0;
-height: 0;
-margin-top: 0;
-}
-.toggle-btn {
-position: fixed;
-bottom: 20px;
-left: 20px;
-width: 36px;
-height: 36px;
-border-radius: 50%;
-background: linear-gradient(145deg, #ffffff, #f8f9fa);
-border: none;
-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-cursor: pointer;
-display: flex;
-align-items: center;
-justify-content: center;
-transition: all 0.2s ease;
-z-index: 9998;
-opacity: 0.3;
-pointer-events: auto;
-}
-.toggle-btn:hover {
-transform: scale(1.1);
-box-shadow: 0 3px 10px rgba(0, 120, 212, 0.12);
-opacity: 1;
-}
-.toggle-btn svg {
-width: 18px;
-height: 18px;
-fill: #0078d4;
-transition: all 0.2s ease;
-}
-.custom-alert {
-position: fixed;
-top: 30px;
-left: 50%;
-transform: translateX(-50%) translateY(-30px);
-background-color: #fff;
-border: 1px solid #ff8080;
-color: #dc2626;
-padding: 14px 28px;
-border-radius: 12px;
-box-shadow: 0 6px 20px rgba(255, 128, 128, 0.12);
-font-size: 16px;
-opacity: 0;
-visibility: hidden;
-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-z-index: 9999;
-cursor: default;
-}
-.custom-alert.show {
-opacity: 1;
-visibility: visible;
-transform: translateX(-50%) translateY(0);
-animation: gentleShake 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-/* 新增：用户登录状态样式 */
-.user-info {
-position: fixed;
-top: 20px;
-left: 20px;
-display: flex;
-align-items: center;
-gap: 10px;
-z-index: 9999;
-}
-/* 新增：用户信息点击区域 */
-.user-profile-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    transition: all 0.2s ease;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 14vh;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  position: relative;
+  overflow-x: hidden;
 }
 
-.user-profile-btn:hover {
-    opacity: 0.8;
-}
-
-.user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #0078d4 0%, #0066b8 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    font-size: 16px;
-    flex-shrink: 0;
-}
-
-.user-name {
-    font-weight: 500;
-    color: #2d3748;
-}
-
-.logout-btn {
-    padding: 6px 12px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    color: #64748b;
-    cursor: pointer;
-    font-size: 12px;
-    transition: all 0.2s;
-    flex-shrink: 0;
-}
-
-.logout-btn:hover {
-    background: #f1f5f9;
-    color: #475569;
-}
-.user-avatar {
-width: 40px;
-height: 40px;
-border-radius: 50%;
-background: linear-gradient(135deg, #0078d4 0%, #0066b8 100%);
-display: flex;
-align-items: center;
-justify-content: center;
-color: white;
-font-weight: bold;
-font-size: 16px;
-}
-.user-name {
-font-weight: 500;
-color: #2d3748;
-}
-.logout-btn {
-padding: 6px 12px;
-background: #f8fafc;
-border: 1px solid #e2e8f0;
-border-radius: 8px;
-color: #64748b;
-cursor: pointer;
-font-size: 12px;
-transition: all 0.2s;
-}
-.logout-btn:hover {
-background: #f1f5f9;
-color: #475569;
-}
-.login-btn {
-position: fixed;
-top: 20px;
-left: 20px;
-padding: 8px 16px;
-background: linear-gradient(135deg, #0078d4 0%, #0066b8 100%);
-color: white;
-border: none;
-border-radius: 8px;
-cursor: pointer;
-font-size: 14px;
-font-weight: 500;
-z-index: 9999;
-}
-.login-btn:hover {
-transform: translateY(-1px);
-box-shadow: 0 4px 12px rgba(0, 120, 212, 0.2);
-}
-/* 聊天按钮位置调整 */
-.mogu-chat-btn {
-position: fixed;
-top: 20px;
-right: 20px;
-width: 48px;
-height: 48px;
-border-radius: 50%;
-background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-border: none;
-color: white;
-font-size: 12px;
-font-weight: 600;
-cursor: pointer;
-transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
-z-index: 9999;
-display: flex;
-align-items: center;
-justify-content: center;
-overflow: hidden;
-}
-.mogu-chat-btn:hover {
-transform: scale(1.1) rotate(5deg);
-box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
-}
-.mogu-chat-btn::before {
-content: "";
-position: absolute;
-width: 100%;
-height: 100%;
-background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
-opacity: 0;
-transition: opacity 0.3s ease;
-border-radius: 50%;
-}
-.mogu-chat-btn:hover::before {
-opacity: 1;
-}
-.mogu-chat-btn span {
-position: relative;
-z-index: 1;
-}
-/* 聊天窗默认样式：定位右上角，隐藏状态（缩放+平移+透明） */
-.mogu-chat-window {
-    position: fixed;
-    top: 80px; /* 与聊天按钮（top:20px）保持间距，避免重叠 */
-    right: 20px; /* 与聊天按钮（right:20px）同水平位置 */
-    transform: translate(20px, -20px) scale(0); /* 右移+上移+缩放到0，隐藏状态 */
-    transform-origin: top right; /* 变形原点：右上角（核心！） */
-    width: 80%; /* 固定宽高，不再随动画变化 */
-    max-width: 800px;
-    height: 80vh;
-    max-height: 600px;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
-    opacity: 0; /* 透明隐藏 */
-    z-index: 9998;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); /* 保留原缓动函数，保证丝滑 */
-}
-
-/* 聊天窗打开状态：复位缩放+平移，显示不透明 */
-.mogu-chat-window.open {
-    transform: translate(0, 0) scale(1); /* 复位：无平移+缩放到1，从右上角滑出 */
-    opacity: 1; /* 完全不透明 */
-}
-.mogu-chat-header {
-    padding: 20px;
-    border-bottom: 1px solid #e2e8f0;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    display: flex;
-    justify-content: space-between; /* 标题左，清空按钮右 */
-    align-items: center;
-}
-/* 管理员专属样式：默认隐藏，仅管理员显示 */
-.admin-only {
-    display: none !important;
-}
-/* 管理员显示类：优先级高于!important，强制显示专属元素 */
-.admin-only.admin-show {
-    display: block !important;
-}
-/* 单条消息删除按钮单独适配（本身是flex布局） */
-.msg-delete-btn.admin-show {
-    display: flex !important;
-}
-/* 管理员专属：一键清空所有消息按钮（蓝色） */
-.clear-all-btn {
-    padding: 8px 16px;
-    background: linear-gradient(135deg, #0078d4 0%, #0066b8 100%);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-.clear-all-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
-    background: linear-gradient(135deg, #0066b8 0%, #005599 100%);
-}
-/* 单条消息删除按钮（消息右上角） */
-.msg-delete-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: none;
-    background: rgba(0, 120, 212, 0.2);
-    color: white;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: all 0.2s ease;
-    z-index: 1;
-}
-/* 消息项悬浮时显示删除按钮 */
-.message-item {
-    padding: 12px 16px;
-    border-radius: 16px;
-    max-width: 85%; /* 加宽消息显示宽度 */
-    animation: messageAppear 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative; /* 为删除按钮定位做准备 */
-}
-.message-item:hover .msg-delete-btn {
-    opacity: 1;
-}
-/* 区分用户/其他消息的删除按钮背景 */
-.message-item.user .msg-delete-btn {
-    background: rgba(0, 120, 212, 0.3);
-    color: white;
-}
-.message-item.other .msg-delete-btn {
-    background: rgba(0, 120, 212, 0.2);
-    color: #0078d4;
-}
-/* 删除按钮悬浮加深蓝色 */
-.msg-delete-btn:hover {
-    background: linear-gradient(135deg, #0078d4 0%, #0066b8 100%);
-    color: white !important;
-}
-.mogu-chat-title {
-font-size: 18px;
-font-weight: 600;
-color: #8b5cf6;
-display: flex;
-align-items: center;
-gap: 8px;
-}
-.mogu-chat-title svg {
-width: 20px;
-height: 20px;
-fill: #8b5cf6;
-}
-.mogu-chat-subtitle {
-font-size: 12px;
-color: #94a3b8;
-margin-top: 4px;
-}
-.mogu-chat-messages {
-    height: calc(100% - 180px); /* 自适应窗口，减去头部+输入区高度 */
-    overflow-y: auto;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px; /* 加大消息间距，避免拥挤 */
-    position: relative;
-}
-/* 聊天框滚动条加粗样式（宽度8px，原配色不变） */
-.mogu-chat-messages::-webkit-scrollbar {
-width: 8px; /* 核心：从4px改为8px，可根据需要调10px/12px */
-}
-.mogu-chat-messages::-webkit-scrollbar-track {
-background: #f1f5f9;
-border-radius: 4px; /* 圆角随宽度调整，更协调 */
-}
-.mogu-chat-messages::-webkit-scrollbar-thumb {
-background: #cbd5e1;
-border-radius: 4px;
-}
-.mogu-chat-messages::-webkit-scrollbar-thumb:hover {
-background: #94a3b8;
-}
-/* 修改：消息项样式 */
-.message-item {
-padding: 12px 16px;
-border-radius: 16px;
-max-width: 80%;
-animation: messageAppear 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.message-item.user {
-align-self: flex-end;
-background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-color: white;
-border-bottom-right-radius: 4px;
-}
-.message-item.other {
-align-self: flex-start;
-background: #f1f5f9;
-color: #2d3748;
-border-bottom-left-radius: 4px;
-}
-/* 修改：用户名样式 */
-.message-sender {
-font-size: 12px;
-font-weight: 600;
-margin-bottom: 6px;
-opacity: 0.9;
-}
-.message-item.user .message-sender {
-color: rgba(255, 255, 255, 0.9);
-}
-.message-item.other .message-sender {
-color: #64748b;
-}
-.message-text {
-font-size: 14px;
-line-height: 1.4;
-}
-.message-time {
-font-size: 11px;
-margin-top: 6px;
-opacity: 0.6;
-text-align: right;
-}
-.message-item.user .message-time {
-color: rgba(255, 255, 255, 0.7);
-}
-.message-item.other .message-time {
-color: #94a3b8;
-}
-/* 修改：聊天输入区域 */
-.mogu-chat-input-area {
-    padding: 16px 20px;
-    border-top: 1px solid #e2e8f0;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    background: #ffffff;
-    position: relative;
-}
-.mogu-chat-input {
-    flex: 1;
-    padding: 14px 18px;
-    border: none;
-    border-radius: 12px;
-    background: #f1f5f9;
-    font-size: 14px;
-    color: #2d3748;
-    outline: none;
-    transition: all 0.3s ease;
-    min-width: 0; /* 解决flex布局下输入框溢出 */
-}
-.mogu-chat-input:disabled {
-background: #e2e8f0;
-color: #94a3b8;
-cursor: not-allowed;
-}
-.mogu-chat-input:focus {
-background: #ffffff;
-box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
-}
-.mogu-chat-send {
-padding: 12px 24px;
-background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-color: white;
-border: none;
-border-radius: 12px;
-font-size: 14px;
-font-weight: 600;
-cursor: pointer;
-transition: all 0.3s ease;
-}
-.mogu-chat-send:hover:not(:disabled) {
-transform: translateY(-2px);
-box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-}
-.mogu-chat-send:disabled {
-opacity: 0.5;
-cursor: not-allowed;
-transform: none;
-}
-.login-prompt {
-position: absolute;
-top: 0;
-left: 0;
-right: 0;
-bottom: 0;
-background: rgba(255, 255, 255, 0.95);
-display: flex;
-align-items: center;
-justify-content: center;
-flex-direction: column;
-gap: 15px;
-border-radius: 20px;
-z-index: 10;
-}
-.login-prompt p {
-color: #64748b;
-font-size: 14px;
-}
-.login-prompt-btn {
-padding: 10px 20px;
-background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-color: white;
-border: none;
-border-radius: 8px;
-cursor: pointer;
-font-size: 14px;
-font-weight: 500;
-}
-.login-prompt-btn:hover {
-transform: translateY(-1px);
-box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-}
-.history-rank-container {
-display: flex;
-gap: 20px;
-background: linear-gradient(145deg, #ffffff, #f8f9fa);
-border-radius: 20px;
-padding: 20px;
-box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-margin-top: 10px;
-}
-.history-section {
-flex: 1;
-}
-.rank-section {
-flex: 1;
-}
-.module-title {
-font-size: 16px;
-font-weight: 600;
-color: #2d3748;
-margin-bottom: 12px;
-display: flex;
-align-items: center;
-justify-content: flex-start;
-gap: 8px;
-cursor: default;
-}
-.module-title svg {
-width: 18px;
-height: 18px;
-fill: #0078d4;
-}
-.history-switch-wrap {
-display: flex;
-align-items: center;
-gap: 8px;
-margin-left: auto;
-}
-.switch-label {
-font-size: 11px;
-color: #64748b;
-font-weight: 400;
-}
-.toggle-switch {
-position: relative;
-display: inline-block;
-width: 36px;
-height: 20px;
-cursor: pointer;
-}
-.toggle-switch input {
-opacity: 0;
-width: 0;
-height: 0;
-}
-.switch-slider {
-position: absolute;
-top: 0;
-left: 0;
-right: 0;
-bottom: 0;
-background: linear-gradient(145deg, #e2e8f0, #f1f5f9);
-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-border-radius: 24px;
-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.switch-slider:before {
-position: absolute;
-content: "";
-height: 14px;
-width: 14px;
-left: 3px;
-bottom: 3px;
-background: linear-gradient(145deg, #ffffff, #f8f9fa);
-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-border-radius: 50%;
-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-input:checked + .switch-slider {
-background: linear-gradient(135deg, #0078d4 0%, #0066b8 100%);
-}
-input:checked + .switch-slider:before {
-transform: translateX(16px);
-}
-.toggle-switch:hover .switch-slider {
-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08);
-}
-input:checked + .switch-slider:hover {
-box-shadow: 0 0 0 8px rgba(0, 120, 212, 0.12);
-}
-.history-list, .rank-list {
-list-style: none;
-max-height: 210px;
-overflow-y: auto;
-padding-right: 8px;
-}
-.history-list::-webkit-scrollbar, .rank-list::-webkit-scrollbar {
-width: 4px;
-}
-.history-list::-webkit-scrollbar-track, .rank-list::-webkit-scrollbar-track {
-background: #f1f5f9;
-border-radius: 2px;
-}
-.history-list::-webkit-scrollbar-thumb, .rank-list::-webkit-scrollbar-thumb {
-background: #cbd5e1;
-border-radius: 2px;
-}
-.history-list::-webkit-scrollbar-thumb:hover, .rank-list::-webkit-scrollbar-thumb:hover {
-background: #94a3b8;
-}
-.history-item {
-padding: 8px 12px;
-border-radius: 12px;
-margin-bottom: 8px;
-display: flex;
-justify-content: space-between;
-align-items: center;
-background: #f8fafc;
-transition: all 0.2s ease;
-cursor: pointer;
-}
-.history-item:hover {
-background: #e8f4ff;
-transform: translateX(2px);
-}
-.history-item .keyword {
-font-size: 14px;
-color: #2d3748;
-white-space: nowrap;
-overflow: hidden;
-text-overflow: ellipsis;
-flex: 1;
-}
-.history-item .time {
-font-size: 12px;
-color: #94a3b8;
-margin-left: 8px;
-}
-.history-item .delete-btn {
-width: 24px;
-height: 24px;
-border-radius: 50%;
-border: none;
-background: transparent;
-color: #94a3b8;
-cursor: pointer;
-display: flex;
-align-items: center;
-justify-content: center;
-transition: all 0.2s ease;
-margin-left: 8px;
-}
-.history-item .delete-btn:hover {
-background: #fef2f2;
-color: #ef4444;
-}
-.rank-item {
-padding: 8px 12px;
-border-radius: 12px;
-margin-bottom: 8px;
-display: flex;
-align-items: center;
-background: #f8fafc;
-transition: all 0.2s ease;
-cursor: pointer;
-}
-.rank-item:hover {
-background: #e8f4ff;
-transform: translateX(2px);
-}
-.rank-item .rank-num {
-width: 20px;
-height: 20px;
-border-radius: 50%;
-background: #0078d4;
-color: white;
-font-size: 12px;
-display: flex;
-align-items: center;
-justify-content: center;
-margin-right: 10px;
-font-weight: 600;
-}
-.rank-item:nth-child(1) .rank-num {
-background: #f59e0b;
-}
-.rank-item:nth-child(2) .rank-num {
-background: #94a3b8;
-}
-.rank-item:nth-child(3) .rank-num {
-background: #b45309;
-}
-.rank-item .keyword {
-font-size: 14px;
-color: #2d3748;
-flex: 1;
-white-space: nowrap;
-overflow: hidden;
-text-overflow: ellipsis;
-}
-.rank-item .count {
-font-size: 12px;
-color: #94a3b8;
-background: #f1f5f9;
-padding: 2px 8px;
-border-radius: 8px;
-margin-left: 8px;
-}
-.empty-tip {
-font-size: 14px;
-color: #94a3b8;
-text-align: center;
-padding: 20px 0;
-cursor: default;
-}
-.loading-spinner {
-display: inline-block;
-width: 12px;
-height: 12px;
-border: 2px solid rgba(255, 255, 255, 0.3);
-border-radius: 50%;
-border-top-color: white;
-animation: spin 0.8s linear infinite;
-}
-@keyframes spin {
-to { transform: rotate(360deg); }
-}
-@keyframes messageAppear {
-from {
-opacity: 0;
-transform: translateY(10px);
-}
-to {
-opacity: 1;
-transform: translateY(0);
-}
-}
-@keyframes gentleShake {
-0%, 100% { transform: translateX(-50%) translateY(0); }
-20% { transform: translateX(-52%) translateY(0); }
-40% { transform: translateX(-48%) translateY(0); }
-60% { transform: translateX(-52%) translateY(0); }
-80% { transform: translateX(-48%) translateY(0); }
-}
-@media (max-width: 768px) {
-.mogu-chat-window {
-        top: 80px;
-        left: auto;
-        right: 20px;
-        transform: translateX(20px) translateY(-20px) scale(0.8);
-        transform-origin: top right;
-    }
-.search-engine-wrap {
-display: none !important;
-}
-.history-rank-wrap {
-display: none !important;
-}
-.toggle-btn {
-display: none !important;
-}
-.search-container {
-flex-wrap: wrap;
-gap: 15px;
-}
-.search-engine-wrap {
-width: 100%;
-}
-.search-engine-select {
-width: 100%;
-}
-#search-input {
-width: 100%;
-}
-#search-btn {
-width: 100%;
-}
-.search-title {
-font-size: 32px;
-margin-bottom: 24px;
-}
-.user-info {
-top: 15px;
-left: 15px;
-}
-.login-btn {
-top: 15px;
-left: 15px;
-}
-.mogu-chat-btn {
-top: 15px;
-right: 15px;
-width: 42px;
-height: 42px;
-font-size: 10px;
-}
-.mogu-chat-window.open {
-        width: calc(100vw - 40px);
-        height: 450px;
-        max-width: none;
-        max-height: none;
-        transform: translateX(0) translateY(0) scale(1);
-    }
-.mogu-chat-messages {
-        height: 300px; /* 恢复移动设备固定高度 */
-    }
-}
-/* 自定义弹窗遮罩层：全屏半透明，防止背景操作 */
-.modal-mask {
+.ambient-bg {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(4px); /* 背景模糊，提升高级感 */
-  z-index: 99999; /* 高于所有页面元素，确保不被遮挡 */
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  opacity: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  overflow: hidden;
+  background: radial-gradient(circle at 0% 0%, #e0e7ff 0%, transparent 50%), radial-gradient(circle at 100% 100%, #f3e8ff 0%, transparent 50%);
 }
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.6;
+  animation: floatOrb 20s infinite ease-in-out;
+}
+
+.orb-1 {
+  width: 400px;
+  height: 400px;
+  background: #818cf8;
+  top: -100px;
+  left: -100px;
+  animation-delay: 0s;
+}
+
+.orb-2 {
+  width: 300px;
+  height: 300px;
+  background: #c084fc;
+  bottom: 10%;
+  right: -50px;
+  animation-delay: -5s;
+}
+
+@keyframes floatOrb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, 50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+}
+
+.search-title {
+  font-size: 4rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 2.5rem;
+  text-shadow: 0 20px 40px rgba(99, 102, 241, 0.15);
+  cursor: default;
+  transition: transform 0.6s var(--ease-spring);
+}
+
+.search-title:hover {
+  transform: scale(1.02);
+}
+
+.search-container {
+  width: 100%;
+  max-width: 720px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--glass-shadow);
+  transition: all 0.4s var(--ease-spring);
+}
+
+.search-container:focus-within {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px -10px rgba(79, 70, 229, 0.15);
+  background: rgba(255, 255, 255, 0.9);
+  border-color: #fff;
+}
+
+.search-engine-wrap {
+  position: relative;
+}
+
+.search-engine-select {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 14px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+  border-radius: 16px;
+  transition: background 0.2s;
+}
+
+.search-engine-select:hover {
+  background: rgba(0,0,0,0.03);
+}
+
+.search-engine-select:focus {
+  outline: none;
+}
+
+#search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 17px;
+  padding: 12px 0;
+  color: var(--text-main);
+  outline: none;
+  font-weight: 500;
+}
+
+#search-input::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+#search-btn {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 18px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-spring);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+#search-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+}
+
+#search-btn:active {
+  transform: scale(0.95);
+}
+
+.history-rank-wrap {
+  width: 100%;
+  max-width: 720px;
+  margin-top: 40px;
+  transition: all 0.5s var(--ease-spring);
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.history-rank-wrap.hidden {
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+  height: 0;
+  margin: 0;
+}
+
+.history-rank-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.history-section, .rank-section {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: var(--glass-shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+.module-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.history-list, .rank-list {
+  list-style: none;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.history-item, .rank-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-main);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.history-item:hover, .rank-item:hover {
+  background: rgba(255,255,255,0.8);
+  transform: translateX(2px);
+}
+
+.history-item .time {
+  margin-left: auto;
+  font-size: 11px;
+  color: #94a3b8;
+  margin-right: 8px;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  opacity: 0;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  display: flex;
+}
+
+.history-item:hover .delete-btn {
+  opacity: 1;
+}
+
+.delete-btn:hover {
+  background: #fee2e2;
+}
+
+.rank-num {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 6px;
+  margin-right: 10px;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.rank-item:nth-child(1) .rank-num { background: #fcd34d; color: #78350f; }
+.rank-item:nth-child(2) .rank-num { background: #e2e8f0; color: #475569; }
+.rank-item:nth-child(3) .rank-num { background: #fdba74; color: #7c2d12; }
+
+.rank-item .count {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary);
+  background: rgba(99, 102, 241, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.toggle-switch {
+  width: 36px;
+  height: 20px;
+  position: relative;
+  display: inline-block;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #cbd5e1;
+  border-radius: 34px;
+  transition: .3s var(--ease-spring);
+}
+
+.switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .3s var(--ease-spring);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+input:checked + .switch-slider {
+  background-color: var(--primary);
+}
+
+input:checked + .switch-slider:before {
+  transform: translateX(16px);
+}
+
+.toggle-btn {
+  position: fixed;
+  bottom: 40px;
+  left: 40px;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: white;
+  border: none;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s var(--ease-spring);
+  z-index: 100;
+}
+
+.toggle-btn:hover {
+  transform: translateY(-4px) rotate(5deg);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+.toggle-btn svg {
+  fill: #64748b;
+  transition: fill 0.3s;
+}
+
+.toggle-btn:hover svg {
+  fill: var(--primary);
+}
+
+.user-info {
+  position: fixed;
+  top: 30px;
+  left: 40px;
+  background: white;
+  padding: 6px 6px 6px 16px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  z-index: 1000;
+  transition: transform 0.3s var(--ease-spring);
+}
+
+.user-info:hover {
+  transform: translateY(2px) scale(1.02);
+}
+
+.user-profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.logout-btn, .login-btn {
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.logout-btn {
+  padding: 8px 16px;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.logout-btn:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.login-btn {
+  position: fixed;
+  top: 30px;
+  left: 40px;
+  padding: 10px 24px;
+  background: white;
+  color: var(--primary);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  z-index: 1000;
+}
+
+.login-btn:hover {
+  transform: translateY(2px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15);
+}
+
+.mogu-chat-btn {
+  position: fixed;
+  top: 30px;
+  right: 40px;
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  background: white;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  transition: all 0.4s var(--ease-spring);
+}
+
+.mogu-chat-btn:hover {
+  transform: scale(1.05) rotate(5deg);
+  background: var(--primary);
+  color: white;
+}
+
+.mogu-chat-window {
+  position: fixed;
+  top: 100px;
+  right: 40px;
+  width: 360px;
+  height: 600px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border-radius: 24px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+  border: 1px solid rgba(255,255,255,0.8);
+  display: flex;
+  flex-direction: column;
+  z-index: 1999;
+  transform: translateY(20px) scale(0.95);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s var(--ease-spring);
+  overflow: hidden;
+}
+
+.mogu-chat-window.open {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  visibility: visible;
+}
+
+.mogu-chat-header {
+  padding: 20px;
+  background: rgba(255,255,255,0.5);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mogu-chat-title {
+  font-weight: 700;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.clear-all-btn {
+  font-size: 11px;
+  padding: 4px 10px;
+  background: #fee2e2;
+  color: #ef4444;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.clear-all-btn:hover {
+  background: #ef4444;
+  color: white;
+}
+
+.mogu-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #f8fafc;
+}
+
+.message-item {
+  max-width: 80%;
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  position: relative;
+  word-break: break-word;
+}
+
+.message-item.other {
+  align-self: flex-start;
+  background: white;
+  border-radius: 18px 18px 18px 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  color: var(--text-main);
+}
+
+.message-item.user {
+  align-self: flex-end;
+  background: var(--primary);
+  color: white;
+  border-radius: 18px 18px 4px 18px;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.message-sender {
+  font-size: 10px;
+  margin-bottom: 2px;
+  opacity: 0.7;
+  font-weight: 700;
+}
+
+.message-time {
+  font-size: 10px;
+  opacity: 0.5;
+  margin-top: 4px;
+  text-align: right;
+}
+
+.mogu-chat-input-area {
+  padding: 16px;
+  background: white;
+  display: flex;
+  gap: 10px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.mogu-chat-input {
+  flex: 1;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s;
+}
+
+.mogu-chat-input:focus {
+  background: white;
+  box-shadow: 0 0 0 2px #e2e8f0;
+}
+
+.mogu-chat-send {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 0 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.mogu-chat-send:hover {
+  background: var(--primary-hover);
+}
+
+.modal-mask {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(30, 41, 59, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9000;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
 .modal-mask.show {
   opacity: 1;
 }
 
-/* 自定义弹窗容器：居中显示，适配页面风格 */
-.custom-modal {
+.custom-modal, .notice-modal {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.95);
-  width: 100%;
-  max-width: 400px; /* 固定最大宽度，适配移动端 */
-  background: linear-gradient(145deg, #ffffff, #f8f9fa);
-  border-radius: 20px; /* 与聊天窗、搜索框同圆角 */
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); /* 适中阴影，不突兀 */
-  z-index: 999999; /* 高于遮罩层 */
-  padding: 24px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -40%) scale(0.95);
+  background: white;
+  padding: 30px;
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+  width: 90%;
+  max-width: 400px;
+  z-index: 9001;
+  display: none;
   opacity: 0;
+  transition: all 0.4s var(--ease-spring);
+  text-align: center;
 }
-.custom-modal.show {
+
+.custom-modal.show, .notice-modal.show {
   transform: translate(-50%, -50%) scale(1);
   opacity: 1;
 }
 
-/* 弹窗标题 */
-.modal-header {
-  font-size: 18px;
-  font-weight: 600;
-  color: #2d3748;
-  margin-bottom: 8px;
+.modal-header, .notice-header {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-/* 弹窗提示内容 */
-.modal-content {
-  font-size: 14px;
+.modal-content, .notice-content {
   color: #64748b;
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.6;
   margin-bottom: 24px;
 }
 
-/* 弹窗按钮组：横向排列，间距均匀 */
 .modal-btns {
   display: flex;
   gap: 12px;
-  justify-content: flex-end;
+  justify-content: center;
 }
 
-/* 弹窗按钮基础样式：适配页面按钮设计 */
 .modal-btn {
-  padding: 10px 20px;
+  padding: 10px 24px;
+  border-radius: 12px;
   border: none;
-  border-radius: 12px; /* 与聊天发送按钮同圆角 */
-  font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  font-size: 14px;
+  transition: 0.2s;
 }
 
-/* 取消按钮：浅色系，中性风格 */
 .modal-btn.cancel {
   background: #f1f5f9;
   color: #64748b;
 }
+
 .modal-btn.cancel:hover {
   background: #e2e8f0;
-  transform: translateY(-1px);
 }
 
-/* 确认按钮：主色系（页面蓝色），渐变效果与搜索按钮一致 */
 .modal-btn.confirm {
-  background: linear-gradient(135deg, #0078d4 0%, #0066b8 100%);
+  background: var(--primary);
   color: white;
 }
+
 .modal-btn.confirm:hover {
-  background: linear-gradient(135deg, #0066b8 0%, #005599 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 120, 212, 0.2);
+  background: var(--primary-hover);
 }
 
-/* 危险操作确认按钮（清空消息）：紫色系（与聊天功能配色一致） */
 .modal-btn.confirm.danger {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  background: #ef4444;
 }
+
 .modal-btn.confirm.danger:hover {
-  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-}
-
-/* 移动端适配：缩小弹窗内边距，适配小屏幕 */
-@media (max-width: 768px) {
-  .custom-modal {
-    padding: 20px;
-    max-width: calc(100vw - 40px);
-  }
-  .modal-btn {
-    padding: 8px 16px;
-    font-size: 13px;
-  }
-}
-/* 公告弹窗样式 */
-.notice-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.95);
-  width: 100%;
-  max-width: 450px;
-  background: linear-gradient(145deg, #ffffff, #f8f9fa);
-  border-radius: 20px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-  z-index: 999999;
-  padding: 28px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  opacity: 0;
-  display: none;
-}
-.notice-modal.show {
-  transform: translate(-50%, -50%) scale(1);
-  opacity: 1;
-}
-
-.notice-header {
-  font-size: 20px;
-  font-weight: 600;
-  color: #0078d4;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.notice-header svg {
-  width: 20px;
-  height: 20px;
-  fill: #0078d4;
-}
-
-.notice-content {
-  font-size: 14px;
-  color: #475569;
-  line-height: 1.6;
-  margin-bottom: 24px;
-  max-height: 300px;
-  overflow-y: auto;
-  padding-right: 8px;
-}
-
-.notice-content::-webkit-scrollbar {
-  width: 4px;
-}
-.notice-content::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 2px;
-}
-.notice-content::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 2px;
-}
-.notice-content::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #dc2626;
 }
 
 .notice-checkbox-wrap {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 24px;
-  padding: 8px 0;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
   cursor: pointer;
 }
 
 .notice-checkbox {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border: 2px solid #cbd5e1;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
+  border-radius: 6px;
+  position: relative;
+  transition: all 0.2s;
 }
 
 .notice-checkbox.checked {
-  background: #0078d4;
-  border-color: #0078d4;
+  background: var(--primary);
+  border-color: var(--primary);
 }
 
 .notice-checkbox.checked::after {
-  content: "✓";
-  color: white;
-  font-size: 12px;
-  font-weight: bold;
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }
 
 .notice-checkbox-label {
   font-size: 13px;
   color: #64748b;
-  user-select: none;
+  font-weight: 500;
 }
 
 .notice-confirm-btn {
   width: 100%;
   padding: 12px;
-  background: linear-gradient(135deg, #0078d4 0%, #0066b8 100%);
+  background: #0f172a;
   color: white;
   border: none;
   border-radius: 12px;
-  font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: 0.2s;
 }
 
 .notice-confirm-btn:hover {
-  background: linear-gradient(135deg, #0066b8 0%, #005599 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 120, 212, 0.2);
+  background: #334155;
 }
+
+.custom-alert {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100%);
+  background: white;
+  padding: 12px 24px;
+  border-radius: 50px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  color: #0f172a;
+  z-index: 10000;
+  opacity: 0;
+  transition: all 0.5s var(--ease-spring);
+}
+
+.custom-alert.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .search-title { font-size: 3rem; }
+  .history-rank-container { grid-template-columns: 1fr; }
+  .toggle-btn { display: none; }
+  .mogu-chat-window { width: 100%; height: 100%; top: 0; right: 0; border-radius: 0; transform: none; }
+  .mogu-chat-window.open { transform: none; }
+  .user-info { padding: 6px; }
+  .user-name { display: none; }
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.admin-only { display: none !important; }
+.admin-only.admin-show { display: block !important; }
 </style>
 </head>
 <body>
-<!-- 用户登录状态区域 -->
-<div id="userStatusArea">
-    <!-- 登录后显示用户信息，未登录显示登录按钮 -->
+
+<div class="ambient-bg">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
 </div>
+
+<div id="customAlert" class="custom-alert"></div>
+
+<div id="userStatusArea"></div>
 
 <button class="mogu-chat-btn" id="moguChatBtn">
-    <span>Chat</span>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
 </button>
+
 <div class="mogu-chat-window" id="moguChatWindow">
-    <div class="mogu-chat-header">
-        <div class="mogu-chat-title">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12zm-8-6c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm4 3.43c0-.81-.48-1.53-1.22-1.85C13.93 11.21 12.99 11 12 11s-1.93.21-2.78.58C8.48 11.9 8 12.62 8 13.43V14h8v-.57z"/>
-            </svg>
-            Mogu Chat
-        </div>
-        <!-- 管理员专属：一键清空所有消息按钮 -->
-        <button class="clear-all-btn admin-only" id="clearAllMessages">
-            清空所有消息
-        </button>
+  <div class="mogu-chat-header">
+    <div class="mogu-chat-title">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+      Mogu Chat
     </div>
-    <div class="mogu-chat-messages" id="moguChatMessages">
-        <div class="message-item other">
-            <div class="message-sender">System</div>
-            <div class="message-text">欢迎使用 Mogu Chat！请登录后参与聊天。</div>
-            <div class="message-time">刚刚</div>
-        </div>
-    </div>
-    <div class="mogu-chat-input-area" id="moguChatInputArea">
-        <input type="text" class="mogu-chat-input" id="moguChatInput" 
-               placeholder="请输入消息..." disabled>
-        <button class="mogu-chat-send" id="moguChatSend" disabled>
-            <span id="sendText">发送</span>
-        </button>
-    </div>
-</div>
-
-<button class="toggle-btn" id="toggleBtn" title="Hide/Show History & Rank">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-    </svg>
-</button>
-<div class="search-title">Mogu_Search</div>
-<div class="search-container">
-    <div class="search-engine-wrap">
-        <select class="search-engine-select" id="searchEngine">
-            <option value="bing">Bing</option>
-            <option value="google">Google</option>
-            <option value="baidu">Baidu</option>
-        </select>
-        <span class="search-engine-arrow"></span>
-    </div>
-    <input type="text" id="search-input" placeholder="Type something to search...">
-    <button id="search-btn">Search</button>
-</div>
-<div class="history-rank-wrap" id="historyRankWrap">
-    <div class="history-rank-container">
-        <div class="history-section">
-            <div class="module-title">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
-                </svg>
-                Search History
-                <div class="history-switch-wrap">
-                    <span class="switch-label">Record History</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="historySwitch">
-                        <span class="switch-slider"></span>
-                    </label>
-                </div>
-            </div>
-            <ul class="history-list" id="historyList"></ul>
-        </div>
-        <div class="rank-section">
-            <div class="module-title">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/>
-                </svg>
-                Search Rank
-            </div>
-            <ul class="rank-list" id="rankList"></ul>
-        </div>
-    </div>
-</div>
-<div class="custom-alert" id="customAlert">Please enter search content!</div>
-<!-- 自定义弹窗遮罩层（通用，包裹两个弹窗） -->
-<div class="modal-mask" id="modalMask" style="display: none;"></div>
-
-<!-- 1. 退出账号确认弹窗 -->
-<div class="custom-modal" id="logoutModal" style="display: none;">
-  <div class="modal-header">退出登录</div>
-  <div class="modal-content">确定要退出登录吗？</div>
-  <div class="modal-btns">
-    <button class="modal-btn cancel" id="logoutCancel">取消</button>
-    <button class="modal-btn confirm" id="logoutConfirm">确认退出</button>
+    <button class="clear-all-btn admin-only" id="clearAllMessages">清空</button>
+  </div>
+  <div class="mogu-chat-messages" id="moguChatMessages"></div>
+  <div class="mogu-chat-input-area" id="moguChatInputArea">
+    <input type="text" class="mogu-chat-input" id="moguChatInput" placeholder="输入消息..." disabled>
+    <button class="mogu-chat-send" id="moguChatSend" disabled><span id="sendText">发送</span></button>
   </div>
 </div>
 
-<!-- 2. 清空消息确认弹窗 -->
-<div class="custom-modal" id="clearMsgModal" style="display: none;">
-  <div class="modal-header">清空聊天消息</div>
-  <div class="modal-content">确定要清空所有聊天消息吗？此操作不可恢复！</div>
+<div class="search-title">Mogu_search</div>
+
+<div class="search-container">
+  <div class="search-engine-wrap">
+    <select class="search-engine-select" id="searchEngine">
+      <option value="bing">Bing</option>
+      <option value="google">Google</option>
+      <option value="baidu">Baidu</option>
+    </select>
+  </div>
+  <input type="text" id="search-input" placeholder="Search anything...">
+  <button id="search-btn">Go</button>
+</div>
+
+<div class="history-rank-wrap" id="historyRankWrap">
+  <div class="history-rank-container">
+    <div class="history-section">
+      <div class="module-title">
+        <span>History</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="historySwitch">
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+      <ul class="history-list" id="historyList"></ul>
+    </div>
+    <div class="rank-section">
+      <div class="module-title">Trending</div>
+      <ul class="rank-list" id="rankList"></ul>
+    </div>
+  </div>
+</div>
+
+<button class="toggle-btn" id="toggleBtn">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+</button>
+
+<div class="modal-mask" id="modalMask"></div>
+
+<div class="custom-modal" id="logoutModal">
+  <div class="modal-header">退出登录</div>
+  <div class="modal-content">您确定要退出当前账号吗？</div>
+  <div class="modal-btns">
+    <button class="modal-btn cancel" id="logoutCancel">取消</button>
+    <button class="modal-btn confirm" id="logoutConfirm">退出</button>
+  </div>
+</div>
+
+<div class="custom-modal" id="clearMsgModal">
+  <div class="modal-header">清空消息</div>
+  <div class="modal-content">此操作将永久删除所有聊天记录，不可恢复。</div>
   <div class="modal-btns">
     <button class="modal-btn cancel" id="clearMsgCancel">取消</button>
     <button class="modal-btn confirm danger" id="clearMsgConfirm">确认清空</button>
   </div>
 </div>
-<!-- 3. 公告弹窗 -->
-<div class="notice-modal" id="noticeModal" style="display: none;">
+
+<div class="notice-modal" id="noticeModal">
   <div class="notice-header">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-    </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
     系统公告
   </div>
-  <div class="notice-content" id="noticeContent">
-    <!-- 公告内容将通过JavaScript动态设置 -->
-  </div>
+  <div class="notice-content" id="noticeContent"></div>
   <div class="notice-checkbox-wrap" id="noticeCheckbox">
     <div class="notice-checkbox"></div>
     <span class="notice-checkbox-label">不再显示此公告</span>
   </div>
   <button class="notice-confirm-btn" id="noticeConfirm">我知道了</button>
 </div>
+
 <script>
-// 用户相关配置
-// 通用弹窗控制函数：type为弹窗类型（logout/clearMsg），show为是否显示
-function toggleModal(type, show) {
-  const mask = document.getElementById('modalMask');
-  const logoutModal = document.getElementById('logoutModal');
-  const clearMsgModal = document.getElementById('clearMsgModal');
-  
-  // 隐藏所有弹窗
-  mask.classList.remove('show');
-  logoutModal.classList.remove('show');
-  clearMsgModal.classList.remove('show');
-  mask.style.display = 'none';
-  logoutModal.style.display = 'none';
-  clearMsgModal.style.display = 'none';
-  
-  // 显示指定弹窗
-  if (show) {
-    mask.style.display = 'block';
-    mask.classList.add('show');
-    if (type === 'logout') {
-      logoutModal.style.display = 'block';
-      setTimeout(() => logoutModal.classList.add('show'), 10); // 延迟加动画，避免卡顿
-    } else if (type === 'clearMsg') {
-      clearMsgModal.style.display = 'block';
-      setTimeout(() => clearMsgModal.classList.add('show'), 10);
-    }
-  }
-}
-//全局变量
-const USER_DATABASE_ISSUE_NUMBER = 11; // 用户数据库的Issue编号
+const USER_DATABASE_ISSUE_NUMBER = 11;
 const USER_DATABASE_REPO_OWNER = 'moguwan';
 const USER_DATABASE_REPO_NAME = 'moguwan.github.io';
 const USER_LOCAL_KEY = 'MOGU_CHAT_USER';
-const ADMIN_ACCOUNT = '2926197119'; // 管理员账号，可自行修改（比如你的专属账号）
+const ADMIN_ACCOUNT = '2926197119';
 const GITHUB_TOKEN = ["gh","p_p","VXlo0HQ","PmMx","Ic","eM","HB","uMzm","EON","LPX","700","10","M","SL"].join('');
 const REPO_OWNER = 'moguwan';
 const REPO_NAME = 'mogu-chat';
 const ISSUE_NUMBER = 1;
-// 原聊天相关常量（保持不变，聊天仍用#1）
 const MAP_ISSUE_NUMBER = 2;
-// 映射表Issue的标题（固定，方便识别）
 const MAP_ISSUE_TITLE = "用户-专属Issue映射表";
-// 映射表内容标记（用于精准解析JSON，避免手动修改干扰）
 const MAP_MARK_START = "// USER-MAP-JSON-START";
 const MAP_MARK_END = "// USER-MAP-JSON-END";
-// DOM元素
+const MAX_HISTORY = 10;
+const MAX_RANK = 10;
+const MAX_MESSAGE_LENGTH = 200;
+const NOTICE_LOCAL_KEY = 'MOGU_SEARCH_NOTICE';
+
 const searchEngine = document.getElementById('searchEngine');
 const searchInput = document.getElementById('search-input');
 const searchBtn = document.getElementById('search-btn');
@@ -1406,1251 +998,564 @@ let lastMessageId = 0;
 let chatUpdateInterval = null;
 let isLoading = false;
 let currentUser = null;
-let isHistoryFetched = false; 
-const MAX_HISTORY = 10;
-const MAX_RANK = 10;
-const MAX_MESSAGE_LENGTH = 200; // 消息最大长度限制
-async function checkLoginStatus() {
-    const userData = localStorage.getItem(USER_LOCAL_KEY);
-    if (userData) {
-        try {
-            currentUser = JSON.parse(userData);
-            
-            // 从GitHub获取完整用户信息
-            await updateCurrentUserFromGitHub();
-            
-            // 关键：通过账号匹配ADMIN_ACCOUNT设置管理员标识
-            currentUser.isAdmin = currentUser.account === ADMIN_ACCOUNT;
-            updateUIForLoggedInUser();
-            return true;
-        } catch (e) {
-            console.error('解析用户数据失败:', e);
-            currentUser = null;
-        }
-    }
-    updateUIForGuest();
-    return false;
-}
-function updateUIForLoggedInUser() {
-    if (!currentUser) return;
-    
-    // 显示用户信息（头像+昵称+退出按钮），并添加点击跳转功能
-    const userInitial = currentUser.nickname ? currentUser.nickname.charAt(0).toUpperCase() : 'U';
-    const userAvatar = currentUser.avatar || `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="%230078d4"/><text x="20" y="23" font-size="16" text-anchor="middle" fill="white">${userInitial}</text></svg>`;
-    
-    userStatusArea.innerHTML = `
-        <div class="user-info">
-            <div class="user-profile-btn" id="userProfileBtn">
-                <div class="user-avatar" style="background-image: url('${userAvatar}'); background-size: cover; background-position: center;">
-                    ${!currentUser.avatar ? userInitial : ''}
-                </div>
-                <div class="user-name">${currentUser.nickname || currentUser.account}</div>
-            </div>
-            <button class="logout-btn" id="logoutBtn">退出</button>
-        </div>
-    `;
-    
-    // 添加点击事件跳转到个人信息设置页面
-    document.getElementById('userProfileBtn').addEventListener('click', () => {
-        window.location.href = 'profile.html';
-    });
-    
-    // 为退出按钮添加点击事件
-    document.getElementById('logoutBtn').addEventListener('click', (e) => {
-        e.stopPropagation(); // 阻止事件冒泡
-        logout();
-    });
-    
-    // 启用聊天功能
-    moguChatInput.disabled = false;
-    moguChatInput.placeholder = "输入消息...";
-    moguChatSend.disabled = false;
-    
-    // 关键：在函数内调用管理员UI更新
-    updateAdminUI();
-}
-// 更新UI为访客状态
-function updateUIForGuest() {
-    userStatusArea.innerHTML = `
-        <button class="login-btn" onclick="goToLogin()">登录/注册</button>
-    `;
-    
-    // 禁用聊天输入
-    moguChatInput.disabled = true;
-    moguChatInput.placeholder = "请登录后发送消息";
-    moguChatSend.disabled = true;
-    // 移除无效的chatStatus调用，避免JS报错中断
-}
-// 最终正确的管理员UI更新函数（用类覆盖!important，100%生效）
-function updateAdminUI() {
-    const adminElements = document.querySelectorAll('.admin-only');
-    
-    if (currentUser && currentUser.isAdmin) {
-        // 管理员：添加admin-show类，强制显示（覆盖!important）
-        adminElements.forEach(el => {
-            el.classList.add('admin-show');
-        });
-    } else {
-        // 非管理员：移除admin-show类，恢复隐藏
-        adminElements.forEach(el => el.classList.remove('admin-show'));
-    }
-}
-// 跳转到登录页面
-function goToLogin() {
-    window.location.href = 'auth.html';
-}
-function logout() {
-  toggleModal('logout', true);
-}
+let isHistoryFetched = false;
+let isNoticeShown = false;
 
-// 检查是否移动设备
 function isMobile() {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
-    || window.innerWidth <= 768;
-}
-
-// 搜索历史相关功能
-function getHistorySwitchState() {
-    const state = localStorage.getItem('moguHistorySwitch');
-    return state === null ? true : JSON.parse(state);
-}
-
-function saveHistorySwitchState(enabled) {
-    localStorage.setItem('moguHistorySwitch', JSON.stringify(enabled));
-    historySwitch.checked = enabled;
-}
-
-function getSearchHistory() {
-    const historyStr = localStorage.getItem('moguSearchHistory');
-    return historyStr ? JSON.parse(historyStr) : [];
-}
-
-function saveSearchHistory(history) {
-    localStorage.setItem('moguSearchHistory', JSON.stringify(history));
-    setTimeout(renderHistory, 0);
-}
-
-function getSearchCount() {
-    const countStr = localStorage.getItem('moguSearchCount');
-    return countStr ? JSON.parse(countStr) : {};
-}
-
-function saveSearchCount(countMap) {
-    localStorage.setItem('moguSearchCount', JSON.stringify(countMap));
-    setTimeout(renderRank, 0);
-}
-
-function incrementSearchCount(keyword) {
-    const countMap = getSearchCount();
-    countMap[keyword] = (countMap[keyword] || 0) + 1;
-    saveSearchCount(countMap);
-}
-
-function getShowState() {
-    const state = localStorage.getItem('moguShowHistoryRank');
-    return state === null ? true : JSON.parse(state);
-}
-
-function saveShowState(show) {
-    localStorage.setItem('moguShowHistoryRank', JSON.stringify(show));
-    if (show) {
-        historyRankWrap.classList.remove('hidden');
-        toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-        </svg>`;
-    } else {
-        historyRankWrap.classList.add('hidden');
-        toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M11 17h2v-6h-2v6zm1-15C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-        </svg>`;
-    }
-}
-
-function addSearchHistory(keyword) {
-    const isRecordEnabled = getHistorySwitchState();
-    if (!isRecordEnabled) return;
-    if (!keyword.trim()) return;
-    keyword = keyword.trim();
-    let history = getSearchHistory();
-    history = history.filter(item => item.keyword !== keyword);
-    const newRecord = {
-        keyword: keyword,
-        time: new Date().toLocaleString()
-    };
-    if (history.length >= MAX_HISTORY) {
-        history.pop();
-    }
-    history.unshift(newRecord);
-    saveSearchHistory(history);
-}
-
-function deleteHistoryItem(keyword) {
-    let history = getSearchHistory();
-    history = history.filter(item => item.keyword !== keyword);
-    saveSearchHistory(history);
-    let countMap = getSearchCount();
-    delete countMap[keyword];
-    saveSearchCount(countMap);
-}
-// 从GitHub Issue #11获取所有用户数据
-async function getUserDatabaseFromGitHub() {
-  try {
-    const response = await fetch(
-      `https://api.github.com/repos/${USER_DATABASE_REPO_OWNER}/${USER_DATABASE_REPO_NAME}/issues/${USER_DATABASE_ISSUE_NUMBER}`,
-      {
-        headers: {
-          'Authorization': `token ${GITHUB_TOKEN}`,
-          'Accept': 'application/vnd.github.v3+json'
-        }
-      }
-    );
-
-    if (!response.ok) {
-      console.error('获取用户数据库失败:', response.status);
-      return [];
-    }
-
-    const issueData = await response.json();
-    const body = issueData.body || '';
-    
-    // 按行解析用户数据
-    const lines = body.split('\n').filter(line => line.trim() !== '');
-    const users = [];
-    
-    for (const line of lines) {
-      const parts = line.split('|');
-      if (parts.length >= 7) {
-        const user = {
-          account: parts[0].trim(),
-          password: parts[1].trim(),
-          email: parts[2].trim(),
-          nickname: parts[3].trim(),
-          isAdmin: parts[4].trim().toLowerCase() === 'true',
-          avatar: parts[5].trim(),
-          signature: parts[6].trim()
-        };
-        users.push(user);
-      }
-    }
-    
-    console.log(`从GitHub获取到${users.length}个用户数据`);
-    return users;
-  } catch (error) {
-    console.error('获取用户数据库异常:', error);
-    return [];
-  }
-}
-
-// 更新GitHub Issue #11中的用户数据
-async function updateUserDatabaseInGitHub(users) {
-  try {
-    // 将用户数据转换为文本格式
-    const userLines = users.map(user => 
-      `${user.account}|${user.password}|${user.email}|${user.nickname}|${user.isAdmin}|${user.avatar}|${user.signature}`
-    ).join('\n');
-    
-    const response = await fetch(
-      `https://api.github.com/repos/${USER_DATABASE_REPO_OWNER}/${USER_DATABASE_REPO_NAME}/issues/${USER_DATABASE_ISSUE_NUMBER}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `token ${GITHUB_TOKEN}`,
-          'Accept': 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          body: userLines
-        })
-      }
-    );
-
-    if (response.ok) {
-      console.log('用户数据库更新成功');
-      return true;
-    } else {
-      console.error('更新用户数据库失败:', await response.json());
-      return false;
-    }
-  } catch (error) {
-    console.error('更新用户数据库异常:', error);
-    return false;
-  }
-}
-
-// 从GitHub数据库获取单个用户完整信息
-async function getCompleteUserInfoFromGitHub(account) {
-  try {
-    const users = await getUserDatabaseFromGitHub();
-    const user = users.find(u => u.account === account);
-    return user || null;
-  } catch (error) {
-    console.error('获取用户完整信息失败:', error);
-    return null;
-  }
-}
-
-// 更新本地用户信息（从GitHub同步）
-async function updateCurrentUserFromGitHub() {
-  if (!currentUser || !currentUser.account) return;
-  
-  const completeUserInfo = await getCompleteUserInfoFromGitHub(currentUser.account);
-  if (completeUserInfo) {
-    // 保留原有的密码（因为GitHub数据库中存储的是加密密码）
-    currentUser.nickname = completeUserInfo.nickname;
-    currentUser.email = completeUserInfo.email;
-    currentUser.avatar = completeUserInfo.avatar;
-    currentUser.signature = completeUserInfo.signature;
-    currentUser.isAdmin = completeUserInfo.isAdmin;
-    
-    // 更新本地存储
-    localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
-    
-    // 更新UI
-    updateUIForLoggedInUser();
-  }
-}
-function renderHistory() {
-    if (isMobile()) return;
-    const history = getSearchHistory();
-    if (history.length === 0) {
-        historyList.innerHTML = `<li class="empty-tip">No search history yet</li>`;
-        return;
-    }
-    historyList.innerHTML = '';
-    history.forEach(item => {
-        const li = document.createElement('li');
-        li.className = 'history-item';
-        li.innerHTML = `
-            <span class="keyword">${item.keyword}</span>
-            <span class="time">${item.time}</span>
-            <button class="delete-btn" data-keyword="${item.keyword}">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                </svg>
-            </button>
-        `;
-        li.addEventListener('click', (e) => {
-            if (e.target.closest('.delete-btn')) return;
-            searchInput.value = item.keyword;
-            handleSearch();
-        });
-        li.querySelector('.delete-btn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            deleteHistoryItem(item.keyword);
-        });
-        historyList.appendChild(li);
-    });
-}
-
-function calculateRank() {
-    const countMap = getSearchCount();
-    if (Object.keys(countMap).length === 0) return [];
-    const rankArray = Object.entries(countMap)
-        .map(([keyword, count]) => ({ keyword, count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, MAX_RANK);
-    return rankArray;
-}
-
-function renderRank() {
-    if (isMobile()) return;
-    const rankArray = calculateRank();
-    if (rankArray.length === 0) {
-        rankList.innerHTML = `<li class="empty-tip">No rank data yet</li>`;
-        return;
-    }
-    rankList.innerHTML = '';
-    rankArray.forEach((item, index) => {
-        const li = document.createElement('li');
-        li.className = 'rank-item';
-        li.innerHTML = `
-            <span class="rank-num">${index + 1}</span>
-            <span class="keyword">${item.keyword}</span>
-            <span class="count">${item.count} times</span>
-        `;
-        li.addEventListener('click', () => {
-            searchInput.value = item.keyword;
-            searchInput.focus();
-        });
-        rankList.appendChild(li);
-    });
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
 }
 
 function showCustomAlert(message) {
-    customAlert.textContent = message;
-    if (alertTimer) clearTimeout(alertTimer);
-    customAlert.classList.add('show');
-    alertTimer = setTimeout(() => {
-        hideCustomAlert();
-    }, 2200);
+  customAlert.textContent = message;
+  customAlert.classList.add('show');
+  if (alertTimer) clearTimeout(alertTimer);
+  alertTimer = setTimeout(() => {
+    customAlert.classList.remove('show');
+  }, 2200);
 }
 
-function hideCustomAlert() {
-    customAlert.classList.remove('show');
+function toggleModal(type, show) {
+  const mask = document.getElementById('modalMask');
+  const logoutModal = document.getElementById('logoutModal');
+  const clearMsgModal = document.getElementById('clearMsgModal');
+  
+  if (!show) {
+    mask.classList.remove('show');
+    logoutModal.classList.remove('show');
+    clearMsgModal.classList.remove('show');
+    setTimeout(() => {
+        mask.style.display = 'none';
+        logoutModal.style.display = 'none';
+        clearMsgModal.style.display = 'none';
+    }, 300);
+  } else {
+    mask.style.display = 'block';
+    if (type === 'logout') logoutModal.style.display = 'block';
+    if (type === 'clearMsg') clearMsgModal.style.display = 'block';
+    setTimeout(() => {
+        mask.classList.add('show');
+        if (type === 'logout') logoutModal.classList.add('show');
+        if (type === 'clearMsg') clearMsgModal.classList.add('show');
+    }, 10);
+  }
+}
+
+async function checkLoginStatus() {
+  const userData = localStorage.getItem(USER_LOCAL_KEY);
+  if (userData) {
+    try {
+      currentUser = JSON.parse(userData);
+      await updateCurrentUserFromGitHub();
+      currentUser.isAdmin = currentUser.account === ADMIN_ACCOUNT;
+      updateUIForLoggedInUser();
+      return true;
+    } catch (e) {
+      currentUser = null;
+    }
+  }
+  updateUIForGuest();
+  return false;
+}
+
+function updateUIForLoggedInUser() {
+  if (!currentUser) return;
+  const userInitial = currentUser.nickname ? currentUser.nickname.charAt(0).toUpperCase() : 'U';
+  const userAvatar = currentUser.avatar || ''; 
+  const avatarStyle = userAvatar ? `background-image: url('${userAvatar}'); background-size: cover;` : `background: #6366f1; color: white;`;
+  
+  userStatusArea.innerHTML = `
+    <div class="user-info">
+      <div class="user-profile-btn" id="userProfileBtn">
+        <div class="user-avatar" style="${avatarStyle}">
+          ${!userAvatar ? userInitial : ''}
+        </div>
+        <div class="user-name">${currentUser.nickname || currentUser.account}</div>
+      </div>
+      <button class="logout-btn" id="logoutBtn">退出</button>
+    </div>
+  `;
+  document.getElementById('userProfileBtn').addEventListener('click', () => window.location.href = 'profile.html');
+  document.getElementById('logoutBtn').addEventListener('click', (e) => { e.stopPropagation(); logout(); });
+  moguChatInput.disabled = false;
+  moguChatInput.placeholder = "Write a message...";
+  moguChatSend.disabled = false;
+  updateAdminUI();
+}
+
+function updateUIForGuest() {
+  userStatusArea.innerHTML = `<button class="login-btn" onclick="goToLogin()">Login / Register</button>`;
+  moguChatInput.disabled = true;
+  moguChatInput.placeholder = "Please login to chat";
+  moguChatSend.disabled = true;
+}
+
+function updateAdminUI() {
+  const adminElements = document.querySelectorAll('.admin-only');
+  if (currentUser && currentUser.isAdmin) {
+    adminElements.forEach(el => el.classList.add('admin-show'));
+  } else {
+    adminElements.forEach(el => el.classList.remove('admin-show'));
+  }
+}
+
+function goToLogin() { window.location.href = 'auth.html'; }
+function logout() { toggleModal('logout', true); }
+
+function getHistorySwitchState() {
+  const state = localStorage.getItem('moguHistorySwitch');
+  return state === null ? true : JSON.parse(state);
+}
+function saveHistorySwitchState(enabled) {
+  localStorage.setItem('moguHistorySwitch', JSON.stringify(enabled));
+  historySwitch.checked = enabled;
+}
+function getSearchHistory() {
+  const historyStr = localStorage.getItem('moguSearchHistory');
+  return historyStr ? JSON.parse(historyStr) : [];
+}
+function saveSearchHistory(history) {
+  localStorage.setItem('moguSearchHistory', JSON.stringify(history));
+  setTimeout(renderHistory, 0);
+}
+function getSearchCount() {
+  const countStr = localStorage.getItem('moguSearchCount');
+  return countStr ? JSON.parse(countStr) : {};
+}
+function saveSearchCount(countMap) {
+  localStorage.setItem('moguSearchCount', JSON.stringify(countMap));
+  setTimeout(renderRank, 0);
+}
+function incrementSearchCount(keyword) {
+  const countMap = getSearchCount();
+  countMap[keyword] = (countMap[keyword] || 0) + 1;
+  saveSearchCount(countMap);
+}
+function getShowState() {
+  const state = localStorage.getItem('moguShowHistoryRank');
+  return state === null ? true : JSON.parse(state);
+}
+function saveShowState(show) {
+  localStorage.setItem('moguShowHistoryRank', JSON.stringify(show));
+  if (show) {
+    historyRankWrap.classList.remove('hidden');
+    toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>`;
+  } else {
+    historyRankWrap.classList.add('hidden');
+    toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.45-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>`;
+  }
+}
+
+function addSearchHistory(keyword) {
+  if (!getHistorySwitchState() || !keyword.trim()) return;
+  keyword = keyword.trim();
+  let history = getSearchHistory().filter(item => item.keyword !== keyword);
+  history.unshift({ keyword: keyword, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
+  if (history.length > MAX_HISTORY) history.pop();
+  saveSearchHistory(history);
+}
+
+function deleteHistoryItem(keyword) {
+  saveSearchHistory(getSearchHistory().filter(item => item.keyword !== keyword));
+  const countMap = getSearchCount();
+  delete countMap[keyword];
+  saveSearchCount(countMap);
+}
+
+function renderHistory() {
+  if (isMobile()) return;
+  const history = getSearchHistory();
+  if (history.length === 0) {
+    historyList.innerHTML = `<li style="text-align:center;color:#94a3b8;padding:10px;font-size:13px;">No history yet</li>`;
+    return;
+  }
+  historyList.innerHTML = '';
+  history.forEach(item => {
+    const li = document.createElement('li');
+    li.className = 'history-item';
+    li.innerHTML = `
+      <span>${item.keyword}</span>
+      <span class="time">${item.time}</span>
+      <button class="delete-btn"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+    `;
+    li.addEventListener('click', (e) => {
+      if (e.target.closest('.delete-btn')) return;
+      searchInput.value = item.keyword;
+      handleSearch();
+    });
+    li.querySelector('.delete-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      deleteHistoryItem(item.keyword);
+    });
+    historyList.appendChild(li);
+  });
+}
+
+function renderRank() {
+  if (isMobile()) return;
+  const rankArray = Object.entries(getSearchCount()).map(([k, c]) => ({ keyword: k, count: c })).sort((a, b) => b.count - a.count).slice(0, MAX_RANK);
+  if (rankArray.length === 0) {
+    rankList.innerHTML = `<li style="text-align:center;color:#94a3b8;padding:10px;font-size:13px;">No data yet</li>`;
+    return;
+  }
+  rankList.innerHTML = '';
+  rankArray.forEach((item, index) => {
+    const li = document.createElement('li');
+    li.className = 'rank-item';
+    li.innerHTML = `<span class="rank-num">${index + 1}</span><span>${item.keyword}</span><span class="count">${item.count}</span>`;
+    li.addEventListener('click', () => {
+      searchInput.value = item.keyword;
+      searchInput.focus();
+    });
+    rankList.appendChild(li);
+  });
 }
 
 function handleSearch() {
-    const searchText = searchInput.value.trim();
-    if (!searchText) {
-        showCustomAlert('Please enter search content!');
-        searchInput.focus();
-        return;
-    }
-    const selectedEngine = isMobile() ? 'bing' : searchEngine.value;
-    const engineUrlMap = {
-        bing: 'https://cn.bing.com/search?q=',
-        google: 'https://www.google.com/search?q=',
-        baidu: 'https://www.baidu.com/s?wd='
-    };
-    const searchUrl = engineUrlMap[selectedEngine] + encodeURIComponent(searchText);
-    window.open(searchUrl, '_blank');
-    searchInput.value = '';
+  const searchText = searchInput.value.trim();
+  if (!searchText) {
+    showCustomAlert('Please enter something!');
+    searchInput.focus();
+    return;
+  }
+  const engineUrlMap = { bing: 'https://cn.bing.com/search?q=', google: 'https://www.google.com/search?q=', baidu: 'https://www.baidu.com/s?wd=' };
+  window.open(engineUrlMap[isMobile() ? 'bing' : searchEngine.value] + encodeURIComponent(searchText), '_blank');
+  searchInput.value = '';
+  if (currentUser) recordUserActionToGitHub('search', searchText);
+  if (!isMobile()) {
+    setTimeout(() => {
+      addSearchHistory(searchText);
+      incrementSearchCount(searchText);
+    }, 0);
+  }
+}
 
-    // 【新增】登录用户执行搜索，记录搜索内容到GitHub Issue
-    if (currentUser) {
-        recordUserActionToGitHub('search', searchText);
-    }
+async function getUserDatabaseFromGitHub() {
+  try {
+    const response = await fetch(`https://api.github.com/repos/${USER_DATABASE_REPO_OWNER}/${USER_DATABASE_REPO_NAME}/issues/${USER_DATABASE_ISSUE_NUMBER}`, {
+      headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!response.ok) return [];
+    const data = await response.json();
+    return (data.body || '').split('\n').filter(l => l.trim()).map(line => {
+      const p = line.split('|');
+      return p.length >= 7 ? { account: p[0].trim(), password: p[1].trim(), email: p[2].trim(), nickname: p[3].trim(), isAdmin: p[4].trim().toLowerCase() === 'true', avatar: p[5].trim(), signature: p[6].trim() } : null;
+    }).filter(u => u);
+  } catch { return []; }
+}
 
-    if (!isMobile()) {
-        setTimeout(() => {
-            addSearchHistory(searchText);
-            incrementSearchCount(searchText);
-        }, 0);
-    }
+async function updateCurrentUserFromGitHub() {
+  if (!currentUser?.account) return;
+  const users = await getUserDatabaseFromGitHub();
+  const user = users.find(u => u.account === currentUser.account);
+  if (user) {
+    Object.assign(currentUser, { nickname: user.nickname, email: user.email, avatar: user.avatar, signature: user.signature, isAdmin: user.isAdmin });
+    localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
+    updateUIForLoggedInUser();
+  }
 }
-// 格式化消息时间为 HH:MM 格式
-function formatMessageTime(date) {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-function formatFullDateTime(date) {
-    return date.toLocaleString('zh-CN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-    }).replace(/\//g, '-'); // 替换斜杠为横杠，格式更统一
-}
-// 【新增核心1】从#2映射表Issue拉取并解析映射关系（账号→专属Issue#）
+
 async function getUserMapFromGitHub() {
   try {
-    // 1. 请求#2 Issue的原始内容
-    const res = await fetch(
-      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${MAP_ISSUE_NUMBER}`,
-      {
-        headers: {
-          'Authorization': `token ${GITHUB_TOKEN}`,
-          'Accept': 'application/vnd.github.v3+json'
-        }
-      }
-    );
-
-    // 2. 若#2 Issue不存在，初始化空映射表并创建#2 Issue
+    const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${MAP_ISSUE_NUMBER}`, {
+      headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
     if (res.status === 404) {
-      const initMap = {}; // 空映射表：{账号: Issue编号, ...}
-      const initBody = `${MAP_MARK_START}\n${JSON.stringify(initMap, null, 2)}\n${MAP_MARK_END}`;
-      // 创建#2 Issue作为映射表
-      const createRes = await fetch(
-        `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `token ${GITHUB_TOKEN}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            number: MAP_ISSUE_NUMBER, // 强制编号为2
-            title: MAP_ISSUE_TITLE,
-            body: initBody,
-            labels: ['user-map'] // 专属标签，方便识别
-          })
-        }
-      );
-      if (createRes.ok) {
-        console.log('映射表初始化成功，已创建#2 Issue');
-        return initMap;
-      } else {
-        console.error('创建#2映射表Issue失败：', await createRes.json());
-        return {};
-      }
-    }
-
-    // 3. 若#2 Issue存在，解析其中的映射表JSON（通过标记精准提取）
-    const issueData = await res.json();
-    const issueBody = issueData.body || '';
-    // 提取标记之间的JSON字符串，避免手动修改Issue内容导致解析失败
-    const jsonStart = issueBody.indexOf(MAP_MARK_START) + MAP_MARK_START.length;
-    const jsonEnd = issueBody.indexOf(MAP_MARK_END);
-    const mapJson = issueBody.slice(jsonStart, jsonEnd).trim();
-    // 解析为对象，失败则返回空映射表
-    return JSON.parse(mapJson) || {};
-  } catch (error) {
-    console.error('拉取/解析映射表失败：', error);
-    return {};
-  }
-}
-
-// 【新增核心2】更新#2映射表Issue，添加/修改「账号→Issue编号」映射
-async function updateUserMapToGitHub(userAccount, userIssueNumber) {
-  if (!userAccount || !userIssueNumber) return false;
-  try {
-    // 1. 先获取当前最新的映射表
-    const currentMap = await getUserMapFromGitHub();
-    // 2. 添加/更新映射关系（账号为键，Issue编号为值）
-    currentMap[userAccount] = userIssueNumber;
-    // 3. 构造新的Issue内容（保留标记，方便后续解析）
-    const newBody = `${MAP_MARK_START}\n${JSON.stringify(currentMap, null, 2)}\n${MAP_MARK_END}`;
-    // 4. 更新#2 Issue的内容
-    const res = await fetch(
-      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${MAP_ISSUE_NUMBER}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `token ${GITHUB_TOKEN}`,
-          'Accept': 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ body: newBody })
-      }
-    );
-    if (res.ok) {
-      console.log(`映射表更新成功：${userAccount} → #${userIssueNumber}`);
-      return true;
-    } else {
-      console.error('更新#2映射表Issue失败：', await res.json());
-      return false;
-    }
-  } catch (error) {
-    console.error('更新映射表异常：', error);
-    return false;
-  }
-}
-
-// 【新增核心3】从映射表中查询用户对应的专属Issue编号（封装查询逻辑）
-async function getUserIssueNumberFromMap(userAccount) {
-  if (!userAccount) return null;
-  const userMap = await getUserMapFromGitHub();
-  return userMap[userAccount] || null; // 存在返回Issue编号，不存在返回null
-}
-// 【改造核心】先查#2映射表，无则创建专属Issue，创建后更新映射表
-async function getOrCreateUserIssue(user) {
-  if (!user || !user.account || !user.nickname) return null;
-  const userAccount = user.account; // 用户唯一标识（账号）
-  const issueTitle = `${user.nickname}|${userAccount}`; // 保留原专属Issue标题格式
-
-  try {
-    // 步骤1：优先从#2映射表中查询用户是否已有专属Issue编号
-    const existIssueNumber = await getUserIssueNumberFromMap(userAccount);
-    if (existIssueNumber) {
-      console.log(`映射表查询成功：${userAccount} 已有专属Issue #${existIssueNumber}`);
-      return existIssueNumber; // 有则直接返回，无需创建
-    }
-
-    // 步骤2：映射表中无记录，再检查仓库是否存在该用户的专属Issue（兼容历史数据）
-    const searchRes = await fetch(
-      `https://api.github.com/search/issues?q=repo:${REPO_OWNER}/${REPO_NAME}+title:"${encodeURIComponent(issueTitle)}"+is:issue+is:open`,
-      {
-        headers: {
-          'Authorization': `token ${GITHUB_TOKEN}`,
-          'Accept': 'application/vnd.github.v3+json'
-        }
-      }
-    );
-    const searchData = await searchRes.json();
-    
-    // 若存在历史专属Issue，更新映射表后返回
-    if (searchData.items && searchData.items.length > 0) {
-      const historyIssueNumber = searchData.items[0].number;
-      await updateUserMapToGitHub(userAccount, historyIssueNumber); // 同步到#2映射表
-      return historyIssueNumber;
-    }
-
-    // 步骤3：无历史Issue，创建新的用户专属Issue
-    const createRes = await fetch(
-      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues`,
-      {
+      await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues`, {
         method: 'POST',
-        headers: {
-          'Authorization': `token ${GITHUB_TOKEN}`,
-          'Accept': 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          title: issueTitle, // 固定标题格式：昵称|账号
-          body: `【用户操作记录】\n${formatFullDateTime(new Date())}|打开页面`, // 初始记录
-          labels: ['user-record'] // 专属标签，区分映射表
-        })
-      }
-    );
+        headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ number: MAP_ISSUE_NUMBER, title: MAP_ISSUE_TITLE, body: `${MAP_MARK_START}\n{}\n${MAP_MARK_END}`, labels: ['user-map'] })
+      });
+      return {};
+    }
+    const data = await res.json();
+    const body = data.body || '';
+    const jsonStart = body.indexOf(MAP_MARK_START) + MAP_MARK_START.length;
+    const jsonEnd = body.indexOf(MAP_MARK_END);
+    return JSON.parse(body.slice(jsonStart, jsonEnd).trim()) || {};
+  } catch { return {}; }
+}
+
+async function updateUserMapToGitHub(account, issueNum) {
+  try {
+    const map = await getUserMapFromGitHub();
+    map[account] = issueNum;
+    const body = `${MAP_MARK_START}\n${JSON.stringify(map, null, 2)}\n${MAP_MARK_END}`;
+    await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${MAP_ISSUE_NUMBER}`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ body })
+    });
+  } catch {}
+}
+
+async function getOrCreateUserIssue(user) {
+  if (!user?.account) return null;
+  try {
+    const map = await getUserMapFromGitHub();
+    if (map[user.account]) return map[user.account];
+    
+    const searchRes = await fetch(`https://api.github.com/search/issues?q=repo:${REPO_OWNER}/${REPO_NAME}+title:"${encodeURIComponent(`${user.nickname}|${user.account}`)}"+is:issue+is:open`, {
+       headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+    });
+    const searchData = await searchRes.json();
+    if (searchData.items?.length > 0) {
+      await updateUserMapToGitHub(user.account, searchData.items[0].number);
+      return searchData.items[0].number;
+    }
+
+    const createRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues`, {
+      method: 'POST',
+      headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: `${user.nickname}|${user.account}`, body: `【Record】\n${new Date().toLocaleString()}|Init`, labels: ['user-record'] })
+    });
     const createData = await createRes.json();
     if (createRes.ok) {
-      const newIssueNumber = createData.number;
-      console.log(`为用户${userAccount}创建专属Issue成功，编号：#${newIssueNumber}`);
-      
-      // 步骤4：创建成功后，立即更新#2映射表（核心！写入账号→Issue编号的关系）
-      await updateUserMapToGitHub(userAccount, newIssueNumber);
-      
-      return newIssueNumber;
-    } else {
-      console.error('创建用户专属Issue失败：', createData);
-      return null;
+      await updateUserMapToGitHub(user.account, createData.number);
+      return createData.number;
     }
-  } catch (error) {
-    console.error('获取/创建用户专属Issue异常：', error);
-    return null;
-  }
+  } catch {}
+  return null;
 }
-// 记录用户操作到其专属GitHub Issue（逐行追加，无需修改）
-async function recordUserActionToGitHub(actionType, searchContent = '') {
-    if (!currentUser || !currentUser.account) return;
-    const issueNumber = await getOrCreateUserIssue(currentUser);
-    if (!issueNumber) return;
 
-    const now = new Date();
-    const recordTime = formatFullDateTime(now);
-    let recordContent = '';
-    if (actionType === 'open-page') {
-        recordContent = `${recordTime}|打开页面`;
-    } else if (actionType === 'search') {
-        recordContent = `${recordTime}|${searchContent.trim()}`;
-    }
-
-    try {
-        const getIssueRes = await fetch(
-            `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${issueNumber}`,
-            { headers: { 'Authorization': `token ${GITHUB_TOKEN}` } }
-        );
-        const issueData = await getIssueRes.json();
-        const originalBody = issueData.body || '';
-        const newBody = `${originalBody}\n${recordContent}`;
-
-        const updateRes = await fetch(
-            `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${issueNumber}`,
-            {
-                method: 'PATCH',
-                headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ body: newBody })
-            }
-        );
-
-        if (updateRes.ok) {
-            console.log(`用户操作记录同步成功：${recordContent}`);
-        } else {
-            const errorData = await updateRes.json();
-            console.error('更新Issue记录失败：', errorData);
-        }
-    } catch (error) {
-        console.error('记录用户操作到GitHub异常：', error);
-    }
+async function recordUserActionToGitHub(type, content = '') {
+  if (!currentUser?.account) return;
+  const issueNum = await getOrCreateUserIssue(currentUser);
+  if (!issueNum) return;
+  const line = `${new Date().toLocaleString()}|${type === 'open-page' ? 'Open Page' : content}`;
+  try {
+    const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${issueNum}`, { headers: { 'Authorization': `token ${GITHUB_TOKEN}` } });
+    const data = await res.json();
+    await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${issueNum}`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ body: `${data.body || ''}\n${line}` })
+    });
+  } catch {}
 }
-// 新增：递归获取GitHub Issue的所有分页评论（解决多页消息没拉取的问题）
+
 async function getAllComments() {
-  let allComments = [];
-  let page = 1;
-  const perPage = 100; // GitHub允许的单页最大评论数
-  while (true) {
+  let all = [], page = 1;
+  while(true) {
     try {
-      const response = await fetch(
-        `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${ISSUE_NUMBER}/comments?per_page=${perPage}&page=${page}`,
-        {
-          headers: {
-            'Authorization': `token ${GITHUB_TOKEN}`,
-            'Accept': 'application/vnd.github.v3+json'
-          }
-        }
-      );
-
-      if (!response.ok) {
-        console.error(`获取第${page}页评论失败，状态码：${response.status}`);
-        break;
-      }
-
-      const comments = await response.json();
-      if (comments.length === 0) break; // 无更多评论，终止循环
-      
-      allComments = allComments.concat(comments);
+      const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${ISSUE_NUMBER}/comments?per_page=100&page=${page}`, {
+        headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+      });
+      if(!res.ok) break;
+      const data = await res.json();
+      if(data.length === 0) break;
+      all = all.concat(data);
       page++;
-    } catch (error) {
-      console.error(`获取第${page}页评论出错：`, error);
-      break;
-    }
+    } catch { break; }
   }
-  console.log(`共拉取到${allComments.length}条评论（所有分页）`);
-  return allComments;
+  return all;
 }
-// 修复后：精准解析“用户名|头像链接: 消息”格式（不改动Issue）
+
+function formatMessageTime(date) {
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function addMessageToChat(sender, text, time, type, commentId, avatar = null) {
+  const div = document.createElement('div');
+  div.className = `message-item ${type}`;
+  div.id = `msg_${Date.now()}_${Math.random()}`;
+  div.dataset.commentId = commentId;
+  const avatarHtml = avatar ? `<div style="width:20px;height:20px;border-radius:50%;margin-right:6px;background:url('${avatar}') center/cover;"></div>` : '';
+  div.innerHTML = `
+    <div style="display:flex;align-items:center;margin-bottom:4px;">${avatarHtml}<div class="message-sender">${sender}</div></div>
+    <div class="message-text">${text}</div>
+    <div class="message-time">${time}</div>
+  `;
+  moguChatMessages.appendChild(div);
+}
+
 async function fetchChatMessages() {
-	if (!isHistoryFetched) {
-	    const oldSystemMsg = document.querySelector('.message-item.other .message-sender');
-	    if (oldSystemMsg && oldSystemMsg.textContent === 'System') {
-	      oldSystemMsg.closest('.message-item').remove();
-	    }
-	  }
+  try {
+    if (!isHistoryFetched) {
+      const msgs = await getAllComments();
+      if (msgs.length > 0) {
+        msgs.sort((a,b) => a.id - b.id).forEach(msg => processMessage(msg));
+        lastMessageId = Math.max(...msgs.map(m => m.id));
+        isHistoryFetched = true;
+        moguChatMessages.scrollTop = moguChatMessages.scrollHeight;
+      }
+    } else {
+      const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${ISSUE_NUMBER}/comments?per_page=100&page=1`, { headers: { 'Authorization': `token ${GITHUB_TOKEN}` } });
+      const msgs = await res.json();
+      const newMsgs = msgs.filter(m => m.id > lastMessageId).sort((a,b) => a.id - b.id);
+      if (newMsgs.length > 0) {
+        newMsgs.forEach(msg => processMessage(msg));
+        lastMessageId = Math.max(lastMessageId, ...newMsgs.map(m => m.id));
+        moguChatMessages.scrollTop = moguChatMessages.scrollHeight;
+      }
+    }
+  } catch {}
+}
+
+function processMessage(msg) {
+  let sender = 'Unknown', text = msg.body.trim(), avatar = null;
+  const parts = msg.body.split(': ');
+  if (parts.length >= 2) {
+    const sPart = parts[0].trim();
+    if (sPart.includes('|')) {
+      const [name, avt] = sPart.split('|');
+      sender = name.trim();
+      avatar = avt.trim() || null;
+    } else {
+      sender = sPart;
+    }
+    text = parts.slice(1).join(': ').trim();
+  }
+  let type = 'other';
+  if (currentUser) {
+    if (sender === (currentUser.nickname || currentUser.account)) type = 'user';
+  }
+  addMessageToChat(sender, text, formatMessageTime(new Date(msg.created_at)), type, msg.id, avatar);
+}
+
+async function sendChatMessage() {
+  if (!currentUser) { showCustomAlert('Please login first'); goToLogin(); return; }
+  const msg = moguChatInput.value.trim();
+  if (msg.length > MAX_MESSAGE_LENGTH) { showCustomAlert('Message too long'); return; }
+  if (!msg || isLoading) return;
+  
+  isLoading = true;
+  sendText.innerHTML = '<div class="loading-spinner"></div>';
+  moguChatSend.disabled = true;
+  
+  const senderName = currentUser.nickname || currentUser.account;
+  const body = `${senderName}|${currentUser.avatar || ''}: ${msg}`;
+  const localId = `msg_temp_${Date.now()}`;
+  addMessageToChat(senderName, msg, formatMessageTime(new Date()), 'user', '', currentUser.avatar);
+  const localEl = moguChatMessages.lastElementChild;
+  localEl.id = localId;
+  moguChatInput.value = '';
+  moguChatMessages.scrollTop = moguChatMessages.scrollHeight;
 
   try {
-    // 步骤1：首次拉取 → 获取所有分页的评论
-    if (!isHistoryFetched) {
-      const allMessages = await getAllComments();
-      
-      if (allMessages.length === 0) {
-        console.log('当前无任何评论');
-        return;
-      }
-
-      const historyMessages = [...allMessages].sort((a, b) => a.id - b.id);
-      console.log(`首次拉取到${historyMessages.length}条历史消息，开始渲染`);
-      
-      // 核心修复：用“: ”（冒号+空格）拆分，匹配发送时的格式
-      historyMessages.forEach(msg => {
-        let sender = 'Unknown', text = msg.body.trim(), avatar = null;
-        // 按“: ”拆分（发送时是“用户名|头像: 消息”，所以这里精准拆分）
-        const parts = msg.body.split(': ');
-        if (parts.length >= 2) {
-            const senderPart = parts[0].trim();
-            // 拆分“用户名|头像链接”
-            if (senderPart.includes('|')) {
-                const [senderName, senderAvatar] = senderPart.split('|').map(item => item.trim());
-                sender = senderName;
-                avatar = senderAvatar || null; // 提取头像链接
-            } else {
-                sender = senderPart;
-            }
-            // 消息内容（若消息里有“: ”也能保留）
-            text = parts.slice(1).join(': ').trim();
-        }
-
-        const time = formatMessageTime(new Date(msg.created_at));
-        let messageType = 'other';
-        if (currentUser) {
-          const currentUserName = currentUser.nickname || currentUser.account;
-          if (sender === currentUserName) {
-            messageType = 'user';
-          }
-        }
-        // 传递头像，同时显示正确消息
-        addMessageToChat(sender, text, time, messageType, msg.id, avatar);
-      });
-
-      isHistoryFetched = true;
-      lastMessageId = Math.max(...allMessages.map(msg => msg.id));
-      moguChatMessages.scrollTop = moguChatMessages.scrollHeight;
-      return;
+    const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${ISSUE_NUMBER}/comments`, {
+      method: 'POST',
+      headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ body })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      lastMessageId = Math.max(lastMessageId, data.id);
+      document.getElementById(localId).dataset.commentId = data.id;
     }
-
-    // 步骤2：非首次拉取新消息
-    const latestComments = await fetch(
-      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${ISSUE_NUMBER}/comments?per_page=100&page=1`,
-      { headers: { 'Authorization': `token ${GITHUB_TOKEN}` } }
-    ).then(res => res.json());
-    
-    const newMessages = latestComments.filter(msg => msg.id > lastMessageId);
-    if (newMessages.length > 0) {
-      console.log(`拉取到${newMessages.length}条新消息，开始渲染`);
-      newMessages.sort((a, b) => a.id - b.id).forEach(msg => {
-        let sender = 'Unknown', text = msg.body.trim(), avatar = null;
-        // 同样用“: ”拆分新消息
-        const parts = msg.body.split(': ');
-        if (parts.length >= 2) {
-            const senderPart = parts[0].trim();
-            if (senderPart.includes('|')) {
-                const [senderName, senderAvatar] = senderPart.split('|').map(item => item.trim());
-                sender = senderName;
-                avatar = senderAvatar || null;
-            } else {
-                sender = senderPart;
-            }
-            text = parts.slice(1).join(': ').trim();
-        }
-        const time = formatMessageTime(new Date(msg.created_at));
-        let messageType = 'other';
-        if (currentUser) {
-          const currentUserName = currentUser.nickname || currentUser.account;
-          if (sender === currentUserName) {
-            messageType = 'user';
-          }
-        }
-        addMessageToChat(sender, text, time, messageType, msg.id, avatar);
-      });
-      lastMessageId = Math.max(lastMessageId, ...newMessages.map(msg => msg.id));
-      moguChatMessages.scrollTop = moguChatMessages.scrollHeight;
-    } else {
-      console.log(`轮询成功，当前无新消息，最新ID：${lastMessageId}`);
-    }
-	
-  } catch (error) {
-    if (error.message.includes('Failed to fetch')) {
-      console.error('网络错误：', error);
-      showCustomAlert('网络异常，无法连接GitHub');
-    } else {
-      console.error('拉取消息出错：', error);
-      showCustomAlert('获取消息失败，请重试');
-    }
+  } catch {
+    showCustomAlert('Failed to send');
+  } finally {
+    isLoading = false;
+    sendText.textContent = '发送';
+    moguChatSend.disabled = false;
   }
 }
 
-// 修复后的发送聊天消息函数（增加200字限制）
-async function sendChatMessage() {
-    if (!currentUser) {
-        showCustomAlert('请先登录才能发送消息');
-        goToLogin();
-        return;
-    }
-    
-    const message = moguChatInput.value.trim();
-    // 验证消息长度
-    if (message.length > MAX_MESSAGE_LENGTH) {
-        showCustomAlert(`消息长度不能超过${MAX_MESSAGE_LENGTH}个字！`);
-        return;
-    }
-    if (!message || isLoading) return;
-    
-    isLoading = true;
-    sendText.innerHTML = '<div class="loading-spinner"></div>';
-    moguChatSend.disabled = true;
-    
-    const timestamp = formatMessageTime(new Date());
-    const senderName = currentUser.nickname || currentUser.account;
-    // 在发送消息时，将用户名和头像一起发送
-    const messageWithSender = `${senderName}|${currentUser.avatar || ''}: ${message}`;
-    
-    // 本地先显示消息
-    const localMsgId = `msg_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-    addMessageToChat(senderName, message, timestamp, 'user', '');
-    // 新增：记录本地消息ID，用于后续绑定GitHub评论ID
-    const localMsg = document.getElementById(localMsgId);
-    moguChatInput.value = '';
-    moguChatMessages.scrollTop = moguChatMessages.scrollHeight;
-    
-    try {
-        const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${ISSUE_NUMBER}/comments`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `token ${GITHUB_TOKEN}`,
-                'Accept': 'application/vnd.github.v3+json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({body: messageWithSender})
-        });
-        
-        if (!response.ok) throw new Error('Failed to send message');
-        
-        const data = await response.json();
-        lastMessageId = Math.max(lastMessageId, data.id);
-		if (localMsg) localMsg.dataset.commentId = data.id;
-    } catch (error) {
-        console.error('发送消息失败:', error);
-        addMessageToChat('System', '消息发送失败，请重试', timestamp, 'other');
-    } finally {
-        isLoading = false;
-        sendText.textContent = '发送';
-        moguChatSend.disabled = false;
-    }
-}
-// 核心功能1：删除单条消息（管理员专属）
-async function deleteSingleMessage(btn) {
-    if (!currentUser || !currentUser.isAdmin) return;
-    // 获取消息ID和GitHub评论ID
-    const msgId = btn.dataset.messageId;
-    const msgEl = document.getElementById(msgId);
-    const commentId = msgEl?.dataset.commentId;
-    if (!msgEl) return;
-
-    try {
-        // 1. 同步删除GitHub上的对应评论（关键：避免刷新后消息恢复）
-        if (commentId && commentId !== '') {
-            const response = await fetch(
-                `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/comments/${commentId}`,
-                {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                }
-            );
-            if (!response.ok) throw new Error('删除云端消息失败');
-        }
-        // 2. 删除页面上的消息元素
-        msgEl.remove();
-        showCustomAlert('消息删除成功');
-    } catch (error) {
-        console.error('删除单条消息失败：', error);
-        showCustomAlert('消息删除失败，请重试');
-    }
-}
-async function clearAllChatMessages() {
-    // 仅做管理员和重复点击校验，通过后直接触发弹窗
-    if (!currentUser || !currentUser.isAdmin || isLoading) return;
-    toggleModal('clearMsg', true);
-}
-function addMessageToChat(sender, text, time, type, commentId, senderAvatar = null) {
-    const messageDiv = document.createElement('div');
-    const msgUniqueId = `msg_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-    messageDiv.id = msgUniqueId;
-    messageDiv.className = `message-item ${type}`;
-    messageDiv.dataset.commentId = commentId;
-    
-    // 获取发送者头像（如果有）
-    let avatarHtml = '';
-    if (senderAvatar) {
-        avatarHtml = `<div class="message-avatar" style="width: 24px; height: 24px; border-radius: 50%; margin-right: 8px; background-image: url('${senderAvatar}'); background-size: cover; background-position: center;"></div>`;
-    } else if (currentUser && (currentUser.nickname || currentUser.account) === sender && currentUser.avatar) {
-        // 如果是当前用户自己发的消息，使用当前用户的头像
-        avatarHtml = `<div class="message-avatar" style="width: 24px; height: 24px; border-radius: 50%; margin-right: 8px; background-image: url('${currentUser.avatar}'); background-size: cover; background-position: center;"></div>`;
-    } else {
-        // 默认头像（首字母）
-        const initial = sender ? sender.charAt(0).toUpperCase() : '?';
-        avatarHtml = `<div class="message-avatar" style="width: 24px; height: 24px; border-radius: 50%; margin-right: 8px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">${initial}</div>`;
-    }
-    
-    // 修改消息HTML结构，添加头像
-    messageDiv.innerHTML = `
-        <div style="display: flex; align-items: center; margin-bottom: 4px;">
-            ${avatarHtml}
-            <div class="message-sender">${sender}</div>
-        </div>
-        <div class="message-text">${text}</div>
-        <div class="message-time">${time}</div>
-        <!-- 管理员专属：单条消息删除按钮 -->
-        <button class="msg-delete-btn admin-only" data-message-id="${msgUniqueId}">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-            </svg>
-        </button>
-    `;
-    moguChatMessages.appendChild(messageDiv);
-}
-
-// 【完全替换】修复后：聊天窗口切换函数（优化轮询机制，后台持续拉取）
-// 修复后：聊天窗口切换函数（仅窗口打开时创建轮询，关闭时清除轮询）
 function toggleChatWindow() {
-    chatOpen = !chatOpen;
-
-    if (chatOpen) {
-        // 打开窗口：显示窗口 + 创建轮询（避免重复创建） + 立即拉取最新消息
-        moguChatWindow.classList.add('open');
-        moguChatBtn.style.transform = 'scale(1.1) rotate(-5deg)';
-        if (!chatUpdateInterval) {
-            chatUpdateInterval = setInterval(fetchChatMessages, 5 * 1000);
-            console.log('聊天窗口打开，启动消息轮询（5秒/次）');
-        }
-        fetchChatMessages(); // 打开窗口立即拉取，保证消息最新
-    } else {
-        // 关闭窗口：隐藏窗口 + 清除轮询 + 停止循环拉取
-        moguChatWindow.classList.remove('open');
-        moguChatBtn.style.transform = '';
-        if (chatUpdateInterval) {
-            clearInterval(chatUpdateInterval);
-            chatUpdateInterval = null; // 置空标记，方便下次打开重新创建
-            console.log('聊天窗口关闭，停止消息轮询');
-        }
-    }
+  chatOpen = !chatOpen;
+  if (chatOpen) {
+    moguChatWindow.classList.add('open');
+    if (!chatUpdateInterval) chatUpdateInterval = setInterval(fetchChatMessages, 5000);
+    fetchChatMessages();
+  } else {
+    moguChatWindow.classList.remove('open');
+    if (chatUpdateInterval) { clearInterval(chatUpdateInterval); chatUpdateInterval = null; }
+  }
 }
 
-// 事件监听器
-searchBtn.addEventListener('click', handleSearch);
-searchInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-        handleSearch();
-    }
-});
-
-moguChatBtn.addEventListener('click', toggleChatWindow);
-moguChatSend.addEventListener('click', sendChatMessage);
-moguChatInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendChatMessage();
-    }
-});
-// 管理员功能：一键清空消息按钮点击事件
-// ########## 自定义弹窗按钮事件绑定 ##########
-// 退出登录-取消
-document.getElementById('logoutCancel').addEventListener('click', () => {
-  toggleModal('logout', false);
-});
-// 退出登录-确认
+document.getElementById('logoutCancel').addEventListener('click', () => toggleModal('logout', false));
 document.getElementById('logoutConfirm').addEventListener('click', () => {
-    toggleModal('logout', false);
-    // 执行原退出登录逻辑
-    localStorage.removeItem(USER_LOCAL_KEY);
-    currentUser = null;
-    updateUIForGuest();
-    showCustomAlert('已退出登录');
+  toggleModal('logout', false);
+  localStorage.removeItem(USER_LOCAL_KEY);
+  currentUser = null;
+  updateUIForGuest();
+  showCustomAlert('Logged out');
 });
 
-// 清空消息-取消
-document.getElementById('clearMsgCancel').addEventListener('click', () => {
-  toggleModal('clearMsg', false);
-});
-// 清空消息-确认
+document.getElementById('clearMsgCancel').addEventListener('click', () => toggleModal('clearMsg', false));
 document.getElementById('clearMsgConfirm').addEventListener('click', async () => {
   toggleModal('clearMsg', false);
-  // 执行原清空消息的核心逻辑（直接复用原有代码，无修改）
-  if (!currentUser || !currentUser.isAdmin || isLoading) return;
-
-  // 添加加载状态，防止重复点击执行
+  if (!currentUser?.isAdmin || isLoading) return;
   isLoading = true;
-  const clearBtn = document.getElementById('clearAllMessages');
-  const originalText = clearBtn.textContent;
-  clearBtn.textContent = '清空中...';
-  clearBtn.disabled = true;
-
-  // 获取页面所有消息项（包含无commentId的系统初始消息）
-  const allMsgItems = document.querySelectorAll('.message-item');
-  if (allMsgItems.length === 0) {
-      showCustomAlert('暂无消息可清空');
-      // 恢复按钮状态
-      isLoading = false;
-      clearBtn.textContent = originalText;
-      clearBtn.disabled = false;
-      return;
-  }
-
-  let successCount = 0; // 云端（GitHub）删除成功数
-  let localDeleteCount = 0; // 本地页面删除成功数
-
+  const btn = document.getElementById('clearAllMessages');
+  btn.textContent = '...';
   try {
-      // 遍历删除：先删云端GitHub评论，再删本地元素（for...of保证异步顺序执行）
-      for (const msgEl of allMsgItems) {
-          const commentId = msgEl.dataset.commentId;
-          try {
-              // 有commentId → 同步删除GitHub上的对应评论
-              if (commentId && commentId !== '') {
-                  const response = await fetch(
-                      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/comments/${commentId}`,
-                      {
-                          method: 'DELETE',
-                          headers: {
-                              'Authorization': `token ${GITHUB_TOKEN}`,
-                              'Accept': 'application/vnd.github.v3+json'
-                          }
-                      }
-                  );
-                  if (response.ok) successCount++;
-              }
-              // 无论是否有commentId，都删除页面元素（核心：解决系统初始消息残留）
-              msgEl.remove();
-              localDeleteCount++;
-          } catch (error) {
-              console.error(`单条消息删除失败：`, error);
-              continue; // 单条失败不影响整体清空
-          }
+    const items = document.querySelectorAll('.message-item');
+    for (const el of items) {
+      if (el.dataset.commentId) {
+        await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/comments/${el.dataset.commentId}`, {
+          method: 'DELETE', headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+        });
       }
-
-      // 显式兜底：确保初始化的System消息被彻底删除（防止遍历遗漏）
-      const systemInitalMsg = Array.from(document.querySelectorAll('.message-item')).find(
-          item => item.querySelector('.message-sender')?.textContent === 'System' &&
-                 item.querySelector('.message-text')?.textContent.includes('欢迎使用 Mogu Chat')
-      );
-      if (systemInitalMsg) {
-          systemInitalMsg.remove();
-          localDeleteCount = localDeleteCount > 0 ? localDeleteCount : 1; // 若仅剩系统消息，修正统计
-      }
-
-      // 提示结果：区分云端/本地删除数（更精准）
-      showCustomAlert(`清空完成！云端删除${successCount}条，本地删除${localDeleteCount}条`);
-  } catch (error) {
-      console.error('批量清空消息总异常：', error);
-      showCustomAlert('清空过程中出现错误，部分消息可能未删除');
-  } finally {
-      // 无论成功/失败，恢复按钮和加载状态
-      isLoading = false;
-      clearBtn.textContent = originalText;
-      clearBtn.disabled = false;
-      // 重置历史消息拉取标记（下次打开聊天窗重新初始化）
-      isHistoryFetched = false;
-  }
-});
-document.getElementById('clearAllMessages').addEventListener('click', clearAllChatMessages);
-
-// 管理员功能：单条消息删除按钮（事件委托，适配动态渲染的消息）
-moguChatMessages.addEventListener('click', (e) => {
-    const deleteBtn = e.target.closest('.msg-delete-btn');
-    if (deleteBtn) {
-        e.stopPropagation(); // 阻止冒泡，避免触发消息其他事件
-        deleteSingleMessage(deleteBtn);
+      el.remove();
     }
+    showCustomAlert('Cleared all messages');
+  } catch { showCustomAlert('Error clearing'); }
+  finally { isLoading = false; btn.textContent = '清空'; isHistoryFetched = false; }
 });
+document.getElementById('clearAllMessages').addEventListener('click', () => {
+    if(!currentUser?.isAdmin) return;
+    toggleModal('clearMsg', true);
+});
+
+searchBtn.addEventListener('click', handleSearch);
+searchInput.addEventListener('keydown', e => e.key === 'Enter' && handleSearch());
+moguChatBtn.addEventListener('click', toggleChatWindow);
+moguChatSend.addEventListener('click', sendChatMessage);
+moguChatInput.addEventListener('keydown', e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), sendChatMessage()));
 if (!isMobile()) {
-    toggleBtn.addEventListener('click', () => {
-        const currentState = getShowState();
-        saveShowState(!currentState);
-    });
+  toggleBtn.addEventListener('click', () => saveShowState(!getShowState()));
+  historySwitch.addEventListener('change', e => saveHistorySwitchState(e.target.checked));
 }
-
-if (!isMobile()) {
-    historySwitch.addEventListener('change', (e) => {
-        saveHistorySwitchState(e.target.checked);
-    });
-}
-
-document.addEventListener('click', (e) => {
-    if (chatOpen && 
-        !moguChatWindow.contains(e.target) && 
-        !moguChatBtn.contains(e.target) &&
-        !e.target.closest('.mogu-chat-btn')) {
-        toggleChatWindow();
-    }
+document.addEventListener('click', e => {
+  if (chatOpen && !moguChatWindow.contains(e.target) && !moguChatBtn.contains(e.target)) toggleChatWindow();
 });
-// 公告相关功能
-const NOTICE_LOCAL_KEY = 'MOGU_SEARCH_NOTICE';
-let isNoticeShown = false;
 
-// 公告内容（可以在这里修改公告内容）
-const noticeContent = `
-<p><strong>欢迎使用 Mogu Search！</strong></p>
-<p><strong>由于更新的时候忘记备份了</p>
-<p>大部分people的账号被删掉了</p>
-<p>账号不在的麻烦重新注册一下吧🌸</strong></p>
-<p style="text-align: center; color: #0078d4; margin-top: 15px;">
-  感谢您的使用！祝您搜索愉快！🚀
-</p>
-`;
-
-// 检查是否应该显示公告
-function shouldShowNotice() {
-  const noticeData = localStorage.getItem(NOTICE_LOCAL_KEY);
-  if (!noticeData) return true; // 没有存储记录，需要显示
-  
-  try {
-    const data = JSON.parse(noticeData);
-    // 检查是否勾选了不再显示
-    if (data.dontShowAgain) {
-      return false; // 用户勾选了不再显示，不显示
-    }
-    
-    // 也可以在这里添加其他逻辑，比如按时间间隔显示
-    return true;
-  } catch (e) {
-    console.error('解析公告数据失败:', e);
-    return true; // 解析失败时显示
-  }
-}
-
-// 保存公告状态
-function saveNoticeState(dontShowAgain) {
-  const noticeData = {
-    dontShowAgain: dontShowAgain,
-    lastShown: new Date().toISOString(),
-    version: '1.0.0' // 可用于后续版本更新时重新显示
-  };
-  localStorage.setItem(NOTICE_LOCAL_KEY, JSON.stringify(noticeData));
-}
-
-// 显示公告弹窗
-function showNotice() {
-  if (isNoticeShown) return;
-  
-  const mask = document.getElementById('modalMask');
-  const noticeModal = document.getElementById('noticeModal');
-  const noticeContentEl = document.getElementById('noticeContent');
-  
-  // 设置公告内容
-  noticeContentEl.innerHTML = noticeContent;
-  
-  // 显示遮罩和公告
-  mask.style.display = 'block';
-  noticeModal.style.display = 'block';
-  
-  // 添加显示动画
-  setTimeout(() => {
-    mask.classList.add('show');
-    noticeModal.classList.add('show');
-  }, 10);
-  
-  isNoticeShown = true;
-}
-
-// 隐藏公告弹窗
-function hideNotice() {
-  const mask = document.getElementById('modalMask');
-  const noticeModal = document.getElementById('noticeModal');
-  
-  // 移除显示动画
-  mask.classList.remove('show');
-  noticeModal.classList.remove('show');
-  
-  // 延迟隐藏DOM元素
-  setTimeout(() => {
-    mask.style.display = 'none';
-    noticeModal.style.display = 'none';
-  }, 300);
-  
-  isNoticeShown = false;
-}
-
-// 初始化公告功能
+const noticeContent = `<p><strong>Welcome to Mogu Search!</strong></p><p>Account data was lost during updates.</p><p>Please re-register if your account is missing 🌸</p>`;
 function initNotice() {
-  // 检查是否需要显示公告
-  if (shouldShowNotice()) {
-    // 页面加载完成后延迟显示公告，让其他内容先加载
+  const data = localStorage.getItem(NOTICE_LOCAL_KEY);
+  if (data && JSON.parse(data).dontShowAgain) return;
+  document.getElementById('noticeContent').innerHTML = noticeContent;
+  setTimeout(() => {
+    document.getElementById('modalMask').style.display = 'block';
+    document.getElementById('noticeModal').style.display = 'block';
     setTimeout(() => {
-      showNotice();
-    }, 500);
-  }
-  
-  // 获取DOM元素
-  const noticeCheckbox = document.getElementById('noticeCheckbox');
-  const checkboxIcon = noticeCheckbox.querySelector('.notice-checkbox');
-  const noticeConfirm = document.getElementById('noticeConfirm');
-  const mask = document.getElementById('modalMask');
-  
-  // 复选框点击事件
-  noticeCheckbox.addEventListener('click', () => {
-    checkboxIcon.classList.toggle('checked');
-  });
-  
-  // 确认按钮点击事件
-  noticeConfirm.addEventListener('click', () => {
-    const dontShowAgain = checkboxIcon.classList.contains('checked');
-    saveNoticeState(dontShowAgain);
-    hideNotice();
-  });
-  
-  // 点击遮罩层也可以关闭公告（可选）
-  mask.addEventListener('click', (e) => {
-    if (e.target === mask && isNoticeShown) {
-      hideNotice();
-    }
-  });
-  
-  // 按ESC键关闭公告
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && isNoticeShown) {
-      hideNotice();
-    }
+        document.getElementById('modalMask').classList.add('show');
+        document.getElementById('noticeModal').classList.add('show');
+    }, 10);
+    isNoticeShown = true;
+  }, 500);
+
+  const checkbox = document.querySelector('.notice-checkbox');
+  document.getElementById('noticeCheckbox').addEventListener('click', () => checkbox.classList.toggle('checked'));
+  document.getElementById('noticeConfirm').addEventListener('click', () => {
+    if (checkbox.classList.contains('checked')) localStorage.setItem(NOTICE_LOCAL_KEY, JSON.stringify({ dontShowAgain: true }));
+    document.getElementById('modalMask').classList.remove('show');
+    document.getElementById('noticeModal').classList.remove('show');
+    setTimeout(() => {
+        document.getElementById('modalMask').style.display = 'none';
+        document.getElementById('noticeModal').style.display = 'none';
+    }, 300);
+    isNoticeShown = false;
   });
 }
-window.addEventListener('DOMContentLoaded', async () => {
-	initNotice();
-    // 检查登录状态（现在是异步的）
-    await checkLoginStatus();
 
-    // 【新增】登录用户打开页面，立即记录到GitHub Issue
-    if (currentUser) {
-        recordUserActionToGitHub('open-page');
-    }
-    
-    if (isMobile()) {
-        searchInput.focus();
-    } else {
-        saveShowState(getShowState());
-        saveHistorySwitchState(getHistorySwitchState());
-        renderHistory();
-        renderRank();
-        searchInput.focus();
-    }
-    
-    // ✅ 仅保留：页面初始化单次拉取消息（无循环）
-    fetchChatMessages();
-    // ✅ 保留：管理员UI状态兜底更新
-    updateAdminUI();
+window.addEventListener('DOMContentLoaded', async () => {
+  initNotice();
+  await checkLoginStatus();
+  if (currentUser) recordUserActionToGitHub('open-page');
+  if (isMobile()) {
+    searchInput.focus();
+  } else {
+    saveShowState(getShowState());
+    saveHistorySwitchState(getHistorySwitchState());
+    renderHistory();
+    renderRank();
+    searchInput.focus();
+  }
+  fetchChatMessages();
+  updateAdminUI();
 });
 </script>
-
 </body>
 </html>
