@@ -6,7 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="description" content="MY HOME 个人主页">
 <title>MoGuOne | 记录生活</title>
-<link rel="stylesheet" type="text/css" href="https://unpkg.com/dmego-home-page@latest/assets/css/iconfont.css">
 <style>
 /* --- 核心变量定义 --- */
 :root {
@@ -23,6 +22,7 @@
   --radius-pill: 50px;
   --font-serif: "Merriweather", "Georgia", serif;
   --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -34,6 +34,23 @@ body {
   line-height: 1.6;
   min-height: 100vh;
   overflow-x: hidden;
+  transition: background-image 0.5s ease;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+/* 遮罩层，用于背景图太亮时增加文字可读性 */
+body::before {
+    content: ''; position: fixed; inset: 0; background: rgba(243, 244, 246, 0.85); z-index: -1;
+    transition: opacity 0.3s;
+}
+body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(3px); }
+
+/* --- 鼠标特效 Canvas --- */
+#particleCanvas {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 999999;
 }
 
 /* --- Loader --- */
@@ -64,10 +81,23 @@ body {
   box-shadow: var(--shadow-sm);
 }
 
-.user-area { pointer-events: auto; position: relative; }
+.nav-right-group {
+    display: flex; gap: 10px; pointer-events: auto; align-items: center;
+}
+
+.icon-btn {
+    width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.9);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    box-shadow: var(--shadow-sm); border: 1px solid rgba(0,0,0,0.05);
+    transition: transform 0.2s var(--ease-out-back); color: #333; /* 强制图标颜色为深灰 */
+}
+.icon-btn:hover { transform: scale(1.1); background: #fff; }
+.icon-btn svg { width: 20px; height: 20px; fill: #333; } /* SVG颜色 */
+
+.user-area { position: relative; }
 .login-btn, .user-btn {
   background: rgba(255,255,255,0.9); backdrop-filter: blur(10px);
-  border: 1px solid rgba(0,0,0,0.05); padding: 8px 20px;
+  border: 1px solid rgba(0,0,0,0.05); padding: 8px 20px; height: 40px;
   border-radius: var(--radius-pill); cursor: pointer;
   font-size: 14px; font-weight: 600; color: var(--text-main);
   box-shadow: var(--shadow-sm); transition: transform 0.2s var(--ease-out-back);
@@ -87,16 +117,63 @@ body {
 }
 .dropdown-item:hover { background: #f8fafc; color: var(--accent); }
 
-/* --- 核心区域 --- */
+/* --- 核心区域 Layout --- */
+.main-wrapper {
+    width: 100%; min-height: 100vh;
+    /* 移除之前的 transition: all 0.5s ease; 避免布局切换时外层容器的怪异形变 */
+    /* 改由内部 container 做透明度动画 */
+}
+
+/* 核心容器增加过渡动画 */
 .main-container {
+    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 1;
+    transform: scale(1);
+}
+/* 切换时的隐藏状态 */
+.main-container.switching-hidden {
+    opacity: 0;
+    transform: scale(0.96) translateY(10px);
+    pointer-events: none;
+}
+
+/* 垂直模式 (默认) */
+.main-wrapper.vertical-mode .main-container {
   max-width: 800px; margin: 0 auto; padding: 120px 20px 60px;
-  position: relative;
+}
+.main-wrapper.vertical-mode .news-grid { display: flex; flex-direction: column; gap: 30px; }
+
+/* 水平模式 (Horizontal) */
+.main-wrapper.horizontal-mode {
+    display: flex; align-items: center; height: 100vh; overflow: hidden;
+    padding-left: 5vw;
+}
+.main-wrapper.horizontal-mode .main-container {
+    display: flex; align-items: center; gap: 60px;
+    height: 100%; padding: 0;
+}
+.main-wrapper.horizontal-mode .hero-section {
+    width: 350px; flex-shrink: 0; margin-bottom: 0; text-align: left; align-items: flex-start;
+}
+.main-wrapper.horizontal-mode .news-grid {
+    display: flex; flex-direction: row; gap: 40px;
+    height: 70vh; align-items: center;
+    padding-right: 100px; /* End padding */
+}
+/* 水平模式下的卡片样式微调 */
+.main-wrapper.horizontal-mode .news-card {
+    width: 400px; flex-shrink: 0; height: auto; max-height: 100%;
+    opacity: 0.5; transform: scale(0.95); transition: all 0.5s ease;
+}
+.main-wrapper.horizontal-mode .news-card.in-view {
+    opacity: 1; transform: scale(1);
 }
 
 /* --- Hero Section --- */
 .hero-section {
-  text-align: center; margin-bottom: 80px;
+  text-align: center; margin-bottom: 60px;
   display: flex; flex-direction: column; align-items: center;
+  transition: all 0.5s ease;
 }
 .avatar-wrapper {
   position: relative; width: 120px; height: 120px; margin-bottom: 25px;
@@ -141,6 +218,7 @@ body {
   transition: all 0.3s var(--ease-out-back);
 }
 .search-btn:hover { background: var(--accent-hover); transform: translateY(-50%) scale(1.1); }
+.search-btn i { font-style: normal; } /* 临时修复icon */
 
 .mini-stats {
   display: flex; gap: 20px; font-size: 12px; color: #aab7b8;
@@ -149,66 +227,91 @@ body {
 .stat-item b { color: var(--text-main); font-weight: 600; margin-left: 4px; }
 .update-log { display: none; } 
 
-/* --- 日记列表 --- */
-.news-grid { display: flex; flex-direction: column; gap: 40px; }
+/* --- 日记列表 (Card Styling) --- */
+/* 改为长方形，扁平化 */
 .news-card {
   background: var(--bg-card); border-radius: var(--radius-lg);
   overflow: hidden; box-shadow: var(--shadow-sm);
   transition: all 0.4s var(--ease-out-back);
   opacity: 0; transform: translateY(40px);
   cursor: pointer; position: relative; border: 1px solid rgba(0,0,0,0.02);
+  display: flex; flex-direction: column;
 }
 .news-card.visible { opacity: 1; transform: translateY(0); }
-.news-card:hover { transform: translateY(-8px) scale(1.01); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
+.news-card:hover { transform: translateY(-5px) scale(1.01); box-shadow: 0 15px 30px rgba(0,0,0,0.08); }
 
+/* 图片区域变矮 */
 .news-cover-box {
-  position: relative; width: 100%; height: 0; padding-bottom: 50%;
+  position: relative; width: 100%; height: 0; padding-bottom: 45%; /* 45% 高度，使其更扁 */
   background: #f1f5f9; overflow: hidden;
 }
 .news-cover-box img, .news-cover-box video {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   object-fit: cover; transition: transform 0.8s ease;
 }
-.news-card:hover .news-cover-box img { transform: scale(1.08); }
+.news-card:hover .news-cover-box img { transform: scale(1.05); }
 
-.news-content { padding: 30px; position: relative; }
+.news-content { padding: 25px; position: relative; flex: 1; display: flex; flex-direction: column; }
 .news-date {
   font-family: monospace; font-size: 12px; color: var(--accent);
   background: rgba(96, 125, 139, 0.1); padding: 4px 10px; border-radius: 4px;
-  display: inline-block; margin-bottom: 12px; font-weight: 600;
+  display: inline-block; margin-bottom: 10px; font-weight: 600; align-self: flex-start;
 }
 .news-title {
-  font-size: 22px; font-weight: 700; color: var(--text-main);
-  margin-bottom: 12px; line-height: 1.4;
+  font-size: 20px; font-weight: 700; color: var(--text-main);
+  margin-bottom: 8px; line-height: 1.4;
 }
 .news-desc {
-  font-size: 15px; color: var(--text-sub); line-height: 1.8;
-  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
-  overflow: hidden; margin-bottom: 20px;
+  font-size: 14px; color: var(--text-sub); line-height: 1.6;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; margin-bottom: 15px;
 }
 .news-footer {
   display: flex; justify-content: space-between; align-items: center;
-  border-top: 1px solid #f0f0f0; padding-top: 20px;
+  border-top: 1px solid #f0f0f0; padding-top: 15px; margin-top: auto;
 }
-.read-more { font-size: 13px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+.read-more { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
 
-/* --- 音乐播放器 --- */
+/* --- 侧边进度条 (拉链) --- */
+.zipper-progress {
+    position: fixed; right: 10px; top: 50%; transform: translateY(-50%);
+    width: 6px; height: 300px; background: rgba(0,0,0,0.05); border-radius: 10px;
+    overflow: hidden; z-index: 90;
+}
+.zipper-bar {
+    width: 100%; background: var(--accent); height: 0%;
+    border-radius: 10px; transition: height 0.1s linear;
+}
+
+/* --- 音乐播放器 (增强版) --- */
 #footer {
   position: fixed; bottom: 30px; left: 30px; z-index: 900;
   background: #fff; padding: 6px; border-radius: 50px;
   box-shadow: var(--shadow-lg); display: flex; align-items: center;
-  transition: width 0.4s var(--ease-out-back); width: 44px; overflow: hidden; cursor: pointer;
+  transition: width 0.4s var(--ease-out-back); width: 44px; overflow: hidden;
 }
-#footer.playing { width: 220px; padding-right: 20px; }
+#footer.playing { width: 300px; padding-right: 15px; }
+
 .music-cover {
   width: 32px; height: 32px; background: var(--text-main); border-radius: 50%;
   flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff;
+  cursor: pointer;
 }
+.music-controls {
+    display: flex; align-items: center; flex: 1; margin-left: 12px; opacity: 0; transition: opacity 0.3s;
+    justify-content: space-between; overflow: hidden;
+}
+#footer.playing .music-controls { opacity: 1; }
+
 .music-info {
-  margin-left: 12px; font-size: 12px; white-space: nowrap; font-weight: 600;
-  opacity: 0; transition: opacity 0.3s;
+    font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;
+    margin-right: 10px;
 }
-#footer.playing .music-info { opacity: 1; }
+
+.player-btn { background: none; border: none; cursor: pointer; color: var(--text-sub); padding: 4px; transition: color 0.2s; }
+.player-btn:hover { color: var(--accent); }
+.player-btn svg { width: 14px; height: 14px; fill: currentColor; }
+
 .play-icon { width: 0; height: 0; border-style: solid; border-width: 5px 0 5px 8px; border-color: transparent transparent transparent #fff; margin-left: 2px; }
 .pause-icon { width: 8px; height: 10px; border-left: 3px solid #fff; border-right: 3px solid #fff; }
 
@@ -224,31 +327,72 @@ body {
 }
 .scroll-top-btn.show { opacity: 1; visibility: visible; transform: translateY(0); }
 .scroll-top-btn:hover { background: var(--text-main); color: #fff; transform: translateY(-5px); }
-.scroll-top-btn svg { width: 20px; height: 20px; fill: currentColor; }
 
-/* --- 模态框 --- */
+/* --- 模态框 (Journal Detail) --- */
 .modal-mask {
-  position: fixed; inset: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px);
+  position: fixed; inset: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(5px);
   z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s;
   display: flex; align-items: center; justify-content: center;
 }
 .modal-mask.show { opacity: 1; pointer-events: auto; }
+
+/* 85% 屏幕尺寸 */
 .modal-box {
-  width: 90%; max-width: 900px; height: 80vh; background: #fff;
-  border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);
+  width: 85vw; height: 85vh; background: #fff;
+  border-radius: var(--radius-lg); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   display: flex; overflow: hidden; transform: scale(0.95); transition: transform 0.4s var(--ease-out-back);
-  border: 1px solid #eee;
+  border: 1px solid #eee; position: relative;
 }
 .modal-mask.show .modal-box { transform: scale(1); }
-.modal-close {
-  position: absolute; top: 20px; right: 20px; width: 36px; height: 36px;
-  background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; border: none; font-size: 18px; transition: all 0.2s; z-index: 10;
-}
-.modal-close:hover { background: var(--highlight); color: #fff; transform: rotate(90deg); }
-.modal-left { flex: 3; padding: 50px; overflow-y: auto; background: #fff; }
-.modal-right { flex: 2; background: #fcfcfc; border-left: 1px solid #f0f0f0; padding: 30px; display: flex; flex-direction: column; }
 
+/* 顶部操作栏 */
+.modal-actions {
+    position: absolute; top: 20px; right: 20px; z-index: 100;
+    display: flex; gap: 10px;
+}
+.modal-action-btn {
+    width: 36px; height: 36px; background: #f1f5f9; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border: none; font-size: 16px; transition: all 0.2s;
+    color: #333; /* 确保图标深色 */
+}
+.modal-action-btn:hover { background: var(--accent); color: #fff; }
+.modal-action-btn svg { width: 18px; height: 18px; fill: currentColor; }
+.btn-close:hover { background: var(--highlight); transform: rotate(90deg); }
+
+/* 左右布局容器 */
+.modal-inner { display: flex; width: 100%; height: 100%; position: relative; }
+
+/* 内容区 (默认占满) */
+.modal-left {
+    flex: 1; padding: 60px 80px; overflow-y: auto; background: #fff;
+    transition: all 0.5s var(--ease-smooth);
+    min-width: 0; /* 防止flex子项溢出 */
+}
+
+/* 评论区 (默认隐藏，宽度为0) */
+.modal-right {
+    width: 0; background: #fcfcfc; border-left: 1px solid #f0f0f0;
+    display: flex; flex-direction: column;
+    overflow: hidden; opacity: 0;
+    transition: all 0.5s var(--ease-smooth);
+    transform: translateX(20px);
+}
+/* 激活评论区时的状态 */
+.modal-box.show-comments .modal-left { padding-right: 40px; } /* 稍微挤压左侧 */
+.modal-box.show-comments .modal-right { width: 350px; opacity: 1; transform: translateX(0); padding: 30px; }
+
+/* 详情页内的缩略图 */
+.detail-media-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 20px;
+}
+.detail-thumb {
+    width: 100%; height: 120px; object-fit: cover; border-radius: 8px; cursor: zoom-in;
+    transition: transform 0.2s; box-shadow: var(--shadow-sm);
+}
+.detail-thumb:hover { transform: scale(1.05); }
+
+/* 评论样式 */
 .comment-input {
   background: #fff; border: 1px solid #e2e8f0; padding: 15px; border-radius: 12px;
   width: 100%; min-height: 80px; font-family: inherit; margin-bottom: 10px;
@@ -258,19 +402,43 @@ body {
   background: var(--text-main); color: #fff; border: none; padding: 8px 20px;
   border-radius: 8px; font-weight: 600; cursor: pointer; align-self: flex-end;
 }
-.comment-item { display: flex; gap: 12px; margin-bottom: 20px; }
+.comment-item { display: flex; gap: 12px; margin-bottom: 20px; animation: fadeIn 0.3s; }
 .comment-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
 .comment-user { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
 .comment-text { font-size: 14px; color: #555; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+/* Lightbox (高级灯箱) */
+.lightbox {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000;
+  display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.lightbox.active { opacity: 1; pointer-events: auto; }
+.lightbox img {
+    max-width: 90%; max-height: 85%; box-shadow: 0 0 50px rgba(0,0,0,0.5); border-radius: 4px;
+    transform: scale(0.9); transition: transform 0.4s var(--ease-out-back); user-select: none;
+}
+.lightbox.active img { transform: scale(1); }
+
+.lb-btn {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.1); color: #fff; border: none;
+    width: 50px; height: 50px; border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+}
+.lb-btn:hover { background: rgba(255,255,255,0.3); }
+.lb-prev { left: 30px; }
+.lb-next { right: 30px; }
+.lb-close { position: absolute; top: 30px; right: 30px; background: none; font-size: 30px; color: #fff; border: none; cursor: pointer; }
+
+/* Access Modal & Toast */
 .access-modal-content {
   background: #fff; padding: 40px; border-radius: 20px; text-align: center;
   box-shadow: 0 20px 60px rgba(0,0,0,0.1); border: 1px solid #eee;
 }
 .btn-primary-btn { background: var(--text-main); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; }
 .btn-outline { background: transparent; border: 1px solid #ddd; padding: 10px 24px; border-radius: 8px; cursor: pointer; margin-right: 10px; }
-
-/* Toast */
 .toast {
   position: fixed; top: 30px; left: 50%; transform: translateX(-50%) translateY(-100%);
   background: #333; color: #fff; padding: 10px 24px; border-radius: 30px;
@@ -278,81 +446,109 @@ body {
   transition: all 0.4s var(--ease-out-back); z-index: 9999;
   opacity: 0; visibility: hidden; pointer-events: none;
 }
-.toast.show { 
-  transform: translateX(-50%) translateY(0); 
-  opacity: 1; visibility: visible; pointer-events: auto; 
-}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; visibility: visible; pointer-events: auto; }
 
-.lightbox {
-  position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 10000;
-  display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s;
-}
-.lightbox.active { opacity: 1; pointer-events: auto; }
-.lightbox img { max-width: 90%; max-height: 90%; box-shadow: var(--shadow-lg); border-radius: 8px; }
-
+/* Mobile Adaption */
 @media (max-width: 768px) {
-  .modal-box { flex-direction: column; height: 100%; border-radius: 0; }
+  .modal-box { width: 100%; height: 100%; border-radius: 0; }
+  .modal-inner { flex-direction: column; }
   .modal-left { padding: 20px; flex: 1; }
-  .modal-right { flex: 1; border-left: none; border-top: 1px solid #eee; }
+  .modal-right {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 60%; width: 100% !important;
+      transform: translateY(110%); border-left: none; border-top: 1px solid #eee;
+      background: #fff; z-index: 200;
+  }
+  .modal-box.show-comments .modal-right { transform: translateY(0); }
   .hero-title { font-size: 26px; }
   .nav-logo { display: none; }
-  .search-wrapper { max-width: 90%; }
+  .main-wrapper.horizontal-mode { flex-direction: column; padding: 20px; height: auto; overflow: visible; }
+  .main-wrapper.horizontal-mode .main-container { flex-direction: column; height: auto; }
+  .main-wrapper.horizontal-mode .news-grid { flex-direction: column; height: auto; width: 100%; padding: 0; }
+  .main-wrapper.horizontal-mode .news-card { width: 100%; opacity: 1; transform: none; }
+  .nav-right-group { gap: 5px; }
 }
 </style>
 </head>
 <body>
 
+<canvas id="particleCanvas"></canvas>
+
 <div id="loader">
   <div class="loader-circle"></div>
 </div>
 
+<div class="zipper-progress" id="scrollProgress">
+    <div class="zipper-bar"></div>
+</div>
+
 <div class="nav-container">
   <div class="nav-logo">MoGuOne</div>
-  <div class="user-area" id="userArea">
-    <button class="login-btn" id="loginBtn">登录</button>
-    <div class="user-btn" id="userBtn" style="display: none;">
-      <span id="userName">User</span>
-      <div class="user-dropdown">
-        <div class="dropdown-item" id="goProfile">账号设置</div>
-        <div class="dropdown-item" id="goAdmin" style="display:none;">后台管理</div>
-        <div class="dropdown-item" id="doLogout">退出登录</div>
+  
+  <div class="nav-right-group">
+      <div class="icon-btn" id="layoutBtn" title="Change Layout">
+        <svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>
       </div>
-    </div>
+      <div class="icon-btn" id="bgBtn" style="display:none;" title="Change Background">
+        <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+      </div>
+      <input type="file" id="bgInput" accept="image/*" style="display:none;">
+
+      <div class="user-area" id="userArea">
+        <button class="login-btn" id="loginBtn">登录</button>
+        <div class="user-btn" id="userBtn" style="display: none;">
+          <span id="userName">User</span>
+          <div class="user-dropdown">
+            <div class="dropdown-item" id="goProfile">账号设置</div>
+            <div class="dropdown-item" id="goAdmin" style="display:none;">后台管理</div>
+            <div class="dropdown-item" id="doLogout">退出登录</div>
+          </div>
+        </div>
+      </div>
   </div>
 </div>
 
-<div class="main-container">
-  
-  <section class="hero-section">
-    <div class="avatar-wrapper">
-      <img src="https://img.wjwj.top/2026/01/16/a27c17b713d7998cebb06b1dde372d64.jpg" class="profile-avatar" alt="Avatar">
-      <div class="status-badge"><div class="status-dot"></div></div>
-    </div>
-    
-    <div class="hero-title">MY HOME</div>
-    <div class="hero-bio">热爱是所有的理由和答案。</div>
-    
-    <div class="search-wrapper">
-      <input type="text" class="search-input" id="searchInput" placeholder="Search daily notes...">
-      <button class="search-btn" id="searchBtn"><i class="iconfont icon-search"></i></button>
-    </div>
+<div class="main-wrapper vertical-mode" id="mainWrapper">
+    <div class="main-container">
+      
+      <section class="hero-section">
+        <div class="avatar-wrapper">
+          <img src="https://img.wjwj.top/2026/01/16/a27c17b713d7998cebb06b1dde372d64.jpg" class="profile-avatar" alt="Avatar">
+          <div class="status-badge"><div class="status-dot"></div></div>
+        </div>
+        
+        <div class="hero-title">MY HOME</div>
+        <div class="hero-bio">热爱是所有的理由和答案。</div>
+        
+        <div class="search-wrapper">
+          <input type="text" class="search-input" id="searchInput" placeholder="Search daily notes...">
+          <button class="search-btn" id="searchBtn">
+             <svg style="width:18px;height:18px;fill:#fff;" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          </button>
+        </div>
 
-    <div class="mini-stats">
-      <span class="stat-item">Visits <b id="totalCount">0</b></span>
-      <span style="opacity:0.3">|</span>
-      <span class="stat-item">Status <b style="color:#10b981">Online</b></span>
-      <div class="update-log sidebar-update-log"></div>
+        <div class="mini-stats">
+          <span class="stat-item">Visits <b id="totalCount">0</b></span>
+          <span style="opacity:0.3">|</span>
+          <span class="stat-item">Status <b style="color:#10b981">Online</b></span>
+          <div class="update-log sidebar-update-log"></div>
+        </div>
+      </section>
+
+      <div class="news-grid" id="newsContainer"></div>
     </div>
-  </section>
-
-  <div class="news-grid" id="newsContainer"></div>
-
 </div>
 
 <div id="footer">
   <div class="music-cover" id="playBtn"><div class="play-icon"></div></div>
-  <div class="music-info">Top Barry - 一半一半</div>
-  <audio id="music" loop preload="auto" src="moguone/song/一半一半.mp3"></audio>
+  <div class="music-controls">
+      <div class="music-info" id="musicTitle">Top Barry - 一半一半</div>
+      <div style="display:flex;gap:5px;">
+        <button class="player-btn" id="prevSongBtn"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+        <button class="player-btn" id="nextSongBtn"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+        <button class="player-btn" id="modeBtn" title="Loop List"><svg id="modeIcon" viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
+      </div>
+  </div>
+  <audio id="music" preload="auto"></audio>
 </div>
 
 <div class="scroll-top-btn" id="scrollTopBtn">
@@ -360,15 +556,23 @@ body {
 </div>
 
 <div class="modal-mask" id="newsModal">
-  <div class="modal-box">
-    <button class="modal-close" id="modalClose">✕</button>
-    <div class="modal-left" id="modalContent"></div>
-    <div class="modal-right" id="modalComments">
-      <div style="flex:1;overflow-y:auto;margin-bottom:15px;" id="commentList"></div>
-      <div style="border-top:1px solid #eee;padding-top:15px;">
-        <textarea class="comment-input" id="commentInput" placeholder="Write a comment..."></textarea>
-        <button class="comment-btn" id="submitComment">发送</button>
-      </div>
+  <div class="modal-box" id="modalBox">
+    <div class="modal-actions">
+        <button class="modal-action-btn" id="toggleCommentBtn" title="Chat/Comments">
+            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+        </button>
+        <button class="modal-action-btn btn-close" id="modalClose">✕</button>
+    </div>
+    
+    <div class="modal-inner">
+        <div class="modal-left" id="modalContent"></div>
+        <div class="modal-right" id="modalComments">
+          <div style="flex:1;overflow-y:auto;margin-bottom:15px;" id="commentList"></div>
+          <div style="border-top:1px solid #eee;padding-top:15px;">
+            <textarea class="comment-input" id="commentInput" placeholder="Write a comment..."></textarea>
+            <button class="comment-btn" id="submitComment">发送</button>
+          </div>
+        </div>
     </div>
   </div>
 </div>
@@ -389,8 +593,11 @@ body {
   <div class="toast-text">操作成功</div>
 </div>
 
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
-  <img id="lightboxImg" src="" alt="Full view" onclick="event.stopPropagation()">
+<div class="lightbox" id="lightbox">
+    <button class="lb-close" onclick="closeLightbox()">✕</button>
+    <button class="lb-btn lb-prev" onclick="changeLightbox(-1)">❮</button>
+    <img id="lightboxImg" src="" alt="Full view">
+    <button class="lb-btn lb-next" onclick="changeLightbox(1)">❯</button>
 </div>
 
 <script>
@@ -403,37 +610,278 @@ const CONFIG = {
   commentMapIssue: 299
 };
 
+/* --- 音乐列表配置 --- */
+const MUSIC_LIST = [
+	"反方向的钟.mp3",
+    "一半一半.mp3",
+    "几分之几.mp3"
+];
+let musicState = {
+    index: 0,
+    mode: 0, 
+    isPlaying: false
+};
+
 const DEFAULT_AVATAR = "https://img.wjwj.top/2026/01/20/d6346e9c8e93165079c5ab74f856358c.png";
 const DEFAULT_SIGNATURE = "无";
 
-let state = { user: null, news: [], likes: {}, bgList: [], isPlaying: false };
+let state = { user: null, news: [], likes: {}, currentNewsIdx: 0, isHorizontal: false };
+let currentLightboxImgs = [];
+let currentLightboxIdx = 0;
 
 function init() {
   const loader = document.getElementById('loader');
   setTimeout(() => loader.classList.add('loaded'), 800);
+  
+  initParticles(); // 鼠标特效
   checkLogin();
   loadNews();
   loadStats();
-  initMusic();
+  initMusicPlayer();
   loadLogs();
-  initScrollToTop();
+  initScrollLogic();
   
+  // 背景功能
+  const savedBg = localStorage.getItem('customBg');
+  if(savedBg) {
+      document.body.style.backgroundImage = `url(${savedBg})`;
+      document.body.classList.add('has-custom-bg');
+  }
+  document.getElementById('bgBtn').onclick = () => document.getElementById('bgInput').click();
+  document.getElementById('bgInput').onchange = handleBgUpload;
+
+  // 布局切换
+  document.getElementById('layoutBtn').onclick = toggleLayout;
+
+  // 搜索
   document.getElementById('searchBtn').addEventListener('click', doSearch);
   document.getElementById('searchInput').addEventListener('keyup', (e) => { if(e.key === 'Enter') doSearch(); });
+
+  // 键盘控制灯箱
+  document.addEventListener('keydown', (e) => {
+      if(!document.getElementById('lightbox').classList.contains('active')) return;
+      if(e.key === 'ArrowLeft') changeLightbox(-1);
+      if(e.key === 'ArrowRight') changeLightbox(1);
+      if(e.key === 'Escape') closeLightbox();
+  });
+}
+
+/* --- 布局与滚动逻辑 (Silky Smooth Version) --- */
+function toggleLayout() {
+    // 1. 获取核心元素
+    const container = document.querySelector('.main-container');
+    const wrapper = document.getElementById('mainWrapper');
+    const btn = document.getElementById('layoutBtn');
+    
+    // 2. 第一步：退场动画 (Fade Out & Scale Down)
+    // 加上 switching-hidden 类，CSS会自动处理 opacity 和 transform
+    container.classList.add('switching-hidden');
+
+    // 3. 等待退场动画完成 (400ms 与 CSS transition 一致)
+    setTimeout(() => {
+        state.isHorizontal = !state.isHorizontal;
+        
+        // 4. 在幕后进行 DOM Class 切换和滚动重置 (用户此刻看不到)
+        if(state.isHorizontal) {
+            wrapper.classList.remove('vertical-mode');
+            wrapper.classList.add('horizontal-mode');
+            
+            // 切换为列表图标
+            btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>';
+            window.addEventListener('wheel', handleHorizontalScroll, { passive: false });
+        } else {
+            wrapper.classList.remove('horizontal-mode');
+            wrapper.classList.add('vertical-mode');
+            
+            // 切换为网格图标
+            btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>';
+            window.removeEventListener('wheel', handleHorizontalScroll);
+        }
+
+        // 重置滚动位置，避免跳动
+        window.scrollTo(0,0);
+        wrapper.scrollLeft = 0;
+        updateProgress();
+
+        // 5. 准备进场：先强制重置所有卡片的动画状态
+        const cards = document.querySelectorAll('.news-card');
+        cards.forEach(card => {
+            card.style.transition = 'none'; // 暂时关闭卡片自身的 transition
+            card.style.opacity = '0';
+            card.classList.remove('visible', 'in-view');
+        });
+
+        // 6. 第二步：进场动画 (Fade In & Scale Up)
+        // 使用 requestAnimationFrame 确保浏览器渲染了上述变化
+        requestAnimationFrame(() => {
+            container.classList.remove('switching-hidden');
+            
+            // 7. 卡片波浪式入场 (Staggered Animation)
+            // 恢复卡片的 transition 属性，并依次显示
+            setTimeout(() => {
+                cards.forEach((card, index) => {
+                    card.style.transition = ''; // 恢复 CSS 中的 transition
+                    
+                    // 制造波浪效果：每个卡片延迟 50ms 出现
+                    setTimeout(() => {
+                        card.style.opacity = ''; // 【修复关键】：清除行内 opacity 样式，让 CSS 类生效
+                        card.classList.add('visible');
+                        if(state.isHorizontal) card.classList.add('in-view');
+                    }, index * 50); 
+                });
+            }, 100); // 稍微等待容器开始放大后再显示卡片
+        });
+
+    }, 400); // 等待退场动画结束
+}
+
+function handleHorizontalScroll(e) {
+    if(!state.isHorizontal) return;
+    if(document.getElementById('newsModal').classList.contains('show')) return;
+    
+    e.preventDefault();
+    const container = document.querySelector('.main-wrapper'); 
+    container.scrollLeft += e.deltaY;
+    
+    updateProgress();
+    checkHorizontalVisibility();
 }
 
 function initScrollToTop() {
     const btn = document.getElementById('scrollTopBtn');
     window.addEventListener('scroll', () => {
-        if (window.scrollY > 300 || document.documentElement.scrollTop > 300) {
-            btn.classList.add('show');
-        } else {
-            btn.classList.remove('show');
+        if(!state.isHorizontal) {
+            updateProgress();
+            if (window.scrollY > 300) btn.classList.add('show');
+            else btn.classList.remove('show');
         }
     });
     btn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function initScrollLogic() {
+    initScrollToTop();
+    window.addEventListener('scroll', updateProgress);
+}
+
+function updateProgress() {
+    const bar = document.querySelector('.zipper-bar');
+    let pct = 0;
+    
+    if(state.isHorizontal) {
+        const el = document.querySelector('.main-wrapper');
+        const w = el.scrollWidth - el.clientWidth;
+        pct = w > 0 ? (el.scrollLeft / w) * 100 : 0;
+    } else {
+        const h = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        pct = h > 0 ? (window.scrollY / h) * 100 : 0;
+    }
+    bar.style.height = `${Math.min(100, Math.max(0, pct))}%`;
+}
+
+function checkHorizontalVisibility() {
+    const cards = document.querySelectorAll('.news-card');
+    const viewW = window.innerWidth;
+    cards.forEach(card => {
+        const rect = card.getBoundingClientRect();
+        // 稍微放宽判定范围
+        if(rect.left < viewW + 50 && rect.right > -50) {
+            card.classList.add('in-view');
+        } else {
+            card.classList.remove('in-view');
+        }
+    });
+}
+
+/* --- 背景上传 --- */
+function handleBgUpload(e) {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+        const res = evt.target.result;
+        localStorage.setItem('customBg', res);
+        document.body.style.backgroundImage = `url(${res})`;
+        document.body.classList.add('has-custom-bg');
+        showToast('背景已更换');
+    };
+    reader.readAsDataURL(file);
+}
+
+/* --- 音乐播放器逻辑 --- */
+function initMusicPlayer() {
+    const audio = document.getElementById('music');
+    const playBtn = document.getElementById('playBtn');
+    const footer = document.getElementById('footer');
+    const playIcon = playBtn.querySelector('div');
+    const title = document.getElementById('musicTitle');
+    const prevBtn = document.getElementById('prevSongBtn');
+    const nextBtn = document.getElementById('nextSongBtn');
+    const modeBtn = document.getElementById('modeBtn');
+    const modeIcon = document.getElementById('modeIcon');
+
+    const BASE_PATH = 'moguone/song/';
+
+    function loadSong(idx) {
+        if(idx < 0) idx = MUSIC_LIST.length - 1;
+        if(idx >= MUSIC_LIST.length) idx = 0;
+        musicState.index = idx;
+        const name = MUSIC_LIST[idx];
+        audio.src = BASE_PATH + name;
+        title.textContent = name.replace('.mp3', '');
+        if(musicState.isPlaying) audio.play().catch(()=>{});
+    }
+
+    loadSong(0);
+
+    playBtn.onclick = () => {
+        if(musicState.isPlaying) {
+            audio.pause();
+            footer.classList.remove('playing');
+            playIcon.className = 'play-icon';
+        } else {
+            audio.play();
+            footer.classList.add('playing');
+            playIcon.className = 'pause-icon';
+        }
+        musicState.isPlaying = !musicState.isPlaying;
+    };
+
+    nextBtn.onclick = () => {
+        if(musicState.mode === 2) {
+            let next = Math.floor(Math.random() * MUSIC_LIST.length);
+            loadSong(next);
+        } else {
+            loadSong(musicState.index + 1);
+        }
+    };
+    prevBtn.onclick = () => loadSong(musicState.index - 1);
+
+    audio.onended = () => {
+        if(musicState.mode === 1) {
+            audio.play(); 
+        } else {
+            nextBtn.click();
+        }
+    };
+
+    const modes = [
+        { id: 0, name: '列表循环', path: "M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" },
+        { id: 1, name: '单曲循环', path: "M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" }, 
+        { id: 2, name: '随机播放', path: "M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z" }
+    ];
+
+    modeBtn.onclick = () => {
+        musicState.mode = (musicState.mode + 1) % 3;
+        modeIcon.querySelector('path').setAttribute('d', modes[musicState.mode].path);
+        modeBtn.title = modes[musicState.mode].name;
+        if(musicState.mode === 1) showToast('单曲循环');
+        if(musicState.mode === 2) showToast('随机播放');
+        if(musicState.mode === 0) showToast('列表循环');
+    };
+}
+
+/* --- Search & Render --- */
 function doSearch() {
   const val = document.getElementById('searchInput').value.trim().toLowerCase();
   const container = document.getElementById('newsContainer');
@@ -462,24 +910,157 @@ function doSearch() {
     </div>
   `).join('');
   
-  setTimeout(() => { document.querySelectorAll('.news-card').forEach(el => el.classList.add('visible')); }, 50);
+  setTimeout(() => { 
+      document.querySelectorAll('.news-card').forEach(el => el.classList.add('visible'));
+      if(state.isHorizontal) checkHorizontalVisibility();
+  }, 50);
   if(filtered.length === 0) container.innerHTML = '<div style="text-align:center;width:100%;color:#999;padding:60px;">Nothing found in the journal.</div>';
 }
 
+/* --- Modal Logic --- */
+function openModal(idx) {
+  state.currentNewsIdx = idx;
+  const item = state.news[idx]; 
+  const modal = document.getElementById('newsModal');
+  const content = document.getElementById('modalContent');
+  const box = document.getElementById('modalBox');
+
+  box.classList.remove('show-comments');
+  
+  let mediaHtml = '';
+  if(item.imgs.length > 0) {
+      mediaHtml += '<div class="detail-media-grid">';
+      item.imgs.forEach((src, imgIdx) => {
+          mediaHtml += `<img src="${src}" class="detail-thumb" onclick="viewLightbox(${idx}, ${imgIdx})">`;
+      });
+      mediaHtml += '</div>';
+  }
+  
+  content.innerHTML = `
+    <div style="font-size:13px;color:#999;margin-bottom:10px;">${item.date}</div>
+    <h2 style="font-size:28px;margin-bottom:25px;color:#2c3e50;font-family:serif;">${item.title}</h2>
+    <div style="font-size:16px;line-height:1.8;color:#4a5568;margin-bottom:30px;white-space:pre-wrap;">${item.content}</div>
+    ${mediaHtml}
+  `;
+  
+  modal.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  
+  document.getElementById('toggleCommentBtn').onclick = () => {
+      box.classList.toggle('show-comments');
+  };
+
+  loadComments(item.id);
+  document.getElementById('modalClose').onclick = () => { 
+      modal.classList.remove('show'); 
+      document.body.style.overflow = ''; 
+  };
+}
+
+/* --- Lightbox Logic --- */
+function viewLightbox(newsIdx, imgIdx) {
+    const item = state.news[newsIdx];
+    currentLightboxImgs = item.imgs;
+    currentLightboxIdx = imgIdx;
+    updateLightboxImage();
+    document.getElementById('lightbox').classList.add('active');
+}
+
+function updateLightboxImage() {
+    const img = document.getElementById('lightboxImg');
+    img.style.opacity = 0.5;
+    setTimeout(() => {
+        img.src = currentLightboxImgs[currentLightboxIdx];
+        img.style.opacity = 1;
+    }, 100);
+}
+
+function changeLightbox(dir) {
+    const newIdx = currentLightboxIdx + dir;
+    if(newIdx >= 0 && newIdx < currentLightboxImgs.length) {
+        currentLightboxIdx = newIdx;
+        updateLightboxImage();
+    }
+}
+
+function closeLightbox() { 
+    document.getElementById('lightbox').classList.remove('active'); 
+}
+
+/* --- Particles Effect (Canvas) - Modified: Click Only --- */
+function initParticles() {
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let particles = [];
+
+    function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    class Particle {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+            this.size = Math.random() * 5 + 2;
+            this.speedX = Math.random() * 6 - 3; // 扩大横向散开范围
+            this.speedY = Math.random() * -6 - 2; // 向上喷发力度增加
+            this.gravity = 0.2;
+            this.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+            this.life = 60; // 缩短生命周期，实现瞬间消失
+        }
+        update() {
+            this.speedY += this.gravity;
+            this.x += this.speedX;
+            this.y += this.speedY;
+            this.life--;
+            this.size *= 0.95;
+        }
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    // 修改：改为点击触发烟花效果
+    window.addEventListener('mousedown', (e) => {
+        // 每次点击生成 20 个粒子，形成爆炸效果
+        for(let i=0; i<20; i++) {
+            particles.push(new Particle(e.clientX, e.clientY));
+        }
+    });
+
+    function animate() {
+        ctx.clearRect(0, 0, width, height);
+        for(let i = 0; i < particles.length; i++) {
+            particles[i].update();
+            particles[i].draw();
+            if(particles[i].life <= 0 || particles[i].size < 0.5) {
+                particles.splice(i, 1);
+                i--;
+            }
+        }
+        requestAnimationFrame(animate);
+    }
+    animate();
+}
+
+/* --- API & Login Logic (保留原样) --- */
 function checkLogin() {
   const localUser = localStorage.getItem('MY_CUSTOM_USER_INFO');
   if (localUser) {
     state.user = JSON.parse(localUser);
-    if (!state.user.isAdmin) {
-        showAccessDenied();
-        return; 
-    }
+    if (!state.user.isAdmin) { showAccessDenied(); return; }
     document.getElementById('loginBtn').style.display = 'none';
     document.getElementById('userBtn').style.display = 'flex';
+    document.getElementById('bgBtn').style.display = 'flex'; // 显示换肤按钮
     document.getElementById('userName').textContent = state.user.nickname;
     document.getElementById('goAdmin').style.display = 'block';
-
-    // 静默更新用户信息 (Avatar, Signature etc.)
     updateUserInfoFromRemote();
   } else {
     showAccessDenied();
@@ -499,16 +1080,12 @@ async function updateUserInfoFromRemote() {
         const data = await res.json();
         const lines = data.body.split('\n');
         const userLine = lines.find(l => l.startsWith(state.user.account + '|'));
-        
         if(userLine) {
             const parts = userLine.split('|').map(s => s.trim());
-            // Account|Password|Email|Nickname|IsAdmin|Avatar|Signature
-            // We only update non-critical display info here to avoid overwriting auth token logic if any
             state.user.nickname = parts[3] || state.user.nickname;
             state.user.email = parts[2] || state.user.email;
             state.user.avatar = parts[5] || DEFAULT_AVATAR;
             state.user.signature = parts[6] || DEFAULT_SIGNATURE;
-            
             localStorage.setItem('MY_CUSTOM_USER_INFO', JSON.stringify(state.user));
             document.getElementById('userName').textContent = state.user.nickname;
         }
@@ -519,11 +1096,7 @@ function showAccessDenied() {
     document.getElementById('accessModal').classList.add('show');
     document.body.style.overflow = 'hidden';
 }
-
-function logout() {
-    localStorage.removeItem('MY_CUSTOM_USER_INFO');
-    location.reload();
-}
+function logout() { localStorage.removeItem('MY_CUSTOM_USER_INFO'); location.reload(); }
 
 async function loadNews() {
   try {
@@ -560,45 +1133,6 @@ async function loadStats() {
   } catch(e) { console.error(e); }
 }
 
-function initMusic() {
-  const audio = document.getElementById('music');
-  const btn = document.getElementById('playBtn');
-  const footer = document.getElementById('footer');
-  const icon = btn.querySelector('div');
-  btn.onclick = () => {
-    if(state.isPlaying) { audio.pause(); footer.classList.remove('playing'); icon.className = 'play-icon'; } 
-    else { audio.play(); footer.classList.add('playing'); icon.className = 'pause-icon'; }
-    state.isPlaying = !state.isPlaying;
-  };
-}
-
-function openModal(idx) {
-  const item = state.news[idx]; 
-  const modal = document.getElementById('newsModal');
-  const content = document.getElementById('modalContent');
-  let mediaHtml = item.imgs.map(src => `<img src="${src}" onclick="viewImg('${src}')" style="width:100%;border-radius:12px;margin-bottom:15px;cursor:zoom-in;box-shadow:0 4px 12px rgba(0,0,0,0.1);">`).join('');
-  mediaHtml += item.videos.map(src => `<video src="${src}" controls style="width:100%;border-radius:12px;margin-bottom:15px;box-shadow:0 4px 12px rgba(0,0,0,0.1);"></video>`).join('');
-  
-  content.innerHTML = `
-    <div style="font-size:13px;color:#999;margin-bottom:10px;">${item.date}</div>
-    <h2 style="font-size:28px;margin-bottom:25px;color:#2c3e50;font-family:serif;">${item.title}</h2>
-    <div style="font-size:16px;line-height:1.8;color:#4a5568;margin-bottom:30px;white-space:pre-wrap;">${item.content}</div>
-    ${mediaHtml}
-  `;
-  modal.classList.add('show');
-  document.body.style.overflow = 'hidden';
-  loadComments(item.id);
-  document.getElementById('modalClose').onclick = () => { modal.classList.remove('show'); document.body.style.overflow = ''; };
-}
-
-function viewImg(src) {
-  const box = document.getElementById('lightbox');
-  const img = document.getElementById('lightboxImg');
-  img.src = src;
-  box.classList.add('active');
-}
-function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
-
 async function loadComments(newsId) {
   const list = document.getElementById('commentList');
   list.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">加载中...</div>';
@@ -615,8 +1149,6 @@ async function loadComments(newsId) {
   list.innerHTML = comments.map(c => {
     let parts = c.body.split('|');
     let uid, name, avatar, text;
-    // Handle standard User struct or Legacy comment struct
-    // We assume comment body stored as: Account|Nickname|Avatar|Content
     if (parts.length >= 4) { [uid, name, avatar, text] = parts; } 
     else { [uid, name, text] = parts; avatar = DEFAULT_AVATAR; }
     const content = text ? text.replace(/[【】]/g, '') : c.body;
@@ -656,16 +1188,7 @@ async function postComment(issueId) {
   await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${issueId}/comments`, { method: 'POST', headers: { Authorization: `token ${CONFIG.token}` }, body: JSON.stringify({ body }) });
   input.value = '';
   showToast('评论成功');
-  loadComments(state.news.find(n => n.id).id || state.news[0].id);
-}
-
-function loadLogs() { fetch('moguone/log.txt').then(r => r.text()).then(t => { document.querySelector('.sidebar-update-log').innerHTML = t.split('\n').map(l => `<div>${l}</div>`).join(''); }); }
-
-function showToast(msg) { 
-    const t = document.getElementById('toast'); 
-    t.querySelector('.toast-text').textContent = msg; 
-    t.classList.add('show'); 
-    setTimeout(() => t.classList.remove('show'), 2000); 
+  loadComments(state.news.find(n => n.id === state.currentNewsIdx).id || state.news[state.currentNewsIdx].id);
 }
 
 async function createCommentIssue(newsId) {
@@ -678,6 +1201,16 @@ async function createCommentIssue(newsId) {
     await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${CONFIG.commentMapIssue}`, { method: 'PATCH', headers: { Authorization: `token ${CONFIG.token}` }, body: JSON.stringify({ body: newBody }) });
     postComment(newIssue.number);
 }
+
+function loadLogs() { fetch('moguone/log.txt').then(r => r.text()).then(t => { document.querySelector('.sidebar-update-log').innerHTML = t.split('\n').map(l => `<div>${l}</div>`).join(''); }); }
+
+function showToast(msg) { 
+    const t = document.getElementById('toast'); 
+    t.querySelector('.toast-text').textContent = msg; 
+    t.classList.add('show'); 
+    setTimeout(() => t.classList.remove('show'), 2000); 
+}
+
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
