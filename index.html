@@ -8,6 +8,21 @@
 <title>MoGuOne | 记录生活</title>
 <style>
 /* --- 核心变量定义 --- */
+/* 垂直模式专属 - 日记预览样式调整：图片修长+标题/正文放大 */
+.main-wrapper.vertical-mode .news-cover-box {
+  /* 调整图片宽高比：从原45%（接近正方形）改为30%（修长长方形），同时图片高度自然变小 */
+  padding-bottom: 30% !important;
+}
+.main-wrapper.vertical-mode .news-title {
+  /* 大标题放大：从原20px改为24px，更醒目 */
+  font-size: 24px !important;
+}
+.main-wrapper.vertical-mode .news-desc {
+  /* 正文放大：从原14px改为16px，阅读更舒适 */
+  font-size: 16px !important;
+  /* 可选：微调行高，让放大后的文字更舒展 */
+  line-height: 1.7 !important;
+}
 :root {
   --bg-body: #f3f4f6;
   --bg-card: #ffffff;
@@ -444,7 +459,12 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
   border: 1px solid #eee; position: relative;
 }
 .modal-mask.show .modal-box { transform: scale(1); }
-
+.modal-mask.hide {
+  pointer-events: none; /* 核心：忽略所有点击/鼠标/触摸事件 */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease; /* 与显示时过渡一致，保证动画流畅 */
+}
 .modal-actions {
     position: absolute; top: 20px; right: 20px; z-index: 100; display: flex; gap: 10px;
 }
@@ -536,15 +556,23 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
 /* Lightbox */
 .lightbox {
   position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000;
-  display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  display: flex; align-items: center; justify-content: center;
+  /* 新增：默认状态下完全不可见+不可交互 */
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden; /* 关键：彻底隐藏元素（不仅透明） */
+  transition: opacity 0.3s, visibility 0.3s; /* 同步过渡效果 */
 }
-.lightbox.active { opacity: 1; pointer-events: auto; }
+.lightbox.active { 
+  opacity: 1; 
+  pointer-events: auto; 
+  visibility: visible; /* 激活时才显示 */
+}
 .lightbox img {
     max-width: 90%; max-height: 85%; box-shadow: 0 0 50px rgba(0,0,0,0.5); border-radius: 4px;
     transform: scale(0.9); transition: transform 0.4s var(--ease-out-back); user-select: none;
 }
 .lightbox.active img { transform: scale(1); }
-
 /* Video Lightbox */
 #videoLightbox {
   position: fixed; inset: 0; background: #000; z-index: 10001;
@@ -1240,31 +1268,30 @@ function doSearch() {
   const val = document.getElementById('searchInput').value.trim().toLowerCase();
   const container = document.getElementById('newsContainer');
   const filtered = state.news.filter(item => item.title.toLowerCase().includes(val) || item.content.toLowerCase().includes(val));
-  
-  container.innerHTML = filtered.map((item, idx) => `
-    <div class="news-card" onclick="openModal(${idx})" style="animation-delay:${idx * 0.1}s">
-      ${item.imgs.length ? `
-        <div class="news-cover-box">
-           <img src="${item.imgs[0]}" loading="lazy">
-        </div>
-      ` : (item.videos.length ? `
-        <div class="news-cover-box">
-           <video src="${item.videos[0]}#t=0.1" preload="metadata" muted></video>
-           <div class="video-play-icon" style="transform:translate(-50%,-50%) scale(0.6);"></div>
-        </div>
-      ` : '')}
-      
-      <div class="news-content">
-        <div class="news-date">${item.date}</div>
-        <div class="news-title">${item.title}</div>
-        <div class="news-desc">${item.content}</div>
-        <div class="news-footer">
-           <span class="read-more">Read Journal</span>
-        </div>
-      </div>
+container.innerHTML = filtered.map((item, idx) => `
+  <!-- 核心修改：1.加data-news-id存真实id  2.onclick改传item.id -->
+  <div class="news-card" data-news-id="${item.id}" onclick="openModal(${item.id})" style="animation-delay:${idx * 0.1}s">
+  ${item.imgs.length ? `
+    <div class="news-cover-box">
+       <img src="${item.imgs[0]}" loading="lazy">
     </div>
-  `).join('');
+  ` : (item.videos.length ? `
+    <div class="news-cover-box">
+       <video src="${item.videos[0]}#t=0.1" preload="metadata" muted></video>
+       <div class="video-play-icon" style="transform:translate(-50%,-50%) scale(0.6);"></div>
+    </div>
+  ` : '')}
   
+  <div class="news-content">
+    <div class="news-date">${item.date}</div>
+    <div class="news-title">${item.title}</div>
+    <div class="news-desc">${item.content}</div>
+    <div class="news-footer">
+       <span class="read-more">Read Journal</span>
+    </div>
+  </div>
+</div>
+`).join('');  
   setTimeout(() => { 
       document.querySelectorAll('.news-card').forEach(el => el.classList.add('visible'));
       // 如果正在水平模式，立即计算一次位置
@@ -1279,14 +1306,23 @@ function doSearch() {
   
   if(filtered.length === 0) container.innerHTML = '<div style="text-align:center;width:100%;color:#999;padding:60px;">Nothing found in the journal.</div>';
 }
-/* --- 替换开始：终极版打开详情函数（修复偏移+卡顿+重复声明） --- */
-function openModal(idx) {
-    // 修复：删除重复的modal变量声明，这是致命语法错误
+/* --- 修复版：按日记ID打开详情，彻底解决搜索后内容不匹配问题 --- */
+function openModal(newsId) { // 参数改为：日记唯一ID
     const modal = document.getElementById('newsModal');
-    modal.classList.remove('hide'); // 关键：清除禁用指针事件的样式
-    modal.classList.remove('show'); // 重置显示状态，避免重复叠加
-    state.currentNewsIdx = idx;
-    const item = state.news[idx]; 
+    modal.classList.remove('hide');
+    modal.classList.remove('show');
+    
+    // 核心修复1：通过ID从原始数组精准查找对应的日记项（关键！）
+    const item = state.news.find(item => item.id === newsId);
+    // 容错：如果没找到（理论上不会发生，防止异常）
+    if (!item) {
+        showToast('日记不存在或已删除');
+        return;
+    }
+    
+    // 核心修复2：更新全局当前索引为【原始数组的正确索引】（保证灯箱/视频等功能正常）
+    state.currentNewsIdx = state.news.findIndex(item => item.id === newsId);
+    
     const content = document.getElementById('modalContent');
     const box = document.getElementById('modalBox');
 
@@ -1300,8 +1336,7 @@ function openModal(idx) {
     if(item.imgs.length > 0) {
         mediaHtml += '<div class="detail-media-grid">';
         item.imgs.forEach((src, imgIdx) => {
-            // loading="lazy" 是解决卡顿的关键
-            mediaHtml += `<img src="${src}" class="detail-thumb" loading="lazy" onclick="viewLightbox(${idx}, ${imgIdx})">`;
+            mediaHtml += `<img src="${src}" class="detail-thumb" loading="lazy" onclick="viewLightbox(${state.currentNewsIdx}, ${imgIdx})">`;
         });
         mediaHtml += '</div>';
     }
@@ -1328,14 +1363,11 @@ function openModal(idx) {
       ${mediaHtml}
     `;
     
-    // --- 核心修复：解决页面偏移抖动 ---
-    // 1. 计算当前滚动条的宽度
+    // 解决页面偏移抖动
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    // 2. 给 body 添加右边距，抵消滚动条消失带来的偏移
     if(scrollbarWidth > 0) {
         document.body.style.paddingRight = `${scrollbarWidth}px`;
     }
-    // 3. 禁止背景滚动
     document.body.style.overflow = 'hidden';
     
     // 显示模态框
@@ -1346,24 +1378,22 @@ function openModal(idx) {
         box.classList.toggle('show-comments');
     };
 
-    // 加载评论
+    // 加载评论（传日记真实ID，评论功能不受影响）
     loadComments(item.id);
     
     document.getElementById('modalClose').onclick = () => { 
-        // 1. 移除显示类，触发视觉隐藏动画
         modal.classList.remove('show'); 
-        // 2. 立即添加hide类，禁用所有指针事件（关键一步，立即解决可点击问题）
         modal.classList.add('hide');
-        // 3. 延迟执行：等待动画完成（300ms，和CSS中transition的时长一致）
+        box.classList.remove('show-comments');
+        document.getElementById('commentList').innerHTML = '';
+        document.getElementById('commentInput').value = '';
         setTimeout(() => {
-            document.body.style.overflow = ''; // 恢复body滚动
-            document.body.style.paddingRight = ''; // 清除body右侧内边距
-            content.innerHTML = ''; // 清空详情内容容器，彻底移除残留DOM
-        }, 300); // 延迟时间和CSS中.modal-mask的transition时长（0.3s）完全一致
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+            content.innerHTML = '';
+        }, 300); 
     };
 }
-/* --- 替换结束 --- */
-
 /* --- Lightbox Logic --- */
 function viewLightbox(newsIdx, imgIdx) {
     const item = state.news[newsIdx];
@@ -1391,7 +1421,12 @@ function changeLightbox(dir) {
 }
 
 function closeLightbox() { 
-    document.getElementById('lightbox').classList.remove('active'); 
+    const lightbox = document.getElementById('lightbox');
+    lightbox.classList.remove('active'); // 移除激活状态
+    // 关键：清空图片地址+重置索引，避免残留元素遮挡
+    document.getElementById('lightboxImg').src = '';
+    currentLightboxImgs = [];
+    currentLightboxIdx = 0;
 }
 
 function openVideo(src) {
