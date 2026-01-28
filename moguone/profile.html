@@ -1,81 +1,330 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Profile Settings</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>个人资料 - Mg搜索</title>
 <style>
-/* CSS Styles kept same as provided */
 :root {
-  --primary: #6366f1;
-  --primary-hover: #4f46e5;
-  --bg-color: #f8fafc;
-  --glass-bg: rgba(255, 255, 255, 0.75);
-  --glass-border: rgba(255, 255, 255, 0.8);
-  --glass-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
-  --text-main: #1e293b;
-  --text-sub: #64748b;
-  --ease-spring: cubic-bezier(0.25, 0.8, 0.25, 1);
-  --danger: #ef4444;
-  --success: #10b981;
+  --forest: #3D6B4F;
+  --forest-dark: #2D4F3A;
+  --peach: #E07A5F;
+  --peach-light: #F4A261;
+  --cream: #F2E8CF;
+  --soft-gold: #E9C46A;
+  --glass-bg: rgba(255, 253, 245, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.12);
+  --text-primary: #2D4F3A;
+  --text-secondary: #5A7D6C;
+  --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --radius: 32px;
+  --radius-lg: 48px;
+  --radius-sm: 20px;
+  --bg-color: #f5f3f0;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; -webkit-font-smoothing: antialiased; }
-body { min-height: 100vh; display: flex; justify-content: center; align-items: center; background-color: var(--bg-color); color: var(--text-main); position: relative; overflow: hidden; }
-.ambient-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; overflow: hidden; background: radial-gradient(circle at 0% 0%, #e0e7ff 0%, transparent 50%), radial-gradient(circle at 100% 100%, #f3e8ff 0%, transparent 50%); }
-.orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6; animation: floatOrb 20s infinite ease-in-out; }
-.orb-1 { width: 400px; height: 400px; background: #818cf8; top: -100px; left: -100px; animation-delay: 0s; }
-.orb-2 { width: 300px; height: 300px; background: #c084fc; bottom: 10%; right: -50px; animation-delay: -5s; }
-@keyframes floatOrb { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(30px, 50px) scale(1.1); } 66% { transform: translate(-20px, 20px) scale(0.9); } }
-.back-link { position: absolute; top: 40px; left: 40px; display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--text-sub); font-weight: 600; font-size: 14px; padding: 10px 20px; background: rgba(255,255,255,0.6); border-radius: 16px; transition: all 0.3s var(--ease-spring); backdrop-filter: blur(10px); }
-.back-link:hover { background: white; transform: translateX(-4px); color: var(--primary); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-.profile-container { width: 100%; max-width: 480px; background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 40px; box-shadow: var(--glass-shadow); transform: translateY(0); animation: slideUp 0.6s var(--ease-spring); }
-@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-.profile-header { text-align: center; margin-bottom: 32px; }
-.profile-title { font-size: 28px; font-weight: 800; background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
-.profile-subtitle { color: var(--text-sub); font-size: 14px; }
-.avatar-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 32px; }
-.avatar-preview { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #e2e8f0, #f1f5f9); display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 700; color: #94a3b8; margin-bottom: 16px; border: 4px solid white; box-shadow: 0 8px 25px rgba(0,0,0,0.08); background-size: cover; background-position: center; transition: transform 0.4s var(--ease-spring); }
-.avatar-preview:hover { transform: scale(1.05); }
-.form-group { margin-bottom: 20px; }
-.form-label { display: block; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; margin-left: 4px; }
-.form-input { width: 100%; padding: 14px 18px; border-radius: 16px; border: 1px solid transparent; background: rgba(255,255,255,0.6); font-size: 14px; color: var(--text-main); outline: none; transition: all 0.3s; font-weight: 500; }
-.form-input:focus { background: white; border-color: #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transform: translateY(-1px); }
-.form-input::placeholder { color: #94a3b8; }
-.form-actions { display: flex; gap: 12px; margin-top: 32px; }
-.btn { flex: 1; padding: 14px; border-radius: 16px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; transition: all 0.3s var(--ease-spring); }
-.btn-secondary { background: white; color: var(--text-sub); box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-.btn-secondary:hover { background: #f8fafc; transform: translateY(-2px); color: var(--text-main); }
-.btn-primary { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4); }
-.btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
-.custom-alert { position: fixed; top: 30px; left: 50%; transform: translateX(-50%) translateY(-100px); background: white; padding: 12px 24px; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; color: var(--text-main); z-index: 10000; opacity: 0; transition: all 0.5s var(--ease-spring); }
-.custom-alert.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-.custom-alert.error { color: var(--danger); }
-.custom-alert.success { color: var(--success); }
-@media (max-width: 768px) { .profile-container { width: 90%; padding: 24px; } .back-link { top: 20px; left: 20px; } }
-.loading-dots:after { content: ' .'; animation: dots 1s steps(5, end) infinite; }
-@keyframes dots { 0%, 20% { color: rgba(0,0,0,0); text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0);} 40% { color: white; text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0);} 60% { text-shadow: .25em 0 0 white, .5em 0 0 rgba(0,0,0,0);} 80%, 100% { text-shadow: .25em 0 0 white, .5em 0 0 white;} }
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Helvetica Neue", sans-serif; -webkit-tap-highlight-color: transparent; -webkit-font-smoothing: antialiased; }
+
+html, body {
+  height: 100%;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  overflow-x: hidden;
+}
+
+.chinese-bg-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background-image: url('https://img.wjwj.top/2026/01/28/6b1f3899b3a7eefb30f601d3003d76bf.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.liquid-glass {
+  background: linear-gradient(135deg, rgba(255, 253, 245, 0.85) 0%, rgba(255, 251, 240, 0.6) 100%);
+  backdrop-filter: blur(20px) saturate(200%) contrast(1.1);
+  -webkit-backdrop-filter: blur(20px) saturate(200%) contrast(1.1);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 
+    0 8px 32px rgba(45, 79, 58, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius);
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(180deg, 
+    rgba(255, 255, 255, 0.4) 0%, 
+    transparent 40%, 
+    transparent 60%, 
+    rgba(242, 232, 207, 0.3) 100%);
+  pointer-events: none;
+  border-radius: var(--radius);
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  position: relative;
+}
+
+.back-link {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 12px 24px;
+  background: rgba(255, 253, 245, 0.6);
+  border-radius: var(--radius-sm);
+  transition: all 0.3s var(--ease-spring);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  z-index: 10;
+}
+
+.back-link:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateX(-4px);
+  color: var(--forest);
+  box-shadow: 0 4px 15px rgba(45, 79, 58, 0.1);
+}
+
+.profile-container {
+  width: 100%;
+  max-width: 480px;
+  padding: 40px;
+  animation: slideUp 0.6s var(--ease-spring);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.profile-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--forest-dark);
+  margin-bottom: 8px;
+  font-family: "PingFang SC", sans-serif;
+}
+
+.profile-subtitle {
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.avatar-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--forest);
+  margin-bottom: 16px;
+  border: 4px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 8px 25px rgba(45, 79, 58, 0.15);
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.4s var(--ease-spring);
+}
+
+.avatar-preview:hover {
+  transform: scale(1.05);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  margin-left: 4px;
+  font-family: "PingFang SC", sans-serif;
+}
+
+.form-input {
+  width: 100%;
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 253, 245, 0.6);
+  font-size: 15px;
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.3s var(--ease-smooth);
+  font-weight: 500;
+  font-family: "PingFang SC", sans-serif;
+}
+
+.form-input:focus {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(224, 122, 95, 0.3);
+  box-shadow: 0 4px 16px rgba(45, 79, 58, 0.08), 0 0 0 4px rgba(224, 122, 95, 0.05);
+  transform: translateY(-2px);
+}
+
+.form-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.btn {
+  flex: 1;
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s var(--ease-spring);
+  font-family: "PingFang SC", sans-serif;
+}
+
+.btn-secondary {
+  background: rgba(255, 253, 245, 0.8);
+  color: var(--text-secondary);
+  box-shadow: 0 2px 8px rgba(45, 79, 58, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-2px);
+  color: var(--text-primary);
+  box-shadow: 0 4px 12px rgba(45, 79, 58, 0.1);
+}
+
+.btn-primary {
+  background: var(--forest);
+  color: white;
+  box-shadow: 0 4px 15px rgba(45, 79, 58, 0.25);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(45, 79, 58, 0.35);
+  background: var(--forest-dark);
+}
+
+.btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.custom-alert {
+  position: fixed;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: rgba(255, 253, 245, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  padding: 16px 32px;
+  border-radius: 50px;
+  box-shadow: 0 10px 40px rgba(45, 79, 58, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+  z-index: 10000;
+  opacity: 0;
+  transition: all 0.5s var(--ease-spring);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  font-family: "PingFang SC", sans-serif;
+}
+
+.custom-alert.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.custom-alert.error { color: #E07A5F; }
+.custom-alert.success { color: #3D6B4F; }
+
+@media (max-width: 768px) {
+  .profile-container { width: 90%; padding: 24px; border-radius: var(--radius-sm); }
+  .back-link { top: 20px; left: 20px; padding: 10px 16px; }
+  .profile-title { font-size: 24px; }
+}
+
+.loading-dots:after {
+  content: ' .';
+  animation: dots 1s steps(5, end) infinite;
+}
+
+@keyframes dots {
+  0%, 20% { color: rgba(0,0,0,0); text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0);}
+  40% { color: white; text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0);}
+  60% { text-shadow: .25em 0 0 white, .5em 0 0 rgba(0,0,0,0);}
+  80%, 100% { text-shadow: .25em 0 0 white, .5em 0 0 white;}
+}
 </style>
 </head>
 <body>
 
-<div class="ambient-bg">
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-</div>
+<div class="chinese-bg-container"></div>
 
-<a href="search.html" class="back-link">
+<a href="search.html" class="back-link liquid-glass">
   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-  Back
+  返回
 </a>
 
-<div class="profile-container">
+<div class="profile-container liquid-glass">
   <div class="profile-header">
-    <h1 class="profile-title">Edit Profile</h1>
-    <p class="profile-subtitle">Update your personal details</p>
+    <h1 class="profile-title">编辑资料</h1>
+    <p class="profile-subtitle">更新您的个人信息</p>
   </div>
    
   <form id="profileForm">
@@ -84,23 +333,23 @@ body { min-height: 100vh; display: flex; justify-content: center; align-items: c
     </div>
     
     <div class="form-group">
-      <label class="form-label">Username</label>
-      <input type="text" id="username" class="form-input" placeholder="Enter username" required>
+      <label class="form-label">用户名</label>
+      <input type="text" id="username" class="form-input" placeholder="输入用户名" required>
     </div>
     
     <div class="form-group">
-      <label class="form-label">Avatar URL</label>
+      <label class="form-label">头像链接</label>
       <input type="text" id="avatar" class="form-input" placeholder="https://example.com/image.png">
     </div>
     
     <div class="form-group">
-      <label class="form-label">Signature</label>
-      <input type="text" id="signature" class="form-input" placeholder="Your personalized signature">
+      <label class="form-label">个性签名</label>
+      <input type="text" id="signature" class="form-input" placeholder="您的个性签名">
     </div>
     
     <div class="form-actions">
-      <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
-      <button type="submit" class="btn btn-primary" id="saveBtn">Save Changes</button>
+      <button type="button" class="btn btn-secondary" id="cancelBtn">取消</button>
+      <button type="submit" class="btn btn-primary" id="saveBtn">保存更改</button>
     </div>
   </form>
 </div>
@@ -187,7 +436,6 @@ async function checkLoginStatus() {
       currentUser = JSON.parse(userData);
       const completeUserInfo = await getCompleteUserInfoFromGitHub(currentUser.account);
       if (completeUserInfo) {
-        // 更新本地数据，确保是最新的
         currentUser.nickname = completeUserInfo.nickname;
         currentUser.email = completeUserInfo.email;
         currentUser.avatar = completeUserInfo.avatar;
@@ -197,12 +445,12 @@ async function checkLoginStatus() {
       }
       return true;
     } catch {
-      showCustomAlert('Session error, please login again', 'error');
+      showCustomAlert('会话错误，请重新登录', 'error');
       setTimeout(() => window.location.href = 'auth.html', 1500);
       return false;
     }
   } else {
-    showCustomAlert('Please login first', 'error');
+    showCustomAlert('请先登录', 'error');
     setTimeout(() => window.location.href = 'auth.html', 1500);
     return false;
   }
@@ -211,7 +459,6 @@ async function checkLoginStatus() {
 function loadUserData() {
   if (!currentUser) return;
   document.getElementById('username').value = currentUser.nickname || currentUser.account || '';
-  // 如果是默认头像，输入框留空，这样用户体验更好；否则显示当前头像URL
   document.getElementById('avatar').value = currentUser.avatar === DEFAULT_AVATAR ? '' : (currentUser.avatar || '');
   document.getElementById('signature').value = currentUser.signature || '';
   updateAvatarPreview();
@@ -222,20 +469,18 @@ function updateAvatarPreview() {
   const url = document.getElementById('avatar').value.trim();
   const username = document.getElementById('username').value.trim() || currentUser.account;
   
-  // 逻辑修改：优先显示输入框的URL，其次显示当前用户的头像（即使是默认头像），最后才显示首字母
   if (url) {
     preview.style.backgroundImage = `url('${url}')`;
     preview.textContent = '';
-    preview.style.border = '4px solid white';
+    preview.style.border = '4px solid rgba(255,255,255,0.8)';
   } else if (currentUser && currentUser.avatar) {
-    // 删除了原本的 && currentUser.avatar !== DEFAULT_AVATAR 判断
     preview.style.backgroundImage = `url('${currentUser.avatar}')`;
     preview.textContent = '';
-    preview.style.border = '4px solid white';
+    preview.style.border = '4px solid rgba(255,255,255,0.8)';
   } else {
     preview.style.backgroundImage = '';
     preview.textContent = username ? username.charAt(0).toUpperCase() : 'U';
-    preview.style.border = '4px solid white';
+    preview.style.border = '4px solid rgba(255,255,255,0.8)';
   }
 }
 
@@ -253,7 +498,7 @@ function validateAvatarUrl(url) {
     const urlObj = new URL(url);
     return true;
   } catch {
-    showCustomAlert('Invalid URL format', 'error');
+    showCustomAlert('链接格式无效', 'error');
     return false;
   }
 }
@@ -266,16 +511,15 @@ async function saveUserData(e) {
   const avatarUrl = document.getElementById('avatar').value.trim();
   const signature = document.getElementById('signature').value.trim();
   
-  if (!username) { showCustomAlert('Username cannot be empty', 'error'); return; }
+  if (!username) { showCustomAlert('用户名不能为空', 'error'); return; }
   if (!validateAvatarUrl(avatarUrl)) return;
   
   const saveBtn = document.getElementById('saveBtn');
   const originalText = saveBtn.textContent;
-  saveBtn.innerHTML = 'Saving<span class="loading-dots"></span>';
+  saveBtn.innerHTML = '保存中<span class="loading-dots"></span>';
   saveBtn.disabled = true;
   
   currentUser.nickname = username;
-  // 如果输入框为空，则使用默认头像；如果有值，则使用输入的值
   currentUser.avatar = avatarUrl || DEFAULT_AVATAR;
   currentUser.signature = signature || '人生格言思密达';
   
@@ -283,11 +527,10 @@ async function saveUserData(e) {
     const success = await updateCurrentUserInGitHub();
     if (!success) throw new Error('Failed to update');
     localStorage.setItem(USER_LOCAL_KEY, JSON.stringify(currentUser));
-    showCustomAlert('Profile updated successfully!', 'success');
-    // 稍微延迟跳转，让用户看到成功的提示
+    showCustomAlert('资料更新成功！', 'success');
     setTimeout(() => window.location.href = 'search.html', 1500);
   } catch {
-    showCustomAlert('Network error, please try again', 'error');
+    showCustomAlert('网络错误，请重试', 'error');
     saveBtn.textContent = originalText;
     saveBtn.disabled = false;
   }
