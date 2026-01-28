@@ -2,368 +2,370 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Mogu Search - Liquid OS</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Mogu Search - Mg</title>
 <style>
 :root {
-  /* iOS 26 Liquid Colors & Settings */
-  --glass-base: rgba(255, 255, 255, 0.2);
-  --glass-border: rgba(255, 255, 255, 0.6);
-  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-  --accent-color: #6366f1;
-  --text-main: #1e293b;
-  --text-sub: #475569;
-  --ios-easing: cubic-bezier(0.25, 1, 0.5, 1);
+  --forest: #3D6B4F;
+  --forest-dark: #2D4F3A;
+  --peach: #E07A5F;
+  --peach-light: #F4A261;
+  --cream: #F2E8CF;
+  --soft-gold: #E9C46A;
+  --glass-bg: rgba(255, 253, 245, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.12);
+  --text-primary: #2D4F3A;
+  --text-secondary: #5A7D6C;
+  --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --radius: 32px;
+  --radius-lg: 48px;
+  --radius-sm: 20px;
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Helvetica Neue", sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
 
-body {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 12vh;
-  color: var(--text-main);
-  overflow-x: hidden;
-  /* 基础背景色，作为光球的画布 */
-  background: #f8fafc; 
-  position: relative;
+html, body {
+  height: 100%;
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
 }
 
-/* --- Improved Liquid Background --- */
-.liquid-bg {
+body {
+  color: var(--text-primary);
+  background: #f5f3f0;
+}
+
+.chinese-bg-container {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   z-index: -1;
-  overflow: hidden;
-  background: #f0f4f8; /* 柔和的灰蓝底色 */
+  background-image: url('https://img.wjwj.top/2026/01/28/6b1f3899b3a7eefb30f601d3003d76bf.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
-.blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(90px); /* 加大模糊度，让颜色融合 */
-  opacity: 0.7;
-  will-change: transform; /* 性能优化 */
-}
-
-/* 颜色方案：极光色系 (Aurora) - 青色、紫色、洋红 */
-.blob-1 {
-  top: -20%;
-  left: -20%;
-  width: 70vw;
-  height: 70vw;
-  background: radial-gradient(circle, #a78bfa 0%, #818cf8 100%); /* 蓝紫色 */
-  animation: moveVertical 30s infinite alternate linear;
-}
-
-.blob-2 {
-  bottom: -20%;
-  right: -20%;
-  width: 60vw;
-  height: 60vw;
-  background: radial-gradient(circle, #f472b6 0%, #c084fc 100%); /* 洋红紫 */
-  animation: moveHorizontal 25s infinite alternate linear;
-}
-
-.blob-3 {
-  top: 30%;
-  left: 30%;
-  width: 50vw;
-  height: 50vw;
-  background: radial-gradient(circle, #22d3ee 0%, #60a5fa 100%); /* 青蓝色 */
-  animation: moveCircular 40s infinite linear;
-  opacity: 0.5;
-}
-
-/* 垂直流动动画 */
-@keyframes moveVertical {
-  0% { transform: translate3d(0, -10%, 0) scale(1); }
-  50% { transform: translate3d(10%, 20%, 0) scale(1.1); }
-  100% { transform: translate3d(-10%, 5%, 0) scale(0.9); }
-}
-
-/* 水平流动动画 */
-@keyframes moveHorizontal {
-  0% { transform: translate3d(-20%, 20%, 0) rotate(0deg); }
-  50% { transform: translate3d(20%, -10%, 0) rotate(20deg); }
-  100% { transform: translate3d(-10%, -20%, 0) rotate(-10deg); }
-}
-
-/* 环形流动动画 */
-@keyframes moveCircular {
-  0% { transform: translate3d(-20%, -20%, 0) rotate(0deg) scale(1); }
-  25% { transform: translate3d(20%, -20%, 0) rotate(90deg) scale(1.1); }
-  50% { transform: translate3d(20%, 20%, 0) rotate(180deg) scale(1); }
-  75% { transform: translate3d(-20%, 20%, 0) rotate(270deg) scale(0.9); }
-  100% { transform: translate3d(-20%, -20%, 0) rotate(360deg) scale(1); }
-}
-
-/* --- Glassmorphism Utils --- */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.35); /* 稍微增加不透明度以突出磨砂感 */
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-  border-radius: 28px;
-}
-
-/* --- Main Layout --- */
-.search-title {
-  font-size: 4.5rem;
-  font-weight: 800;
-  letter-spacing: -0.05em;
-  margin-bottom: 3rem;
-  /* 标题颜色调整为深色渐变，避免被背景吃掉 */
-  background: linear-gradient(135deg, #1e293b 0%, #4f46e5 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 20px 50px rgba(99, 102, 241, 0.2);
-  cursor: default;
-  transition: transform 0.6s var(--ios-easing);
+.liquid-glass {
+  background: linear-gradient(135deg, rgba(255, 253, 245, 0.85) 0%, rgba(255, 251, 240, 0.6) 100%);
+  backdrop-filter: blur(20px) saturate(200%) contrast(1.1);
+  -webkit-backdrop-filter: blur(20px) saturate(200%) contrast(1.1);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 
+    0 8px 32px rgba(45, 79, 58, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius);
   position: relative;
-  z-index: 10;
+  overflow: hidden;
+}
+
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, 
+    rgba(255, 255, 255, 0.4) 0%, 
+    transparent 40%, 
+    transparent 60%, 
+    rgba(242, 232, 207, 0.3) 100%);
+  pointer-events: none;
+  border-radius: var(--radius);
+}
+
+.main-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  position: relative;
+  z-index: 1;
+  gap: 24px;
+}
+
+.search-title {
+  padding-bottom: 35px;
+  font-size: clamp(3rem, 10vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;  /* 纯白色 */
+  text-shadow: 0 2px 12px rgba(0,0,0,0.25);  /* 轻微阴影增加层次感 */
+  position: relative;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  user-select: none;
+  cursor: default;
+  transition: transform 0.4s var(--ease-spring), filter 0.4s;
+  margin-bottom: 20px;
+  /* 移除渐变相关代码 */
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: unset;
 }
 
 .search-title:hover {
-  transform: scale(1.02);
+  transform: scale(1.05) translateY(-5px);
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
+}
+
+.search-wrapper {
+  width: 100%;
+  max-width: 720px;
+  position: relative;
+  transform: translateY(-40px);
 }
 
 .search-container {
-  width: 90%;
-  max-width: 720px;
-  padding: 10px;
+  width: 100%;
+  padding: 12px;
   display: flex;
   align-items: center;
   gap: 12px;
-  transition: all 0.4s var(--ios-easing);
-  background: rgba(255, 255, 255, 0.5); /* 搜索框更亮一些 */
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  position: relative;
-  z-index: 10;
+  transition: all 0.4s var(--ease-spring);
+  will-change: transform;
+  border-radius: var(--radius-lg);
 }
 
-.search-container:hover, .search-container:focus-within {
-  transform: translateY(-5px) scale(1.01);
-  background: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 20px 60px -10px rgba(99, 102, 241, 0.15);
-  border-color: #fff;
+.search-container:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 
+    0 20px 60px rgba(45, 79, 58, 0.12),
+    inset 0 1px 0 rgba(255,255,255,0.9);
 }
 
-.search-engine-wrap { position: relative; }
+.search-container:focus-within {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 
+    0 0 0 4px rgba(224, 122, 95, 0.15),
+    0 20px 60px rgba(45, 79, 58, 0.18);
+}
 
 .search-engine-select {
   appearance: none;
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255,253,245,0.95);
   border: none;
-  padding: 12px 20px;
-  font-size: 14px;
+  padding: 16px 24px;
+  font-size: 15px;
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--forest);
   cursor: pointer;
-  border-radius: 18px;
-  transition: all 0.3s;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.6);
+  border-radius: var(--radius-sm);
+  transition: all 0.3s var(--ease-smooth);
+  box-shadow: 0 2px 8px rgba(45, 79, 58, 0.06);
+  font-family: "PingFang SC", sans-serif;
 }
 
-.search-engine-select:hover { background: #fff; }
-.search-engine-select:focus { outline: none; }
+.search-engine-select:hover {
+  background: rgba(255,255,255,1);
+  transform: scale(1.05);
+}
 
 #search-input {
   flex: 1;
   border: none;
   background: transparent;
   font-size: 18px;
-  padding: 12px 10px;
-  color: var(--text-main);
+  padding: 16px 14px;
+  color: var(--text-primary);
   outline: none;
   font-weight: 500;
+  font-family: "PingFang SC", sans-serif;
 }
 
 #search-input::placeholder {
-  color: #64748b;
+  color: var(--text-secondary);
   font-weight: 400;
-  opacity: 0.7;
+  opacity: 0.6;
 }
 
 #search-btn {
-  background: var(--text-main);
+  background: var(--forest);  /* 纯色，去掉渐变 */
   color: white;
-  border: none;
-  width: 50px;
-  height: 50px;
-  border-radius: 20px;
+  border: 2px solid rgba(255,255,255,0.3);  /* 加白边 */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);   /* 减淡阴影 */
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
   font-weight: 700;
-  font-size: 15px;
   cursor: pointer;
-  transition: all 0.4s var(--ios-easing);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  transition: all 0.4s var(--ease-spring);
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.3);
 }
 
 #search-btn:hover {
-  transform: scale(1.1) rotate(5deg);
-  background: #000;
-  box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+  transform: scale(1.15) rotate(15deg);
+  box-shadow: 0 8px 25px rgba(224, 122, 95, 0.4);
 }
 
-#search-btn:active { transform: scale(0.95); }
+#search-btn:active {
+  transform: scale(0.95);
+}
 
-/* --- History & Rank Modules --- */
+#search-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transition: left 0.6s;
+}
+
+#search-btn:hover::before {
+  left: 100%;
+}
+
 .history-rank-wrap {
-  width: 90%;
+  width: 100%;
   max-width: 720px;
-  margin-top: 40px;
-  transition: all 0.6s var(--ios-easing);
-  position: relative;
-  z-index: 10;
+  transform: translateY(-40px);
+  transition: all 0.5s var(--ease-spring);
+  max-height: 400px;
+  opacity: 1;
+  overflow: hidden;
 }
 
 .history-rank-wrap.hidden {
+  max-height: 0;
   opacity: 0;
-  transform: translateY(40px) scale(0.95);
-  pointer-events: none;
-  height: 0;
   margin: 0;
+  transform: translateY(-20px);
 }
 
 .history-rank-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  grid-template-columns: 1fr;
+  gap: 20px;
 }
 
-.history-section, .rank-section {
-  padding: 24px;
+.history-section {
+	margin-top: 10px;
+  padding: 28px;
   display: flex;
   flex-direction: column;
-  transition: transform 0.3s var(--ios-easing);
+  min-height: 340px;
+  transition: all 0.4s var(--ease-spring);
+  border-radius: var(--radius);
 }
 
-.history-section:hover, .rank-section:hover { transform: translateY(-5px); }
+.history-section:hover {
+  transform: translateY(-5px);
+  box-shadow: 
+    0 25px 50px rgba(45, 79, 58, 0.1),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+}
 
 .module-title {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
-  color: var(--text-sub);
+  color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 1px;
   margin-bottom: 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  opacity: 0.8;
+  font-family: "PingFang SC", sans-serif;
 }
 
-.history-list, .rank-list {
+.history-list {
   list-style: none;
-  max-height: 220px;
+  max-height: 280px;
   overflow-y: auto;
-  padding-right: 6px;
+  padding-right: 4px;
+  overflow-x: hidden;
+  position: relative;
 }
 
-/* Liquid Scrollbar */
-::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.1);
+  background: rgba(61, 107, 79, 0.2);
   border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 ::-webkit-scrollbar-track { background: transparent; }
 
-.history-item, .rank-item {
+.history-item {
   display: flex;
   align-items: center;
-  padding: 12px 16px;
-  border-radius: 16px;
-  margin-bottom: 8px;
+  padding: 14px 20px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
   cursor: pointer;
-  transition: all 0.3s var(--ios-easing);
-  color: var(--text-main);
+  transition: all 0.3s var(--ease-spring);
+  color: var(--text-primary);
   font-size: 14px;
   font-weight: 600;
-  background: rgba(255,255,255,0.2); /* 稍微加深一点背景以便阅读 */
+  background: rgba(255,253,245,0.4);
+  border: 1px solid rgba(255,255,255,0.3);
+  font-family: "PingFang SC", sans-serif;
 }
 
-.history-item:hover, .rank-item:hover {
-  background: rgba(255,255,255,0.8);
+.history-item:hover {
+  background: rgba(255,255,255,0.95);
   transform: scale(1.02);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(45, 79, 58, 0.08);
+  border-color: rgba(224, 122, 95, 0.3);
+  padding-left: 25px;
 }
 
 .history-item .time {
   margin-left: auto;
-  font-size: 11px;
-  color: #64748b;
+  font-size: 12px;
+  color: var(--text-secondary);
   margin-right: 10px;
   font-weight: 500;
+  opacity: 0.8;
 }
 
 .delete-btn {
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(224, 122, 95, 0.1);
   border: none;
-  color: #ef4444;
+  color: var(--peach);
   cursor: pointer;
   opacity: 0;
-  width: 24px;
-  height: 24px;
-  border-radius: 8px;
-  transition: all 0.2s;
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  transition: all 0.3s var(--ease-spring);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .history-item:hover .delete-btn { opacity: 1; }
-.delete-btn:hover { background: #ef4444; color: white; transform: scale(1.1); }
-
-.rank-num {
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 800;
-  border-radius: 8px;
-  margin-right: 12px;
-  background: rgba(255,255,255,0.6);
-  box-shadow: inset 0 1px 2px rgba(255,255,255,0.8);
+.delete-btn:hover { 
+  background: var(--peach); 
+  color: white; 
+  transform: scale(1.1) rotate(90deg);
 }
 
-.rank-item:nth-child(1) .rank-num { background: linear-gradient(135deg, #ffd700, #fdb931); color: #7c2d12; box-shadow: 0 4px 10px rgba(253, 186, 116, 0.4); }
-.rank-item:nth-child(2) .rank-num { background: linear-gradient(135deg, #e0e7ff, #c7d2fe); color: #4338ca; }
-.rank-item:nth-child(3) .rank-num { background: linear-gradient(135deg, #ffedd5, #fdba74); color: #9a3412; }
-
-.rank-item .count {
-  margin-left: auto;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--accent-color);
-  background: rgba(99, 102, 241, 0.1);
-  padding: 4px 10px;
-  border-radius: 20px;
-}
-
-/* --- Controls --- */
 .toggle-switch {
-  width: 44px;
-  height: 24px;
+  width: 52px;
+  height: 32px;
   position: relative;
   display: inline-block;
 }
@@ -374,249 +376,371 @@ body {
   position: absolute;
   cursor: pointer;
   top: 0; left: 0; right: 0; bottom: 0;
-  background-color: rgba(0,0,0,0.1);
+  background-color: rgba(45, 79, 58, 0.15);
   border-radius: 34px;
-  transition: .4s var(--ios-easing);
+  transition: .4s var(--ease-spring);
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .switch-slider:before {
   position: absolute;
   content: "";
-  height: 18px;
-  width: 18px;
+  height: 26px;
+  width: 26px;
   left: 3px;
   bottom: 3px;
   background-color: white;
   border-radius: 50%;
-  transition: .4s var(--ios-easing);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transition: .4s var(--ease-spring);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
-input:checked + .switch-slider { background-color: var(--accent-color); }
+input:checked + .switch-slider { background-color: var(--forest); }
 input:checked + .switch-slider:before { transform: translateX(20px); }
 
-/* --- Floating Buttons --- */
-.toggle-btn, .mogu-active-btn, .mogu-chat-btn {
+.float-btn {
   position: fixed;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.8);
-  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.4s var(--ios-easing);
+  transition: all 0.4s var(--ease-spring);
   z-index: 100;
+  color: var(--forest);
+  border-radius: var(--radius-sm);
 }
 
 .toggle-btn {
-  bottom: 40px;
-  left: 40px;
-  width: 56px;
-  height: 56px;
-  border-radius: 22px;
+  bottom: 30px;
+  left: 30px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  animation: slideInLeft 0.6s var(--ease-spring) 0.8s backwards;
+}
+
+.toggle-btn:hover {
+  transform: scale(1.15) rotate(10deg);
+  box-shadow: 0 15px 40px rgba(45, 79, 58, 0.2);
 }
 
 .mogu-active-btn, .mogu-chat-btn {
-  top: 30px;
-  width: 50px;
-  height: 50px;
-  border-radius: 18px;
+  top: 24px;
+  width: 52px;
+  height: 52px;
+  opacity: 0.9;
 }
 
-.mogu-chat-btn { right: 40px; color: var(--accent-color); }
-.mogu-active-btn { right: 100px; color: #c084fc; }
-
-.toggle-btn:hover, .mogu-active-btn:hover, .mogu-chat-btn:hover {
-  transform: translateY(-4px) scale(1.1);
-  background: white;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+.mogu-chat-btn { 
+  right: 24px; 
+  color: var(--peach);
+  animation: slideInRight 0.6s var(--ease-spring) 0.4s backwards;
 }
 
-/* --- User Info --- */
+.mogu-active-btn { 
+  right: 88px; 
+  color: var(--soft-gold);
+  animation: slideInRight 0.6s var(--ease-spring) 0.5s backwards;
+}
+
+.mogu-active-btn:hover {
+  transform: scale(1.15) rotate(15deg);
+  color: var(--forest);
+  box-shadow: 0 15px 40px rgba(233, 196, 106, 0.3);
+}
+
+.mogu-chat-btn:hover {
+  transform: scale(1.15) rotate(-15deg);
+  box-shadow: 0 15px 40px rgba(224, 122, 95, 0.3);
+}
+
+.float-btn:active {
+  transform: scale(0.95);
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(50px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-50px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
 .user-info {
   position: fixed;
-  top: 30px;
-  left: 40px;
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(20px);
-  padding: 6px 6px 6px 16px;
+  top: 24px;
+  left: 24px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  padding: 8px 8px 8px 16px;
   border-radius: 50px;
   display: flex;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.05);
-  border: 1px solid rgba(255,255,255,0.8);
+  box-shadow: var(--glass-shadow);
+  border: 1px solid var(--glass-border);
   z-index: 1000;
-  transition: transform 0.3s var(--ios-easing);
+  transition: all 0.4s var(--ease-spring);
+  animation: slideInLeft 0.6s var(--ease-spring) forwards;
+  max-width: 240px;
+  cursor: pointer;
 }
 
-.user-info:hover { transform: translateY(2px) scale(1.02); background: white; }
+.user-info:hover { 
+  transform: translateY(-2px) scale(1.05); 
+  box-shadow: 0 15px 40px rgba(45, 79, 58, 0.15);
+}
 
-.user-profile-btn { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.user-profile-btn { 
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
+  cursor: pointer;
+  overflow: hidden;
+}
 
 .user-avatar {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  border: 2px solid white;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border: 2px solid rgba(255,255,255,0.8);
+  box-shadow: 0 2px 8px rgba(45, 79, 58, 0.1);
   background-size: cover;
   background-position: center;
+  transition: transform 0.3s;
 }
 
-.user-name { font-size: 14px; font-weight: 700; color: var(--text-main); }
+.user-info:hover .user-avatar {
+  transform: rotate(360deg) scale(1.1);
+}
+
+.user-name { 
+  font-size: 14px; 
+  font-weight: 700; 
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+  font-family: "PingFang SC", sans-serif;
+}
 
 .logout-btn {
-  padding: 8px 18px;
+  padding: 10px 20px;
   border-radius: 24px;
   border: none;
-  background: #f1f5f9;
-  color: #64748b;
+  background: rgba(61, 107, 79, 0.08);
+  color: var(--text-secondary);
   font-weight: 600;
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 0.3s;
+  font-family: "PingFang SC", sans-serif;
+  opacity: 0;
+  transform: translateX(-10px);
+  pointer-events: none;
 }
 
-.logout-btn:hover { background: #fee2e2; color: #ef4444; }
+.user-info:hover .logout-btn {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: all;
+  transition-delay: 0.1s;
+}
+
+.logout-btn:hover { 
+  background: var(--peach); 
+  color: white;
+  transform: scale(1.05);
+}
 
 .login-btn {
   position: fixed;
-  top: 30px; left: 40px;
-  padding: 12px 28px;
-  border-radius: 24px;
-  border: none;
-  background: white;
-  color: var(--accent-color);
-  font-weight: 700;
-  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
+  top: 24px; 
+  left: 24px;
+  padding: 14px 28px;
+  border-radius: 24px;          /* 圆润 */
+  border: 2px solid #fff;       /* 白色粗边 */
+  background: #FFE4C4;          /* 杏色/浅橘色像小猫 */
+  color: #5D4037;               /* 深棕色文字 */
+  font-weight: 800;             /* 粗字体 */
+  font-size: 14px;
   cursor: pointer;
-  transition: 0.3s var(--ios-easing);
+  z-index: 1000;
+  box-shadow: 
+    0 4px 0 #E6C2A0,            /* 底部阴影制造厚度 */
+    0 6px 10px rgba(0,0,0,0.1);
+  transition: all 0.1s;
+  font-family: "PingFang SC", sans-serif;
 }
 
-.login-btn:hover { transform: scale(1.05); box-shadow: 0 15px 40px rgba(99, 102, 241, 0.3); }
+.login-btn:active {              /* 点击时下压 */
+  transform: translateY(4px);
+  box-shadow: 
+    0 0 0 #E6C2A0,
+    0 2px 4px rgba(0,0,0,0.1);
+}
 
-/* --- Chat Window --- */
+.login-btn:hover {
+  background: #FFEED8;          /* 更亮一点 */
+}
 .mogu-chat-window {
   position: fixed;
-  top: 100px;
-  right: 40px;
+  top: 90px;
+  right: 24px;
   width: 380px;
   height: 600px;
   z-index: 1999;
-  transform: translateX(120%) skewX(-5deg);
+  transform: translateX(120%) scale(0.9);
   opacity: 0;
   visibility: hidden;
-  transition: all 0.5s var(--ios-easing);
+  transition: all 0.6s var(--ease-spring);
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  background: rgba(255, 253, 245, 0.9);
+  backdrop-filter: blur(25px) saturate(220%) contrast(1.15);
+  -webkit-backdrop-filter: blur(25px) saturate(220%) contrast(1.15);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 
+    0 25px 50px rgba(45, 79, 58, 0.15),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+  border-radius: var(--radius);
 }
 
 .mogu-chat-window.open {
-  transform: translateX(0) skewX(0);
+  transform: translateX(0) scale(1);
   opacity: 1;
   visibility: visible;
 }
 
 .mogu-chat-header {
-  padding: 20px;
-  background: rgba(255,255,255,0.4);
-  border-bottom: 1px solid rgba(255,255,255,0.3);
+  padding: 24px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,251,240,0.5) 100%);
+  border-bottom: 1px solid rgba(45, 79, 58, 0.06);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
+  z-index: 2;
 }
 
 .mogu-chat-title {
   font-weight: 800;
-  color: var(--text-main);
-  font-size: 16px;
+  color: var(--text-primary);
+  font-size: 17px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  font-family: "PingFang SC", sans-serif;
 }
 
 .mogu-chat-messages {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  background: rgba(255,255,255,0.1);
+  position: relative;
+  z-index: 1;
 }
 
 .message-item {
   max-width: 85%;
-  padding: 14px 18px;
-  font-size: 14px;
+  padding: 16px 20px;
+  font-size: 15px;
   line-height: 1.5;
   position: relative;
   word-break: break-word;
   backdrop-filter: blur(10px);
+  animation: scaleIn 0.3s var(--ease-spring);
+  font-family: "PingFang SC", sans-serif;
+  border-radius: 24px;
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .message-item.other {
   align-self: flex-start;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 20px 20px 20px 4px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24px 24px 24px 8px;
+  box-shadow: 0 4px 15px rgba(45, 79, 58, 0.06);
+  color: var(--text-primary);
+  border: 1px solid rgba(255,255,255,0.8);
 }
 
 .message-item.user {
   align-self: flex-end;
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  background: linear-gradient(135deg, var(--forest) 0%, #4A7D5F 100%);
   color: white;
-  border-radius: 20px 20px 4px 20px;
-  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.25);
+  border-radius: 24px 24px 8px 24px;
+  box-shadow: 0 8px 24px rgba(61, 107, 79, 0.25);
 }
 
 .mogu-chat-input-area {
-  padding: 16px;
-  background: rgba(255,255,255,0.7);
+  padding: 20px;
+  background: linear-gradient(0deg, rgba(255,253,245,0.98) 0%, rgba(255,251,240,0.7) 100%);
   display: flex;
-  gap: 10px;
-  border-top: 1px solid rgba(255,255,255,0.5);
+  gap: 12px;
+  border-top: 1px solid rgba(45, 79, 58, 0.06);
+  position: relative;
+  z-index: 2;
 }
 
 .mogu-chat-input {
   flex: 1;
-  background: white;
+  background: rgba(255,255,255,0.95);
   border: none;
-  border-radius: 14px;
-  padding: 12px 16px;
-  font-size: 14px;
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  font-size: 15px;
   outline: none;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: inset 0 2px 4px rgba(45, 79, 58, 0.03);
+  font-family: "PingFang SC", sans-serif;
+  transition: all 0.3s;
+  color: var(--text-primary);
+}
+
+.mogu-chat-input:focus {
+  box-shadow: inset 0 2px 8px rgba(45, 79, 58, 0.06), 0 0 0 3px rgba(224, 122, 95, 0.1);
 }
 
 .mogu-chat-send {
-  background: var(--text-main);
+  background: var(--forest);
   color: white;
   border: none;
-  border-radius: 14px;
-  width: 44px;
+  border-radius: var(--radius-sm);
+  width: 52px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: 0.3s;
+  transition: all 0.3s var(--ease-spring);
+  box-shadow: 0 4px 12px rgba(45, 79, 58, 0.2);
 }
 
-.mogu-chat-send:hover { transform: scale(1.05); background: black; }
+.mogu-chat-send:hover { 
+  transform: scale(1.05) rotate(10deg); 
+  background: var(--peach);
+  box-shadow: 0 6px 18px rgba(224, 122, 95, 0.3);
+}
 
-/* --- Modals --- */
 .modal-mask {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
+  background: rgba(45, 79, 58, 0.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   z-index: 9000;
   display: none;
   opacity: 0;
@@ -629,222 +753,417 @@ input:checked + .switch-slider:before { transform: translateX(20px); }
   position: fixed;
   top: 50%; left: 50%;
   transform: translate(-50%, -40%) scale(0.9);
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 253, 245, 0.96);
   backdrop-filter: blur(30px) saturate(200%);
-  padding: 30px;
-  border-radius: 32px;
-  box-shadow: 0 40px 80px -20px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.5);
+  padding: 36px;
+  border-radius: 36px;
+  box-shadow: 
+    0 40px 80px -20px rgba(45, 79, 58, 0.25),
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    0 0 0 1px rgba(255,255,255,0.5) inset;
   width: 90%;
   max-width: 400px;
   z-index: 9001;
   display: none;
   opacity: 0;
-  transition: all 0.5s var(--ios-easing);
+  transition: all 0.5s var(--ease-spring);
   text-align: center;
+  border: 1px solid rgba(255,255,255,0.6);
 }
 
-.custom-modal.show, .notice-modal.show { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+.custom-modal.show, .notice-modal.show { 
+  transform: translate(-50%, -50%) scale(1); 
+  opacity: 1; 
+}
 
 .modal-header, .notice-header {
   font-size: 22px;
   font-weight: 800;
   margin-bottom: 16px;
-  color: #0f172a;
+  color: var(--forest);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  font-family: "PingFang SC", sans-serif;
 }
 
-.modal-btns { display: flex; gap: 12px; justify-content: center; margin-top: 24px; }
+.modal-btns { display: flex; gap: 12px; justify-content: center; margin-top: 28px; }
 
 .modal-btn, .notice-confirm-btn {
-  padding: 12px 24px;
-  border-radius: 16px;
+  padding: 16px 32px;
+  border-radius: 20px;
   border: none;
   font-weight: 700;
   cursor: pointer;
-  font-size: 15px;
-  transition: 0.3s var(--ios-easing);
+  font-size: 16px;
+  transition: all 0.3s var(--ease-spring);
+  font-family: "PingFang SC", sans-serif;
+  flex: 1;
 }
 
-.modal-btn.cancel { background: #f1f5f9; color: #64748b; }
-.modal-btn.confirm { background: var(--text-main); color: white; box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
-.modal-btn:hover, .notice-confirm-btn:hover { transform: scale(1.05); }
+.modal-btn.cancel { 
+  background: rgba(45, 79, 58, 0.06); 
+  color: var(--text-secondary); 
+}
 
-.notice-confirm-btn { background: var(--text-main); color: white; width: 100%; margin-top: 10px; }
+.modal-btn.confirm { 
+  background: var(--forest); 
+  color: white;
+  box-shadow: 0 8px 20px rgba(45, 79, 58, 0.2);
+}
+
+.modal-btn:hover { transform: translateY(-2px); }
+.modal-btn.confirm:hover { background: var(--peach); }
+
+.notice-confirm-btn { 
+  background: var(--peach); 
+  color: white; 
+  width: 100%; 
+  margin-top: 12px;
+  box-shadow: 0 8px 20px rgba(224, 122, 95, 0.25);
+  border-radius: 20px;
+}
 
 .custom-alert {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(20px);
-  color: black;
-  border: 1px solid white;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-  /* Keep positioning from original */
   position: fixed;
-  top: 20px;
+  top: 16px;
   left: 50%;
-  transform: translateX(-50%) translateY(-150%);
-  padding: 12px 24px;
+  transform: translateX(-50%) translateY(-100px);
+  background: rgba(45, 79, 58, 0.9);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  color: white;
+  padding: 16px 32px;
   border-radius: 50px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
   font-weight: 600;
+  font-size: 15px;
   z-index: 10000;
   opacity: 0;
-  transition: all 0.5s var(--ios-easing);
-}
-.custom-alert.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-
-/* --- Mobile --- */
-@media (max-width: 768px) {
-  .search-title { font-size: 2.8rem; text-align: center; }
-  .history-rank-container { grid-template-columns: 1fr; }
-  .toggle-btn { display: none; }
-  .mogu-chat-window { width: 100%; height: 100%; top: 0; right: 0; border-radius: 0; transform: translateY(100%); }
-  .mogu-chat-window.open { transform: translateY(0); }
-  .user-info { padding: 8px; border-radius: 20px; }
-  .user-name { display: none; }
-  .mogu-active-btn { right: 80px; width: 44px; height: 44px; top: 20px; }
-  .mogu-chat-btn { right: 20px; width: 44px; height: 44px; top: 20px; }
-  .login-btn { top: 20px; left: 20px; padding: 10px 20px; font-size: 13px; }
-  .user-info { top: 20px; left: 20px; }
-  .search-container { flex-direction: column; padding: 16px; border-radius: 24px; gap: 16px; }
-  .search-engine-select { width: 100%; text-align: center; }
-  #search-btn { width: 100%; height: 44px; border-radius: 16px; }
-  #search-input { text-align: center; width: 100%; }
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 
+    0 10px 40px rgba(45, 79, 58, 0.3),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.1);
+  min-width: 200px;
+  justify-content: center;
+  font-family: "PingFang SC", sans-serif;
 }
 
-/* Spinner */
+.custom-alert.show { 
+  transform: translateX(-50%) translateY(0); 
+  opacity: 1; 
+}
+
+.custom-alert::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--soft-gold);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--soft-gold);
+}
+
 .loading-spinner {
-  width: 16px; height: 16px;
+  width: 20px; 
+  height: 20px;
   border: 2px solid rgba(255,255,255,0.3);
-  border-radius: 50%; border-top-color: white;
+  border-radius: 50%; 
+  border-top-color: white;
   animation: spin 0.8s linear infinite;
 }
+
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Helpers */
 .admin-only { display: none !important; }
 .admin-only.admin-show { display: block !important; }
+
+.clear-all-btn {
+  border: none;
+  background: none;
+  color: var(--peach);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 12px;
+  transition: all 0.3s;
+  font-family: "PingFang SC", sans-serif;
+}
+
+.clear-all-btn:hover {
+  background: rgba(224, 122, 95, 0.1);
+  transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .main-container {
+    padding: 12vh 16px 30px;
+    justify-content: flex-start;
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+  
+  .search-title { 
+    font-size: 2.5rem; 
+    margin-bottom: 1.5rem;
+    margin-top: 0;
+  }
+  
+  .search-wrapper {
+    transform: translateY(0);
+  }
+  
+  .history-rank-wrap {
+    transform: translateY(0);
+  }
+  
+  .history-section {
+    min-height: auto;
+    padding: 24px;
+    border-radius: 28px;
+  }
+  
+  .toggle-btn { 
+    display: none; 
+  }
+  
+  .mogu-chat-window { 
+    width: 100%; 
+    height: 100%; 
+    top: 0; 
+    right: 0; 
+    border-radius: 0;
+    transform: translateY(100%) scale(1);
+    max-height: 100vh;
+    backdrop-filter: blur(30px) saturate(200%);
+  }
+  
+  .mogu-chat-window.open { 
+    transform: translateY(0) scale(1); 
+  }
+  
+  .mogu-chat-header {
+    padding-top: 60px;
+    background: rgba(255,253,245,0.98);
+  }
+  
+  .user-info { 
+    padding: 6px; 
+    border-radius: 50%;
+    top: 16px;
+    left: 16px;
+    max-width: 180px;
+  }
+  
+  .user-name { 
+    display: none; 
+  }
+  
+  .logout-btn {
+    display: none;
+  }
+  
+  .mogu-active-btn { 
+    right: 80px; 
+    width: 48px; 
+    height: 48px; 
+    top: 16px; 
+  }
+  
+  .mogu-chat-btn { 
+    right: 16px; 
+    width: 48px; 
+    height: 48px; 
+    top: 16px; 
+  }
+  
+  .login-btn { 
+    top: 16px; 
+    left: 16px; 
+    padding: 12px 24px; 
+    font-size: 14px;
+    border-radius: 50px;
+  }
+  
+  .search-container { 
+    flex-direction: column; 
+    margin-bottom: 16px; 
+    border-radius: 32px; 
+    gap: 12px; 
+    width: 100%;
+  }
+  
+  .search-engine-select { 
+    width: 100%; 
+    text-align: center; 
+    border-radius: 20px;
+    color: var(--forest);
+  }
+  
+  #search-btn { 
+    width: 100%; 
+    height: 52px; 
+    border-radius: 20px; 
+    background: linear-gradient(135deg, var(--forest) 0%, var(--peach) 100%);
+  }
+  
+  #search-input { 
+    text-align: center; 
+    width: 100%;
+    font-size: 17px;
+    padding: 14px;
+    color: var(--text-primary);
+  }
+  
+  .modal-btn, .notice-confirm-btn {
+    padding: 14px 24px;
+    font-size: 15px;
+    border-radius: 18px;
+  }
+  
+  .custom-alert {
+    top: 12px;
+    padding: 14px 28px;
+    font-size: 14px;
+    min-width: 180px;
+  }
+  
+  .custom-modal, .notice-modal {
+    border-radius: 32px;
+    padding: 28px;
+  }
+}
+
+@media (max-width: 380px) {
+  .search-title {
+    font-size: 2rem;
+  }
+  
+  .module-title {
+    font-size: 12px;
+  }
+  
+  .history-item {
+    padding: 12px 16px;
+    font-size: 13px;
+    border-radius: 16px;
+  }
+}
 </style>
 </head>
 <body>
 
-<div class="liquid-bg">
-  <div class="blob blob-1"></div>
-  <div class="blob blob-2"></div>
-  <div class="blob blob-3"></div>
-</div>
+<div class="chinese-bg-container"></div>
 
 <div id="customAlert" class="custom-alert"></div>
 
 <div id="userStatusArea"></div>
 
-<button class="mogu-active-btn glass-panel" id="moguActiveBtn" onclick="window.location.href='active.html'">
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20"></path><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+<button class="mogu-active-btn float-btn liquid-glass" id="moguActiveBtn" onclick="window.location.href='active.html'">
+  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20"></path><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
 </button>
 
-<button class="mogu-chat-btn glass-panel" id="moguChatBtn">
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+<button class="mogu-chat-btn float-btn liquid-glass" id="moguChatBtn">
+  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
 </button>
 
-<div class="mogu-chat-window glass-panel" id="moguChatWindow">
+<div class="mogu-chat-window liquid-glass" id="moguChatWindow">
   <div class="mogu-chat-header">
     <div class="mogu-chat-title">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-      Mogu Chat
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E07A5F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+      Mg茶室
     </div>
-    <button class="clear-all-btn admin-only" id="clearAllMessages" style="border:none;background:none;color:#ef4444;font-size:12px;font-weight:700;cursor:pointer;">清空</button>
+    <button class="clear-all-btn admin-only" id="clearAllMessages">清空</button>
   </div>
   <div class="mogu-chat-messages" id="moguChatMessages"></div>
   <div class="mogu-chat-input-area" id="moguChatInputArea">
     <input type="text" class="mogu-chat-input" id="moguChatInput" placeholder="输入消息..." disabled>
     <button class="mogu-chat-send" id="moguChatSend" disabled>
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-        <span id="sendText" style="display:none">发送</span>
     </button>
   </div>
 </div>
 
-<div class="search-title">Mogu_search</div>
+<div class="main-container">
+  <div class="search-title">Mg搜索</div>
 
-<div class="search-container glass-panel">
-  <div class="search-engine-wrap">
-    <select class="search-engine-select" id="searchEngine">
-      <option value="bing">Bing</option>
-      <option value="google">Google</option>
-      <option value="baidu">Baidu</option>
-    </select>
-  </div>
-  <input type="text" id="search-input" placeholder="What are you looking for?">
-  <button id="search-btn">
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-  </button>
-</div>
-
-<div class="history-rank-wrap" id="historyRankWrap">
-  <div class="history-rank-container">
-    <div class="history-section glass-panel">
-      <div class="module-title">
-        <span>History</span>
-        <label class="toggle-switch">
-          <input type="checkbox" id="historySwitch">
-          <span class="switch-slider"></span>
-        </label>
+  <div class="search-wrapper">
+    <div class="search-container liquid-glass">
+      <div class="search-engine-wrap">
+        <select class="search-engine-select" id="searchEngine">
+          <option value="bing">必应</option>
+          <option value="google">谷歌</option>
+          <option value="baidu">百度</option>
+        </select>
       </div>
-      <ul class="history-list" id="historyList"></ul>
+      <input type="text" id="search-input" placeholder="今日欲寻何物？">
+      <button id="search-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      </button>
     </div>
-    <div class="rank-section glass-panel">
-      <div class="module-title">Trending</div>
-      <ul class="rank-list" id="rankList"></ul>
+  </div>
+
+  <div class="history-rank-wrap" id="historyRankWrap">
+    <div class="history-rank-container">
+      <div class="history-section liquid-glass">
+        <div class="module-title">
+          <span>近期搜索</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="historySwitch">
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <ul class="history-list" id="historyList"></ul>
+      </div>
     </div>
   </div>
 </div>
 
-<button class="toggle-btn" id="toggleBtn">
+<button class="toggle-btn float-btn liquid-glass" id="toggleBtn">
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
 </button>
 
 <div class="modal-mask" id="modalMask"></div>
 
-<div class="custom-modal" id="logoutModal">
+<div class="custom-modal liquid-glass" id="logoutModal">
   <div class="modal-header">退出登录</div>
-  <div class="modal-content" style="color:#64748b; margin-bottom:20px;">您确定要退出当前账号吗？</div>
+  <div class="modal-content" style="color:var(--text-secondary); margin-bottom:20px; font-size:16px; line-height:1.6;">您确定要退出当前账号吗？</div>
   <div class="modal-btns">
     <button class="modal-btn cancel" id="logoutCancel">取消</button>
     <button class="modal-btn confirm" id="logoutConfirm">退出</button>
   </div>
 </div>
 
-<div class="custom-modal" id="clearMsgModal">
+<div class="custom-modal liquid-glass" id="clearMsgModal">
   <div class="modal-header">清空消息</div>
-  <div class="modal-content" style="color:#64748b; margin-bottom:20px;">此操作将永久删除所有聊天记录，不可恢复。</div>
+  <div class="modal-content" style="color:var(--text-secondary); margin-bottom:20px; font-size:16px; line-height:1.6;">此操作将永久删除所有聊天记录，不可恢复。</div>
   <div class="modal-btns">
     <button class="modal-btn cancel" id="clearMsgCancel">取消</button>
-    <button class="modal-btn confirm" style="background:#ef4444;" id="clearMsgConfirm">确认清空</button>
+    <button class="modal-btn confirm" style="background:#E07A5F;" id="clearMsgConfirm">确认清空</button>
   </div>
 </div>
 
-<div class="notice-modal" id="noticeModal">
+<div class="notice-modal liquid-glass" id="noticeModal">
   <div class="notice-header">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E07A5F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
     系统公告
   </div>
-  <div class="notice-content" id="noticeContent" style="text-align:left; color:#475569; line-height:1.6;"></div>
-  <div class="notice-checkbox-wrap" id="noticeCheckbox" style="display:flex;align-items:center;justify-content:center;gap:10px;margin:20px 0;cursor:pointer;">
-    <div class="notice-checkbox" style="width:20px;height:20px;border:2px solid #cbd5e1;border-radius:6px;transition:0.2s;"></div>
-    <span class="notice-checkbox-label" style="font-size:13px;color:#64748b;">不再显示此公告</span>
+  <div class="notice-content" id="noticeContent" style="text-align:left; color:var(--text-secondary); line-height:1.7;"></div>
+  <div class="notice-checkbox-wrap" id="noticeCheckbox" style="display:flex;align-items:center;justify-content:center;gap:10px;margin:24px 0;cursor:pointer;">
+    <div class="notice-checkbox" style="width:22px;height:22px;border:2px solid #ddd;border-radius:6px;transition:0.2s; display:flex;align-items:center;justify-content:center;"></div>
+    <span class="notice-checkbox-label" style="font-size:14px;color:var(--text-secondary);">不再显示此公告</span>
   </div>
   <button class="notice-confirm-btn" id="noticeConfirm">我知道了</button>
 </div>
 
 <script>
-// CSS Helper for Notice Checkbox
-document.head.insertAdjacentHTML("beforeend", `<style>.notice-checkbox.checked{background:var(--text-main);border-color:var(--text-main);}</style>`);
+document.head.insertAdjacentHTML("beforeend", `<style>.notice-checkbox.checked{background:var(--peach);border-color:var(--peach); position:relative;} .notice-checkbox.checked::after{content:"✓";color:white;font-size:14px;font-weight:bold;}</style>`);
 
-// --- Original Logic (Unchanged) ---
 const USER_DATABASE_ISSUE_NUMBER = 11;
 const USER_DATABASE_REPO_OWNER = 'moguwan';
 const USER_DATABASE_REPO_NAME = 'moguwan.github.io';
@@ -859,7 +1178,6 @@ const MAP_ISSUE_TITLE = "用户-专属Issue映射表";
 const MAP_MARK_START = "// USER-MAP-JSON-START";
 const MAP_MARK_END = "// USER-MAP-JSON-END";
 const MAX_HISTORY = 10;
-const MAX_RANK = 10;
 const MAX_MESSAGE_LENGTH = 200;
 const NOTICE_LOCAL_KEY = 'MOGU_SEARCH_NOTICE';
 const DEFAULT_AVATAR = "https://img.wjwj.top/2026/01/26/30abddc90230cef0bc9896ca3eafd0d3.gif";
@@ -871,14 +1189,12 @@ const customAlert = document.getElementById('customAlert');
 const historyRankWrap = document.getElementById('historyRankWrap');
 const toggleBtn = document.getElementById('toggleBtn');
 const historyList = document.getElementById('historyList');
-const rankList = document.getElementById('rankList');
 const historySwitch = document.getElementById('historySwitch');
 const moguChatBtn = document.getElementById('moguChatBtn');
 const moguChatWindow = document.getElementById('moguChatWindow');
 const moguChatMessages = document.getElementById('moguChatMessages');
 const moguChatInput = document.getElementById('moguChatInput');
 const moguChatSend = document.getElementById('moguChatSend');
-const sendText = document.getElementById('sendText');
 const userStatusArea = document.getElementById('userStatusArea');
 
 let alertTimer = null;
@@ -935,7 +1251,6 @@ async function checkLoginStatus() {
     try {
       currentUser = JSON.parse(userData);
       await updateCurrentUserFromGitHub();
-      // Ensure specific user gets admin
       currentUser.isAdmin = currentUser.account === ADMIN_ACCOUNT || currentUser.isAdmin === true;
       updateUIForLoggedInUser();
       return true;
@@ -954,7 +1269,7 @@ function updateUIForLoggedInUser() {
   const avatarStyle = `background-image: url('${userAvatar}'); background-size: cover;`;
    
   userStatusArea.innerHTML = `
-    <div class="user-info">
+    <div class="user-info liquid-glass" onclick="window.location.href='profile.html'">
       <div class="user-profile-btn" id="userProfileBtn">
         <div class="user-avatar" style="${avatarStyle}"></div>
         <div class="user-name">${currentUser.nickname || currentUser.account}</div>
@@ -962,18 +1277,17 @@ function updateUIForLoggedInUser() {
       <button class="logout-btn" id="logoutBtn">退出</button>
     </div>
   `;
-  document.getElementById('userProfileBtn').addEventListener('click', () => window.location.href = 'profile.html');
   document.getElementById('logoutBtn').addEventListener('click', (e) => { e.stopPropagation(); logout(); });
   moguChatInput.disabled = false;
-  moguChatInput.placeholder = "Write a message...";
+  moguChatInput.placeholder = "输入消息...";
   moguChatSend.disabled = false;
   updateAdminUI();
 }
 
 function updateUIForGuest() {
-  userStatusArea.innerHTML = `<button class="login-btn" onclick="goToLogin()">Login / Register</button>`;
+  userStatusArea.innerHTML = `<button class="login-btn liquid-glass" onclick="goToLogin()">登录 / 注册</button>`;
   moguChatInput.disabled = true;
-  moguChatInput.placeholder = "Please login to chat";
+  moguChatInput.placeholder = "请先登录";
   moguChatSend.disabled = true;
 }
 
@@ -1005,19 +1319,6 @@ function saveSearchHistory(history) {
   localStorage.setItem('moguSearchHistory', JSON.stringify(history));
   setTimeout(renderHistory, 0);
 }
-function getSearchCount() {
-  const countStr = localStorage.getItem('moguSearchCount');
-  return countStr ? JSON.parse(countStr) : {};
-}
-function saveSearchCount(countMap) {
-  localStorage.setItem('moguSearchCount', JSON.stringify(countMap));
-  setTimeout(renderRank, 0);
-}
-function incrementSearchCount(keyword) {
-  const countMap = getSearchCount();
-  countMap[keyword] = (countMap[keyword] || 0) + 1;
-  saveSearchCount(countMap);
-}
 function getShowState() {
   const state = localStorage.getItem('moguShowHistoryRank');
   return state === null ? true : JSON.parse(state);
@@ -1029,7 +1330,7 @@ function saveShowState(show) {
     toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>`;
   } else {
     historyRankWrap.classList.add('hidden');
-    toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.45-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>`;
+    toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>`;
   }
 }
 
@@ -1044,26 +1345,24 @@ function addSearchHistory(keyword) {
 
 function deleteHistoryItem(keyword) {
   saveSearchHistory(getSearchHistory().filter(item => item.keyword !== keyword));
-  const countMap = getSearchCount();
-  delete countMap[keyword];
-  saveSearchCount(countMap);
 }
 
 function renderHistory() {
   if (isMobile()) return;
   const history = getSearchHistory();
   if (history.length === 0) {
-    historyList.innerHTML = `<li style="text-align:center;color:#64748b;padding:10px;font-size:13px;">No history yet</li>`;
+    historyList.innerHTML = `<li style="text-align:center;color:var(--text-secondary);padding:20px;font-size:14px;opacity:0.7;">暂无搜索记录</li>`;
     return;
   }
   historyList.innerHTML = '';
-  history.forEach(item => {
+  history.forEach((item, index) => {
     const li = document.createElement('li');
     li.className = 'history-item';
+    li.style.animationDelay = `${index * 0.05}s`;
     li.innerHTML = `
       <span>${item.keyword}</span>
       <span class="time">${item.time}</span>
-      <button class="delete-btn"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      <button class="delete-btn"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     `;
     li.addEventListener('click', (e) => {
       if (e.target.closest('.delete-btn')) return;
@@ -1072,36 +1371,17 @@ function renderHistory() {
     });
     li.querySelector('.delete-btn').addEventListener('click', (e) => {
       e.stopPropagation();
-      deleteHistoryItem(item.keyword);
+      li.style.transform = 'translateX(100%) opacity(0)';
+      setTimeout(() => deleteHistoryItem(item.keyword), 300);
     });
     historyList.appendChild(li);
-  });
-}
-
-function renderRank() {
-  if (isMobile()) return;
-  const rankArray = Object.entries(getSearchCount()).map(([k, c]) => ({ keyword: k, count: c })).sort((a, b) => b.count - a.count).slice(0, MAX_RANK);
-  if (rankArray.length === 0) {
-    rankList.innerHTML = `<li style="text-align:center;color:#64748b;padding:10px;font-size:13px;">No data yet</li>`;
-    return;
-  }
-  rankList.innerHTML = '';
-  rankArray.forEach((item, index) => {
-    const li = document.createElement('li');
-    li.className = 'rank-item';
-    li.innerHTML = `<span class="rank-num">${index + 1}</span><span>${item.keyword}</span><span class="count">${item.count}</span>`;
-    li.addEventListener('click', () => {
-      searchInput.value = item.keyword;
-      searchInput.focus();
-    });
-    rankList.appendChild(li);
   });
 }
 
 function handleSearch() {
   const searchText = searchInput.value.trim();
   if (!searchText) {
-    showCustomAlert('Please enter something!');
+    showCustomAlert('请输入搜索内容');
     searchInput.focus();
     return;
   }
@@ -1112,7 +1392,6 @@ function handleSearch() {
   if (!isMobile()) {
     setTimeout(() => {
       addSearchHistory(searchText);
-      incrementSearchCount(searchText);
     }, 0);
   }
 }
@@ -1126,7 +1405,6 @@ async function getUserDatabaseFromGitHub() {
     const data = await response.json();
     return (data.body || '').split('\n').filter(l => l.trim()).map(line => {
       const p = line.split('|');
-      // account|password|email|nickname|isAdmin|avatar|signature
       if (p.length >= 2) {
         return { 
             account: p[0].trim(), 
@@ -1265,12 +1543,12 @@ function addMessageToChat(sender, text, time, type, commentId, avatar = null) {
   div.className = `message-item ${type}`;
   div.id = `msg_${Date.now()}_${Math.random()}`;
   div.dataset.commentId = commentId;
-  // Use avatar if present, else fallback
   const realAvatar = avatar && avatar !== '无' ? avatar : DEFAULT_AVATAR;
-  const avatarHtml = `<div style="width:20px;height:20px;border-radius:50%;margin-right:6px;background:url('${realAvatar}') center/cover;"></div>`;
-   
   div.innerHTML = `
-    <div style="display:flex;align-items:center;margin-bottom:4px;opacity:0.7;font-size:11px;font-weight:700;">${avatarHtml}<div class="message-sender">${sender}</div></div>
+    <div style="display:flex;align-items:center;margin-bottom:4px;opacity:0.7;font-size:11px;font-weight:700;gap:6px;">
+      <div style="width:20px;height:20px;border-radius:50%;margin-right:6px;background:url('${realAvatar}') center/cover;${type === 'user' ? 'display:none;' : ''}"></div>
+      <div class="message-sender">${sender}</div>
+    </div>
     <div class="message-text">${text}</div>
     <div class="message-time" style="font-size:10px;opacity:0.5;margin-top:4px;text-align:right;">${time}</div>
   `;
@@ -1322,21 +1600,18 @@ function processMessage(msg) {
 }
 
 async function sendChatMessage() {
-  if (!currentUser) { showCustomAlert('Please login first'); goToLogin(); return; }
+  if (!currentUser) { showCustomAlert('请先登录'); goToLogin(); return; }
   const msg = moguChatInput.value.trim();
-  if (msg.length > MAX_MESSAGE_LENGTH) { showCustomAlert('Message too long'); return; }
+  if (msg.length > MAX_MESSAGE_LENGTH) { showCustomAlert('消息过长'); return; }
   if (!msg || isLoading) return;
    
   isLoading = true;
-  // Replace text with spinner
   const originalBtnContent = moguChatSend.innerHTML;
   moguChatSend.innerHTML = '<div class="loading-spinner"></div>';
   moguChatSend.disabled = true;
    
   const senderName = currentUser.nickname || currentUser.account;
   const userAvatar = currentUser.avatar || DEFAULT_AVATAR;
-   
-  // Format: Name|Avatar: Message
   const body = `${senderName}|${userAvatar}: ${msg}`;
   const localId = `msg_temp_${Date.now()}`;
   addMessageToChat(senderName, msg, formatMessageTime(new Date()), 'user', '', userAvatar);
@@ -1357,7 +1632,7 @@ async function sendChatMessage() {
       document.getElementById(localId).dataset.commentId = data.id;
     }
   } catch {
-    showCustomAlert('Failed to send');
+    showCustomAlert('发送失败');
   } finally {
     isLoading = false;
     moguChatSend.innerHTML = originalBtnContent;
@@ -1369,7 +1644,7 @@ function toggleChatWindow() {
   chatOpen = !chatOpen;
   if (chatOpen) {
     moguChatWindow.classList.add('open');
-    if (!chatUpdateInterval) chatUpdateInterval = setInterval(fetchChatMessages, 3000); // Changed to 3s
+    if (!chatUpdateInterval) chatUpdateInterval = setInterval(fetchChatMessages, 3000);
     fetchChatMessages();
   } else {
     moguChatWindow.classList.remove('open');
@@ -1383,7 +1658,7 @@ document.getElementById('logoutConfirm').addEventListener('click', () => {
   localStorage.removeItem(USER_LOCAL_KEY);
   currentUser = null;
   updateUIForGuest();
-  showCustomAlert('Logged out');
+  showCustomAlert('已退出登录');
 });
 
 document.getElementById('clearMsgCancel').addEventListener('click', () => toggleModal('clearMsg', false));
@@ -1404,8 +1679,8 @@ document.getElementById('clearMsgConfirm').addEventListener('click', async () =>
       }
       el.remove();
     }
-    showCustomAlert('Cleared all messages');
-  } catch { showCustomAlert('Error clearing'); }
+    showCustomAlert('已清空所有消息');
+  } catch { showCustomAlert('清空失败'); }
   finally { isLoading = false; btn.textContent = originalText; isHistoryFetched = false; }
 });
 document.getElementById('clearAllMessages').addEventListener('click', () => {
@@ -1426,10 +1701,10 @@ document.addEventListener('click', e => {
   if (chatOpen && !moguChatWindow.contains(e.target) && !moguChatBtn.contains(e.target)) toggleChatWindow();
 });
 
-const noticeContent = `<p><strong>Welcome to Mogu Search!</strong></p>
-<p>由于没有备份</p>
-<p>更新的时候误删了所有人的账号 大家重新注册登录一下吧~🌸</p>
-<p>更新论坛功能 在页面右上角</p>`;
+const noticeContent = `<p><strong>欢迎回到Mg搜索！</strong></p>
+<p style="margin-top:8px;">由于没有备份，更新时误删了账号数据...</p>
+<p style="margin-top:8px;">请大家重新注册登录 ~ 🏮</p>
+<p style="margin-top:8px;">新增茶室聊天功能，点击右上角进入</p>`;
 function initNotice() {
   const data = localStorage.getItem(NOTICE_LOCAL_KEY);
   if (data && JSON.parse(data).dontShowAgain) return;
@@ -1468,7 +1743,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     saveShowState(getShowState());
     saveHistorySwitchState(getHistorySwitchState());
     renderHistory();
-    renderRank();
     searchInput.focus();
   }
   fetchChatMessages();
