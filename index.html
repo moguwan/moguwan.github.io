@@ -1556,44 +1556,100 @@ async function loadStats() {
     fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${CONFIG.countIssue}`, { method: 'PATCH', headers: { Authorization: `token ${CONFIG.token}` }, body: JSON.stringify({ body: newBody }) });
   } catch(e) { console.error('加载统计失败：', e); }
 }
-
 async function loadComments(newsId) {
   const list = document.getElementById('commentList');
   list.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">加载中...</div>';
+  
   try {
+    // 1. 先获取用户信息映射表
+    let userAvatarMap = await getUserAvatarMap();
+    
     const issueMap = await getCommentMap();
     const issueId = issueMap[newsId];
+    
     if(!issueId) {
       list.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">暂无评论，来坐沙发</div>';
       document.getElementById('submitComment').onclick = () => createCommentIssue(newsId);
       return;
     }
-    const res = await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${issueId}/comments`, { headers: { Authorization: `token ${CONFIG.token}` } });
+    
+    const res = await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${issueId}/comments`, { 
+      headers: { Authorization: `token ${CONFIG.token}` } 
+    });
     const comments = await res.json();
     
-    list.innerHTML = comments.map(c => {
-      // 修复：解构赋值添加默认值，避免undefined
-      const parts = c.body.split('|').map(s => s.trim() || '');
-      const [uid = '', name = 'Guest', avatar = DEFAULT_AVATAR, text = c.body] = parts;
-      const content = text ? text.replace(/[【】]/g, '') : '';
-      
-      return `
-        <div class="comment-item">
-          <img src="${avatar}" class="comment-avatar" alt="${name}" onerror="this.src='${DEFAULT_AVATAR}'">
-          <div style="flex:1;">
-              <div class="comment-user">${name}</div>
+    // 如果没有评论
+    if (!comments || comments.length === 0) {
+      list.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">暂无评论</div>';
+      return;
+    }
+    
+    // 渲染评论
+    let commentsHTML = '';
+    for (const c of comments) {
+      // 解析评论格式：账号|用户名|【评论内容】
+      const parts = c.body.split('|');
+      if (parts.length >= 3) {
+        const uid = parts[0]?.trim() || '';
+        const username = parts[1]?.trim() || '匿名用户';
+        let content = parts.slice(2).join('|').trim(); // 处理评论内容中可能包含的|
+        
+        // 移除【】符号
+        content = content.replace(/^【|】$/g, '');
+        
+        // 从用户信息映射表中获取头像
+        const avatar = userAvatarMap[uid] || DEFAULT_AVATAR;
+        
+        commentsHTML += `
+          <div class="comment-item">
+            <img src="${avatar}" class="comment-avatar" alt="${username}" 
+                 onerror="this.src='${DEFAULT_AVATAR}'">
+            <div style="flex:1;">
+              <div class="comment-user">${username}</div>
               <div class="comment-text">${content}</div>
+            </div>
           </div>
-        </div>
-      `;
-    }).join('') || '<div style="text-align:center;padding:20px;color:#94a3b8;">暂无评论</div>';
+        `;
+      }
+    }
+    
+    list.innerHTML = commentsHTML || '<div style="text-align:center;padding:20px;color:#94a3b8;">暂无评论</div>';
+    
+    // 绑定发送评论事件
     document.getElementById('submitComment').onclick = () => postComment(issueId);
+    
   } catch(e) {
     console.error('加载评论失败：', e);
     list.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">评论加载失败</div>';
   }
 }
-
+// 获取用户头像映射表
+async function getUserAvatarMap() {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${CONFIG.userIssue}`, {
+      headers: { Authorization: `token ${CONFIG.token}` }
+    });
+    const data = await res.json();
+    const lines = data.body.split('\n');
+    const userMap = {};
+    
+    lines.forEach(line => {
+      const parts = line.split('|');
+      if (parts.length >= 7) {
+        const account = parts[0]?.trim();
+        const avatar = parts[5]?.trim(); // 第6个位置是头像链接
+        if (account && avatar) {
+          userMap[account] = avatar;
+        }
+      }
+    });
+    
+    return userMap;
+  } catch(e) {
+    console.error('获取用户信息失败：', e);
+    return {};
+  }
+}
 async function getCommentMap() {
   try {
     const res = await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${CONFIG.commentMapIssue}`, { headers: { Authorization: `token ${CONFIG.token}` } });
@@ -1609,77 +1665,126 @@ async function getCommentMap() {
     return {};
   }
 }
-
-/* 核心：Optimistic UI Comment (秒发评论) */
 async function postComment(issueId) {
-  if(!state.user) { showToast('请先登录'); return; }
+  if(!state.user) { 
+    showToast('请先登录'); 
+    return; 
+  }
+  
   const input = document.getElementById('commentInput');
   const val = input.value.trim();
   if(!val) return;
+  
   const avatar = state.user.avatar || DEFAULT_AVATAR;
   
-  // 1. 本地立即渲染 (Fake it till you make it)
-  // 这是为了解决"发送失败"的用户心理，先展示出来，哪怕后台慢一点
+  // 1. 立即显示本地评论（乐观UI）
   const list = document.getElementById('commentList');
-  // 如果当前是"暂无评论"状态，清空它
-  if(list.innerText.includes('暂无评论')) list.innerHTML = '';
+  if(list.innerText.includes('暂无评论')) {
+    list.innerHTML = '';
+  }
   
   const tempHtml = `
-      <div class="comment-item" style="animation: fadeIn 0.3s;">
-        <img src="${avatar}" class="comment-avatar">
-        <div style="flex:1;">
-            <div class="comment-user">${state.user.nickname} <span style="font-weight:400;color:#999;font-size:12px;">(刚刚)</span></div>
-            <div class="comment-text">${val}</div>
-        </div>
+    <div class="comment-item" style="animation: fadeIn 0.3s;">
+      <img src="${avatar}" class="comment-avatar">
+      <div style="flex:1;">
+        <div class="comment-user">${state.user.nickname} <span style="font-weight:400;color:#999;font-size:12px;">(刚刚)</span></div>
+        <div class="comment-text">${val}</div>
       </div>
+    </div>
   `;
   list.insertAdjacentHTML('beforeend', tempHtml);
   
   // 滚动到底部
   const modalRight = document.querySelector('.modal-right');
-  if(modalRight) modalRight.scrollTop = modalRight.scrollHeight; // 兼容不同布局
+  if(modalRight) modalRight.scrollTop = modalRight.scrollHeight;
   list.scrollTop = list.scrollHeight;
   
-  input.value = ''; // 立即清空输入框
-
-  // 2. 后台异步上传
-  const body = `${state.user.account}|${state.user.nickname}|${avatar}|【${val}】`;
+  input.value = '';
+  
+  // 2. 后台上传评论
+  // 格式：账号|用户名|【评论内容】
+  const body = `${state.user.account}|${state.user.nickname}|【${val}】`;
+  
   try {
-      await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${issueId}/comments`, { 
-          method: 'POST', 
-          headers: { Authorization: `token ${CONFIG.token}` }, 
-          body: JSON.stringify({ body }) 
-      });
+    await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${issueId}/comments`, { 
+      method: 'POST', 
+      headers: { 
+        'Authorization': `token ${CONFIG.token}`,
+        'Content-Type': 'application/json'
+      }, 
+      body: JSON.stringify({ body }) 
+    });
+    
+    showToast('评论发送成功');
   } catch(e) {
-      showToast('网络波动，发送可能失败，请刷新查看');
-      console.error('发送评论失败：', e);
+    console.error('发送评论失败：', e);
+    showToast('评论发送失败，请刷新重试');
   }
 }
-
 async function createCommentIssue(newsId) {
-    if(!state.user) { showToast('请先登录'); return; }
-    const input = document.getElementById('commentInput');
-    const val = input.value.trim();
-    if(!val) return;
-
-    // 对于新建Issue的情况，也先假装成功，虽然这里稍微复杂点，但为了统一体验
-    // 暂时先提示创建中，因为新建Issue需要时间
-    showToast('正在初始化评论区...');
+  if(!state.user) { 
+    showToast('请先登录'); 
+    return; 
+  }
+  
+  const input = document.getElementById('commentInput');
+  const val = input.value.trim();
+  if(!val) return;
+  
+  showToast('正在创建评论区...');
+  
+  try {
+    // 创建新的评论issue
+    const newIssueRes = await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues`, { 
+      method: 'POST', 
+      headers: { 
+        'Authorization': `token ${CONFIG.token}`,
+        'Content-Type': 'application/json'
+      }, 
+      body: JSON.stringify({ 
+        title: `评论 - 日记 ${newsId}`, 
+        body: `为日记 ${newsId} 创建的评论区域`
+      }) 
+    });
     
-    try {
-      const newIssueRes = await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues`, { method: 'POST', headers: { Authorization: `token ${CONFIG.token}` }, body: JSON.stringify({ title: `comment_#${newsId}`, body: `Comment storage for news ${newsId}` }) });
-      const newIssue = await newIssueRes.json();
-      const mapRes = await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${CONFIG.commentMapIssue}`, { headers: { Authorization: `token ${CONFIG.token}` } });
-      const mapData = await mapRes.json();
-      const newBody = mapData.body + `\nnews_${newsId}: ${newIssue.number}`;
-      await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${CONFIG.commentMapIssue}`, { method: 'PATCH', headers: { Authorization: `token ${CONFIG.token}` }, body: JSON.stringify({ body: newBody }) });
-      
-      // 初始化完成后，走正常的秒发逻辑
-      postComment(newIssue.number);
-    } catch(e) {
-      console.error('创建评论区失败：', e);
-      showToast('评论区初始化失败');
-    }
+    const newIssue = await newIssueRes.json();
+    
+    // 更新评论映射
+    const mapRes = await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${CONFIG.commentMapIssue}`, { 
+      headers: { Authorization: `token ${CONFIG.token}` } 
+    });
+    const mapData = await mapRes.json();
+    const newBody = mapData.body + `\nnews_${newsId}: ${newIssue.number}`;
+    
+    await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${CONFIG.commentMapIssue}`, { 
+      method: 'PATCH', 
+      headers: { 
+        'Authorization': `token ${CONFIG.token}`,
+        'Content-Type': 'application/json'
+      }, 
+      body: JSON.stringify({ body: newBody }) 
+    });
+    
+    // 发送第一条评论
+    const body = `${state.user.account}|${state.user.nickname}|【${val}】`;
+    await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${newIssue.number}/comments`, { 
+      method: 'POST', 
+      headers: { 
+        'Authorization': `token ${CONFIG.token}`,
+        'Content-Type': 'application/json'
+      }, 
+      body: JSON.stringify({ body }) 
+    });
+    
+    showToast('评论发送成功');
+    
+    // 重新加载评论
+    loadComments(newsId);
+    
+  } catch(e) {
+    console.error('创建评论区失败：', e);
+    showToast('操作失败，请刷新重试');
+  }
 }
 
 // 修复：增加日志加载错误处理
