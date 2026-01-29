@@ -7,21 +7,30 @@
 <meta name="description" content="MY HOME 个人主页">
 <title>MoGuOne | 记录生活</title>
 <style>
-/* --- 核心变量定义 --- */
-/* 垂直模式专属 - 日记预览样式调整：图片修长+标题/正文放大 */
 .main-wrapper.vertical-mode .news-cover-box {
-  /* 调整图片宽高比：从原45%（接近正方形）改为30%（修长长方形），同时图片高度自然变小 */
   padding-bottom: 30% !important;
 }
 .main-wrapper.vertical-mode .news-title {
-  /* 大标题放大：从原20px改为24px，更醒目 */
   font-size: 24px !important;
 }
 .main-wrapper.vertical-mode .news-desc {
-  /* 正文放大：从原14px改为16px，阅读更舒适 */
   font-size: 16px !important;
-  /* 可选：微调行高，让放大后的文字更舒展 */
   line-height: 1.7 !important;
+}
+/* 隐藏 html 和 body 的滚动条 - Webkit 浏览器（Chrome、Safari、Edge） */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
+/* 隐藏 Firefox 滚动条 */
+html {
+  scrollbar-width: none;
+}
+
+/* 隐藏 IE/旧版 Edge 滚动条 */
+body {
+  -ms-overflow-style: none;
 }
 :root {
   --bg-body: #f3f4f6;
@@ -42,7 +51,6 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 
-/* --- 1. 全局禁止选中优化 --- */
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   background-color: var(--bg-body);
@@ -54,14 +62,12 @@ body {
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  /* 全局禁止选中 */
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
 
-/* 允许选中的区域：日记内容、标题、时间、评论 */
 .news-title, .news-desc, .news-date, 
 .modal-left, .comment-text, .search-input, .comment-input {
   -webkit-user-select: text;
@@ -71,23 +77,19 @@ body {
   cursor: auto;
 }
 
-/* 禁止图片拖拽 */
 img { -webkit-user-drag: none; pointer-events: auto; }
 
-/* 遮罩层 */
 body::before {
     content: ''; position: fixed; inset: 0; background: rgba(243, 244, 246, 0.85); z-index: -1;
     transition: opacity 0.3s;
 }
 body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(3px); }
 
-/* --- 鼠标特效 Canvas --- */
 #particleCanvas {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; z-index: 99; /* 修复：降低z-index，避免遮挡交互元素 */
+    pointer-events: none; z-index: 99;
 }
 
-/* --- Loader --- */
 #loader {
   position: fixed; inset: 0; background: #fff; z-index: 99999;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -101,11 +103,10 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* --- 顶部导航 --- */
 .nav-container {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
   padding: 20px; display: flex; justify-content: space-between; align-items: center;
-  pointer-events: auto; /* 修复：兼容浏览器，统一设为auto */
+  pointer-events: auto;
 }
 .nav-logo {
   font-family: var(--font-serif); font-weight: 900; font-size: 20px;
@@ -151,10 +152,8 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
 }
 .dropdown-item:hover { background: #f8fafc; color: var(--accent); }
 
-/* --- 核心区域 Layout --- */
 .main-wrapper {
     width: 100%; min-height: 100vh;
-    /* 移除默认滚动条，由JS接管或隐藏 */
     scrollbar-width: none; 
     -ms-overflow-style: none;
 }
@@ -168,46 +167,38 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
     opacity: 0; transform: scale(0.96) translateY(10px); pointer-events: none;
 }
 
-/* 垂直模式 */
 .main-wrapper.vertical-mode .main-container {
   max-width: 800px; margin: 0 auto; padding: 120px 20px 60px;
 }
 .main-wrapper.vertical-mode .news-grid { display: flex; flex-direction: column; gap: 30px; }
 
-/* --- 2. 水平模式优化 (Horizontal) --- */
 .main-wrapper.horizontal-mode {
     display: flex; align-items: center; height: 100vh; 
-    overflow-x: auto; /* 允许JS滚动 */
+    overflow-x: auto;
     overflow-y: hidden;
-    /* 核心修改：计算Padding，让第一个Item(380px)居中 (50vw - 190px) */
     padding-left: calc(50vw - 190px); 
     padding-right: calc(50vw - 190px);
     box-sizing: border-box;
 }
 .main-wrapper.horizontal-mode .main-container {
-    display: flex; align-items: center; gap: 80px; /* 增加间距 */
+    display: flex; align-items: center; gap: 80px;
     height: 100%; padding: 0;
-    width: max-content; /* 确保宽度撑开 */
+    width: max-content;
 }
 .main-wrapper.horizontal-mode .hero-section {
     width: 350px; flex-shrink: 0; margin-bottom: 0; text-align: left; align-items: flex-start;
 }
-/* 列表容器 */
 .main-wrapper.horizontal-mode .news-grid {
-    display: flex; flex-direction: row; gap: 60px; /* 卡片间距 */
+    display: flex; flex-direction: row; gap: 60px;
     height: 70vh; align-items: center;
 }
-/* 水平模式卡片：初始状态 */
 .main-wrapper.horizontal-mode .news-card {
     width: 380px; flex-shrink: 0; height: auto; 
-    /* 移除CSS Transition以获得极致的JS逐帧动画流畅度 */
     transition: box-shadow 0.3s ease; 
     transform-origin: center center;
-    /* 默认缩小 */
     transform: scale(0.8); opacity: 0.6;
 }
 
-/* --- Hero Section --- */
 .hero-section {
   text-align: center; margin-bottom: 60px;
   display: flex; flex-direction: column; align-items: center;
@@ -265,7 +256,7 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
 .stat-item b { color: var(--text-main); font-weight: 600; margin-left: 4px; }
 .update-log { display: none; } 
 .news-card {
-  pointer-events: auto; /* 卡片本身可以点击 */
+  pointer-events: auto;
   background: var(--bg-card);
   border-radius: var(--radius-lg);
   overflow: hidden;
@@ -278,16 +269,14 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
   border: 1px solid rgba(0,0,0,0.02);
   display: flex;
   flex-direction: column;
-  /* 关键：防止手机上点击出现高亮背景块 */
   -webkit-tap-highlight-color: transparent;
 }
 .news-card.visible { opacity: 1; transform: translateY(0); }
-/* 垂直模式 Hover 效果 */
 .main-wrapper.vertical-mode .news-card:hover { transform: translateY(-5px) scale(1.01); box-shadow: 0 15px 30px rgba(0,0,0,0.08); }
 
 .news-card * {
   pointer-events: none !important;
-  user-select: none !important; /* 禁止在列表页选中文字，防止误操作 */
+  user-select: none !important;
 }
 
 .news-cover-box {
@@ -298,7 +287,6 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   object-fit: cover; transition: transform 0.8s ease;
 }
-/* 核心修改：列表页的视频禁止交互，只做展示 */
 .news-cover-box video { pointer-events: none; }
 .news-card:hover .news-cover-box img { transform: scale(1.05); }
 
@@ -323,45 +311,52 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
 }
 .read-more { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
 
-/* --- 底部小人进度条 (Person Walking Progress) --- */
-.bottom-progress-bar {
-    position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
-    /* 增加宽度以便更精确拖动 */
-    width: 600px; 
-    height: 40px;
-    z-index: 95; display: flex; align-items: center;
+.right-progress-bar {
+    position: fixed;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 70vh;
+    z-index: 95;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-.progress-track {
-    width: 100%; height: 4px; background: rgba(0,0,0,0.1); border-radius: 4px;
+.progress-track-vertical {
+    width: 4px;
+    height: 100%;
+    background: rgba(0,0,0,0.1);
+    border-radius: 4px;
     position: relative;
     cursor: pointer;
 }
-/* 添加拖动区域的视觉效果 */
-.progress-track:hover {
+.progress-track-vertical:hover {
     background: rgba(0,0,0,0.15);
 }
-.progress-walker {
-    position: absolute; top: 50%; transform: translate(-50%, -50%);
-    width: 32px; height: 32px; 
+.progress-walker-vertical {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 32px;
+    height: 32px;
     cursor: grab;
     z-index: 10;
     color: var(--accent);
-    /* 添加拖动反馈 */
     user-select: none;
 }
-.progress-walker.dragging {
+.progress-walker-vertical.dragging {
     cursor: grabbing;
     transform: translate(-50%, -50%) scale(1.1);
     color: var(--highlight);
 }
-.progress-walker svg { 
-    width: 100%; 
-    height: 100%; 
+.progress-walker-vertical svg {
+    width: 100%;
+    height: 100%;
     fill: currentColor;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
 }
-/* 添加拖动指示器 */
-.progress-walker::after {
+.progress-walker-vertical::after {
     content: '';
     position: absolute;
     width: 40px;
@@ -372,12 +367,10 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
     transform: translate(-50%, -50%);
     z-index: -1;
 }
-.progress-walker:hover::after {
+.progress-walker-vertical:hover::after {
     background: rgba(96, 125, 139, 0.1);
 }
 
-
-/* --- 音乐播放器 --- */
 #footer {
   position: fixed; bottom: 30px; left: 30px; z-index: 900;
   background: #fff; padding: 6px; border-radius: 50px;
@@ -406,9 +399,8 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
 .play-icon { width: 0; height: 0; border-style: solid; border-width: 5px 0 5px 8px; border-color: transparent transparent transparent #fff; margin-left: 2px; }
 .pause-icon { width: 8px; height: 10px; border-left: 3px solid #fff; border-right: 3px solid #fff; }
 
-/* --- 3. 快速导航条 (Horizontal Quick Nav) --- */
 .quick-nav-bar {
-    position: fixed; bottom: 50px; /* 调高一点给进度条让路 */
+    position: fixed; bottom: 50px;
     left: 50%; transform: translateX(-50%) translateY(100px);
     background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
     padding: 8px 16px; border-radius: var(--radius-pill);
@@ -425,7 +417,6 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
 }
 .q-nav-btn:hover { background: #f1f5f9; color: var(--accent); }
 
-/* --- 回到顶部按钮 --- */
 .scroll-top-btn {
   position: fixed; bottom: 30px; right: 30px; width: 44px; height: 44px;
   background: #fff; border-radius: 50%; box-shadow: var(--shadow-lg);
@@ -440,16 +431,13 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
 .modal-mask {
   position: fixed; inset: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(5px);
   z-index: 2000; opacity: 0; pointer-events: none; 
-  /* 新增：默认隐藏，配合opacity实现双重不可见 */
   visibility: hidden;
-  /* 调整过渡：包含visibility，确保显隐动画同步 */
   transition: opacity 0.3s ease, visibility 0.3s ease;
   display: flex; align-items: center; justify-content: center;
 }
 .modal-mask.show { 
   opacity: 1; 
   pointer-events: auto; 
-  /* 显示时恢复可见 */
   visibility: visible;
 }
 .modal-box {
@@ -460,17 +448,16 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
 }
 .modal-mask.show .modal-box { transform: scale(1); }
 .modal-mask.hide {
-  pointer-events: none; /* 核心：忽略所有点击/鼠标/触摸事件 */
+  pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease; /* 与显示时过渡一致，保证动画流畅 */
+  transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 .modal-actions {
     position: absolute; top: 20px; right: 20px; z-index: 100; display: flex; gap: 10px;
 }
-/* 弹窗隐藏时的样式：禁用所有指针事件 */
 .modal-mask.hide {
-  pointer-events: none; /* 核心：忽略所有点击/触摸/鼠标事件 */
+  pointer-events: none;
 }
 .modal-action-btn {
     width: 36px; height: 36px; background: #f1f5f9; border-radius: 50%;
@@ -496,9 +483,8 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
 
 .detail-media-grid {
     display: grid;
-    /* 强制一行 3 列 */
     grid-template-columns: repeat(3, 1fr); 
-    gap: 12px; /* 图片间距 */
+    gap: 12px;
     margin-top: 20px;
 }
 
@@ -510,8 +496,8 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
 
 .detail-thumb {
     width: 100%;
-    height: 200px; /* 固定高度，整齐划一 */
-    object-fit: cover; /* 保持图片比例不拉伸 */
+    height: 200px;
+    object-fit: cover;
     border-radius: 8px; 
     cursor: zoom-in;
     transition: transform 0.2s; 
@@ -523,7 +509,7 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
 .video-thumb-item { 
     background: #000; 
     cursor: pointer; 
-    position: relative; /* 关键修改：添加这一行 */
+    position: relative;
 }
 .video-thumb-item video { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
 .video-play-icon {
@@ -537,7 +523,6 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
     border-left: 10px solid #fff; border-top: 6px solid transparent; border-bottom: 6px solid transparent;
 }
 
-/* 评论样式 */
 .comment-input {
   background: #fff; border: 1px solid #e2e8f0; padding: 15px; border-radius: 12px;
   width: 100%; min-height: 80px; font-family: inherit; margin-bottom: 10px;
@@ -553,27 +538,53 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
 .comment-text { font-size: 14px; color: #555; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Lightbox */
 .lightbox {
   position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000;
   display: flex; align-items: center; justify-content: center;
-  /* 新增：默认状态下完全不可见+不可交互 */
   opacity: 0;
   pointer-events: none;
-  visibility: hidden; /* 关键：彻底隐藏元素（不仅透明） */
-  transition: opacity 0.3s, visibility 0.3s; /* 同步过渡效果 */
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  overflow: hidden;
 }
 .lightbox.active { 
   opacity: 1; 
   pointer-events: auto; 
-  visibility: visible; /* 激活时才显示 */
+  visibility: visible;
+}
+.lightbox-img-wrapper {
+  position: relative;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lightbox-img-wrapper:active {
+  cursor: grabbing;
 }
 .lightbox img {
-    max-width: 90%; max-height: 85%; box-shadow: 0 0 50px rgba(0,0,0,0.5); border-radius: 4px;
-    transform: scale(0.9); transition: transform 0.4s var(--ease-out-back); user-select: none;
+    max-width: 90vw;
+    max-height: 85vh;
+    box-shadow: 0 0 50px rgba(0,0,0,0.5);
+    border-radius: 4px;
+    user-select: none;
+    transform-origin: center center;
+    transition: none;
 }
-.lightbox.active img { transform: scale(1); }
-/* Video Lightbox */
+
+.lightbox-hint {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255,255,255,0.6);
+  font-size: 12px;
+  pointer-events: none;
+  background: rgba(0,0,0,0.5);
+  padding: 8px 16px;
+  border-radius: 20px;
+}
+
 #videoLightbox {
   position: fixed; inset: 0; background: #000; z-index: 10001;
   display: flex; align-items: center; justify-content: center;
@@ -596,7 +607,6 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
 .lb-next { right: 30px; }
 .lb-close { position: absolute; top: 30px; right: 30px; background: none; font-size: 30px; color: #fff; border: none; cursor: pointer; z-index: 10002; }
 
-/* Access Modal & Toast */
 .access-modal-content {
   background: #fff; padding: 40px; border-radius: 20px; text-align: center;
   box-shadow: 0 20px 60px rgba(0,0,0,0.1); border: 1px solid #eee;
@@ -612,7 +622,6 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
 }
 .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; visibility: visible; pointer-events: auto; }
 
-/* Mobile Adaption */
 @media (max-width: 768px) {
   .modal-box { width: 100%; height: 100%; border-radius: 0; }
   .modal-inner { flex-direction: column; }
@@ -625,18 +634,17 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
   .modal-box.show-comments .modal-right { transform: translateY(0); }
   .hero-title { font-size: 26px; }
   .nav-logo { display: none; }
-  /* 移动端禁用复杂水平动画，改回简单垂直 */
   .main-wrapper.horizontal-mode { flex-direction: column; padding: 20px; height: auto; overflow: visible; }
   .main-wrapper.horizontal-mode .main-container { flex-direction: column; height: auto; width: 100%; gap: 30px; }
   .main-wrapper.horizontal-mode .news-grid { flex-direction: column; height: auto; width: 100%; padding: 0; }
   .main-wrapper.horizontal-mode .news-card { width: 100%; opacity: 1; transform: none; }
   .nav-right-group { gap: 5px; }
   .quick-nav-bar { display: none; }
-  .bottom-progress-bar { 
-      width: 90% !important; 
-      bottom: 5px; 
+  .right-progress-bar {
+      display: none;
   }
 }
+
 </style>
 </head>
 <body>
@@ -647,14 +655,12 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
   <div class="loader-circle"></div>
 </div>
 
-<!-- 修改：删除了最前最后按钮 -->
 <div class="quick-nav-bar" id="quickNavBar">
-    <!-- 按钮已删除 -->
 </div>
 
-<div class="bottom-progress-bar" id="scrollProgress">
-    <div class="progress-track" id="progressTrack">
-        <div class="progress-walker" id="walkerIcon">
+<div class="right-progress-bar" id="scrollProgress">
+    <div class="progress-track-vertical" id="progressTrack">
+        <div class="progress-walker-vertical" id="walkerIcon">
             <svg viewBox="0 0 24 24"><path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7z"/></svg>
         </div>
     </div>
@@ -691,7 +697,7 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
       
       <section class="hero-section">
         <div class="avatar-wrapper">
-          <img src="https://img.wjwj.top/2026/01/16/a27c17b713d7998cebb06b1dde372d64.jpg" class="profile-avatar" alt="Avatar">
+          <img src="https://img.wjwj.top/2026/01/16/a27c17b713d7998cebb06b1dde372d64.jpg " class="profile-avatar" alt="Avatar">
           <div class="status-badge"><div class="status-dot"></div></div>
         </div>
         
@@ -775,8 +781,11 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
 <div class="lightbox" id="lightbox">
     <button class="lb-close" onclick="closeLightbox()">✕</button>
     <button class="lb-btn lb-prev" onclick="changeLightbox(-1)">❮</button>
-    <img id="lightboxImg" src="" alt="Full view">
+    <div class="lightbox-img-wrapper" id="lightboxImgWrapper">
+      <img id="lightboxImg" src="" alt="Full view">
+    </div>
     <button class="lb-btn lb-next" onclick="changeLightbox(1)">❯</button>
+    <div class="lightbox-hint">滚轮缩放 · 拖动查看</div>
 </div>
 
 <div id="videoLightbox">
@@ -801,22 +810,28 @@ const MUSIC_LIST = [
 ];
 let musicState = { index: 0, mode: 0, isPlaying: false };
 
-const DEFAULT_AVATAR = "https://img.wjwj.top/2026/01/20/d6346e9c8e93165079c5ab74f856358c.png";
+const DEFAULT_AVATAR = "https://img.wjwj.top/2026/01/20/d6346e9c8e93165079c5ab74f856358c.png ";
 const DEFAULT_SIGNATURE = "无";
 
 let state = { user: null, news: [], likes: {}, currentNewsIdx: 0, isHorizontal: false };
 let currentLightboxImgs = [];
 let currentLightboxIdx = 0;
 
-// 平滑滚动相关变量
 let scrollTarget = 0;
 let scrollCurrent = 0;
 let animationFrameId;
-// 滚动吸附定时器
 let scrollEndTimer;
 
-// 进度条拖动相关变量
 let isDraggingProgress = false;
+
+let lightboxScale = 1;
+let lightboxTranslateX = 0;
+let lightboxTranslateY = 0;
+let isDraggingLightbox = false;
+let lightboxStartX = 0;
+let lightboxStartY = 0;
+let lightboxStartTranslateX = 0;
+let lightboxStartTranslateY = 0;
 
 function init() {
   const loader = document.getElementById('loader');
@@ -829,7 +844,7 @@ function init() {
   initMusicPlayer();
   loadLogs();
   initScrollLogic();
-  initProgressDrag(); // 初始化进度条拖动
+  initProgressDrag();
   
   const savedBg = localStorage.getItem('customBg');
   if(savedBg) {
@@ -854,22 +869,112 @@ function init() {
           if(e.key === 'Escape') closeVideo();
       }
   });
+
+  initLightboxInteractions();
 }
 
-/* --- 进度条拖动功能 --- */
+function initLightboxInteractions() {
+    const lightbox = document.getElementById('lightbox');
+    const imgWrapper = document.getElementById('lightboxImgWrapper');
+    const img = document.getElementById('lightboxImg');
+
+    lightbox.addEventListener('wheel', function(e) {
+        if (!lightbox.classList.contains('active')) return;
+        e.preventDefault();
+        
+        const delta = e.deltaY > 0 ? 0.9 : 1.1;
+        const newScale = Math.max(0.5, Math.min(5, lightboxScale * delta));
+        
+        lightboxScale = newScale;
+        updateLightboxTransform();
+    }, { passive: false });
+
+    imgWrapper.addEventListener('mousedown', function(e) {
+        if (e.target === img || e.target === imgWrapper) {
+            isDraggingLightbox = true;
+            lightboxStartX = e.clientX;
+            lightboxStartY = e.clientY;
+            lightboxStartTranslateX = lightboxTranslateX;
+            lightboxStartTranslateY = lightboxTranslateY;
+            imgWrapper.style.cursor = 'grabbing';
+        }
+    });
+
+    document.addEventListener('mousemove', function(e) {
+        if (!isDraggingLightbox) return;
+        e.preventDefault();
+        
+        const deltaX = e.clientX - lightboxStartX;
+        const deltaY = e.clientY - lightboxStartY;
+        
+        lightboxTranslateX = lightboxStartTranslateX + deltaX;
+        lightboxTranslateY = lightboxStartTranslateY + deltaY;
+        
+        updateLightboxTransform();
+    });
+
+    document.addEventListener('mouseup', function() {
+        if (isDraggingLightbox) {
+            isDraggingLightbox = false;
+            imgWrapper.style.cursor = 'grab';
+        }
+    });
+
+    imgWrapper.addEventListener('touchstart', function(e) {
+        if (e.touches.length === 1) {
+            isDraggingLightbox = true;
+            lightboxStartX = e.touches[0].clientX;
+            lightboxStartY = e.touches[0].clientY;
+            lightboxStartTranslateX = lightboxTranslateX;
+            lightboxStartTranslateY = lightboxTranslateY;
+        }
+    }, { passive: false });
+
+    document.addEventListener('touchmove', function(e) {
+        if (!isDraggingLightbox || e.touches.length !== 1) return;
+        
+        const deltaX = e.touches[0].clientX - lightboxStartX;
+        const deltaY = e.touches[0].clientY - lightboxStartY;
+        
+        lightboxTranslateX = lightboxStartTranslateX + deltaX;
+        lightboxTranslateY = lightboxStartTranslateY + deltaY;
+        
+        updateLightboxTransform();
+    }, { passive: false });
+
+    document.addEventListener('touchend', function() {
+        isDraggingLightbox = false;
+    });
+
+    lightbox.addEventListener('dblclick', function(e) {
+        if (e.target === img || e.target === imgWrapper) {
+            if (lightboxScale !== 1) {
+                lightboxScale = 1;
+                lightboxTranslateX = 0;
+                lightboxTranslateY = 0;
+            } else {
+                lightboxScale = 2;
+            }
+            updateLightboxTransform();
+        }
+    });
+}
+
+function updateLightboxTransform() {
+    const img = document.getElementById('lightboxImg');
+    img.style.transform = `translate(${lightboxTranslateX}px, ${lightboxTranslateY}px) scale(${lightboxScale})`;
+}
+
 function initProgressDrag() {
     const walker = document.getElementById('walkerIcon');
     const track = document.getElementById('progressTrack');
     
-    // 鼠标事件
     walker.addEventListener('mousedown', startDrag);
     track.addEventListener('mousedown', (e) => {
-        // 修复：逻辑反了，点击track或walker才处理
         if (e.target !== track && e.target !== walker) return;
         handleTrackClick(e);
     });
     
-    // 触摸事件
     walker.addEventListener('touchstart', (e) => {
         e.preventDefault();
         startDrag(e.touches[0]);
@@ -894,34 +999,30 @@ function initProgressDrag() {
     function startDrag(e) {
         isDraggingProgress = true;
         walker.classList.add('dragging');
-        drag(e); // 立即更新位置
+        drag(e);
     }
     
     function drag(e) {
         if (!isDraggingProgress) return;
         
         const trackRect = track.getBoundingClientRect();
-        // 修复：统一获取clientX，兼容触摸/鼠标事件
-        let clientX = e.clientX || (e.pageX ? e.pageX : 0);
+        let clientY = e.clientY || (e.pageY ? e.pageY : 0);
         
-        // 计算百分比 (限制在0-100)
-        let percent = ((clientX - trackRect.left) / trackRect.width) * 100;
+        let percent = ((clientY - trackRect.top) / trackRect.height) * 100;
         percent = Math.max(0, Math.min(100, percent));
         
-        // 更新walker位置
-        walker.style.left = `${percent}%`;
+        walker.style.top = `${percent}%`;
         
-        // 根据模式更新滚动位置
         setScrollByPercent(percent / 100);
     }
     
     function handleTrackClick(e) {
         const trackRect = track.getBoundingClientRect();
-        let clientX = e.clientX || (e.pageX ? e.pageX : 0);
-        let percent = ((clientX - trackRect.left) / trackRect.width) * 100;
+        let clientY = e.clientY || (e.pageY ? e.pageY : 0);
+        let percent = ((clientY - trackRect.top) / trackRect.height) * 100;
         percent = Math.max(0, Math.min(100, percent));
         
-        walker.style.left = `${percent}%`;
+        walker.style.top = `${percent}%`;
         setScrollByPercent(percent / 100);
     }
     
@@ -929,11 +1030,6 @@ function initProgressDrag() {
         if (!isDraggingProgress) return;
         isDraggingProgress = false;
         walker.classList.remove('dragging');
-        
-        // 水平模式下执行吸附
-        if (state.isHorizontal) {
-            setTimeout(() => snapToNearestCard(), 100);
-        }
     }
 }
 
@@ -950,7 +1046,6 @@ function setScrollByPercent(percent) {
     }
 }
 
-/* --- 布局切换与滚动逻辑优化 --- */
 function toggleLayout() {
     const container = document.querySelector('.main-container');
     const wrapper = document.getElementById('mainWrapper');
@@ -967,9 +1062,8 @@ function toggleLayout() {
             wrapper.classList.add('horizontal-mode');
             btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>';
             
-            // 启用自定义惯性滚动监听
             window.addEventListener('wheel', handleWheelScroll, { passive: false });
-            startHorizontalLoop(); // 启动每一帧的渲染循环
+            startHorizontalLoop();
             quickNav.classList.add('show');
             showToast('水平模式：滚轮已优化流畅度');
         } else {
@@ -981,9 +1075,8 @@ function toggleLayout() {
             cancelAnimationFrame(animationFrameId);
             quickNav.classList.remove('show');
             
-            // 恢复卡片样式
             document.querySelectorAll('.news-card').forEach(c => {
-                c.style.transform = ''; c.style.opacity = ''; c.style.zIndex = ''; // 修复：清空z-index
+                c.style.transform = ''; c.style.opacity = ''; c.style.zIndex = '';
             });
         }
 
@@ -996,7 +1089,6 @@ function toggleLayout() {
         requestAnimationFrame(() => {
             container.classList.remove('switching-hidden');
             if(!state.isHorizontal) {
-                // 垂直模式重新触发一下显隐动画
                 document.querySelectorAll('.news-card').forEach((c, i) => {
                     c.classList.remove('visible');
                     setTimeout(() => c.classList.add('visible'), i * 50);
@@ -1007,25 +1099,19 @@ function toggleLayout() {
     }, 400);
 }
 
-/* 核心：惯性滚动逻辑 (Inertia Scroll + Snap) */
 function handleWheelScroll(e) {
     if(!state.isHorizontal) return;
     if(document.getElementById('newsModal').classList.contains('show')) return;
     
     e.preventDefault();
-    // 增加一点阻尼倍率，让滚动更跟手但有距离
     scrollTarget += e.deltaY * 0.8;
     
-    // 边界限制
     const wrapper = document.getElementById('mainWrapper');
     const maxScroll = wrapper.scrollWidth - wrapper.clientWidth;
     scrollTarget = Math.max(0, Math.min(scrollTarget, maxScroll));
 
-    // 清除上一次的停止计时
     clearTimeout(scrollEndTimer);
     
-    // 核心：吸附逻辑 (Snap to Center)
-    // 当用户停止滚动 150ms 后，自动吸附到最近的卡片
     scrollEndTimer = setTimeout(() => {
         snapToNearestCard();
     }, 150);
@@ -1036,42 +1122,31 @@ function snapToNearestCard() {
     const cards = document.querySelectorAll('.news-card');
     if(cards.length === 0) return;
 
-    // 卡片宽度 380 + 间距 60 = 440 (根据CSS计算)
-    const cardStride = 380 + 60; 
+    const cardStride = 380 + 60;
     
-    // 当前滚动位置对应的索引
-    // 注意：因为padding的存在，scrollLeft=0时第一个卡片居中，所以直接除以步长即可
     let idx = Math.round(scrollTarget / cardStride);
     
-    // 限制索引范围
     idx = Math.max(0, Math.min(idx, cards.length - 1));
     
-    // 更新目标位置，让 Loop 动画平滑过渡过去
     scrollTarget = idx * cardStride;
 }
 
-/* 核心：动画渲染循环 (Lerp + Scale Effect) */
 function startHorizontalLoop() {
     function loop() {
         if(!state.isHorizontal) return;
 
         const wrapper = document.getElementById('mainWrapper');
         
-        // 1. Lerp 插值算法：让 current 无限趋近 target，实现丝滑惯性
-        // 0.08 是阻尼系数，越小越滑，越大越跟手
         scrollCurrent += (scrollTarget - scrollCurrent) * 0.08;
         
-        // 如果非常接近，就直接对齐
         if(Math.abs(scrollTarget - scrollCurrent) < 0.5) {
             scrollCurrent = scrollTarget;
         }
 
         wrapper.scrollLeft = scrollCurrent;
         
-        // 2. 执行中心放大动画
         animateCardsInView();
         
-        // 3. 更新进度条
         updateProgress();
 
         animationFrameId = requestAnimationFrame(loop);
@@ -1079,7 +1154,6 @@ function startHorizontalLoop() {
     loop();
 }
 
-/* 核心：计算卡片缩放 (Center Zoom Effect) */
 function animateCardsInView() {
     const centerLine = window.innerWidth / 2;
     const cards = document.querySelectorAll('.news-card');
@@ -1088,23 +1162,17 @@ function animateCardsInView() {
         const rect = card.getBoundingClientRect();
         const cardCenter = rect.left + rect.width / 2;
         
-        // 距离中心的距离
         const dist = Math.abs(centerLine - cardCenter);
-        // 影响范围：屏幕的一半
         const range = window.innerWidth / 2;
         
         let scale = 1;
         let opacity = 1;
 
         if(dist < range) {
-            // 在范围内，计算比例 (0到1之间)
             const ratio = 1 - (dist / range);
-            // 映射到 0.8 ~ 1.05 (稍微放大一点作为选中态)
             scale = 0.8 + (ratio * 0.25); 
-            // 透明度 0.6 ~ 1.0
             opacity = 0.6 + (ratio * 0.4);
         } else {
-            // 超出范围，保持最小状态
             scale = 0.8;
             opacity = 0.6;
         }
@@ -1112,7 +1180,6 @@ function animateCardsInView() {
         card.style.transform = `scale(${scale})`;
         card.style.opacity = opacity;
         
-        // 修复：z-index设为整数，避免层级错乱
         card.style.zIndex = scale > 0.95 ? 10 : 1;
     });
 }
@@ -1125,7 +1192,7 @@ function initScrollToTop() {
             if (window.scrollY > 300) btn.classList.add('show');
             else btn.classList.remove('show');
         } else {
-            btn.classList.remove('show'); // 水平模式隐藏回到顶部
+            btn.classList.remove('show');
         }
     });
     btn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1138,7 +1205,7 @@ function initScrollLogic() {
 
 function updateProgress() {
     const walker = document.getElementById('walkerIcon');
-    if (isDraggingProgress) return; // 拖动时不自动更新
+    if (isDraggingProgress) return;
     
     let pct = 0;
     
@@ -1155,15 +1222,12 @@ function updateProgress() {
         pct = h > 0 ? (window.scrollY / h) * 100 : 0;
     }
     
-    // 限制在 0-100
     pct = Math.min(100, Math.max(0, pct));
-    walker.style.left = `${pct}%`;
+    walker.style.top = `${pct}%`;
 }
 
-/* --- 背景上传 --- */
 function handleBgUpload(e) {
     const file = e.target.files[0];
-    // 修复：增加文件类型校验，仅允许图片
     if(!file || !file.type.startsWith('image/')) {
         showToast('请选择图片文件！');
         return;
@@ -1179,7 +1243,6 @@ function handleBgUpload(e) {
     reader.readAsDataURL(file);
 }
 
-/* --- 音乐播放器 --- */
 function initMusicPlayer() {
     const audio = document.getElementById('music');
     const playBtn = document.getElementById('playBtn');
@@ -1201,7 +1264,6 @@ function initMusicPlayer() {
         audio.src = BASE_PATH + name;
         title.textContent = name.replace('.mp3', '');
         if(musicState.isPlaying) {
-            // 修复：增加错误处理，避免控制台报错
             audio.play().catch(err => {
                 console.log('音乐播放失败：', err);
                 showToast('音乐文件加载失败');
@@ -1217,7 +1279,6 @@ function initMusicPlayer() {
             footer.classList.remove('playing');
             playIcon.className = 'play-icon';
         } else {
-            // 修复：增加错误处理
             audio.play().then(() => {
                 footer.classList.add('playing');
                 playIcon.className = 'pause-icon';
@@ -1263,13 +1324,11 @@ function initMusicPlayer() {
     };
 }
 
-/* --- Search & Render --- */
 function doSearch() {
   const val = document.getElementById('searchInput').value.trim().toLowerCase();
   const container = document.getElementById('newsContainer');
   const filtered = state.news.filter(item => item.title.toLowerCase().includes(val) || item.content.toLowerCase().includes(val));
 container.innerHTML = filtered.map((item, idx) => `
-  <!-- 核心修改：1.加data-news-id存真实id  2.onclick改传item.id -->
   <div class="news-card" data-news-id="${item.id}" onclick="openModal(${item.id})" style="animation-delay:${idx * 0.1}s">
   ${item.imgs.length ? `
     <div class="news-cover-box">
@@ -1294,7 +1353,6 @@ container.innerHTML = filtered.map((item, idx) => `
 `).join('');  
   setTimeout(() => { 
       document.querySelectorAll('.news-card').forEach(el => el.classList.add('visible'));
-      // 如果正在水平模式，立即计算一次位置
       if(state.isHorizontal) {
           const wrapper = document.getElementById('mainWrapper');
           scrollTarget = wrapper.scrollLeft;
@@ -1306,33 +1364,27 @@ container.innerHTML = filtered.map((item, idx) => `
   
   if(filtered.length === 0) container.innerHTML = '<div style="text-align:center;width:100%;color:#999;padding:60px;">Nothing found in the journal.</div>';
 }
-/* --- 修复版：按日记ID打开详情，彻底解决搜索后内容不匹配问题 --- */
-function openModal(newsId) { // 参数改为：日记唯一ID
+
+function openModal(newsId) {
     const modal = document.getElementById('newsModal');
     modal.classList.remove('hide');
     modal.classList.remove('show');
     
-    // 核心修复1：通过ID从原始数组精准查找对应的日记项（关键！）
     const item = state.news.find(item => item.id === newsId);
-    // 容错：如果没找到（理论上不会发生，防止异常）
     if (!item) {
         showToast('日记不存在或已删除');
         return;
     }
     
-    // 核心修复2：更新全局当前索引为【原始数组的正确索引】（保证灯箱/视频等功能正常）
     state.currentNewsIdx = state.news.findIndex(item => item.id === newsId);
     
     const content = document.getElementById('modalContent');
     const box = document.getElementById('modalBox');
 
-    // 重置评论区状态
     box.classList.remove('show-comments');
     content.innerHTML = '';
-    // 构建媒体 HTML (图片/视频)
     let mediaHtml = '';
     
-    // 图片：一行3张，带懒加载
     if(item.imgs.length > 0) {
         mediaHtml += '<div class="detail-media-grid">';
         item.imgs.forEach((src, imgIdx) => {
@@ -1341,7 +1393,6 @@ function openModal(newsId) { // 参数改为：日记唯一ID
         mediaHtml += '</div>';
     }
     
-    // 视频
     if(item.videos.length > 0) {
         mediaHtml += '<div class="detail-media-grid" style="margin-top:15px;">';
         item.videos.forEach((src) => {
@@ -1355,7 +1406,6 @@ function openModal(newsId) { // 参数改为：日记唯一ID
         mediaHtml += '</div>';
     }
     
-    // 渲染文字内容
     content.innerHTML = `
       <div style="font-size:13px;color:#999;margin-bottom:10px;">${item.date}</div>
       <h2 style="font-size:28px;margin-bottom:25px;color:#2c3e50;font-family:serif;">${item.title}</h2>
@@ -1363,22 +1413,18 @@ function openModal(newsId) { // 参数改为：日记唯一ID
       ${mediaHtml}
     `;
     
-    // 解决页面偏移抖动
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     if(scrollbarWidth > 0) {
         document.body.style.paddingRight = `${scrollbarWidth}px`;
     }
     document.body.style.overflow = 'hidden';
     
-    // 显示模态框
     modal.classList.add('show');
     
-    // 绑定评论按钮事件
     document.getElementById('toggleCommentBtn').onclick = () => {
         box.classList.toggle('show-comments');
     };
 
-    // 加载评论（传日记真实ID，评论功能不受影响）
     loadComments(item.id);
     
     document.getElementById('modalClose').onclick = () => { 
@@ -1394,11 +1440,17 @@ function openModal(newsId) { // 参数改为：日记唯一ID
         }, 300); 
     };
 }
-/* --- Lightbox Logic --- */
+
 function viewLightbox(newsIdx, imgIdx) {
     const item = state.news[newsIdx];
     currentLightboxImgs = item.imgs;
     currentLightboxIdx = imgIdx;
+    
+    lightboxScale = 1;
+    lightboxTranslateX = 0;
+    lightboxTranslateY = 0;
+    updateLightboxTransform();
+    
     updateLightboxImage();
     document.getElementById('lightbox').classList.add('active');
 }
@@ -1416,17 +1468,26 @@ function changeLightbox(dir) {
     const newIdx = currentLightboxIdx + dir;
     if(newIdx >= 0 && newIdx < currentLightboxImgs.length) {
         currentLightboxIdx = newIdx;
+        
+        lightboxScale = 1;
+        lightboxTranslateX = 0;
+        lightboxTranslateY = 0;
+        updateLightboxTransform();
+        
         updateLightboxImage();
     }
 }
 
 function closeLightbox() { 
     const lightbox = document.getElementById('lightbox');
-    lightbox.classList.remove('active'); // 移除激活状态
-    // 关键：清空图片地址+重置索引，避免残留元素遮挡
+    lightbox.classList.remove('active');
     document.getElementById('lightboxImg').src = '';
     currentLightboxImgs = [];
     currentLightboxIdx = 0;
+    
+    lightboxScale = 1;
+    lightboxTranslateX = 0;
+    lightboxTranslateY = 0;
 }
 
 function openVideo(src) {
@@ -1434,7 +1495,6 @@ function openVideo(src) {
     const player = document.getElementById('fullVideoPlayer');
     player.src = src;
     vBox.classList.add('active');
-    // 修复：增加视频播放错误处理
     player.play().catch(err => {
         console.log('视频播放失败：', err);
         showToast('视频加载失败');
@@ -1446,11 +1506,10 @@ function closeVideo() {
     const player = document.getElementById('fullVideoPlayer');
     player.pause();
     player.src = "";
-    player.load(); // 修复：彻底重置视频播放器
+    player.load();
     vBox.classList.remove('active');
 }
 
-/* --- Particles Effect --- */
 function initParticles() {
     const canvas = document.getElementById('particleCanvas');
     const ctx = canvas.getContext('2d');
@@ -1490,7 +1549,6 @@ function initParticles() {
     }
 
     window.addEventListener('mousedown', (e) => {
-        // 修复：减少粒子数量，优化性能
         for(let i=0; i<20; i++) particles.push(new Particle(e.clientX, e.clientY));
     });
 
@@ -1509,7 +1567,6 @@ function initParticles() {
     animate();
 }
 
-/* --- API & Login Logic --- */
 function checkLogin() {
   const localUser = localStorage.getItem('MY_CUSTOM_USER_INFO');
   if (localUser) {
@@ -1596,7 +1653,6 @@ async function loadComments(newsId) {
   list.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">加载中...</div>';
   
   try {
-    // 1. 先获取用户信息映射表
     let userAvatarMap = await getUserAvatarMap();
     
     const issueMap = await getCommentMap();
@@ -1613,26 +1669,21 @@ async function loadComments(newsId) {
     });
     const comments = await res.json();
     
-    // 如果没有评论
     if (!comments || comments.length === 0) {
       list.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">暂无评论</div>';
       return;
     }
     
-    // 渲染评论
     let commentsHTML = '';
     for (const c of comments) {
-      // 解析评论格式：账号|用户名|【评论内容】
       const parts = c.body.split('|');
       if (parts.length >= 3) {
         const uid = parts[0]?.trim() || '';
         const username = parts[1]?.trim() || '匿名用户';
-        let content = parts.slice(2).join('|').trim(); // 处理评论内容中可能包含的|
+        let content = parts.slice(2).join('|').trim();
         
-        // 移除【】符号
         content = content.replace(/^【|】$/g, '');
         
-        // 从用户信息映射表中获取头像
         const avatar = userAvatarMap[uid] || DEFAULT_AVATAR;
         
         commentsHTML += `
@@ -1650,7 +1701,6 @@ async function loadComments(newsId) {
     
     list.innerHTML = commentsHTML || '<div style="text-align:center;padding:20px;color:#94a3b8;">暂无评论</div>';
     
-    // 绑定发送评论事件
     document.getElementById('submitComment').onclick = () => postComment(issueId);
     
   } catch(e) {
@@ -1658,7 +1708,6 @@ async function loadComments(newsId) {
     list.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">评论加载失败</div>';
   }
 }
-// 获取用户头像映射表
 async function getUserAvatarMap() {
   try {
     const res = await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${CONFIG.userIssue}`, {
@@ -1672,7 +1721,7 @@ async function getUserAvatarMap() {
       const parts = line.split('|');
       if (parts.length >= 7) {
         const account = parts[0]?.trim();
-        const avatar = parts[5]?.trim(); // 第6个位置是头像链接
+        const avatar = parts[5]?.trim();
         if (account && avatar) {
           userMap[account] = avatar;
         }
@@ -1712,7 +1761,6 @@ async function postComment(issueId) {
   
   const avatar = state.user.avatar || DEFAULT_AVATAR;
   
-  // 1. 立即显示本地评论（乐观UI）
   const list = document.getElementById('commentList');
   if(list.innerText.includes('暂无评论')) {
     list.innerHTML = '';
@@ -1729,15 +1777,12 @@ async function postComment(issueId) {
   `;
   list.insertAdjacentHTML('beforeend', tempHtml);
   
-  // 滚动到底部
   const modalRight = document.querySelector('.modal-right');
   if(modalRight) modalRight.scrollTop = modalRight.scrollHeight;
   list.scrollTop = list.scrollHeight;
   
   input.value = '';
   
-  // 2. 后台上传评论
-  // 格式：账号|用户名|【评论内容】
   const body = `${state.user.account}|${state.user.nickname}|【${val}】`;
   
   try {
@@ -1769,7 +1814,6 @@ async function createCommentIssue(newsId) {
   showToast('正在创建评论区...');
   
   try {
-    // 创建新的评论issue
     const newIssueRes = await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues`, { 
       method: 'POST', 
       headers: { 
@@ -1784,7 +1828,6 @@ async function createCommentIssue(newsId) {
     
     const newIssue = await newIssueRes.json();
     
-    // 更新评论映射
     const mapRes = await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${CONFIG.commentMapIssue}`, { 
       headers: { Authorization: `token ${CONFIG.token}` } 
     });
@@ -1800,7 +1843,6 @@ async function createCommentIssue(newsId) {
       body: JSON.stringify({ body: newBody }) 
     });
     
-    // 发送第一条评论
     const body = `${state.user.account}|${state.user.nickname}|【${val}】`;
     await fetch(`https://api.github.com/repos/${CONFIG.repo}/issues/${newIssue.number}/comments`, { 
       method: 'POST', 
@@ -1813,7 +1855,6 @@ async function createCommentIssue(newsId) {
     
     showToast('评论发送成功');
     
-    // 重新加载评论
     loadComments(newsId);
     
   } catch(e) {
@@ -1822,7 +1863,6 @@ async function createCommentIssue(newsId) {
   }
 }
 
-// 修复：增加日志加载错误处理
 function loadLogs() { 
   fetch('moguone/log.txt')
   .then(r => {
