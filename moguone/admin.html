@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="MY HOME 管理员后台">
     <title>MY HOME - Console</title>
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/dmego-home-page@latest/assets/css/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/dmego-home-page@latest/assets/css/iconfont.css ">
     
     <style>
         :root {
@@ -412,9 +412,14 @@
                     <div class="media-input-box">
                         <label class="form-label">添加媒体 (链接)</label>
                         <textarea class="form-textarea" id="dMediaInput" style="height: 80px; font-family:monospace; font-size:12px;" placeholder="粘贴图片/视频链接，每行一个。也可直接在此修改链接。"></textarea>
-                        <button class="btn-secondary" style="width:100%; margin-top:10px; font-size:12px;" onclick="parseMediaFromInput()">
-                            <i class="iconfont icon-refresh"></i> 解析链接并预览
-                        </button>
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button class="btn-secondary" style="flex: 1; font-size:12px;" onclick="parseMediaFromInput()">
+                                <i class="iconfont icon-refresh"></i> 解析链接并预览
+                            </button>
+                            <button class="btn-secondary" style="flex: 1; font-size:12px;" onclick="window.open('https://www.imgcc.cloud/', '_blank')">
+                                <i class="iconfont icon-image"></i> 云图床
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="media-manager">
@@ -440,7 +445,7 @@
             
             <div class="user-edit-container">
                 <div class="user-edit-left">
-                    <img id="imgPreview" src="" class="avatar-preview-lg" onerror="this.src='https://img.wjwj.top/2026/01/26/30abddc90230cef0bc9896ca3eafd0d3.gif'">
+                    <img id="imgPreview" src="" class="avatar-preview-lg" onerror="this.src='https://img.wjwj.top/2026/01/26/30abddc90230cef0bc9896ca3eafd0d3.gif '">
                     <div style="width:100%;">
                         <label class="form-label" style="text-align:center;">权限角色</label>
                         <select class="form-select" id="uRole">
@@ -500,7 +505,7 @@ const COMMENT_MAPPING_ISSUE_NUMBER = 299;
 const NEWS_SEPARATOR = '---';
 
 // Default Avatar if "无" or empty (UI display only)
-const DEFAULT_AVATAR_IMG = "https://img.wjwj.top/2026/01/26/30abddc90230cef0bc9896ca3eafd0d3.gif";
+const DEFAULT_AVATAR_IMG = "https://img.wjwj.top/2026/01/26/30abddc90230cef0bc9896ca3eafd0d3.gif ";
 
 // ====== STATE ======
 let state = {
