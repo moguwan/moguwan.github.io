@@ -1176,7 +1176,7 @@ function toggleLayout() {
             window.addEventListener('wheel', handleWheelScroll, { passive: false });
             startHorizontalLoop();
             quickNav.classList.add('show');
-            showToast('水平模式：滚轮已优化流畅度');
+            showToast('水平模式');
         } else {
             wrapper.classList.remove('horizontal-mode');
             wrapper.classList.add('vertical-mode');
@@ -1668,7 +1668,7 @@ function initParticles() {
     }
 
     window.addEventListener('mousedown', (e) => {
-        for(let i=0; i<20; i++) particles.push(new Particle(e.clientX, e.clientY));
+        for(let i=0; i<70; i++) particles.push(new Particle(e.clientX, e.clientY));
     });
 
     function animate() {
