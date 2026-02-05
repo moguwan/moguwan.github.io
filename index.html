@@ -328,12 +328,18 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
 .lightbox-container {
     position: relative; width: 100%; height: 100%;
     display: flex; align-items: center; justify-content: center;
+    overflow: hidden; /* 防止放大后溢出 */
 }
 .lightbox-media {
     max-width: 90vw; max-height: 90vh;
     box-shadow: 0 0 50px rgba(0,0,0,0.5);
     border-radius: 4px; user-select: none;
-    transition: transform 0.3s ease;
+    /* 移除了 transform 的 transition，仅保留 opacity，确保拖拽流畅 */
+    transition: opacity 0.3s ease;
+    cursor: grab;
+}
+.lightbox-media:active {
+    cursor: grabbing;
 }
 .lightbox-close {
     position: absolute; top: 30px; right: 30px;
@@ -723,6 +729,8 @@ let isDraggingProgress = false;
 // 媒体灯箱全局变量
 let currentLightboxMedia = []; // 存储 {src, type}
 let currentMediaIndex = 0;
+// 新增：灯箱缩放/拖拽状态
+let lbState = { scale: 1, x: 0, y: 0, isDragging: false, startX: 0, startY: 0 };
 
 // 评论回复全局变量
 let replyTarget = null; // {name, isSub}
@@ -760,6 +768,23 @@ function init() {
           if(e.key === 'ArrowRight') changeUnifiedMedia(1);
           if(e.key === 'Escape') closeUnifiedLightbox();
       }
+  });
+
+  // 全局灯箱拖拽移动监听
+  document.addEventListener('mousemove', (e) => {
+      if(!lbState.isDragging) return;
+      const img = document.querySelector('#lightboxContainer img.lightbox-media');
+      if(!img) return;
+      e.preventDefault();
+      lbState.x = e.clientX - lbState.startX;
+      lbState.y = e.clientY - lbState.startY;
+      updateLbStyle(img);
+  });
+  
+  document.addEventListener('mouseup', () => {
+      lbState.isDragging = false;
+      const img = document.querySelector('#lightboxContainer img.lightbox-media');
+      if(img) img.style.cursor = 'grab';
   });
 }
 
@@ -1236,6 +1261,7 @@ function changeUnifiedMedia(dir) {
     updateLightboxMedia();
 }
 
+// 更新灯箱媒体内容及绑定缩放事件
 function updateLightboxMedia() {
     const container = document.getElementById('lightboxContainer');
     const counter = document.getElementById('lightboxCounter');
@@ -1254,10 +1280,39 @@ function updateLightboxMedia() {
         const img = document.createElement('img');
         img.src = item.src;
         img.className = 'lightbox-media';
+        
+        // 重置缩放状态
+        lbState = { scale: 1, x: 0, y: 0, isDragging: false, startX: 0, startY: 0 };
+        img.style.transform = `translate(0px, 0px) scale(1)`;
+
+        // 绑定滚轮缩放事件
+        img.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? 0.9 : 1.1; // 向下滚缩小，向上滚放大
+            lbState.scale *= delta;
+            // 限制缩放范围
+            lbState.scale = Math.max(0.1, Math.min(lbState.scale, 10));
+            updateLbStyle(img);
+        });
+
+        // 绑定鼠标按下事件(开始拖拽)
+        img.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            lbState.isDragging = true;
+            lbState.startX = e.clientX - lbState.x;
+            lbState.startY = e.clientY - lbState.y;
+            img.style.cursor = 'grabbing';
+        });
+
         container.appendChild(img);
     }
     
     counter.textContent = `${currentMediaIndex + 1} / ${currentLightboxMedia.length}`;
+}
+
+function updateLbStyle(img) {
+    if(!img) return;
+    img.style.transform = `translate(${lbState.x}px, ${lbState.y}px) scale(${lbState.scale})`;
 }
 
 function initParticles() {
