@@ -23,7 +23,6 @@
   --radius-lg: 48px;
   --radius-sm: 20px;
 }
-
 * {
   margin: 0;
   padding: 0;
@@ -31,19 +30,17 @@
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Helvetica Neue", sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
-
 html, body {
   height: 100%;
   overflow: hidden;
   position: fixed;
   width: 100%;
+  overscroll-behavior: none;
 }
-
 body {
   color: var(--text-primary);
   background: #f5f3f0;
 }
-
 .chinese-bg-container {
   position: fixed;
   top: 0;
@@ -57,8 +54,6 @@ body {
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
-
-/* 新的扁平化玻璃效果 - 更 subtle */
 .liquid-glass-flat {
   background: rgba(255, 253, 245, 0.85);
   backdrop-filter: blur(20px) saturate(180%);
@@ -69,7 +64,6 @@ body {
   position: relative;
   overflow: hidden;
 }
-
 .liquid-glass {
   background: linear-gradient(135deg, rgba(255, 253, 245, 0.85) 0%, rgba(255, 251, 240, 0.6) 100%);
   backdrop-filter: blur(20px) saturate(200%) contrast(1.1);
@@ -83,7 +77,6 @@ body {
   position: relative;
   overflow: hidden;
 }
-
 .liquid-glass::before {
   content: '';
   position: absolute;
@@ -99,7 +92,6 @@ body {
   pointer-events: none;
   border-radius: var(--radius);
 }
-
 .main-container {
   height: 100vh;
   display: flex;
@@ -111,8 +103,6 @@ body {
   z-index: 1;
   gap: 16px;
 }
-
-/* 标题缩小并优化 */
 .search-title {
   font-size: clamp(2rem, 6vw, 3rem);
   font-weight: 700;
@@ -129,21 +119,16 @@ body {
   -webkit-background-clip: unset;
   -webkit-text-fill-color: unset;
 }
-
 .search-title:hover {
   transform: scale(1.03) translateY(-3px);
   filter: drop-shadow(0 6px 12px rgba(0,0,0,0.15));
 }
-
-/* 搜索容器调整 */
 .search-wrapper {
   width: 100%;
   max-width: 600px;
   position: relative;
   transform: translateY(0);
 }
-
-/* 新的搜索框样式 - 扁平化设计 */
 .search-container {
   width: 100%;
   padding: 6px;
@@ -161,7 +146,6 @@ body {
     0 1px 3px rgba(0, 0, 0, 0.04),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
-
 .search-container:hover {
   transform: translateY(-1px);
   box-shadow: 
@@ -170,7 +154,6 @@ body {
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
   border-color: rgba(224, 122, 95, 0.3);
 }
-
 .search-container:focus-within {
   transform: translateY(-1px);
   box-shadow: 
@@ -179,7 +162,6 @@ body {
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
   border-color: rgba(224, 122, 95, 0.4);
 }
-
 .search-engine-select {
   appearance: none;
   background: rgba(61, 107, 79, 0.06);
@@ -194,12 +176,10 @@ body {
   font-family: "PingFang SC", sans-serif;
   border: 1px solid rgba(61, 107, 79, 0.1);
 }
-
 .search-engine-select:hover {
   background: rgba(61, 107, 79, 0.12);
   transform: scale(1.02);
 }
-
 #search-input {
   flex: 1;
   border: none;
@@ -211,15 +191,12 @@ body {
   font-weight: 500;
   font-family: "PingFang SC", sans-serif;
 }
-
 #search-input::placeholder {
   color: var(--text-secondary);
   font-weight: 400;
   opacity: 0.5;
   font-size: 15px;
 }
-
-/* 搜索按钮调整 */
 #search-btn {
   background: var(--forest);
   color: white;
@@ -238,17 +215,14 @@ body {
   overflow: hidden;
   flex-shrink: 0;
 }
-
 #search-btn:hover {
   transform: scale(1.1) rotate(8deg);
   box-shadow: 0 4px 16px rgba(224, 122, 95, 0.35);
   background: var(--peach);
 }
-
 #search-btn:active {
   transform: scale(0.95);
 }
-
 #search-btn::before {
   content: '';
   position: absolute;
@@ -259,11 +233,9 @@ body {
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
   transition: left 0.5s;
 }
-
 #search-btn:hover::before {
   left: 100%;
 }
-
 .history-rank-wrap {
   width: 100%;
   max-width: 600px;
@@ -274,20 +246,17 @@ body {
   overflow: hidden;
   margin-top: 8px;
 }
-
 .history-rank-wrap.hidden {
   max-height: 0;
   opacity: 0;
   margin: 0;
   transform: translateY(-10px);
 }
-
 .history-rank-container {
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
 }
-
 .history-section {
   margin-top: 0;
   padding: 20px;
@@ -297,14 +266,12 @@ body {
   transition: all 0.4s var(--ease-spring);
   border-radius: var(--radius);
 }
-
 .history-section:hover {
   transform: translateY(-3px);
   box-shadow: 
     0 20px 40px rgba(45, 79, 58, 0.08),
     inset 0 1px 0 rgba(255,255,255,0.9);
 }
-
 .module-title {
   font-size: 12px;
   font-weight: 700;
@@ -317,7 +284,6 @@ body {
   justify-content: space-between;
   font-family: "PingFang SC", sans-serif;
 }
-
 .history-list {
   list-style: none;
   max-height: 240px;
@@ -326,7 +292,6 @@ body {
   overflow-x: hidden;
   position: relative;
 }
-
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-thumb {
   background: rgba(61, 107, 79, 0.2);
@@ -335,7 +300,6 @@ body {
   background-clip: padding-box;
 }
 ::-webkit-scrollbar-track { background: transparent; }
-
 .history-item {
   display: flex;
   align-items: center;
@@ -351,7 +315,6 @@ body {
   border: 1px solid rgba(255,255,255,0.4);
   font-family: "PingFang SC", sans-serif;
 }
-
 .history-item:hover {
   background: rgba(255,255,255,0.95);
   transform: scale(1.01) translateX(4px);
@@ -359,7 +322,6 @@ body {
   border-color: rgba(224, 122, 95, 0.2);
   padding-left: 20px;
 }
-
 .history-item .time {
   margin-left: auto;
   font-size: 11px;
@@ -368,7 +330,6 @@ body {
   font-weight: 500;
   opacity: 0.7;
 }
-
 .delete-btn {
   background: rgba(224, 122, 95, 0.08);
   border: none;
@@ -383,23 +344,19 @@ body {
   align-items: center;
   justify-content: center;
 }
-
 .history-item:hover .delete-btn { opacity: 1; }
 .delete-btn:hover { 
   background: var(--peach); 
   color: white; 
   transform: scale(1.1) rotate(90deg);
 }
-
 .toggle-switch {
   width: 44px;
   height: 26px;
   position: relative;
   display: inline-block;
 }
-
 .toggle-switch input { opacity: 0; width: 0; height: 0; }
-
 .switch-slider {
   position: absolute;
   cursor: pointer;
@@ -409,7 +366,6 @@ body {
   transition: .3s var(--ease-spring);
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.08);
 }
-
 .switch-slider:before {
   position: absolute;
   content: "";
@@ -422,10 +378,8 @@ body {
   transition: .3s var(--ease-spring);
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
-
 input:checked + .switch-slider { background-color: var(--forest); }
 input:checked + .switch-slider:before { transform: translateX(18px); }
-
 .float-btn {
   position: fixed;
   background: var(--glass-bg);
@@ -442,7 +396,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   color: var(--forest);
   border-radius: var(--radius-sm);
 }
-
 .toggle-btn {
   bottom: 30px;
   left: 30px;
@@ -451,56 +404,46 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   border-radius: 50%;
   animation: slideInLeft 0.6s var(--ease-spring) 0.8s backwards;
 }
-
 .toggle-btn:hover {
   transform: scale(1.1) rotate(8deg);
   box-shadow: 0 12px 30px rgba(45, 79, 58, 0.15);
 }
-
 .mogu-active-btn, .mogu-chat-btn {
   top: 24px;
   width: 48px;
   height: 48px;
   opacity: 0.9;
 }
-
 .mogu-chat-btn { 
   right: 24px; 
   color: var(--peach);
   animation: slideInRight 0.6s var(--ease-spring) 0.4s backwards;
 }
-
 .mogu-active-btn { 
   right: 80px; 
   color: var(--soft-gold);
   animation: slideInRight 0.6s var(--ease-spring) 0.5s backwards;
 }
-
 .mogu-active-btn:hover {
   transform: scale(1.1) rotate(10deg);
   color: var(--forest);
   box-shadow: 0 12px 30px rgba(233, 196, 106, 0.25);
 }
-
 .mogu-chat-btn:hover {
   transform: scale(1.1) rotate(-10deg);
   box-shadow: 0 12px 30px rgba(224, 122, 95, 0.25);
 }
-
 .float-btn:active {
   transform: scale(0.95);
 }
-
 @keyframes slideInRight {
   from { opacity: 0; transform: translateX(50px); }
   to { opacity: 1; transform: translateX(0); }
 }
-
 @keyframes slideInLeft {
   from { opacity: 0; transform: translateX(-50px); }
   to { opacity: 1; transform: translateX(0); }
 }
-
 .user-info {
   position: fixed;
   top: 24px;
@@ -520,12 +463,10 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   max-width: 200px;
   cursor: pointer;
 }
-
 .user-info:hover { 
   transform: translateY(-2px) scale(1.02); 
   box-shadow: 0 12px 30px rgba(45, 79, 58, 0.12);
 }
-
 .user-profile-btn { 
   display: flex; 
   align-items: center; 
@@ -533,7 +474,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   cursor: pointer;
   overflow: hidden;
 }
-
 .user-avatar {
   width: 36px;
   height: 36px;
@@ -544,11 +484,9 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   background-position: center;
   transition: transform 0.3s;
 }
-
 .user-info:hover .user-avatar {
   transform: rotate(360deg) scale(1.1);
 }
-
 .user-name { 
   font-size: 13px; 
   font-weight: 600; 
@@ -559,7 +497,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   max-width: 80px;
   font-family: "PingFang SC", sans-serif;
 }
-
 .logout-btn {
   padding: 8px 16px;
   border-radius: 20px;
@@ -575,20 +512,17 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   pointer-events: none;
   font-size: 12px;
 }
-
 .user-info:hover .logout-btn {
   opacity: 1;
   transform: translateX(0);
   pointer-events: all;
   transition-delay: 0.1s;
 }
-
 .logout-btn:hover { 
   background: var(--peach); 
   color: white;
   transform: scale(1.05);
 }
-
 .login-btn {
   position: fixed;
   top: 24px; 
@@ -608,18 +542,15 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   transition: all 0.1s;
   font-family: "PingFang SC", sans-serif;
 }
-
 .login-btn:active {
   transform: translateY(4px);
   box-shadow: 
     0 0 0 #E6C2A0,
     0 2px 4px rgba(0,0,0,0.1);
 }
-
 .login-btn:hover {
   background: #FFEED8;
 }
-
 .mogu-chat-window {
   position: fixed;
   top: 90px;
@@ -643,13 +574,11 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
     inset 0 1px 0 rgba(255,255,255,0.9);
   border-radius: 28px;
 }
-
 .mogu-chat-window.open {
   transform: translateX(0) scale(1);
   opacity: 1;
   visibility: visible;
 }
-
 .mogu-chat-header {
   padding: 20px;
   background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,251,240,0.5) 100%);
@@ -660,7 +589,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   position: relative;
   z-index: 2;
 }
-
 .mogu-chat-title {
   font-weight: 700;
   color: var(--text-primary);
@@ -670,7 +598,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   gap: 8px;
   font-family: "PingFang SC", sans-serif;
 }
-
 .mogu-chat-messages {
   flex: 1;
   overflow-y: auto;
@@ -681,7 +608,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   position: relative;
   z-index: 1;
 }
-
 .message-item {
   max-width: 85%;
   padding: 14px 18px;
@@ -695,7 +621,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   border-radius: 20px;
   transition: all 0.3s var(--ease-smooth);
 }
-
 @keyframes messageSlideIn {
   from { 
     opacity: 0; 
@@ -706,7 +631,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
     transform: translateY(0) scale(1);
   }
 }
-
 .message-item.other {
   align-self: flex-start;
   background: rgba(255, 255, 255, 0.95);
@@ -715,7 +639,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   color: var(--text-primary);
   border: 1px solid rgba(255,255,255,0.8);
 }
-
 .message-item.user {
   align-self: flex-end;
   background: linear-gradient(135deg, var(--forest) 0%, #4A7D5F 100%);
@@ -723,41 +646,35 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   border-radius: 20px 20px 6px 20px;
   box-shadow: 0 4px 16px rgba(61, 107, 79, 0.2);
 }
-
 .message-item.user .message-sender {
   color: rgba(255,255,255,0.95);
 }
-
 .message-item.user .message-time {
   color: rgba(255,255,255,0.7);
 }
-
 .message-header {
   display: flex;
   align-items: center;
   margin-bottom: 8px;
   gap: 8px;
 }
-/* 用户消息（右侧）的头像和用户名顺序调整 */
 .message-item.user .message-header {
-  flex-direction: row-reverse; /* 头像在右，用户名在左 */
+  flex-direction: row-reverse;
 }
 .message-avatar {
-  width: 28px;  /* 稍微大一点更容易看到 */
+  width: 28px; 
   height: 28px;
-  min-width: 28px;  /* 防止被 flex 压缩 */
+  min-width: 28px; 
   min-height: 28px;
   border-radius: 50%;
   background-size: cover;
   background-position: center;
-  background-color: rgba(45, 79, 58, 0.15); /* 后备颜色 */
+  background-color: rgba(45, 79, 58, 0.15);
   flex-shrink: 0;
   display: block;
   border: 2px solid rgba(255,255,255,0.6);
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-
-/* 用户消息的头像样式 */
 .message-item.user .message-avatar {
   border-color: rgba(255,255,255,0.4);
   background-color: rgba(255,255,255,0.2);
@@ -768,10 +685,9 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   color: var(--text-secondary);
   opacity: 0.9;
 }
-
 .message-text {
   line-height: 1.6;
-  word-break: break-all; /* 防止长 URL 撑破布局 */
+  word-break: break-all;
 }
 .message-text img {
   max-width: 100%;
@@ -795,7 +711,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   position: relative;
   z-index: 2;
 }
-
 .mogu-chat-input {
   flex: 1;
   background: rgba(255,255,255,0.95);
@@ -809,11 +724,9 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   transition: all 0.3s;
   color: var(--text-primary);
 }
-
 .mogu-chat-input:focus {
   box-shadow: inset 0 2px 8px rgba(45, 79, 58, 0.06), 0 0 0 3px rgba(224, 122, 95, 0.1);
 }
-
 .mogu-chat-send {
   background: var(--forest);
   color: white;
@@ -829,19 +742,16 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   box-shadow: 0 4px 12px rgba(45, 79, 58, 0.2);
   flex-shrink: 0;
 }
-
 .mogu-chat-send:hover { 
   transform: scale(1.05) rotate(8deg); 
   background: var(--peach);
   box-shadow: 0 6px 18px rgba(224, 122, 95, 0.3);
 }
-
 .mogu-chat-send:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
 }
-
 .modal-mask {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
@@ -853,9 +763,7 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   opacity: 0;
   transition: opacity 0.4s ease;
 }
-
 .modal-mask.show { opacity: 1; }
-
 .custom-modal, .notice-modal {
   position: fixed;
   top: 50%; left: 50%;
@@ -877,12 +785,10 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   text-align: center;
   border: 1px solid rgba(255,255,255,0.6);
 }
-
 .custom-modal.show, .notice-modal.show { 
   transform: translate(-50%, -50%) scale(1); 
   opacity: 1; 
 }
-
 .modal-header, .notice-header {
   font-size: 20px;
   font-weight: 700;
@@ -894,9 +800,7 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   gap: 8px;
   font-family: "PingFang SC", sans-serif;
 }
-
 .modal-btns { display: flex; gap: 10px; justify-content: center; margin-top: 24px; }
-
 .modal-btn, .notice-confirm-btn {
   padding: 14px 28px;
   border-radius: 18px;
@@ -908,21 +812,17 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   font-family: "PingFang SC", sans-serif;
   flex: 1;
 }
-
 .modal-btn.cancel { 
   background: rgba(45, 79, 58, 0.06); 
   color: var(--text-secondary); 
 }
-
 .modal-btn.confirm { 
   background: var(--forest); 
   color: white;
   box-shadow: 0 6px 16px rgba(45, 79, 58, 0.2);
 }
-
 .modal-btn:hover { transform: translateY(-2px); }
 .modal-btn.confirm:hover { background: var(--peach); }
-
 .notice-confirm-btn { 
   background: var(--peach); 
   color: white; 
@@ -931,7 +831,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   box-shadow: 0 6px 16px rgba(224, 122, 95, 0.25);
   border-radius: 18px;
 }
-
 .loading-spinner {
   width: 18px; 
   height: 18px;
@@ -940,12 +839,9 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   border-top-color: white;
   animation: spin 0.8s linear infinite;
 }
-
 @keyframes spin { to { transform: rotate(360deg); } }
-
 .admin-only { display: none !important; }
 .admin-only.admin-show { display: block !important; }
-
 .clear-all-btn {
   border: none;
   background: none;
@@ -958,13 +854,10 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   transition: all 0.3s;
   font-family: "PingFang SC", sans-serif;
 }
-
 .clear-all-btn:hover {
   background: rgba(224, 122, 95, 0.1);
   transform: scale(1.05);
 }
-
-/* 登录提示弹窗样式 */
 .login-notice-modal {
   position: fixed;
   top: 50%; left: 50%;
@@ -985,12 +878,10 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   text-align: center;
   border: 1px solid rgba(255,255,255,0.6);
 }
-
 .login-notice-modal.show {
   transform: translate(-50%, -50%) scale(1);
   opacity: 1;
 }
-
 .login-notice-icon {
   width: 64px;
   height: 64px;
@@ -1002,13 +893,11 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   justify-content: center;
   box-shadow: 0 8px 24px rgba(224, 122, 95, 0.3);
 }
-
 .login-notice-icon svg {
   width: 32px;
   height: 32px;
   color: white;
 }
-
 .login-notice-title {
   font-size: 22px;
   font-weight: 700;
@@ -1016,7 +905,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   margin-bottom: 12px;
   font-family: "PingFang SC", sans-serif;
 }
-
 .login-notice-text {
   font-size: 15px;
   color: var(--text-secondary);
@@ -1024,7 +912,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   margin-bottom: 28px;
   font-family: "PingFang SC", sans-serif;
 }
-
 .login-notice-btn {
   width: 100%;
   padding: 16px 28px;
@@ -1039,13 +926,11 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   font-family: "PingFang SC", sans-serif;
   box-shadow: 0 6px 20px rgba(61, 107, 79, 0.3);
 }
-
 .login-notice-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 28px rgba(61, 107, 79, 0.4);
   background: linear-gradient(135deg, var(--peach) 0%, var(--peach-light) 100%);
 }
-
 .login-notice-overlay {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
@@ -1057,12 +942,9 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   opacity: 0;
   transition: opacity 0.4s ease;
 }
-
 .login-notice-overlay.show {
   opacity: 1;
 }
-
-/* ========== iOS Dynamic Island Notification System ========== */
 .dynamic-island-container {
   position: fixed;
   top: 12px;
@@ -1075,17 +957,16 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   align-items: center;
   pointer-events: none;
   width: 100%;
-  max-width: 500px; /* 加宽 */
+  max-width: 500px; 
   padding: 0 20px;
 }
-
 .dynamic-island {
   background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-radius: 50px;
-  padding: 14px 24px; /* 增加内边距 */
-  min-width: 250px; /* 加宽 */
+  padding: 14px 24px; 
+  min-width: 250px; 
   max-width: 100%;
   box-shadow: 
     0 10px 40px rgba(0, 0, 0, 0.3),
@@ -1102,19 +983,16 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   position: relative;
   overflow: hidden;
 }
-
 .dynamic-island.show {
   transform: translateY(0) scale(1);
   opacity: 1;
 }
-
 .dynamic-island.hide {
   transform: translateY(-20px) scale(0.9);
   opacity: 0;
 }
-
 .dynamic-island-icon {
-  width: 32px; /* 加大图标 */
+  width: 32px; 
   height: 32px;
   border-radius: 50%;
   display: flex;
@@ -1123,14 +1001,12 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   flex-shrink: 0;
   background: rgba(255, 255, 255, 0.15);
 }
-
 .dynamic-island-icon.success { background: rgba(61, 107, 79, 0.9); }
 .dynamic-island-icon.error { background: rgba(224, 122, 95, 0.9); }
 .dynamic-island-icon.warning { background: rgba(233, 196, 106, 0.9); }
 .dynamic-island-icon.loading { background: rgba(90, 125, 108, 0.9); }
-
 .dynamic-island-icon svg {
-  width: 18px; /* 加大图标 */
+  width: 18px; 
   height: 18px;
   stroke: white;
   stroke-width: 2.5;
@@ -1138,7 +1014,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-
 .dynamic-island-content {
   flex: 1;
   display: flex;
@@ -1146,26 +1021,22 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   gap: 6px;
   min-width: 0;
 }
-
 .dynamic-island-title {
-  font-size: 15px; /* 加大字体 */
+  font-size: 15px; 
   font-weight: 600;
   letter-spacing: -0.01em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .dynamic-island-subtitle {
-  font-size: 13px; /* 加大字体 */
+  font-size: 13px; 
   opacity: 0.8;
   font-weight: 400;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-/* Progress Bar */
 .dynamic-island-progress-container {
   width: 100%;
   height: 3px;
@@ -1174,7 +1045,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   overflow: hidden;
   margin-top: 4px;
 }
-
 .dynamic-island-progress-bar {
   height: 100%;
   background: linear-gradient(90deg, var(--soft-gold), var(--peach-light));
@@ -1182,71 +1052,33 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   transition: width 0.3s ease;
   box-shadow: 0 0 10px rgba(233, 196, 106, 0.5);
 }
-
-/* Loading Animation */
 .dynamic-island-spinner {
-  width: 18px; /* 加大 */
+  width: 18px; 
   height: 18px;
   border: 2px solid rgba(255, 255, 255, 0.2);
   border-top-color: white;
   border-radius: 50%;
   animation: island-spin 0.8s linear infinite;
 }
-
 @keyframes island-spin {
   to { transform: rotate(360deg); }
 }
-
-/* Glow effect for important notifications */
 .dynamic-island.important {
   box-shadow: 
     0 10px 40px rgba(0, 0, 0, 0.3),
     0 0 0 0.5px rgba(255, 255, 255, 0.1) inset,
     0 0 20px rgba(224, 122, 95, 0.3);
 }
-
-/* Compact mode for simple alerts */
 .dynamic-island.compact {
   padding: 10px 16px;
   border-radius: 30px;
 }
-
 .dynamic-island.compact .dynamic-island-title {
   font-size: 13px;
 }
-
-@media (max-width: 768px) {
-  .dynamic-island-container {
-    top: 8px;
-    padding: 0 10px;
-    max-width: 90%;
-  }
-  
-  .dynamic-island {
-    min-width: 200px;
-    padding: 12px 18px;
-  }
-  
-  .dynamic-island-title {
-    font-size: 14px;
-  }
-  
-  .dynamic-island-subtitle {
-    font-size: 12px;
-  }
-  
-  .dynamic-island-icon {
-    width: 28px;
-    height: 28px;
-  }
-}
-
-/* Hide old custom alert */
 .custom-alert {
   display: none !important;
 }
-
-/* ========== 快捷链接侧边栏 ========== */
 .quick-links-sidebar {
   position: fixed;
   top: 0;
@@ -1260,19 +1092,17 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   border-right: 1px solid rgba(255, 255, 255, 0.6);
   box-shadow: 20px 0 60px rgba(45, 79, 58, 0.15);
   z-index: 9998;
-  transform: translateX(-110%); /* 稍微多移一点确保完全出去 */
+  transform: translateX(-110%); 
   opacity: 0;
-  transition: all 0.5s cubic-bezier(0.32, 0.72, 0, 1); /* iOS弹簧动画 */
+  transition: all 0.5s cubic-bezier(0.32, 0.72, 0, 1); 
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
-
 .quick-links-sidebar.open {
   transform: translateX(0);
   opacity: 1;
 }
-
 .quick-links-overlay {
   position: fixed;
   top: 0;
@@ -1286,18 +1116,15 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   visibility: hidden;
   transition: all 0.4s ease;
 }
-
 .quick-links-overlay.show {
   opacity: 1;
   visibility: visible;
 }
-
 .quick-links-header {
   padding: 50px 24px 20px;
   background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,251,240,0.7) 100%);
   border-bottom: 1px solid rgba(45, 79, 58, 0.06);
 }
-
 .quick-links-title {
   font-size: 24px;
   font-weight: 700;
@@ -1307,7 +1134,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   gap: 10px;
   font-family: "PingFang SC", sans-serif;
 }
-
 .quick-links-tabs {
   display: flex;
   gap: 12px;
@@ -1317,7 +1143,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   border-radius: 16px;
   backdrop-filter: blur(10px);
 }
-
 .quick-links-tab {
   flex: 1;
   padding: 10px 16px;
@@ -1331,31 +1156,26 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   transition: all 0.3s var(--ease-spring);
   font-family: "PingFang SC", sans-serif;
 }
-
 .quick-links-tab.active {
   background: rgba(255, 255, 255, 0.9);
   color: var(--forest);
   box-shadow: 0 2px 8px rgba(45, 79, 58, 0.1);
 }
-
 .quick-links-content {
   flex: 1;
   overflow-y: auto;
   padding: 20px;
 }
-
 .quick-links-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 12px;
   animation: fadeInUp 0.4s var(--ease-spring);
 }
-
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
 .quick-link-item {
   display: flex;
   flex-direction: column;
@@ -1372,13 +1192,11 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   position: relative;
   overflow: hidden;
 }
-
 .quick-link-item:hover {
   transform: translateY(-4px) scale(1.02);
   background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 8px 24px rgba(45, 79, 58, 0.12);
 }
-
 .quick-link-item::before {
   content: '';
   position: absolute;
@@ -1389,7 +1207,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   background: var(--link-color, var(--forest));
   opacity: 0.8;
 }
-
 .quick-link-icon {
   width: 48px;
   height: 48px;
@@ -1403,11 +1220,9 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   transition: transform 0.3s var(--ease-spring);
 }
-
 .quick-link-item:hover .quick-link-icon {
   transform: scale(1.1) rotate(-5deg);
 }
-
 .quick-link-name {
   font-size: 13px;
   font-weight: 600;
@@ -1418,7 +1233,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   max-width: 100%;
   font-family: "PingFang SC", sans-serif;
 }
-
 .quick-link-delete {
   position: absolute;
   top: 6px;
@@ -1439,31 +1253,25 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   font-size: 12px;
   padding: 0;
 }
-
 .quick-link-item:hover .quick-link-delete {
   opacity: 1;
   transform: scale(1);
 }
-
 .quick-link-add {
   border: 2px dashed rgba(61, 107, 79, 0.3);
   background: rgba(255, 255, 255, 0.4);
   color: var(--text-secondary);
 }
-
 .quick-link-add:hover {
   border-color: var(--forest);
   background: rgba(61, 107, 79, 0.05);
   color: var(--forest);
 }
-
 .quick-link-add .quick-link-icon {
   background: rgba(61, 107, 79, 0.1);
   color: var(--forest);
   font-size: 32px;
 }
-
-/* 添加链接表单 */
 .add-link-form {
   background: rgba(255, 255, 255, 0.9);
   padding: 20px;
@@ -1474,16 +1282,13 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   animation: slideDown 0.3s var(--ease-spring);
   display: none;
 }
-
 .add-link-form.show {
   display: block;
 }
-
 @keyframes slideDown {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
 .add-link-input {
   width: 100%;
   padding: 12px 16px;
@@ -1495,20 +1300,17 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   font-family: "PingFang SC", sans-serif;
   transition: all 0.3s;
 }
-
 .add-link-input:focus {
   outline: none;
   border-color: var(--forest);
   box-shadow: 0 0 0 3px rgba(61, 107, 79, 0.1);
 }
-
 .color-picker {
   display: flex;
   gap: 8px;
   margin-bottom: 16px;
   flex-wrap: wrap;
 }
-
 .color-option {
   width: 32px;
   height: 32px;
@@ -1518,22 +1320,18 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   transition: all 0.2s;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
-
 .color-option:hover {
   transform: scale(1.15);
 }
-
 .color-option.selected {
   border-color: white;
   box-shadow: 0 0 0 2px var(--forest), 0 4px 12px rgba(0,0,0,0.2);
   transform: scale(1.1);
 }
-
 .add-link-actions {
   display: flex;
   gap: 10px;
 }
-
 .add-link-btn {
   flex: 1;
   padding: 12px;
@@ -1544,41 +1342,34 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   transition: all 0.3s;
   font-family: "PingFang SC", sans-serif;
 }
-
 .add-link-btn.cancel {
   background: rgba(45, 79, 58, 0.06);
   color: var(--text-secondary);
 }
-
 .add-link-btn.confirm {
   background: var(--forest);
   color: white;
 }
-
 .add-link-btn:hover {
   transform: translateY(-2px);
 }
-
-/* 快捷链接打开按钮 */
 .quick-links-toggle {
   position: fixed;
   top: 24px;
-  right: 136px; /* 在active按钮左边 */
+  right: 136px; 
   width: 48px;
   height: 48px;
   z-index: 100;
   color: var(--forest);
   animation: slideInRight 0.6s var(--ease-spring) 0.6s backwards;
 }
-
-/* ========== 公告系统 ========== */
 .announcement-btn {
   position: fixed;
   top: 24px;
-  right: 192px; /* 移到右上角，在快捷导航左边 */
-  left: auto;   /* 覆盖原有的 left */
-  width: 48px;  /* 调整大小为 48px */
-  height: 48px; /* 调整大小为 48px */
+  right: 192px; 
+  left: auto;   
+  width: 48px;  
+  height: 48px; 
   background: var(--glass-bg);
   backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid var(--glass-border);
@@ -1593,21 +1384,17 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   transition: all 0.4s var(--ease-spring);
   animation: slideInLeft 0.6s var(--ease-spring) 0.2s backwards;
 }
-
 .announcement-btn:hover {
   transform: scale(1.1) rotate(-10deg);
   box-shadow: 0 12px 30px rgba(224, 122, 95, 0.2);
 }
-
 .announcement-btn.has-new {
   animation: pulse 2s infinite;
 }
-
 @keyframes pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(224, 122, 95, 0.4); }
   50% { box-shadow: 0 0 0 10px rgba(224, 122, 95, 0); }
 }
-
 .announcement-badge {
   position: absolute;
   top: -2px;
@@ -1619,12 +1406,9 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   border: 2px solid white;
   display: none;
 }
-
 .announcement-btn.has-new .announcement-badge {
   display: block;
 }
-
-/* 公告弹窗 - 更大尺寸 */
 .announcement-modal {
   position: fixed;
   top: 50%;
@@ -1646,14 +1430,12 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   overflow: hidden;
   border: 1px solid rgba(255,255,255,0.7);
 }
-
 .announcement-modal.show {
   transform: translate(-50%, -50%) scale(1);
   opacity: 1;
   display: flex;
   flex-direction: column;
 }
-
 .announcement-header {
   padding: 28px 28px 20px;
   background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(255,251,240,0.8) 100%);
@@ -1663,7 +1445,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   align-items: center;
   flex-shrink: 0;
 }
-
 .announcement-title {
   font-size: 22px;
   font-weight: 700;
@@ -1673,7 +1454,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   gap: 10px;
   font-family: "PingFang SC", sans-serif;
 }
-
 .announcement-close {
   width: 36px;
   height: 36px;
@@ -1687,19 +1467,16 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   color: var(--text-secondary);
   transition: all 0.3s;
 }
-
 .announcement-close:hover {
   background: rgba(224, 122, 95, 0.1);
   color: var(--peach);
   transform: rotate(90deg);
 }
-
 .announcement-content-wrapper {
   flex: 1;
   overflow-y: auto;
   padding: 24px 28px;
 }
-
 .announcement-nav {
   display: flex;
   gap: 8px;
@@ -1708,7 +1485,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   background: rgba(61, 107, 79, 0.06);
   border-radius: 14px;
 }
-
 .announcement-nav-btn {
   padding: 10px 20px;
   border: none;
@@ -1723,20 +1499,17 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   flex: 1;
   text-align: center;
 }
-
 .announcement-nav-btn.active {
   background: rgba(255, 255, 255, 0.95);
   color: var(--forest);
   box-shadow: 0 2px 8px rgba(45, 79, 58, 0.08);
 }
-
 .announcement-body {
   line-height: 1.8;
   color: var(--text-primary);
   font-size: 15px;
   font-family: "PingFang SC", sans-serif;
 }
-
 .announcement-body h1 {
   font-size: 24px;
   color: var(--forest);
@@ -1744,7 +1517,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   padding-bottom: 10px;
   border-bottom: 2px solid rgba(61, 107, 79, 0.1);
 }
-
 .announcement-body h2 {
   font-size: 20px;
   color: var(--forest);
@@ -1753,7 +1525,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   align-items: center;
   gap: 8px;
 }
-
 .announcement-body h2::before {
   content: '';
   width: 4px;
@@ -1761,51 +1532,42 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   background: var(--peach);
   border-radius: 2px;
 }
-
 .announcement-body h3 {
   font-size: 17px;
   color: var(--text-secondary);
   margin: 16px 0 10px;
   font-weight: 600;
 }
-
 .announcement-body p {
   margin: 12px 0;
   color: var(--text-secondary);
   line-height: 1.8;
 }
-
 .announcement-body img {
   max-width: 100%;
   border-radius: 16px;
   margin: 16px 0;
   box-shadow: 0 8px 24px rgba(0,0,0,0.1);
 }
-
 .announcement-body ul, .announcement-body ol {
   margin: 12px 0;
   padding-left: 24px;
 }
-
 .announcement-body li {
   margin: 8px 0;
   color: var(--text-secondary);
 }
-
 .announcement-list {
   display: none;
 }
-
 .announcement-list.active {
   display: block;
   animation: fadeIn 0.4s ease;
 }
-
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
 .announcement-item {
   padding: 16px 20px;
   background: rgba(255, 255, 255, 0.7);
@@ -1818,27 +1580,22 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   justify-content: space-between;
   align-items: center;
 }
-
 .announcement-item:hover {
   transform: translateX(4px);
   background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 4px 12px rgba(45, 79, 58, 0.08);
 }
-
 .announcement-item-title {
   font-weight: 600;
   color: var(--text-primary);
   font-size: 15px;
   font-family: "PingFang SC", sans-serif;
 }
-
 .announcement-item-date {
   font-size: 12px;
   color: var(--text-secondary);
   opacity: 0.7;
 }
-
-/* 不再显示选项 */
 .dont-show-again {
   padding: 16px 28px 24px;
   border-top: 1px solid rgba(45, 79, 58, 0.06);
@@ -1848,7 +1605,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   cursor: pointer;
   background: rgba(255, 253, 245, 0.6);
 }
-
 .dont-show-checkbox {
   width: 20px;
   height: 20px;
@@ -1860,27 +1616,22 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   transition: all 0.2s;
   background: white;
 }
-
 .dont-show-checkbox.checked {
   background: var(--peach);
   border-color: var(--peach);
 }
-
 .dont-show-checkbox.checked::after {
   content: '✓';
   color: white;
   font-size: 12px;
   font-weight: bold;
 }
-
 .dont-show-label {
   font-size: 14px;
   color: var(--text-secondary);
   font-family: "PingFang SC", sans-serif;
   user-select: none;
 }
-
-/* ========== 管理员工具 ========== */
 .admin-tools-btn {
   position: fixed;
   bottom: 30px;
@@ -1903,20 +1654,16 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   transform: scale(0) rotate(-180deg);
   pointer-events: none;
 }
-
 .admin-tools-btn.show {
   opacity: 1;
   transform: scale(1) rotate(0);
   pointer-events: all;
   animation: slideInRight 0.6s var(--ease-spring);
 }
-
 .admin-tools-btn:hover {
   transform: scale(1.1) rotate(15deg);
   box-shadow: 0 12px 30px rgba(45, 79, 58, 0.15);
 }
-
-/* 管理面板弹窗 */
 .admin-panel-modal {
   position: fixed;
   top: 50%;
@@ -1937,13 +1684,11 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   flex-direction: column;
   border: 1px solid rgba(255,255,255,0.7);
 }
-
 .admin-panel-modal.show {
   transform: translate(-50%, -50%) scale(1);
   opacity: 1;
   display: flex;
 }
-
 .admin-panel-header {
   padding: 24px 28px;
   background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(255,251,240,0.8) 100%);
@@ -1952,14 +1697,12 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   justify-content: space-between;
   align-items: center;
 }
-
 .admin-panel-title {
   font-size: 20px;
   font-weight: 700;
   color: var(--forest);
   font-family: "PingFang SC", sans-serif;
 }
-
 .admin-panel-close {
   width: 36px;
   height: 36px;
@@ -1973,39 +1716,32 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   color: var(--text-secondary);
   transition: all 0.3s;
 }
-
 .admin-panel-close:hover {
   background: rgba(224, 122, 95, 0.1);
   color: var(--peach);
   transform: rotate(90deg);
 }
-
 .admin-panel-content {
   flex: 1;
   overflow-y: auto;
   padding: 24px 28px;
 }
-
-/* 公告编辑器 */
 .announcement-editor {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
-
 .editor-field {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
-
 .editor-label {
   font-size: 13px;
   font-weight: 600;
   color: var(--text-secondary);
   font-family: "PingFang SC", sans-serif;
 }
-
 .editor-input, .editor-textarea, .editor-select {
   padding: 14px 18px;
   border: 1px solid rgba(61, 107, 79, 0.15);
@@ -2016,32 +1752,27 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   transition: all 0.3s;
   color: var(--text-primary);
 }
-
 .editor-input:focus, .editor-textarea:focus, .editor-select:focus {
   outline: none;
   border-color: var(--forest);
   box-shadow: 0 0 0 4px rgba(61, 107, 79, 0.1);
 }
-
 .editor-textarea {
   min-height: 200px;
   resize: vertical;
   line-height: 1.6;
 }
-
 .editor-hint {
   font-size: 12px;
   color: var(--text-secondary);
   opacity: 0.7;
   font-family: "PingFang SC", sans-serif;
 }
-
 .editor-actions {
   display: flex;
   gap: 12px;
   margin-top: 8px;
 }
-
 .editor-btn {
   padding: 14px 28px;
   border: none;
@@ -2053,34 +1784,27 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   font-size: 15px;
   flex: 1;
 }
-
 .editor-btn.secondary {
   background: rgba(45, 79, 58, 0.06);
   color: var(--text-secondary);
 }
-
 .editor-btn.primary {
   background: var(--forest);
   color: white;
   box-shadow: 0 6px 20px rgba(61, 107, 79, 0.25);
 }
-
 .editor-btn:hover {
   transform: translateY(-2px);
 }
-
 .editor-btn.primary:hover {
   background: var(--peach);
   box-shadow: 0 8px 24px rgba(224, 122, 95, 0.3);
 }
-
-/* 往期公告管理列表 */
 .history-announcements-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
-
 .history-announcement-item {
   padding: 16px 20px;
   background: rgba(255, 255, 255, 0.7);
@@ -2091,17 +1815,14 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   align-items: center;
   transition: all 0.3s;
 }
-
 .history-announcement-item:hover {
   background: rgba(255, 255, 255, 0.95);
   transform: translateX(4px);
   box-shadow: 0 4px 12px rgba(45, 79, 58, 0.08);
 }
-
 .history-ann-info {
   flex: 1;
 }
-
 .history-ann-title {
   font-weight: 600;
   color: var(--text-primary);
@@ -2109,18 +1830,15 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   margin-bottom: 4px;
   font-family: "PingFang SC", sans-serif;
 }
-
 .history-ann-date {
   font-size: 12px;
   color: var(--text-secondary);
   opacity: 0.7;
 }
-
 .history-ann-actions {
   display: flex;
   gap: 8px;
 }
-
 .history-ann-btn {
   padding: 8px 16px;
   border: none;
@@ -2131,29 +1849,23 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   transition: all 0.3s;
   font-family: "PingFang SC", sans-serif;
 }
-
 .history-ann-btn.edit {
   background: rgba(61, 107, 79, 0.1);
   color: var(--forest);
 }
-
 .history-ann-btn.delete {
   background: rgba(224, 122, 95, 0.1);
   color: var(--peach);
 }
-
 .history-ann-btn:hover {
   transform: scale(1.05);
 }
-
-/* 数据统计面板 */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
   margin-bottom: 24px;
 }
-
 .stat-card {
   background: rgba(255, 255, 255, 0.8);
   padding: 20px;
@@ -2161,13 +1873,11 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   border: 1px solid rgba(255, 255, 255, 0.6);
   transition: all 0.3s;
 }
-
 .stat-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 30px rgba(45, 79, 58, 0.1);
   background: rgba(255, 255, 255, 0.95);
 }
-
 .stat-value {
   font-size: 32px;
   font-weight: 700;
@@ -2175,20 +1885,17 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   margin-bottom: 6px;
   font-family: "SF Pro Display", sans-serif;
 }
-
 .stat-label {
   font-size: 13px;
   color: var(--text-secondary);
   font-family: "PingFang SC", sans-serif;
 }
-
 .user-data-list {
   background: rgba(255, 255, 255, 0.7);
   border-radius: 20px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.6);
 }
-
 .user-data-item {
   padding: 16px 20px;
   border-bottom: 1px solid rgba(45, 79, 58, 0.06);
@@ -2197,15 +1904,12 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   align-items: center;
   transition: all 0.3s;
 }
-
 .user-data-item:hover {
   background: rgba(255, 255, 255, 0.95);
 }
-
 .user-data-item:last-child {
   border-bottom: none;
 }
-
 .user-data-name {
   font-weight: 600;
   color: var(--text-primary);
@@ -2214,7 +1918,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   align-items: center;
   gap: 10px;
 }
-
 .user-data-avatar {
   width: 32px;
   height: 32px;
@@ -2223,12 +1926,10 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   background-position: center;
   border: 2px solid rgba(255,255,255,0.8);
 }
-
 .user-data-actions {
   display: flex;
   gap: 8px;
 }
-
 .user-data-btn {
   padding: 6px 12px;
   border: none;
@@ -2239,12 +1940,40 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   transition: all 0.3s;
   font-family: "PingFang SC", sans-serif;
 }
-
 .user-data-btn.view {
   background: rgba(61, 107, 79, 0.1);
   color: var(--forest);
 }
 
+/* Tablet (iPad/Tablets) Adaptation */
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+  .search-wrapper {
+    max-width: 80%;
+  }
+  .search-title {
+    font-size: 2.5rem;
+  }
+  .history-rank-wrap {
+    max-width: 80%;
+  }
+  .mogu-chat-window {
+    width: 380px;
+    height: 60vh;
+    top: 100px;
+    right: 20px;
+  }
+  .quick-links-sidebar {
+    width: 400px;
+  }
+  .search-container {
+    padding: 8px;
+  }
+  .user-info {
+    max-width: 240px;
+  }
+}
+
+/* Mobile Adaptation */
 @media (max-width: 768px) {
   .main-container {
     padding: 10vh 16px 24px;
@@ -2254,34 +1983,28 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
     overflow-y: auto;
     gap: 12px;
   }
-  
   .search-title { 
     font-size: 2rem;
     margin-bottom: 1rem;
     margin-top: 0;
     font-weight: 700;
   }
-  
   .search-wrapper {
     transform: translateY(0);
     max-width: 100%;
   }
-  
   .history-rank-wrap {
     transform: translateY(0);
     max-width: 100%;
   }
-  
   .history-section {
     min-height: auto;
     padding: 18px;
     border-radius: 24px;
   }
-  
   .toggle-btn { 
     display: none; 
   }
-  
   .mogu-chat-window { 
     width: 100%; 
     height: 100%; 
@@ -2292,16 +2015,13 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
     max-height: 100vh;
     backdrop-filter: blur(30px) saturate(200%);
   }
-  
   .mogu-chat-window.open { 
     transform: translateY(0) scale(1); 
   }
-  
   .mogu-chat-header {
     padding-top: 60px;
     background: rgba(255,253,245,0.98);
   }
-  
   .user-info { 
     padding: 6px; 
     border-radius: 50%;
@@ -2309,29 +2029,24 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
     left: 16px;
     max-width: 180px;
   }
-  
   .user-name { 
     display: none; 
   }
-  
   .logout-btn {
     display: none;
   }
-  
   .mogu-active-btn { 
     right: 72px; 
     width: 44px; 
     height: 44px; 
     top: 16px; 
   }
-  
   .mogu-chat-btn { 
     right: 16px; 
     width: 44px; 
     height: 44px; 
     top: 16px; 
   }
-  
   .login-btn { 
     top: 16px; 
     left: 16px; 
@@ -2339,7 +2054,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
     font-size: 13px;
     border-radius: 50px;
   }
-  
   .search-container { 
     flex-direction: column; 
     margin-bottom: 12px; 
@@ -2348,7 +2062,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
     width: 100%;
     padding: 8px;
   }
-  
   .search-engine-select { 
     width: 100%; 
     text-align: center; 
@@ -2357,13 +2070,11 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
     padding: 10px;
     font-size: 14px;
   }
-  
   #search-btn { 
     width: 100%; 
     height: 44px; 
     border-radius: 16px; 
   }
-  
   #search-input { 
     text-align: center; 
     width: 100%;
@@ -2371,118 +2082,114 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
     padding: 10px;
     color: var(--text-primary);
   }
-  
   .modal-btn, .notice-confirm-btn {
     padding: 12px 20px;
     font-size: 14px;
     border-radius: 16px;
   }
-  
   .custom-modal, .notice-modal {
     border-radius: 28px;
     padding: 24px;
     max-width: 340px;
   }
-  
   .modal-header, .notice-header {
     font-size: 18px;
   }
-
   .login-notice-modal {
     padding: 32px 24px;
     max-width: 320px;
   }
-
   .login-notice-icon {
     width: 56px;
     height: 56px;
   }
-
   .login-notice-icon svg {
     width: 28px;
     height: 28px;
   }
-
   .login-notice-title {
     font-size: 20px;
   }
-
   .login-notice-text {
     font-size: 14px;
   }
-
   .login-notice-btn {
     padding: 14px 24px;
     font-size: 15px;
   }
-
-  /* 移动端适配 */
   .quick-links-toggle {
     right: 120px;
     top: 16px;
     width: 44px;
     height: 44px;
   }
-  
   .quick-links-sidebar {
-    width: 100%;
+    width: 85vw;
     max-width: 100%;
     border-radius: 0 32px 32px 0;
   }
-  
   .quick-links-list {
     grid-template-columns: repeat(2, 1fr);
   }
-  
   .announcement-btn {
     right: 176px;
     left: auto;
     top: 16px;
-    width: 44px; /* 移动端调整 */
-    height: 44px; /* 移动端调整 */
+    width: 44px; 
+    height: 44px; 
   }
-  
   .admin-tools-btn {
     bottom: 20px;
     right: 20px;
   }
-  
   .admin-panel-modal {
     width: 95%;
     max-height: 90vh;
     border-radius: 24px;
   }
-  
   .announcement-modal {
     max-width: 95%;
     border-radius: 24px;
   }
+  .dynamic-island-container {
+    top: 8px;
+    padding: 0 10px;
+    max-width: 90%;
+  }
+  .dynamic-island {
+    min-width: 200px;
+    padding: 12px 18px;
+  }
+  .dynamic-island-title {
+    font-size: 14px;
+  }
+  .dynamic-island-subtitle {
+    font-size: 12px;
+  }
+  .dynamic-island-icon {
+    width: 28px;
+    height: 28px;
+  }
 }
-
 @media (max-width: 380px) {
   .search-title {
     font-size: 1.75rem;
   }
-  
   .module-title {
     font-size: 11px;
   }
-  
   .history-item {
     padding: 10px 14px;
     font-size: 12px;
     border-radius: 12px;
   }
-  
   .quick-links-list {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
-  
   .quick-link-item {
     padding: 12px 8px;
   }
-  
   .quick-link-icon {
     width: 40px;
     height: 40px;
@@ -2495,7 +2202,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
 <body>
 
 <div class="chinese-bg-container"></div>
-
 <div class="dynamic-island-container" id="dynamicIslandContainer"></div>
 
 <div class="login-notice-overlay" id="loginNoticeOverlay"></div>
@@ -2734,7 +2440,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
 <script>
 document.head.insertAdjacentHTML("beforeend", `<style>.notice-checkbox.checked{background:var(--peach);border-color:var(--peach); position:relative;} .notice-checkbox.checked::after{content:"✓";color:white;font-size:12px;font-weight:bold;}</style>`);
 
-// ============ 配置常量 ============
 const USER_DATABASE_ISSUE_NUMBER = 11;
 const USER_DATABASE_REPO_OWNER = 'moguwan';
 const USER_DATABASE_REPO_NAME = 'moguwan.github.io';
@@ -2743,8 +2448,8 @@ const ADMIN_ACCOUNT = '2926197119';
 const GITHUB_TOKEN = ["gh","p_p","VXlo0HQ","PmMx","Ic","eM","HB","uMzm","EON","LPX","700","10","M","SL"].join('');
 const REPO_OWNER = 'moguwan';
 const REPO_NAME = 'mogu-chat';
-const CHAT_ISSUE_NUMBER = 1;  // 聊天存储在 #1 issue
-const MAP_ISSUE_NUMBER = 2;   // 用户映射在 #2 issue
+const CHAT_ISSUE_NUMBER = 1; 
+const MAP_ISSUE_NUMBER = 2;   
 const MAP_ISSUE_TITLE = "用户-专属Issue映射表";
 const MAP_MARK_START = "// USER-MAP-JSON-START";
 const MAP_MARK_END = "// USER-MAP-JSON-END";
@@ -2753,15 +2458,12 @@ const MAX_MESSAGE_LENGTH = 200;
 const NOTICE_LOCAL_KEY = 'MOGU_SEARCH_NOTICE';
 const DEFAULT_AVATAR = "https://img.wjwj.top/2026/01/26/30abddc90230cef0bc9896ca3eafd0d3.gif";
 
-// 公告系统配置
 const ANNOUNCEMENT_REPO_OWNER = 'moguwan';
 const ANNOUNCEMENT_REPO_NAME = 'moguwan.github.io';
-const ANNOUNCEMENT_ISSUE_NUMBER = 373; // 公告存储在 #373 issue
+const ANNOUNCEMENT_ISSUE_NUMBER = 373; 
 
-// 快捷链接本地存储键
 const QUICK_LINKS_KEY = 'MOGU_QUICK_LINKS';
 
-// ============ DOM 元素 ============
 const searchEngine = document.getElementById('searchEngine');
 const searchInput = document.getElementById('search-input');
 const searchBtn = document.getElementById('search-btn');
@@ -2779,7 +2481,6 @@ const loginNoticeModal = document.getElementById('loginNoticeModal');
 const loginNoticeOverlay = document.getElementById('loginNoticeOverlay');
 const dynamicIslandContainer = document.getElementById('dynamicIslandContainer');
 
-// ============ 状态变量 ============
 let alertTimer = null;
 let chatOpen = false;
 let lastMessageId = 0;
@@ -2788,9 +2489,8 @@ let isLoading = false;
 let currentUser = null;
 let isHistoryFetched = false;
 let isNoticeShown = false;
-let isUserValid = false;  // 用户是否通过验证
+let isUserValid = false;  
 
-// ============ 新功能状态 ============
 let quickLinksOpen = false;
 let currentQuickLinksTab = 'official';
 let adminToolsOpen = false;
@@ -2798,19 +2498,11 @@ let currentAdminPanel = '';
 let announcementsData = [];
 let currentAnnouncementVersion = '';
 
-// 官方预设链接
 const officialLinks = [
-  { name: 'GitHub', url: 'https://github.com', color: '#24292e', icon: '⚡' },
-  { name: '哔哩哔哩', url: 'https://bilibili.com', color: '#FB7299', icon: '📺' },
-  { name: '知乎', url: 'https://zhihu.com', color: '#0084FF', icon: '📚' },
-  { name: '掘金', url: 'https://juejin.cn', color: '#1E80FF', icon: '📖' },
-  { name: 'YouTube', url: 'https://youtube.com', color: '#FF0000', icon: '🎬' },
-  { name: 'MDN', url: 'https://developer.mozilla.org', color: '#000000', icon: '📝' },
-  { name: 'StackOverflow', url: 'https://stackoverflow.com', color: '#F48024', icon: '💡' },
-  { name: 'V2EX', url: 'https://v2ex.com', color: '#1E80FF', icon: '💬' }
+	{ name: '研可岸真题网', url: 'https://zhenti.kaoyansou.cn/', color: '#3D6B4F', icon: '研' },
+	{ name: '哔哩哔哩', url: 'https://bilibili.com', color: '#FB7299', icon: '📺' },
 ];
 
-// ============ Dynamic Island Notification System ============
 class DynamicIsland {
   constructor() {
     this.notifications = new Map();
@@ -2825,7 +2517,7 @@ class DynamicIsland {
     const {
       title,
       subtitle = '',
-      type = 'info', // info, success, error, warning, loading
+      type = 'info', 
       showProgress = false,
       progress = 0,
       duration = 3000,
@@ -2836,7 +2528,6 @@ class DynamicIsland {
     island.className = `dynamic-island ${compact ? 'compact' : ''} ${type === 'important' ? 'important' : ''}`;
     island.id = id;
 
-    // Icon based on type
     const icons = {
       success: `<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
       error: `<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`,
@@ -2872,12 +2563,10 @@ class DynamicIsland {
     dynamicIslandContainer.appendChild(island);
     this.notifications.set(id, { element: island, options });
 
-    // Trigger animation
     requestAnimationFrame(() => {
       island.classList.add('show');
     });
 
-    // Auto hide if duration > 0 and not loading
     if (options.duration !== 0 && options.type !== 'loading') {
       setTimeout(() => {
         this.hide(id);
@@ -2899,7 +2588,6 @@ class DynamicIsland {
     const { element, options } = notification;
     const mergedOptions = { ...options, ...newOptions };
 
-    // Recreate content
     element.innerHTML = this.createIslandElement(id, mergedOptions).innerHTML;
     notification.options = mergedOptions;
   }
@@ -2928,7 +2616,6 @@ class DynamicIsland {
     }, 500);
   }
 
-  // Helper methods for common use cases
   success(title, subtitle, duration = 2500) {
     return this.show({ title, subtitle, type: 'success', duration });
   }
@@ -2950,7 +2637,7 @@ class DynamicIsland {
       title, 
       subtitle, 
       type: 'loading', 
-      duration: 0, // Don't auto-hide
+      duration: 0, 
       showProgress: true,
       progress: 0
     });
@@ -2968,10 +2655,8 @@ class DynamicIsland {
   }
 }
 
-// Create global instance
 const island = new DynamicIsland();
 
-// Helper function to replace old showCustomAlert
 function showCustomAlert(message, type = 'info') {
   const titles = {
     success: '操作成功',
@@ -2988,7 +2673,6 @@ function showCustomAlert(message, type = 'info') {
   });
 }
 
-// ============ 工具函数 ============
 function isMobile() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
 }
@@ -3019,7 +2703,6 @@ function toggleModal(type, show) {
   }
 }
 
-// ============ 登录提示弹窗 ============
 function showLoginNotice() {
   loginNoticeOverlay.style.display = 'block';
   loginNoticeModal.style.display = 'block';
@@ -3038,7 +2721,6 @@ function hideLoginNotice() {
   }, 300);
 }
 
-// ============ 用户验证 - 检查账号是否存在于 #11 issue ============
 async function validateUserFromGitHub(account) {
   try {
     const response = await fetch(`https://api.github.com/repos/${USER_DATABASE_REPO_OWNER}/${USER_DATABASE_REPO_NAME}/issues/${USER_DATABASE_ISSUE_NUMBER}`, {
@@ -3047,7 +2729,6 @@ async function validateUserFromGitHub(account) {
     if (!response.ok) return false;
     const data = await response.json();
     const body = data.body || '';
-    // 检查账号是否存在于issue内容中
     const lines = body.split('\n').filter(l => l.trim());
     for (const line of lines) {
       const parts = line.split('|');
@@ -3062,7 +2743,6 @@ async function validateUserFromGitHub(account) {
   }
 }
 
-// ============ 获取用户数据库（用于获取用户信息） ============
 async function getUserDatabaseFromGitHub() {
   try {
     const response = await fetch(`https://api.github.com/repos/${USER_DATABASE_REPO_OWNER}/${USER_DATABASE_REPO_NAME}/issues/${USER_DATABASE_ISSUE_NUMBER}`, {
@@ -3088,16 +2768,13 @@ async function getUserDatabaseFromGitHub() {
   } catch { return []; }
 }
 
-// ============ 检查登录状态 ============
 async function checkLoginStatus() {
   const userData = localStorage.getItem(USER_LOCAL_KEY);
   if (userData) {
     try {
       const parsedUser = JSON.parse(userData);
-      // 验证用户是否存在于GitHub #11 issue
       const isValid = await validateUserFromGitHub(parsedUser.account);
       if (!isValid) {
-        // 用户不存在，清除本地数据并显示登录提示
         localStorage.removeItem(USER_LOCAL_KEY);
         currentUser = null;
         isUserValid = false;
@@ -3111,12 +2788,10 @@ async function checkLoginStatus() {
       currentUser.isAdmin = currentUser.account === ADMIN_ACCOUNT || currentUser.isAdmin === true;
       updateUIForLoggedInUser();
       
-      // 检查管理员权限显示工具按钮
       if (currentUser.isAdmin) {
         document.getElementById('adminToolsBtn').classList.add('show');
       }
       
-      // 检查公告
       await checkAnnouncement();
       
       return true;
@@ -3162,7 +2837,6 @@ function updateUIForGuest() {
   moguChatInput.placeholder = "请先登录";
   moguChatSend.disabled = true;
   
-  // 隐藏管理员工具
   document.getElementById('adminToolsBtn').classList.remove('show');
 }
 
@@ -3176,7 +2850,6 @@ function updateAdminUI() {
 }
 
 function goToLogin() { 
-  // 添加跳转动画
   showPageTransition('正在前往登录...', 'auth.html');
 }
 
@@ -3201,7 +2874,6 @@ async function updateCurrentUserFromGitHub() {
   }
 }
 
-// ============ 页面跳转动画 ============
 function showPageTransition(title, url) {
   const loadingIsland = island.loading(title, '正在准备...');
   
@@ -3222,7 +2894,6 @@ function showPageTransition(title, url) {
   }, 800);
 }
 
-// ============ 搜索历史相关 ============
 function getHistorySwitchState() {
   const state = localStorage.getItem('moguHistorySwitch');
   return state === null ? true : JSON.parse(state);
@@ -3303,7 +2974,6 @@ function renderHistory() {
   });
 }
 
-// ============ 搜索功能 - 同时记录到GitHub ============
 async function handleSearch() {
   const searchText = searchInput.value.trim();
   if (!searchText) {
@@ -3312,14 +2982,12 @@ async function handleSearch() {
     return;
   }
   
-  // 如果用户未登录，不允许搜索
   if (!currentUser || !isUserValid) {
     island.warning('需要登录', '请先登录后再使用搜索功能');
     showLoginNotice();
     return;
   }
   
-  // Show loading island
   const loadingIsland = island.loading('正在搜索', `搜索 "${searchText.substring(0, 20)}${searchText.length > 20 ? '...' : ''}"`);
   
   const engineUrlMap = { bing: 'https://cn.bing.com/search?q=', google: 'https://www.google.com/search?q=', baidu: 'https://www.baidu.com/s?wd=' };
@@ -3339,7 +3007,6 @@ async function handleSearch() {
     }, 300);
   }, 400);
   
-  // 记录搜索到GitHub
   await recordSearchToGitHub(searchText);
   
   if (!isMobile()) {
@@ -3349,14 +3016,12 @@ async function handleSearch() {
   }
 }
 
-// ============ 用户映射相关 ============
 async function getUserMapFromGitHub() {
   try {
     const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${MAP_ISSUE_NUMBER}`, {
       headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
     });
     if (res.status === 404) {
-      // 如果映射issue不存在，创建一个新的
       await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues`, {
         method: 'POST',
         headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
@@ -3392,7 +3057,6 @@ async function getOrCreateUserIssue(user) {
     const map = await getUserMapFromGitHub();
     if (map[user.account]) return map[user.account];
       
-    // 搜索是否已存在该用户的issue
     const searchRes = await fetch(`https://api.github.com/search/issues?q=repo:${REPO_OWNER}/${REPO_NAME}+title:"${encodeURIComponent(`【用户操作记录】${user.nickname}|${user.account}`)}"+is:issue+is:open`, {
         headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
     });
@@ -3402,7 +3066,6 @@ async function getOrCreateUserIssue(user) {
       return searchData.items[0].number;
     }
 
-    // 创建新的用户issue
     const createRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues`, {
       method: 'POST',
       headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
@@ -3421,13 +3084,11 @@ async function getOrCreateUserIssue(user) {
   return null;
 }
 
-// ============ 记录搜索到GitHub ============
 async function recordSearchToGitHub(searchContent) {
   if (!currentUser?.account) return;
   const issueNum = await getOrCreateUserIssue(currentUser);
   if (!issueNum) return;
   
-  // 格式: 2026/1/26 21:11:20|blbl
   const now = new Date();
   const timeStr = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
   const line = `${timeStr}|${searchContent}`;
@@ -3445,9 +3106,6 @@ async function recordSearchToGitHub(searchContent) {
   } catch {}
 }
 
-// ============ 聊天功能 - 从GitHub issue #1 获取和发送消息 ============
-
-// 格式化时间 - 格式: 26.1.24 16:01
 function formatChatTime(dateStr) {
   const date = new Date(dateStr);
   const day = date.getDate();
@@ -3458,7 +3116,6 @@ function formatChatTime(dateStr) {
   return `${day}.${month}.${year} ${hours}:${minutes}`;
 }
 
-// 获取所有评论（用于首次加载）
 async function getAllChatComments() {
   let all = [], page = 1;
   while(true) {
@@ -3476,16 +3133,13 @@ async function getAllChatComments() {
   return all;
 }
 
-// 获取最新消息（只获取比lastMessageId新的）
 async function getNewChatComments() {
   try {
-    // 获取最近的评论，按时间倒序
     const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${CHAT_ISSUE_NUMBER}/comments?per_page=50&page=1`, {
       headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
     });
     if (!res.ok) return [];
     const data = await res.json();
-    // 过滤出新的消息
     return data.filter(m => m.id > lastMessageId).sort((a, b) => a.id - b.id);
   } catch { return []; }
 }
@@ -3494,7 +3148,6 @@ function parseMessageBody(body) {
   
   if (!body) return { sender, text, avatar };
   
-  // 新格式：用户名||头像URL||消息内容
   const match = body.match(/^(.+?)\|\|(.+?)\|\|(.*)$/s);
   if (match) {
     sender = match[1].trim();
@@ -3507,8 +3160,6 @@ function parseMessageBody(body) {
     return { sender, text, avatar };
   }
   
-  // 兼容旧格式（尝试解析 username|avatar: text）
-  // 只有当 | 后面跟着 http 或 // 时才认为是头像格式
   const oldFormatMatch = body.match(/^([^|]+)\|((?:https?:)?\/\/.+?):\s*(.+)$/s);
   if (oldFormatMatch) {
     sender = oldFormatMatch[1].trim();
@@ -3520,7 +3171,6 @@ function parseMessageBody(body) {
     return { sender, text, avatar };
   }
   
-  // 最简单的格式：用户名: 消息
   const colonMatch = body.match(/^([^:]+):\s*(.+)$/s);
   if (colonMatch) {
     sender = colonMatch[1].trim();
@@ -3536,22 +3186,18 @@ function addMessageToChat(sender, text, time, type, commentId, avatar = null) {
   div.id = `msg_${commentId || Date.now()}_${Math.random()}`;
   div.dataset.commentId = commentId || '';
   
-  // 处理头像，确保有有效的URL
   let realAvatar = avatar || DEFAULT_AVATAR;
   if (realAvatar === '无' || realAvatar === 'null' || realAvatar === '') {
     realAvatar = DEFAULT_AVATAR;
   }
-  // 确保头像URL有协议
   if (realAvatar.startsWith('//')) {
     realAvatar = 'https:' + realAvatar;
   }
   
   const isCurrentUser = type === 'user';
   
-  // 处理消息内容
   const processedText = processMessageContent(text);
   
-  // 构建HTML - 使用 createElement 更安全，避免 innerHTML 解析问题
   const avatarDiv = document.createElement('div');
   avatarDiv.className = 'message-avatar';
   avatarDiv.style.backgroundImage = `url('${realAvatar}')`;
@@ -3570,7 +3216,7 @@ function addMessageToChat(sender, text, time, type, commentId, avatar = null) {
   
   const textDiv = document.createElement('div');
   textDiv.className = 'message-text';
-  textDiv.innerHTML = processedText; // 这里用 innerHTML 因为包含 <img> 标签
+  textDiv.innerHTML = processedText; 
   
   const timeDiv = document.createElement('div');
   timeDiv.className = 'message-time';
@@ -3586,15 +3232,11 @@ function addMessageToChat(sender, text, time, type, commentId, avatar = null) {
 function processMessageContent(text) {
   if (!text) return '';
   
-  // 先进行HTML转义防止XSS
   let escaped = escapeHtml(text);
   
-  // 匹配图片URL - 改进版：支持 // 开头的协议相对URL
-  // 匹配 http(s):// 或 // 开头的图片URL
   const imgRegex = /((?:https?:)?\/\/[^\s<>"{}|\\^`\[\]]+\.(?:jpg|jpeg|png|gif|webp|bmp|svg|ico))|(https?:\/\/img\.[^\s<>"{}|\\^`\[\]]+)/gi;
   
   escaped = escaped.replace(imgRegex, (match) => {
-    // 确保URL有协议（如果是 // 开头，添加 https:）
     let url = match;
     if (url.startsWith('//')) {
       url = 'https:' + url;
@@ -3622,22 +3264,19 @@ function processMessage(msg) {
   addMessageToChat(sender, text, time, type, msg.id, avatar);
 }
 
-// 获取聊天消息
 async function fetchChatMessages() {
   if (!currentUser || !isUserValid) return;
   
   try {
     if (!isHistoryFetched) {
-      // 首次加载，获取所有历史消息
       const msgs = await getAllChatComments();
       if (msgs.length > 0) {
-        moguChatMessages.innerHTML = ''; // 清空现有内容
+        moguChatMessages.innerHTML = ''; 
         msgs.sort((a, b) => a.id - b.id).forEach(msg => processMessage(msg));
         lastMessageId = Math.max(...msgs.map(m => m.id), 0);
         isHistoryFetched = true;
       }
     } else {
-      // 只获取新消息
       const newMsgs = await getNewChatComments();
       if (newMsgs.length > 0) {
         newMsgs.forEach(msg => processMessage(msg));
@@ -3649,7 +3288,6 @@ async function fetchChatMessages() {
   }
 }
 
-// 发送聊天消息
 async function sendChatMessage() {
   if (!currentUser || !isUserValid) { 
     island.warning('需要登录', '请先登录后再发送消息');
@@ -3673,7 +3311,6 @@ async function sendChatMessage() {
   const userAvatar = currentUser.avatar || DEFAULT_AVATAR;
   const body = `${senderName}||${userAvatar}||${msg}`;
   
-  // 先在本地显示消息
   const tempId = `temp_${Date.now()}`;
   const timeStr = formatChatTime(new Date());
   addMessageToChat(senderName, msg, timeStr, 'user', tempId, userAvatar);
@@ -3688,13 +3325,11 @@ async function sendChatMessage() {
     if (res.ok) {
       const data = await res.json();
       lastMessageId = Math.max(lastMessageId, data.id);
-      // 更新临时消息的ID
       const tempEl = document.querySelector(`[data-comment-id="${tempId}"]`);
       if (tempEl) {
         tempEl.dataset.commentId = data.id;
         tempEl.id = `msg_${data.id}`;
       }
-      // Success feedback removed as requested
     } else {
       island.error('发送失败', '消息发送失败，请重试');
     }
@@ -3708,19 +3343,15 @@ async function sendChatMessage() {
   }
 }
 
-// 切换聊天窗口
 function toggleChatWindow() {
   chatOpen = !chatOpen;
   if (chatOpen) {
     moguChatWindow.classList.add('open');
-    // 打开时立即检测一次最新消息
     fetchChatMessages();
-    // 开启3秒检测
     if (chatUpdateInterval) clearInterval(chatUpdateInterval);
     chatUpdateInterval = setInterval(fetchChatMessages, 3000);
   } else {
     moguChatWindow.classList.remove('open');
-    // 关闭后改为15秒检测
     if (chatUpdateInterval) { 
       clearInterval(chatUpdateInterval); 
       chatUpdateInterval = setInterval(fetchChatMessages, 15000);
@@ -3728,7 +3359,6 @@ function toggleChatWindow() {
   }
 }
 
-// ============ 快捷链接功能 ============
 function toggleQuickLinks() {
   quickLinksOpen = !quickLinksOpen;
   const sidebar = document.getElementById('quickLinksSidebar');
@@ -3741,7 +3371,6 @@ function toggleQuickLinks() {
   } else {
     sidebar.classList.remove('open');
     overlay.classList.remove('show');
-    // 隐藏添加表单
     document.getElementById('addLinkForm').classList.remove('show');
   }
 }
@@ -3759,16 +3388,13 @@ function renderQuickLinks() {
   container.innerHTML = '';
   
   if (currentQuickLinksTab === 'official') {
-    // 显示官方链接
     officialLinks.forEach(link => {
       const item = createQuickLinkElement(link, false);
       container.appendChild(item);
     });
   } else {
-    // 显示自定义链接
     const customLinks = getCustomLinks();
     
-    // 添加按钮
     const addBtn = document.createElement('div');
     addBtn.className = 'quick-link-item quick-link-add';
     addBtn.innerHTML = `
@@ -3778,7 +3404,6 @@ function renderQuickLinks() {
     addBtn.onclick = toggleAddLinkForm;
     container.appendChild(addBtn);
     
-    // 自定义链接
     customLinks.forEach((link, index) => {
       const item = createQuickLinkElement(link, true, index);
       container.appendChild(item);
@@ -3793,7 +3418,6 @@ function createQuickLinkElement(link, isCustom, index) {
   item.target = '_blank';
   item.style.setProperty('--link-color', link.color);
   
-  // 阻止点击事件冒泡，使用自定义跳转
   item.onclick = (e) => {
     e.preventDefault();
     showPageTransition(`正在前往 ${link.name}...`, link.url);
@@ -3847,7 +3471,6 @@ function addCustomLink() {
     return;
   }
   
-  // 验证URL格式
   let finalUrl = url;
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
     finalUrl = 'https://' + url;
@@ -3864,7 +3487,6 @@ function addCustomLink() {
   saveCustomLinks(links);
   island.success('添加成功', `快捷链接 "${name}" 已添加`);
   
-  // 重置表单
   document.getElementById('linkName').value = '';
   document.getElementById('linkUrl').value = '';
   toggleAddLinkForm();
@@ -3879,7 +3501,6 @@ function deleteCustomLink(index) {
   renderQuickLinks();
 }
 
-// 颜色选择器事件
 document.addEventListener('DOMContentLoaded', () => {
   const colorPicker = document.getElementById('colorPicker');
   if (colorPicker) {
@@ -3892,7 +3513,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// ============ 公告系统 ============
 async function fetchAnnouncements() {
   try {
     const response = await fetch(`https://api.github.com/repos/${ANNOUNCEMENT_REPO_OWNER}/${ANNOUNCEMENT_REPO_NAME}/issues/${ANNOUNCEMENT_ISSUE_NUMBER}`, {
@@ -3900,7 +3520,6 @@ async function fetchAnnouncements() {
     });
     
     if (!response.ok) {
-      // 如果issue不存在，创建一个空的
       if (response.status === 404) {
         await createAnnouncementIssue();
         return [];
@@ -3936,15 +3555,11 @@ async function createAnnouncementIssue() {
   }
 }
 function parseAnnouncements(body) {
-  // 如果 body 为空，直接返回空数组
   if (!body) return [];
 
   try {
-    // 你的 GitHub Issue 内容已经是纯 JSON 格式（如图片1所示）
-    // 所以直接去除首尾空格后解析即可
     return JSON.parse(body.trim());
   } catch (e) {
-    // 如果解析失败（比如内容不是 JSON），在控制台打印错误并返回空数组
     console.error('公告解析失败:', e);
     return [];
   }
@@ -3971,23 +3586,19 @@ async function checkAnnouncement() {
   
   if (announcements.length === 0) return;
   
-  // 获取最新公告
   const latest = announcements[0];
   currentAnnouncementVersion = latest.id || latest.date;
   
-  // 检查本地存储的公告版本
   const savedData = localStorage.getItem('MOGU_ANNOUNCEMENT_READ');
   const saved = savedData ? JSON.parse(savedData) : {};
   
   const isNewVersion = saved.version !== currentAnnouncementVersion;
   const dontShow = saved.dontShowAgain && !isNewVersion;
   
-  // 如果有新版本或未勾选不再显示，则显示公告按钮提示
   if (isNewVersion) {
     document.getElementById('announcementBtn').classList.add('has-new');
   }
   
-  // 自动弹出新公告（如果是新版本且不是首次访问）
   if (isNewVersion && saved.version) {
     setTimeout(() => {
       openAnnouncementModal();
@@ -3999,7 +3610,6 @@ function openAnnouncementModal() {
   const modal = document.getElementById('announcementModal');
   const overlay = document.getElementById('announcementOverlay');
   
-  // 渲染最新公告
   renderLatestAnnouncement();
   renderHistoryAnnouncements();
   
@@ -4011,7 +3621,6 @@ function openAnnouncementModal() {
     overlay.classList.add('show');
   }, 10);
   
-  // 标记为已读
   markAnnouncementAsRead();
 }
 
@@ -4041,7 +3650,6 @@ function renderLatestAnnouncement() {
 }
 
 function formatAnnouncementContent(content) {
-  // 简单的Markdown解析
   let html = content
     .replace(/^# (.*$)/gim, '<h1>$1</h1>')
     .replace(/^## (.*$)/gim, '<h2>$1</h2>')
@@ -4053,12 +3661,10 @@ function formatAnnouncementContent(content) {
     .replace(/^- (.*$)/gim, '<li>$1</li>')
     .replace(/^\d+\. (.*$)/gim, '<li>$1</li>');
   
-  // 包裹列表
   if (html.includes('<li>')) {
     html = html.replace(/(<li>.*<\/li>)/s, '<ul style="margin:12px 0;padding-left:20px;">$1</ul>');
   }
   
-  // 段落处理
   html = html.split('\n\n').map(p => {
     if (!p.startsWith('<')) return `<p>${p}</p>`;
     return p;
@@ -4075,7 +3681,6 @@ function renderHistoryAnnouncements() {
     return;
   }
   
-  // 跳过最新的，显示其余的
   const history = announcementsData.slice(1);
   container.innerHTML = history.map((ann, idx) => `
     <div class="announcement-item" onclick="viewHistoryAnnouncement(${idx + 1})">
@@ -4130,8 +3735,6 @@ function markAnnouncementAsRead() {
   document.getElementById('announcementBtn').classList.remove('has-new');
 }
 
-// ============ 管理员工具 ============
-
 function openAdminPanel(type) {
   currentAdminPanel = type;
   const modal = document.getElementById('adminPanelModal');
@@ -4139,13 +3742,11 @@ function openAdminPanel(type) {
   const title = document.getElementById('adminPanelTitle');
   const content = document.getElementById('adminPanelContent');
   
-  // 设置标题和内容
   const titles = {
     announcement: '📢 公告管理',
   };
   title.textContent = titles[type] || '管理面板';
   
-  // 渲染内容
   if (type === 'announcement') {
     renderAnnouncementEditor(content);
   }
@@ -4172,7 +3773,6 @@ function closeAdminPanel() {
   }, 300);
 }
 
-// 公告编辑器
 function renderAnnouncementEditor(container) {
   container.innerHTML = `
     <div class="announcement-editor">
@@ -4254,7 +3854,6 @@ async function publishAnnouncement() {
       island.success('发布成功', '公告已更新');
       announcementsData = announcements;
       closeAdminPanel();
-      // 刷新公告显示
       await checkAnnouncement();
     } else {
       throw new Error('保存失败');
@@ -4336,13 +3935,11 @@ async function deleteAnnouncement(index) {
   }
 }
 
-// 增加访问计数
 function incrementVisitCount() {
   const count = parseInt(localStorage.getItem('MOGU_VISIT_COUNT') || '0');
   localStorage.setItem('MOGU_VISIT_COUNT', (count + 1).toString());
 }
 
-// ============ 事件监听 ============
 document.getElementById('logoutCancel').addEventListener('click', () => toggleModal('logout', false));
 document.getElementById('logoutConfirm').addEventListener('click', () => {
   toggleModal('logout', false);
@@ -4351,13 +3948,11 @@ document.getElementById('logoutConfirm').addEventListener('click', () => {
   isUserValid = false;
   updateUIForGuest();
   island.success('已退出登录', '期待您的再次访问');
-  // 退出后显示登录提示
   showLoginNotice();
 });
 
 document.getElementById('clearMsgCancel').addEventListener('click', () => toggleModal('clearMsg', false));
 
-// Clear messages with progress island
 document.getElementById('clearMsgConfirm').addEventListener('click', async () => {
   toggleModal('clearMsg', false);
   if (!currentUser?.isAdmin || isLoading) return;
@@ -4366,7 +3961,6 @@ document.getElementById('clearMsgConfirm').addEventListener('click', async () =>
   const items = document.querySelectorAll('.message-item');
   const totalItems = items.length;
   
-  // Create progress island
   const progressIsland = island.progress('正在清空聊天记录', `准备删除 ${totalItems} 条消息...`, 0);
   
   try {
@@ -4377,13 +3971,11 @@ document.getElementById('clearMsgConfirm').addEventListener('click', async () =>
       processed++;
       const progress = Math.round((processed / totalItems) * 100);
       
-      // Update progress
       progressIsland.setProgress(progress);
       progressIsland.update({
         subtitle: `正在删除第 ${processed}/${totalItems} 条消息...`
       });
       
-      // Small delay to show progress
       await new Promise(resolve => setTimeout(resolve, 100));
       
       if (el.dataset.commentId && !el.dataset.commentId.startsWith('temp_')) {
@@ -4400,7 +3992,6 @@ document.getElementById('clearMsgConfirm').addEventListener('click', async () =>
       el.remove();
     }
     
-    // Complete
     progressIsland.setProgress(100);
     progressIsland.update({
       subtitle: '清理完成'
@@ -4440,13 +4031,11 @@ if (!isMobile()) {
 document.addEventListener('click', e => {
   if (chatOpen && !moguChatWindow.contains(e.target) && !moguChatBtn.contains(e.target)) toggleChatWindow();
   
-  // 点击外部关闭快捷链接
   if (quickLinksOpen && !e.target.closest('#quickLinksSidebar') && !e.target.closest('#quickLinksBtn')) {
     toggleQuickLinks();
   }
 });
 
-// ============ 公告相关（旧版，保留兼容性） ============
 const noticeContent = `<p><strong>欢迎回到Mg搜索！</strong></p>
 <p style="margin-top:8px;">由于没有备份，更新时误删了账号数据...</p>
 <p style="margin-top:8px;">请大家重新注册登录 ~ </p>
@@ -4480,16 +4069,13 @@ function initNotice() {
   });
 }
 
-// ============ 初始化 ============
 window.addEventListener('DOMContentLoaded', async () => {
   incrementVisitCount();
   initNotice();
   const isLoggedIn = await checkLoginStatus();
   
   if (isLoggedIn && currentUser) {
-    // 启动聊天消息检测（15秒间隔，因为窗口默认关闭）
     chatUpdateInterval = setInterval(fetchChatMessages, 15000);
-    // 首次加载聊天消息
     fetchChatMessages();
   }
   
