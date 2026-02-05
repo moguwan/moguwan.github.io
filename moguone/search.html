@@ -725,47 +725,67 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
 }
 
 .message-item.user .message-sender {
-  color: rgba(255,255,255,0.8);
+  color: rgba(255,255,255,0.95);
 }
 
 .message-item.user .message-time {
-  color: rgba(255,255,255,0.6);
+  color: rgba(255,255,255,0.7);
 }
 
 .message-header {
   display: flex;
   align-items: center;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   gap: 8px;
 }
-
+/* 用户消息（右侧）的头像和用户名顺序调整 */
+.message-item.user .message-header {
+  flex-direction: row-reverse; /* 头像在右，用户名在左 */
+}
 .message-avatar {
-  width: 24px;
-  height: 24px;
+  width: 28px;  /* 稍微大一点更容易看到 */
+  height: 28px;
+  min-width: 28px;  /* 防止被 flex 压缩 */
+  min-height: 28px;
   border-radius: 50%;
   background-size: cover;
   background-position: center;
+  background-color: rgba(45, 79, 58, 0.15); /* 后备颜色 */
   flex-shrink: 0;
+  display: block;
+  border: 2px solid rgba(255,255,255,0.6);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+/* 用户消息的头像样式 */
+.message-item.user .message-avatar {
+  border-color: rgba(255,255,255,0.4);
+  background-color: rgba(255,255,255,0.2);
+}
 .message-sender {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .message-text {
   line-height: 1.6;
+  word-break: break-all; /* 防止长 URL 撑破布局 */
 }
-
+.message-text img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-top: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
 .message-time {
   font-size: 10px;
-  opacity: 0.5;
+  opacity: 0.6;
   margin-top: 6px;
   text-align: right;
 }
-
 .mogu-chat-input-area {
   padding: 16px;
   background: linear-gradient(0deg, rgba(255,253,245,0.98) 0%, rgba(255,251,240,0.7) 100%);
@@ -912,48 +932,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   border-radius: 18px;
 }
 
-.custom-alert {
-  position: fixed;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%) translateY(-100px);
-  background: rgba(45, 79, 58, 0.9);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  color: white;
-  padding: 14px 28px;
-  border-radius: 50px;
-  font-weight: 600;
-  font-size: 14px;
-  z-index: 10000;
-  opacity: 0;
-  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 
-    0 8px 30px rgba(45, 79, 58, 0.25),
-    inset 0 1px 0 rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.1);
-  min-width: 180px;
-  justify-content: center;
-  font-family: "PingFang SC", sans-serif;
-}
-
-.custom-alert.show { 
-  transform: translateX(-50%) translateY(0); 
-  opacity: 1; 
-}
-
-.custom-alert::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  background: var(--soft-gold);
-  border-radius: 50%;
-  box-shadow: 0 0 8px var(--soft-gold);
-}
-
 .loading-spinner {
   width: 18px; 
   height: 18px;
@@ -1082,6 +1060,184 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
 
 .login-notice-overlay.show {
   opacity: 1;
+}
+
+/* ========== iOS Dynamic Island Notification System ========== */
+.dynamic-island-container {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  pointer-events: none;
+  width: 100%;
+  max-width: 400px;
+  padding: 0 20px;
+}
+
+.dynamic-island {
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: 50px;
+  padding: 12px 20px;
+  min-width: 200px;
+  max-width: 100%;
+  box-shadow: 
+    0 10px 40px rgba(0, 0, 0, 0.3),
+    0 0 0 0.5px rgba(255, 255, 255, 0.1) inset;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  font-family: "SF Pro Display", "PingFang SC", -apple-system, sans-serif;
+  transform: translateY(-100px) scale(0.8);
+  opacity: 0;
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.dynamic-island.show {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.dynamic-island.hide {
+  transform: translateY(-20px) scale(0.9);
+  opacity: 0;
+}
+
+.dynamic-island-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.dynamic-island-icon.success { background: rgba(61, 107, 79, 0.9); }
+.dynamic-island-icon.error { background: rgba(224, 122, 95, 0.9); }
+.dynamic-island-icon.warning { background: rgba(233, 196, 106, 0.9); }
+.dynamic-island-icon.loading { background: rgba(90, 125, 108, 0.9); }
+
+.dynamic-island-icon svg {
+  width: 16px;
+  height: 16px;
+  stroke: white;
+  stroke-width: 2.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dynamic-island-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.dynamic-island-title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dynamic-island-subtitle {
+  font-size: 12px;
+  opacity: 0.8;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Progress Bar */
+.dynamic-island-progress-container {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.dynamic-island-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--soft-gold), var(--peach-light));
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 10px rgba(233, 196, 106, 0.5);
+}
+
+/* Loading Animation */
+.dynamic-island-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: island-spin 0.8s linear infinite;
+}
+
+@keyframes island-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Glow effect for important notifications */
+.dynamic-island.important {
+  box-shadow: 
+    0 10px 40px rgba(0, 0, 0, 0.3),
+    0 0 0 0.5px rgba(255, 255, 255, 0.1) inset,
+    0 0 20px rgba(224, 122, 95, 0.3);
+}
+
+/* Compact mode for simple alerts */
+.dynamic-island.compact {
+  padding: 10px 16px;
+  border-radius: 30px;
+}
+
+.dynamic-island.compact .dynamic-island-title {
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .dynamic-island-container {
+    top: 8px;
+    padding: 0 10px;
+  }
+  
+  .dynamic-island {
+    min-width: 180px;
+    padding: 10px 16px;
+  }
+  
+  .dynamic-island-title {
+    font-size: 13px;
+  }
+  
+  .dynamic-island-subtitle {
+    font-size: 11px;
+  }
+}
+
+/* Hide old custom alert */
+.custom-alert {
+  display: none !important;
 }
 
 @media (max-width: 768px) {
@@ -1217,13 +1373,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
     border-radius: 16px;
   }
   
-  .custom-alert {
-    top: 12px;
-    padding: 12px 24px;
-    font-size: 13px;
-    min-width: 160px;
-  }
-  
   .custom-modal, .notice-modal {
     border-radius: 28px;
     padding: 24px;
@@ -1285,7 +1434,8 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
 
 <div class="chinese-bg-container"></div>
 
-<div id="customAlert" class="custom-alert"></div>
+<!-- Dynamic Island Container -->
+<div class="dynamic-island-container" id="dynamicIslandContainer"></div>
 
 <!-- 登录提示弹窗 -->
 <div class="login-notice-overlay" id="loginNoticeOverlay"></div>
@@ -1427,7 +1577,6 @@ const DEFAULT_AVATAR = "https://img.wjwj.top/2026/01/26/30abddc90230cef0bc9896ca
 const searchEngine = document.getElementById('searchEngine');
 const searchInput = document.getElementById('search-input');
 const searchBtn = document.getElementById('search-btn');
-const customAlert = document.getElementById('customAlert');
 const historyRankWrap = document.getElementById('historyRankWrap');
 const toggleBtn = document.getElementById('toggleBtn');
 const historyList = document.getElementById('historyList');
@@ -1440,6 +1589,7 @@ const moguChatSend = document.getElementById('moguChatSend');
 const userStatusArea = document.getElementById('userStatusArea');
 const loginNoticeModal = document.getElementById('loginNoticeModal');
 const loginNoticeOverlay = document.getElementById('loginNoticeOverlay');
+const dynamicIslandContainer = document.getElementById('dynamicIslandContainer');
 
 // ============ 状态变量 ============
 let alertTimer = null;
@@ -1452,18 +1602,187 @@ let isHistoryFetched = false;
 let isNoticeShown = false;
 let isUserValid = false;  // 用户是否通过验证
 
+// ============ Dynamic Island Notification System ============
+class DynamicIsland {
+  constructor() {
+    this.notifications = new Map();
+    this.idCounter = 0;
+  }
+
+  generateId() {
+    return `island-${++this.idCounter}-${Date.now()}`;
+  }
+
+  createIslandElement(id, options) {
+    const {
+      title,
+      subtitle = '',
+      type = 'info', // info, success, error, warning, loading
+      showProgress = false,
+      progress = 0,
+      duration = 3000,
+      compact = false
+    } = options;
+
+    const island = document.createElement('div');
+    island.className = `dynamic-island ${compact ? 'compact' : ''} ${type === 'important' ? 'important' : ''}`;
+    island.id = id;
+
+    // Icon based on type
+    const icons = {
+      success: `<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
+      error: `<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`,
+      warning: `<svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`,
+      loading: `<div class="dynamic-island-spinner"></div>`,
+      info: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`
+    };
+
+    const iconHtml = type === 'loading' ? icons.loading : (icons[type] || icons.info);
+
+    island.innerHTML = `
+      <div class="dynamic-island-icon ${type}">
+        ${iconHtml}
+      </div>
+      <div class="dynamic-island-content">
+        <div class="dynamic-island-title">${title}</div>
+        ${subtitle ? `<div class="dynamic-island-subtitle">${subtitle}</div>` : ''}
+        ${showProgress ? `
+          <div class="dynamic-island-progress-container">
+            <div class="dynamic-island-progress-bar" style="width: ${progress}%"></div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+
+    return island;
+  }
+
+  show(options) {
+    const id = this.generateId();
+    const island = this.createIslandElement(id, options);
+    
+    dynamicIslandContainer.appendChild(island);
+    this.notifications.set(id, { element: island, options });
+
+    // Trigger animation
+    requestAnimationFrame(() => {
+      island.classList.add('show');
+    });
+
+    // Auto hide if duration > 0 and not loading
+    if (options.duration !== 0 && options.type !== 'loading') {
+      setTimeout(() => {
+        this.hide(id);
+      }, options.duration || 3000);
+    }
+
+    return {
+      id,
+      update: (newOptions) => this.update(id, newOptions),
+      hide: () => this.hide(id),
+      setProgress: (progress) => this.setProgress(id, progress)
+    };
+  }
+
+  update(id, newOptions) {
+    const notification = this.notifications.get(id);
+    if (!notification) return;
+
+    const { element, options } = notification;
+    const mergedOptions = { ...options, ...newOptions };
+
+    // Recreate content
+    element.innerHTML = this.createIslandElement(id, mergedOptions).innerHTML;
+    notification.options = mergedOptions;
+  }
+
+  setProgress(id, progress) {
+    const notification = this.notifications.get(id);
+    if (!notification) return;
+
+    const progressBar = notification.element.querySelector('.dynamic-island-progress-bar');
+    if (progressBar) {
+      progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+    }
+  }
+
+  hide(id) {
+    const notification = this.notifications.get(id);
+    if (!notification) return;
+
+    const { element } = notification;
+    element.classList.remove('show');
+    element.classList.add('hide');
+
+    setTimeout(() => {
+      element.remove();
+      this.notifications.delete(id);
+    }, 500);
+  }
+
+  // Helper methods for common use cases
+  success(title, subtitle, duration = 2500) {
+    return this.show({ title, subtitle, type: 'success', duration });
+  }
+
+  error(title, subtitle, duration = 3000) {
+    return this.show({ title, subtitle, type: 'error', duration });
+  }
+
+  warning(title, subtitle, duration = 3000) {
+    return this.show({ title, subtitle, type: 'warning', duration });
+  }
+
+  info(title, subtitle, duration = 2500) {
+    return this.show({ title, subtitle, type: 'info', duration });
+  }
+
+  loading(title, subtitle = '请稍候...') {
+    return this.show({ 
+      title, 
+      subtitle, 
+      type: 'loading', 
+      duration: 0, // Don't auto-hide
+      showProgress: true,
+      progress: 0
+    });
+  }
+
+  progress(title, subtitle, initialProgress = 0) {
+    return this.show({
+      title,
+      subtitle,
+      type: 'loading',
+      duration: 0,
+      showProgress: true,
+      progress: initialProgress
+    });
+  }
+}
+
+// Create global instance
+const island = new DynamicIsland();
+
+// Helper function to replace old showCustomAlert
+function showCustomAlert(message, type = 'info') {
+  const titles = {
+    success: '操作成功',
+    error: '操作失败',
+    warning: '温馨提示',
+    info: '系统提示'
+  };
+  
+  island.show({
+    title: titles[type] || titles.info,
+    subtitle: message,
+    type: type,
+    duration: 2500
+  });
+}
+
 // ============ 工具函数 ============
 function isMobile() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-}
-
-function showCustomAlert(message) {
-  customAlert.textContent = message;
-  customAlert.classList.add('show');
-  if (alertTimer) clearTimeout(alertTimer);
-  alertTimer = setTimeout(() => {
-    customAlert.classList.remove('show');
-  }, 2200);
 }
 
 function toggleModal(type, show) {
@@ -1746,21 +2065,37 @@ function renderHistory() {
 async function handleSearch() {
   const searchText = searchInput.value.trim();
   if (!searchText) {
-    showCustomAlert('请输入搜索内容');
+    island.warning('搜索提示', '请输入搜索内容');
     searchInput.focus();
     return;
   }
   
   // 如果用户未登录，不允许搜索
   if (!currentUser || !isUserValid) {
-    showCustomAlert('请先登录');
+    island.warning('需要登录', '请先登录后再使用搜索功能');
     showLoginNotice();
     return;
   }
   
+  // Show loading island
+  const loadingIsland = island.loading('正在搜索', `搜索 "${searchText.substring(0, 20)}${searchText.length > 20 ? '...' : ''}"`);
+  
   const engineUrlMap = { bing: 'https://cn.bing.com/search?q=', google: 'https://www.google.com/search?q=', baidu: 'https://www.baidu.com/s?wd=' };
+  
+  setTimeout(() => {
+    loadingIsland.setProgress(50);
+  }, 100);
+  
   window.open(engineUrlMap[isMobile() ? 'bing' : searchEngine.value] + encodeURIComponent(searchText), '_blank');
   searchInput.value = '';
+  
+  setTimeout(() => {
+    loadingIsland.setProgress(100);
+    setTimeout(() => {
+      loadingIsland.hide();
+      island.success('搜索完成', '已在新标签页打开搜索结果');
+    }, 300);
+  }, 400);
   
   // 记录搜索到GitHub
   await recordSearchToGitHub(searchText);
@@ -1912,60 +2247,129 @@ async function getNewChatComments() {
     return data.filter(m => m.id > lastMessageId).sort((a, b) => a.id - b.id);
   } catch { return []; }
 }
-
-// 解析消息内容 - 格式: 用户名|头像: 消息内容
 function parseMessageBody(body) {
-  let sender = 'Unknown', text = body.trim(), avatar = null;
-  const parts = body.split(':');
-  if (parts.length >= 2) {
-    const senderPart = parts[0].trim();
-    if (senderPart.includes('|')) {
-      const [name, avt] = senderPart.split('|');
-      sender = name.trim();
-      avatar = avt.trim() || DEFAULT_AVATAR;
-    } else {
-      sender = senderPart;
+  let sender = 'Unknown', text = body.trim(), avatar = DEFAULT_AVATAR;
+  
+  if (!body) return { sender, text, avatar };
+  
+  // 新格式：用户名||头像URL||消息内容
+  const match = body.match(/^(.+?)\|\|(.+?)\|\|(.*)$/s);
+  if (match) {
+    sender = match[1].trim();
+    avatar = match[2].trim();
+    text = match[3].trim();
+    
+    if (!avatar || avatar === '无' || avatar === 'null' || avatar === '') {
       avatar = DEFAULT_AVATAR;
     }
-    text = parts.slice(1).join(':').trim();
+    return { sender, text, avatar };
   }
+  
+  // 兼容旧格式（尝试解析 username|avatar: text）
+  // 只有当 | 后面跟着 http 或 // 时才认为是头像格式
+  const oldFormatMatch = body.match(/^([^|]+)\|((?:https?:)?\/\/.+?):\s*(.+)$/s);
+  if (oldFormatMatch) {
+    sender = oldFormatMatch[1].trim();
+    avatar = oldFormatMatch[2].trim();
+    text = oldFormatMatch[3].trim();
+    if (!avatar || avatar === '无' || avatar === 'null' || avatar === '') {
+      avatar = DEFAULT_AVATAR;
+    }
+    return { sender, text, avatar };
+  }
+  
+  // 最简单的格式：用户名: 消息
+  const colonMatch = body.match(/^([^:]+):\s*(.+)$/s);
+  if (colonMatch) {
+    sender = colonMatch[1].trim();
+    text = colonMatch[2].trim();
+    avatar = DEFAULT_AVATAR;
+  }
+  
   return { sender, text, avatar };
 }
-
-// 添加消息到聊天界面
 function addMessageToChat(sender, text, time, type, commentId, avatar = null) {
   const div = document.createElement('div');
   div.className = `message-item ${type}`;
   div.id = `msg_${commentId || Date.now()}_${Math.random()}`;
   div.dataset.commentId = commentId || '';
-  const realAvatar = avatar && avatar !== '无' ? avatar : DEFAULT_AVATAR;
   
-  // 判断是否是当前用户发送的消息
+  // 处理头像，确保有有效的URL
+  let realAvatar = avatar || DEFAULT_AVATAR;
+  if (realAvatar === '无' || realAvatar === 'null' || realAvatar === '') {
+    realAvatar = DEFAULT_AVATAR;
+  }
+  // 确保头像URL有协议
+  if (realAvatar.startsWith('//')) {
+    realAvatar = 'https:' + realAvatar;
+  }
+  
   const isCurrentUser = type === 'user';
   
-  div.innerHTML = `
-    <div class="message-header" style="${isCurrentUser ? 'justify-content: flex-end;' : ''}">
-      ${!isCurrentUser ? `<div class="message-avatar" style="background-image: url('${realAvatar}');"></div>` : ''}
-      <span class="message-sender">${sender}</span>
-      ${isCurrentUser ? `<div class="message-avatar" style="background-image: url('${realAvatar}');"></div>` : ''}
-    </div>
-    <div class="message-text">${escapeHtml(text)}</div>
-    <div class="message-time">${time}</div>
-  `;
-  moguChatMessages.appendChild(div);
+  // 处理消息内容
+  const processedText = processMessageContent(text);
   
-  // 滚动到底部
+  // 构建HTML - 使用 createElement 更安全，避免 innerHTML 解析问题
+  const avatarDiv = document.createElement('div');
+  avatarDiv.className = 'message-avatar';
+  avatarDiv.style.backgroundImage = `url('${realAvatar}')`;
+  
+  const senderSpan = document.createElement('span');
+  senderSpan.className = 'message-sender';
+  senderSpan.textContent = sender;
+  
+  const headerDiv = document.createElement('div');
+  headerDiv.className = 'message-header';
+  if (isCurrentUser) {
+    headerDiv.style.flexDirection = 'row-reverse';
+  }
+  headerDiv.appendChild(avatarDiv);
+  headerDiv.appendChild(senderSpan);
+  
+  const textDiv = document.createElement('div');
+  textDiv.className = 'message-text';
+  textDiv.innerHTML = processedText; // 这里用 innerHTML 因为包含 <img> 标签
+  
+  const timeDiv = document.createElement('div');
+  timeDiv.className = 'message-time';
+  timeDiv.textContent = time;
+  
+  div.appendChild(headerDiv);
+  div.appendChild(textDiv);
+  div.appendChild(timeDiv);
+  
+  moguChatMessages.appendChild(div);
   moguChatMessages.scrollTop = moguChatMessages.scrollHeight;
 }
+function processMessageContent(text) {
+  if (!text) return '';
+  
+  // 先进行HTML转义防止XSS
+  let escaped = escapeHtml(text);
+  
+  // 匹配图片URL - 改进版：支持 // 开头的协议相对URL
+  // 匹配 http(s):// 或 // 开头的图片URL
+  const imgRegex = /((?:https?:)?\/\/[^\s<>"{}|\\^`\[\]]+\.(?:jpg|jpeg|png|gif|webp|bmp|svg|ico))|(https?:\/\/img\.[^\s<>"{}|\\^`\[\]]+)/gi;
+  
+  escaped = escaped.replace(imgRegex, (match) => {
+    // 确保URL有协议（如果是 // 开头，添加 https:）
+    let url = match;
+    if (url.startsWith('//')) {
+      url = 'https:' + url;
+    }
+    
+    return `<img src="${url}" style="max-width:220px;max-height:160px;border-radius:10px;margin:6px 0;display:block;box-shadow:0 2px 8px rgba(0,0,0,0.15);" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'" loading="lazy"><span style="display:none;color:inherit;opacity:0.7;">${match}</span>`;
+  });
+  
+  return escaped;
+}
 
-// HTML转义
 function escapeHtml(text) {
+  if (!text) return '';
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
 }
-
-// 处理消息数据
 function processMessage(msg) {
   const { sender, text, avatar } = parseMessageBody(msg.body);
   let type = 'other';
@@ -2006,14 +2410,14 @@ async function fetchChatMessages() {
 // 发送聊天消息
 async function sendChatMessage() {
   if (!currentUser || !isUserValid) { 
-    showCustomAlert('请先登录'); 
+    island.warning('需要登录', '请先登录后再发送消息');
     showLoginNotice();
     return; 
   }
   
   const msg = moguChatInput.value.trim();
   if (msg.length > MAX_MESSAGE_LENGTH) { 
-    showCustomAlert('消息过长'); 
+    island.warning('消息过长', `消息长度不能超过${MAX_MESSAGE_LENGTH}个字符`);
     return; 
   }
   if (!msg || isLoading) return;
@@ -2025,7 +2429,7 @@ async function sendChatMessage() {
    
   const senderName = currentUser.nickname || currentUser.account;
   const userAvatar = currentUser.avatar || DEFAULT_AVATAR;
-  const body = `${senderName}|${userAvatar}: ${msg}`;
+  const body = `${senderName}||${userAvatar}||${msg}`;
   
   // 先在本地显示消息
   const tempId = `temp_${Date.now()}`;
@@ -2048,12 +2452,13 @@ async function sendChatMessage() {
         tempEl.dataset.commentId = data.id;
         tempEl.id = `msg_${data.id}`;
       }
+      // Success feedback removed as requested
     } else {
-      showCustomAlert('发送失败');
+      island.error('发送失败', '消息发送失败，请重试');
     }
   } catch (e) {
     console.error('发送消息失败:', e);
-    showCustomAlert('发送失败');
+    island.error('发送失败', '网络错误，请检查连接');
   } finally {
     isLoading = false;
     moguChatSend.innerHTML = originalBtnContent;
@@ -2089,38 +2494,74 @@ document.getElementById('logoutConfirm').addEventListener('click', () => {
   currentUser = null;
   isUserValid = false;
   updateUIForGuest();
-  showCustomAlert('已退出登录');
+  island.success('已退出登录', '期待您的再次访问');
   // 退出后显示登录提示
   showLoginNotice();
 });
 
 document.getElementById('clearMsgCancel').addEventListener('click', () => toggleModal('clearMsg', false));
+
+// Clear messages with progress island
 document.getElementById('clearMsgConfirm').addEventListener('click', async () => {
   toggleModal('clearMsg', false);
   if (!currentUser?.isAdmin || isLoading) return;
+  
   isLoading = true;
-  const btn = document.getElementById('clearAllMessages');
-  const originalText = btn.textContent;
-  btn.textContent = '...';
+  const items = document.querySelectorAll('.message-item');
+  const totalItems = items.length;
+  
+  // Create progress island
+  const progressIsland = island.progress('正在清空聊天记录', `准备删除 ${totalItems} 条消息...`, 0);
+  
   try {
-    const items = document.querySelectorAll('.message-item');
+    let processed = 0;
+    let successCount = 0;
+    
     for (const el of items) {
+      processed++;
+      const progress = Math.round((processed / totalItems) * 100);
+      
+      // Update progress
+      progressIsland.setProgress(progress);
+      progressIsland.update({
+        subtitle: `正在删除第 ${processed}/${totalItems} 条消息...`
+      });
+      
+      // Small delay to show progress
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       if (el.dataset.commentId && !el.dataset.commentId.startsWith('temp_')) {
-        await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/comments/${el.dataset.commentId}`, {
-          method: 'DELETE', 
-          headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
-        });
+        try {
+          const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/comments/${el.dataset.commentId}`, {
+            method: 'DELETE', 
+            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+          });
+          if (res.ok) successCount++;
+        } catch (err) {
+          console.error('删除消息失败:', err);
+        }
       }
       el.remove();
     }
-    showCustomAlert('已清空所有消息');
+    
+    // Complete
+    progressIsland.setProgress(100);
+    progressIsland.update({
+      subtitle: '清理完成'
+    });
+    
+    setTimeout(() => {
+      progressIsland.hide();
+      island.success('清空完成', `成功删除 ${successCount} 条聊天记录`);
+    }, 500);
+    
     isHistoryFetched = false;
     lastMessageId = 0;
   } catch { 
-    showCustomAlert('清空失败'); 
+    progressIsland.hide();
+    island.error('清空失败', '删除过程中发生错误');
   } finally { 
-    isLoading = false; 
-    btn.textContent = originalText; 
+    isLoading = false;
   }
 });
 
