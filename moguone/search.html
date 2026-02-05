@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2196,6 +2197,98 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
     font-size: 20px;
   }
 }
+/* 新增样式的 CSS */
+.history-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: transparent;
+  color: var(--forest);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  padding: 8px 0;
+  font-family: "PingFang SC", sans-serif;
+  transition: color 0.3s;
+}
+.history-back-btn:hover {
+  color: var(--peach);
+  transform: translateX(-2px);
+}
+.history-back-btn svg {
+  width: 18px;
+  height: 18px;
+}
+/* --- 编辑器优化样式 --- */
+.editor-wrapper {
+  border: 1px solid rgba(61, 107, 79, 0.2);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.6);
+  overflow: hidden;
+  transition: all 0.3s;
+}
+.editor-wrapper:focus-within {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 3px rgba(61, 107, 79, 0.1);
+  border-color: var(--forest);
+}
+.editor-toolbar {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
+  background: rgba(61, 107, 79, 0.05);
+  border-bottom: 1px solid rgba(61, 107, 79, 0.1);
+  flex-wrap: wrap;
+}
+.toolbar-btn {
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  color: var(--forest);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.toolbar-btn:hover {
+  background: rgba(61, 107, 79, 0.1);
+  transform: translateY(-1px);
+}
+.toolbar-btn svg { width: 16px; height: 16px; }
+.editor-textarea {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 16px;
+  font-family: "PingFang SC", sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 240px;
+  outline: none;
+  color: var(--text-primary);
+}
+.editor-preview-area {
+  padding: 16px;
+  min-height: 240px;
+  background: rgba(255, 255, 255, 0.8);
+  display: none;
+  border-top: 1px solid rgba(61, 107, 79, 0.1);
+  animation: fadeIn 0.3s;
+}
+.editor-preview-area.show { display: block; }
+.editor-mode-switch {
+  margin-left: auto;
+  background: var(--peach);
+  color: white;
+}
+.editor-mode-switch:hover { background: var(--peach-light); color: white; }
 </style>
 <base target="_blank">
 </head>
@@ -2317,6 +2410,17 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
     
     <div class="announcement-list" id="historyAnnouncements">
       <div id="historyListContainer"></div>
+      
+      <div id="historyDetailContainer" style="display:none; animation: fadeIn 0.3s ease;">
+        <button class="history-back-btn" onclick="backToHistoryList()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          返回列表
+        </button>
+        <div class="announcement-body" id="historyDetailBody"></div>
+      </div>
     </div>
   </div>
   
@@ -3680,25 +3784,54 @@ function renderHistoryAnnouncements() {
   `).join('');
 }
 
+// 替换原有的 viewHistoryAnnouncement 函数
 function viewHistoryAnnouncement(index) {
   const ann = announcementsData[index];
-  document.getElementById('announcementBody').innerHTML = formatAnnouncementContent(ann.content);
-  switchAnnouncementTab('latest');
-}
+  const detailBody = document.getElementById('historyDetailBody');
+  const listContainer = document.getElementById('historyListContainer');
+  const detailContainer = document.getElementById('historyDetailContainer');
 
+  // 渲染内容到详情容器
+  detailBody.innerHTML = `
+    <h1 style="margin-top:0; border-bottom:none;">${ann.title}</h1>
+    <div style="font-size:12px; color:var(--text-secondary); margin-bottom:20px; opacity:0.8;">
+      发布于 ${ann.date} · ${ann.author || '管理员'}
+    </div>
+    ${formatAnnouncementContent(ann.content)}
+  `;
+
+  // 切换视图：隐藏列表，显示详情
+  listContainer.style.display = 'none';
+  detailContainer.style.display = 'block';
+  
+  // 滚动到顶部
+  document.querySelector('.announcement-content-wrapper').scrollTop = 0;
+}
+// 新增此函数
+function backToHistoryList() {
+  document.getElementById('historyListContainer').style.display = 'block';
+  document.getElementById('historyDetailContainer').style.display = 'none';
+}
+// 替换原有的 switchAnnouncementTab 函数
 function switchAnnouncementTab(tab) {
   const tabs = document.querySelectorAll('.announcement-nav-btn');
   tabs.forEach(t => t.classList.remove('active'));
   event.target.classList.add('active');
   
-  document.getElementById('latestAnnouncement').classList.remove('active');
-  document.getElementById('historyAnnouncements').classList.remove('active');
+  const latestSection = document.getElementById('latestAnnouncement');
+  const historySection = document.getElementById('historyAnnouncements');
+  
+  latestSection.classList.remove('active');
+  historySection.classList.remove('active');
   
   if (tab === 'latest') {
-    document.getElementById('latestAnnouncement').classList.add('active');
-    renderLatestAnnouncement();
+    latestSection.classList.add('active');
+    // 如果回到最新公告，重新渲染一下确保是最新的（修复之前的覆盖bug）
+    renderLatestAnnouncement(); 
   } else {
-    document.getElementById('historyAnnouncements').classList.add('active');
+    historySection.classList.add('active');
+    // 切换到往期公告时，强制显示列表，隐藏详情
+    backToHistoryList();
   }
 }
 
@@ -3757,7 +3890,7 @@ function closeAdminPanel() {
     overlay.style.display = 'none';
   }, 300);
 }
-
+// 替换原有的 renderAnnouncementEditor 函数
 function renderAnnouncementEditor(container) {
   container.innerHTML = `
     <div class="announcement-editor">
@@ -3767,28 +3900,30 @@ function renderAnnouncementEditor(container) {
       </div>
       
       <div id="editor-new" class="editor-section">
-        <div class="editor-field">
-          <label class="editor-label">公告标题</label>
-          <input type="text" class="editor-input" id="annTitle" placeholder="输入公告标题">
+        <input type="hidden" id="editIndex" value="-1"> <div class="editor-field">
+          <input type="text" class="editor-input" id="annTitle" placeholder="请输入公告标题..." style="font-size:16px; font-weight:bold;">
         </div>
         
-        <div class="editor-field">
-          <label class="editor-label">公告内容</label>
-          <textarea class="editor-textarea" id="annContent" placeholder="支持 Markdown 格式：
-# 一级标题
-## 二级标题
-### 三级标题
-**粗体**
-*斜体*
-[链接](url)
-![图片](url)
-- 列表项"></textarea>
-          <div class="editor-hint">支持 Markdown 格式，可使用 # ## ### 设置三级标题</div>
+        <div class="editor-wrapper">
+          <div class="editor-toolbar">
+            <button class="toolbar-btn" onclick="insertMarkdown('**', '**')" title="加粗">B</button>
+            <button class="toolbar-btn" onclick="insertMarkdown('*', '*')" title="斜体">I</button>
+            <button class="toolbar-btn" onclick="insertMarkdown('# ', '')" title="一级标题">H1</button>
+            <button class="toolbar-btn" onclick="insertMarkdown('## ', '')" title="二级标题">H2</button>
+            <div style="width:1px; height:20px; background:rgba(0,0,0,0.1); margin:0 4px;"></div>
+            <button class="toolbar-btn" onclick="insertMarkdown('[', '](url)')" title="链接">🔗</button>
+            <button class="toolbar-btn" onclick="insertMarkdown('![图片描述](', ')')" title="图片">🖼️</button>
+            <button class="toolbar-btn" onclick="insertMarkdown('- ', '')" title="列表">📝</button>
+            <button class="toolbar-btn editor-mode-switch" onclick="toggleEditorPreview()" id="previewBtn">预览</button>
+          </div>
+          
+          <textarea class="editor-textarea" id="annContent" placeholder="在这里输入内容..."></textarea>
+          <div class="editor-preview-area announcement-body" id="annPreview"></div>
         </div>
         
-        <div class="editor-actions">
+        <div class="editor-actions" style="margin-top:16px;">
           <button class="editor-btn secondary" onclick="closeAdminPanel()">取消</button>
-          <button class="editor-btn primary" onclick="publishAnnouncement()">发布公告</button>
+          <button class="editor-btn primary" onclick="publishAnnouncement()" id="publishBtn">立即发布</button>
         </div>
       </div>
       
@@ -3800,7 +3935,41 @@ function renderAnnouncementEditor(container) {
   
   renderManageHistoryList();
 }
+// [新增] 插入 Markdown 语法的函数
+function insertMarkdown(prefix, suffix) {
+  const textarea = document.getElementById('annContent');
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const text = textarea.value;
+  const before = text.substring(0, start);
+  const selected = text.substring(start, end);
+  const after = text.substring(end);
 
+  textarea.value = before + prefix + selected + suffix + after;
+  textarea.selectionStart = start + prefix.length;
+  textarea.selectionEnd = end + prefix.length + selected.length;
+  textarea.focus();
+}
+
+// [新增] 切换预览模式
+function toggleEditorPreview() {
+  const textarea = document.getElementById('annContent');
+  const preview = document.getElementById('annPreview');
+  const btn = document.getElementById('previewBtn');
+  
+  if (preview.classList.contains('show')) {
+    preview.classList.remove('show');
+    textarea.style.display = 'block';
+    btn.textContent = '预览';
+    btn.style.background = 'var(--peach)';
+  } else {
+    preview.innerHTML = formatAnnouncementContent(textarea.value || '无内容');
+    preview.classList.add('show');
+    textarea.style.display = 'none';
+    btn.textContent = '编辑';
+    btn.style.background = 'var(--forest)';
+  }
+}
 function switchEditorTab(tab) {
   document.getElementById('editor-new').style.display = tab === 'new' ? 'block' : 'none';
   document.getElementById('editor-manage').style.display = tab === 'manage' ? 'block' : 'none';
@@ -3809,43 +3978,57 @@ function switchEditorTab(tab) {
   document.getElementById('tab-manage').classList.toggle('primary', tab === 'manage');
 }
 
+// 替换原有的 publishAnnouncement 函数
 async function publishAnnouncement() {
   const title = document.getElementById('annTitle').value.trim();
   const content = document.getElementById('annContent').value.trim();
-  
+  const editIndexStr = document.getElementById('editIndex').value;
+  const editIndex = parseInt(editIndexStr);
+
   if (!title || !content) {
     island.warning('信息不完整', '请填写标题和内容');
     return;
   }
-  
-  const loading = island.loading('正在发布', '保存到 GitHub...');
-  
+
+  const loading = island.loading('正在处理', '保存到 GitHub...');
+
   try {
-    const announcements = await fetchAnnouncements();
-    const newAnnouncement = {
-      id: Date.now().toString(),
-      title: title,
-      content: content,
-      date: new Date().toLocaleDateString('zh-CN'),
-      author: currentUser.nickname || currentUser.account
-    };
+    // 重新获取最新数据，防止冲突
+    let announcements = await fetchAnnouncements();
     
-    announcements.unshift(newAnnouncement);
-    
+    if (editIndex > -1 && editIndex < announcements.length) {
+      // === 修改现有公告 ===
+      announcements[editIndex].title = title;
+      announcements[editIndex].content = content;
+      // 可选：更新修改人为当前用户
+      // announcements[editIndex].author = currentUser.nickname || currentUser.account; 
+    } else {
+      // === 发布新公告 ===
+      const newAnnouncement = {
+        id: Date.now().toString(),
+        title: title,
+        content: content,
+        date: new Date().toLocaleDateString('zh-CN'),
+        author: currentUser.nickname || currentUser.account
+      };
+      announcements.unshift(newAnnouncement);
+    }
+
     const success = await saveAnnouncements(announcements);
-    
+
     if (success) {
       loading.hide();
-      island.success('发布成功', '公告已更新');
-      announcementsData = announcements;
+      island.success(editIndex > -1 ? '修改成功' : '发布成功', '公告已更新');
+      announcementsData = announcements; // 更新本地缓存
       closeAdminPanel();
-      await checkAnnouncement();
+      checkAnnouncement(); // 刷新页面上的公告显示
     } else {
       throw new Error('保存失败');
     }
   } catch (e) {
+    console.error(e);
     loading.hide();
-    island.error('发布失败', '请检查网络连接后重试');
+    island.error('操作失败', '请检查网络连接后重试');
   }
 }
 
@@ -3871,30 +4054,27 @@ async function renderManageHistoryList() {
     </div>
   `).join('');
 }
-
-async function editAnnouncement(index) {
+// 替换原有的 editAnnouncement 函数
+function editAnnouncement(index) {
   const ann = announcementsData[index];
-  const newContent = prompt('编辑公告内容（Markdown格式）：', ann.content);
-  if (newContent === null) return;
   
-  const loading = island.loading('正在保存', '更新中...');
+  // 1. 切换到“发布新公告”标签页（这里其实是用作编辑）
+  switchEditorTab('new');
   
-  try {
-    announcementsData[index].content = newContent;
-    const success = await saveAnnouncements(announcementsData);
-    
-    if (success) {
-      loading.hide();
-      island.success('更新成功', '公告已修改');
-      renderManageHistoryList();
-      await checkAnnouncement();
-    } else {
-      throw new Error('保存失败');
-    }
-  } catch (e) {
-    loading.hide();
-    island.error('更新失败', '请重试');
-  }
+  // 2. 回填数据
+  document.getElementById('annTitle').value = ann.title;
+  document.getElementById('annContent').value = ann.content;
+  
+  // 3. 记录正在编辑的索引（利用我们在HTML里加的 hidden input）
+  document.getElementById('editIndex').value = index;
+  
+  // 4. 修改按钮文字，提示用户这是在更新
+  const pubBtn = document.getElementById('publishBtn');
+  pubBtn.textContent = '保存修改';
+  pubBtn.style.background = 'var(--peach)';
+  
+  // 5. 提示
+  island.info('进入编辑模式', '修改完成后点击保存');
 }
 
 async function deleteAnnouncement(index) {
