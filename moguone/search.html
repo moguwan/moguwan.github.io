@@ -2135,8 +2135,8 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
     right: 176px;
     left: auto;
     top: 16px;
-    width: 44px; 
-    height: 44px; 
+    width: 44px;  
+    height: 44px;  
   }
   .admin-tools-btn {
     bottom: 20px;
@@ -2424,19 +2424,6 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   </div>
 </div>
 
-<div class="notice-modal liquid-glass-flat" id="noticeModal">
-  <div class="notice-header">
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E07A5F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-    系统公告
-  </div>
-  <div class="notice-content" id="noticeContent" style="text-align:left; color:var(--text-secondary); line-height:1.7; font-size:14px;"></div>
-  <div class="notice-checkbox-wrap" id="noticeCheckbox" style="display:flex;align-items:center;justify-content:center;gap:8px;margin:20px 0;cursor:pointer;">
-    <div class="notice-checkbox" style="width:20px;height:20px;border:2px solid #ddd;border-radius:6px;transition:0.2s; display:flex;align-items:center;justify-content:center;"></div>
-    <span class="notice-checkbox-label" style="font-size:13px;color:var(--text-secondary);">不再显示此公告</span>
-  </div>
-  <button class="notice-confirm-btn" id="noticeConfirm">我知道了</button>
-</div>
-
 <script>
 document.head.insertAdjacentHTML("beforeend", `<style>.notice-checkbox.checked{background:var(--peach);border-color:var(--peach); position:relative;} .notice-checkbox.checked::after{content:"✓";color:white;font-size:12px;font-weight:bold;}</style>`);
 
@@ -2455,7 +2442,6 @@ const MAP_MARK_START = "// USER-MAP-JSON-START";
 const MAP_MARK_END = "// USER-MAP-JSON-END";
 const MAX_HISTORY = 10;
 const MAX_MESSAGE_LENGTH = 200;
-const NOTICE_LOCAL_KEY = 'MOGU_SEARCH_NOTICE';
 const DEFAULT_AVATAR = "https://img.wjwj.top/2026/01/26/30abddc90230cef0bc9896ca3eafd0d3.gif";
 
 const ANNOUNCEMENT_REPO_OWNER = 'moguwan';
@@ -2791,8 +2777,6 @@ async function checkLoginStatus() {
       if (currentUser.isAdmin) {
         document.getElementById('adminToolsBtn').classList.add('show');
       }
-      
-      await checkAnnouncement();
       
       return true;
     } catch (e) {
@@ -3593,13 +3577,14 @@ async function checkAnnouncement() {
   const saved = savedData ? JSON.parse(savedData) : {};
   
   const isNewVersion = saved.version !== currentAnnouncementVersion;
+  // 修改逻辑：只要是新版本（或第一次访问），且用户没有选择“不再显示此版本”，就弹出
   const dontShow = saved.dontShowAgain && !isNewVersion;
   
   if (isNewVersion) {
     document.getElementById('announcementBtn').classList.add('has-new');
   }
   
-  if (isNewVersion && saved.version) {
+  if (isNewVersion && !dontShow) {
     setTimeout(() => {
       openAnnouncementModal();
     }, 1000);
@@ -4036,42 +4021,12 @@ document.addEventListener('click', e => {
   }
 });
 
-const noticeContent = `<p><strong>欢迎回到Mg搜索！</strong></p>
-<p style="margin-top:8px;">由于没有备份，更新时误删了账号数据...</p>
-<p style="margin-top:8px;">请大家重新注册登录 ~ </p>
-<p style="margin-top:8px;">新增茶室聊天功能，点击右上角进入</p>`;
-
-function initNotice() {
-  const data = localStorage.getItem(NOTICE_LOCAL_KEY);
-  if (data && JSON.parse(data).dontShowAgain) return;
-  document.getElementById('noticeContent').innerHTML = noticeContent;
-  setTimeout(() => {
-    document.getElementById('modalMask').style.display = 'block';
-    document.getElementById('noticeModal').style.display = 'block';
-    setTimeout(() => {
-        document.getElementById('modalMask').classList.add('show');
-        document.getElementById('noticeModal').classList.add('show');
-    }, 10);
-    isNoticeShown = true;
-  }, 500);
-
-  const checkbox = document.querySelector('.notice-checkbox');
-  document.getElementById('noticeCheckbox').addEventListener('click', () => checkbox.classList.toggle('checked'));
-  document.getElementById('noticeConfirm').addEventListener('click', () => {
-    if (checkbox.classList.contains('checked')) localStorage.setItem(NOTICE_LOCAL_KEY, JSON.stringify({ dontShowAgain: true }));
-    document.getElementById('modalMask').classList.remove('show');
-    document.getElementById('noticeModal').classList.remove('show');
-    setTimeout(() => {
-        document.getElementById('modalMask').style.display = 'none';
-        document.getElementById('noticeModal').style.display = 'none';
-    }, 300);
-    isNoticeShown = false;
-  });
-}
-
 window.addEventListener('DOMContentLoaded', async () => {
   incrementVisitCount();
-  initNotice();
+  
+  // 确保无论是否登录，都检查并尝试弹出公告
+  checkAnnouncement();
+  
   const isLoggedIn = await checkLoginStatus();
   
   if (isLoggedIn && currentUser) {
