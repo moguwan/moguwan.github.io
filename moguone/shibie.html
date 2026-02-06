@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioSecure Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --accent: #3b82f6; /* 电光蓝 */
+            --success: #10b981; /* 翠绿 */
+            --danger: #ef4444; /* 绯红 */
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            margin: 0;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 背景光效 */
+        .bg-glow {
+            position: absolute;
+            width: 800px; height: 800px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+            z-index: 0; pointer-events: none;
+        }
+
+        /* 主仪表盘 */
+        #dashboard {
+            position: relative;
+            width: 1000px;
+            height: 600px;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            overflow: hidden;
+            z-index: 1;
+            transition: filter 0.3s ease; /* 用于弹窗时的背景模糊 */
+        }
+
+        /* 视频区域 */
+        .video-section {
+            position: relative;
+            border-right: 1px solid var(--glass-border);
+            overflow: hidden;
+            background: #000;
+        }
+
+        video {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+            opacity: 0.9;
+        }
+
+        canvas {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            transform: scaleX(-1);
+        }
+
+        /* 控制面板 */
+        .control-panel {
+            padding: 40px;
+            display: flex; flex-direction: column;
+            justify-content: space-between;
+            background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+        }
+
+        .header h1 {
+            font-size: 24px; font-weight: 600; margin: 0;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header .subtitle {
+            font-size: 12px; color: var(--text-muted);
+            margin-top: 5px; font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* 状态卡片 */
+        .status-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 24px; text-align: center;
+            margin: 30px 0; transition: all 0.3s ease;
+        }
+        .status-icon { font-size: 32px; margin-bottom: 10px; display: block; }
+        .status-text { font-size: 20px; font-weight: 600; letter-spacing: 1px; }
+
+        .locked { color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
+        .unlocked { 
+            color: var(--success); 
+            border-color: rgba(16, 185, 129, 0.3);
+            background: rgba(16, 185, 129, 0.05);
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.1);
+        }
+
+        /* 数据行 */
+        .metrics {
+            font-family: 'JetBrains Mono', monospace; font-size: 13px;
+            color: var(--text-muted); margin-bottom: auto;
+        }
+        .metric-row {
+            display: flex; justify-content: space-between;
+            margin-bottom: 12px; padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .metric-value { color: #fff; font-weight: 700; }
+
+        /* 按钮 */
+        .btn-group { display: flex; gap: 12px; flex-direction: column; }
+        button {
+            padding: 16px; border-radius: 12px; border: none;
+            font-weight: 600; font-size: 14px; cursor: pointer;
+            transition: all 0.2s; font-family: 'Inter', sans-serif;
+        }
+        .btn-primary { background: var(--accent); color: white; box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4); }
+        .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
+        .btn-secondary { background: transparent; border: 1px solid var(--glass-border); color: var(--text-muted); }
+        .btn-secondary:hover { border-color: var(--danger); color: var(--danger); }
+
+        /* 全屏加载 */
+        #loader {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #0f172a; z-index: 10;
+            display: flex; justify-content: center; align-items: center;
+            flex-direction: column; color: var(--accent);
+        }
+        .spinner {
+            width: 40px; height: 40px; border: 3px solid rgba(59, 130, 246, 0.3);
+            border-radius: 50%; border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite; margin-bottom: 15px;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* --- 新增：自定义弹窗样式 --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 999;
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .modal-box {
+            width: 380px;
+            background: #1e293b;
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-align: center;
+        }
+        
+        .modal-overlay.active .modal-box { transform: scale(1); }
+
+        .modal-icon { font-size: 40px; margin-bottom: 15px; display: block; }
+        .modal-title { font-size: 18px; font-weight: 600; margin-bottom: 10px; color: #fff; }
+        .modal-msg { font-size: 14px; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; }
+        
+        .modal-actions { display: flex; gap: 10px; justify-content: center; }
+        
+        .modal-btn {
+            flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer;
+            transition: 0.2s;
+        }
+        .modal-btn-cancel { background: rgba(255,255,255,0.05); color: #94a3b8; }
+        .modal-btn-cancel:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        
+        .modal-btn-confirm { background: var(--accent); color: #fff; }
+        .modal-btn-confirm:hover { background: #2563eb; }
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow"></div>
+
+    <div id="custom-modal" class="modal-overlay">
+        <div class="modal-box">
+            <span id="m-icon" class="modal-icon">👋</span>
+            <div id="m-title" class="modal-title">Notification</div>
+            <div id="m-msg" class="modal-msg">Message goes here...</div>
+            <div class="modal-actions">
+                <button id="m-btn-cancel" class="modal-btn modal-btn-cancel">Cancel</button>
+                <button id="m-btn-confirm" class="modal-btn modal-btn-confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboard">
+        <div id="loader">
+            <div class="spinner"></div>
+            <div style="font-size:14px; opacity:0.8;">System Initializing...</div>
+        </div>
+
+        <div class="video-section">
+            <video id="video" autoplay muted></video>
+            <canvas id="overlay"></canvas>
+        </div>
+
+        <div class="control-panel">
+            <div class="header">
+                <h1>BioSecure Guard</h1>
+                <div class="subtitle">AI FACIAL RECOGNITION V3.0</div>
+            </div>
+
+            <div id="status-card" class="status-card locked">
+                <span class="status-icon">🔒</span>
+                <div class="status-text">LOCKED</div>
+            </div>
+
+            <div class="metrics">
+                <div class="metric-row">
+                    <span>Confidence Score</span>
+                    <span class="metric-value" id="score-val">--</span>
+                </div>
+                <div class="metric-row">
+                    <span>Security Threshold</span>
+                    <span class="metric-value" style="color:var(--accent)">0.35</span>
+                </div>
+                <div class="metric-row">
+                    <span>Database Status</span>
+                    <span class="metric-value" id="db-status">Empty</span>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-primary" id="btn-enroll" onclick="enrollFace()">Register Face</button>
+                <button class="btn-secondary" onclick="resetSystem()">Reset Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 核心配置 ---
+        const CONFIG = {
+            threshold: 0.35, 
+            modelUrl: 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights'
+        };
+
+        const video = document.getElementById('video');
+        const overlay = document.getElementById('overlay');
+        const loader = document.getElementById('loader');
+        const statusCard = document.getElementById('status-card');
+        const scoreVal = document.getElementById('score-val');
+        const btnEnroll = document.getElementById('btn-enroll');
+        const dbStatus = document.getElementById('db-status');
+
+        // --- 弹窗逻辑 ---
+        const modal = document.getElementById('custom-modal');
+        const mTitle = document.getElementById('m-title');
+        const mMsg = document.getElementById('m-msg');
+        const mIcon = document.getElementById('m-icon');
+        const mBtnConfirm = document.getElementById('m-btn-confirm');
+        const mBtnCancel = document.getElementById('m-btn-cancel');
+
+        function showModal(title, msg, type = 'info', onConfirm = null) {
+            mTitle.innerText = title;
+            mMsg.innerText = msg;
+            
+            // 设置图标和颜色
+            if(type === 'success') { mIcon.innerText = '✅'; }
+            else if(type === 'error') { mIcon.innerText = '⚠️'; }
+            else if(type === 'warn') { mIcon.innerText = '🗑️'; }
+            else { mIcon.innerText = 'ℹ️'; }
+
+            // 按钮逻辑
+            if(onConfirm) {
+                // 如果是需要确认的操作 (Confirm模式)
+                mBtnCancel.style.display = 'block';
+                mBtnConfirm.onclick = () => {
+                    onConfirm();
+                    closeModal();
+                };
+            } else {
+                // 如果只是通知 (Alert模式)
+                mBtnCancel.style.display = 'none';
+                mBtnConfirm.onclick = closeModal;
+            }
+            
+            mBtnCancel.onclick = closeModal;
+
+            // 显示
+            modal.classList.add('active');
+            // 让背景模糊一点
+            document.getElementById('dashboard').style.filter = 'blur(5px)';
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            document.getElementById('dashboard').style.filter = 'none';
+        }
+
+        // --- AI 逻辑 ---
+        let faceMatcher = null;
+        let isModelLoaded = false;
+
+        async function init() {
+            try {
+                await Promise.all([
+                    faceapi.nets.ssdMobilenetv1.loadFromUri(CONFIG.modelUrl),
+                    faceapi.nets.faceLandmark68Net.loadFromUri(CONFIG.modelUrl),
+                    faceapi.nets.faceRecognitionNet.loadFromUri(CONFIG.modelUrl)
+                ]);
+                const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+                video.srcObject = stream;
+            } catch (e) {
+                showModal("System Error", "Camera access denied or model load failed.", "error");
+            }
+        }
+
+        init();
+
+        video.addEventListener('play', () => {
+            const checkSizeInterval = setInterval(() => {
+                if (video.videoWidth > 0) {
+                    clearInterval(checkSizeInterval);
+                    startTracking();
+                }
+            }, 100);
+        });
+
+        function startTracking() {
+            isModelLoaded = true;
+            loader.style.display = 'none';
+            checkDbStatus();
+
+            const displaySize = { width: video.videoWidth, height: video.videoHeight };
+            faceapi.matchDimensions(overlay, displaySize);
+            loadFaceData();
+
+            setInterval(async () => {
+                if (!isModelLoaded) return;
+                const detections = await faceapi.detectAllFaces(video).withFaceLandmarks().withFaceDescriptors();
+                const resized = faceapi.resizeResults(detections, displaySize);
+                const ctx = overlay.getContext('2d');
+                ctx.clearRect(0, 0, overlay.width, overlay.height);
+
+                if (!faceMatcher) {
+                    drawFancyBox(ctx, resized, null);
+                    scoreVal.innerText = "NO DATA";
+                    return;
+                }
+
+                let isOwner = false;
+                let minDist = 1.0;
+
+                resized.forEach(det => {
+                    const match = faceMatcher.findBestMatch(det.descriptor);
+                    const dist = match.distance;
+                    if(dist < minDist) minDist = dist;
+                    if(match.label !== 'unknown') isOwner = true;
+                    drawFancyBox(ctx, [det], match.label !== 'unknown');
+                });
+
+                updateDashboard(isOwner, minDist);
+            }, 100);
+        }
+
+        function drawFancyBox(ctx, detections, isMatch) {
+            detections.forEach(det => {
+                const box = det.detection.box;
+                const padding = 40; 
+                const x = box.x - padding/2;
+                const y = box.y - padding/2;
+                const w = box.width + padding;
+                const h = box.height + padding;
+
+                let color = '#ffffff'; 
+                if (isMatch === true) color = '#10b981'; 
+                if (isMatch === false) color = '#ef4444'; 
+
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = color;
+                ctx.lineCap = 'round';
+                
+                const radius = 20;
+                ctx.beginPath();
+                ctx.moveTo(x + radius, y);
+                ctx.lineTo(x + w - radius, y);
+                ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+                ctx.lineTo(x + w, y + h - radius);
+                ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+                ctx.lineTo(x + radius, y + h);
+                ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+                ctx.lineTo(x, y + radius);
+                ctx.quadraticCurveTo(x, y, x + radius, y);
+                ctx.closePath();
+                
+                ctx.shadowColor = color;
+                ctx.shadowBlur = 15;
+                ctx.stroke();
+                ctx.shadowBlur = 0; 
+            });
+        }
+
+        function updateDashboard(isOwner, dist) {
+            scoreVal.innerText = dist === 1.0 ? "--" : dist.toFixed(4);
+            if (isOwner) {
+                statusCard.className = "status-card unlocked";
+                statusCard.innerHTML = `<span class="status-icon">🔓</span><div class="status-text">ACCESS GRANTED</div>`;
+            } else {
+                statusCard.className = "status-card locked";
+                statusCard.innerHTML = `<span class="status-icon">🔒</span><div class="status-text">LOCKED</div>`;
+            }
+        }
+
+        async function enrollFace() {
+            const detection = await faceapi.detectSingleFace(video).withFaceLandmarks().withFaceDescriptor();
+            if (detection) {
+                const data = {
+                    label: "owner",
+                    descriptors: [Array.from(detection.descriptor)]
+                };
+                localStorage.setItem('face_db', JSON.stringify(data));
+                loadFaceData();
+                checkDbStatus();
+                
+                // --- 使用新弹窗 ---
+                showModal("Registration Complete", "Your biometric data has been securely saved.", "success");
+                btnEnroll.style.display = 'none';
+            } else {
+                // --- 使用新弹窗 ---
+                showModal("Detection Failed", "Please position your face clearly in the frame.", "error");
+            }
+        }
+
+        function loadFaceData() {
+            const dataStr = localStorage.getItem('face_db');
+            if (dataStr) {
+                const data = JSON.parse(dataStr);
+                const descriptors = data.descriptors.map(d => new Float32Array(d));
+                const labeled = new faceapi.LabeledFaceDescriptors(data.label, descriptors);
+                faceMatcher = new faceapi.FaceMatcher([labeled], CONFIG.threshold);
+                btnEnroll.style.display = 'none';
+                checkDbStatus();
+            }
+        }
+
+        function checkDbStatus() {
+            const hasData = localStorage.getItem('face_db');
+            dbStatus.innerText = hasData ? "Active (1 User)" : "Empty";
+            dbStatus.style.color = hasData ? "var(--success)" : "var(--text-muted)";
+        }
+
+        function resetSystem() {
+            // --- 使用新弹窗 (Confirm 模式) ---
+            showModal(
+                "Purge Database?", 
+                "This will permanently delete your facial data. This action cannot be undone.", 
+                "warn", 
+                () => {
+                    // 这是点击确认后执行的回调
+                    localStorage.removeItem('face_db');
+                    location.reload();
+                }
+            );
+        }
+    </script>
+</body>
+</html>

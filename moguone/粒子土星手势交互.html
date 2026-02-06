@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Photoreal Saturn: Dreamy Side View</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #020205; font-family: 'Helvetica Neue', Arial, sans-serif; }
+        #canvas-container { width: 100vw; height: 100vh; display: block; }
+        
+        #ui-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            padding: 30px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            /* 更梦幻的蓝紫色暗角 */
+            background: radial-gradient(circle at center, transparent 30%, rgba(10, 0, 30, 0.6) 100%);
+        }
+
+        .ui-panel {
+            color: rgba(220, 230, 255, 0.8);
+            font-size: 13px;
+            line-height: 1.6;
+            text-shadow: 0 0 8px rgba(100, 150, 255, 0.5);
+        }
+        
+        .ui-panel h1 {
+            color: #f0f5ff;
+            font-size: 24px;
+            margin: 0 0 15px 0;
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-shadow: 0 0 20px rgba(150, 200, 255, 0.8);
+        }
+
+        .status-dot {
+            display: inline-block; width: 8px; height: 8px;
+            background-color: #556; border-radius: 50%; margin-right: 8px;
+            transition: all 0.3s ease-out;
+        }
+        .status-dot.active { background-color: #88ccff; box-shadow: 0 0 15px #88ccff, 0 0 30px #ffffff; }
+
+        .author-tag {
+            border: 1px solid rgba(200, 220, 255, 0.3);
+            padding: 6px 14px; border-radius: 30px; color: #d0e0ff;
+            background: rgba(20, 30, 60, 0.5);
+            backdrop-filter: blur(10px);
+            font-size: 11px;
+            box-shadow: 0 0 25px rgba(50,100,255,0.3);
+        }
+
+        #start-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 2, 8, 0.95); display: flex;
+            justify-content: center; align-items: center; pointer-events: auto;
+            transition: opacity 1.0s ease-out;
+        }
+
+        #start-btn {
+            background: transparent; color: #e0efff;
+            border: 1px solid rgba(200, 220, 255, 0.5); padding: 15px 45px;
+            font-size: 20px; cursor: pointer; transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            letter-spacing: 4px;
+            border-radius: 30px;
+            box-shadow: 0 0 30px rgba(100, 150, 255, 0.3);
+            text-shadow: 0 0 10px rgba(200, 220, 255, 0.5);
+        }
+        #start-btn:hover { 
+            background: rgba(200, 230, 255, 0.1); 
+            border-color: #ffffff;
+            box-shadow: 0 0 50px rgba(150, 200, 255, 0.7);
+            transform: scale(1.05);
+        }
+
+        .input_video { display: none; }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    <video class="input_video"></video>
+
+    <div id="ui-layer">
+        <div class="ui-panel">
+            <h1>土星环：梦幻侧影</h1>
+            <div style="margin-bottom: 12px;"><span id="cam-status" class="status-dot"></span>手势状态: <span id="status-text" style="font-weight: bold;">等待信号</span></div>
+            <ul style="list-style-type: circle; padding-left: 20px; color: rgba(220, 230, 255, 0.7);">
+               <li>构图: 电影级低角度侧视</li>
+               <li>视觉: 梦幻辉光 (Unreal Bloom)</li>
+               <li>交互: 平滑贴地推拉</li>
+            </ul>
+        </div>
+        <div class="author-tag">Three.js Post-Processing x MediaPipe</div>
+    </div>
+    
+    <div id="start-overlay">
+        <button id="start-btn">进入梦境</button>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        // 引入后期处理模块
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+        import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+        let scene, camera, renderer, composer;
+        let saturnCore, ringParticles, ringMaterial;
+        let mainLight;
+        let time = 0;
+        let hands;
+        
+        const state = {
+            rawTargetZoom: 0.0,
+            smoothTargetZoom: 0.0,
+            currentZoom: 0.0,
+            handDetected: false,
+            chaosLevel: 0.0
+        };
+
+        function createNoiseTexture() {
+            const size = 512;
+            const data = new Uint8Array(size * size * 4);
+            for (let i = 0; i < size * size * 4; i += 4) {
+                const val = 50 + Math.random() * 100; // 更暗的基底，让高光更突出
+                data[i] = val; data[i+1] = val * 0.9; data[i+2] = val * 0.8; data[i+3] = 255;
+            }
+            const texture = new THREE.DataTexture(data, size, size, THREE.RGBAFormat);
+            texture.needsUpdate = true;
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(4, 2);
+            return texture;
+        }
+
+        function initScene() {
+            const container = document.getElementById('canvas-container');
+            scene = new THREE.Scene();
+            // 【修改点1】背景色改为极深的午夜蓝，增加梦幻感
+            scene.background = new THREE.Color(0x020205);
+            scene.fog = new THREE.FogExp2(0x020205, 0.0025);
+            
+            // 背景星星 - 更柔和的蓝白色
+            const starGeo = new THREE.BufferGeometry();
+            const starPos = [];
+            for(let i=0; i<4000; i++) {
+                const x = (Math.random()-0.5)*400;
+                const y = (Math.random()-0.5)*400;
+                const z = (Math.random()-0.5)*400;
+                if(Math.sqrt(x*x+y*y+z*z) > 90) starPos.push(x,y,z);
+            }
+            starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
+            const starMat = new THREE.PointsMaterial({
+                color: 0x88aaff, 
+                size: 0.35,
+                sizeAttenuation: true, 
+                transparent:true, 
+                opacity: 0.6,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+            scene.add(new THREE.Points(starGeo, starMat));
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            // 【修改点2】初始相机位置：放低Y轴，配合侧视角
+            camera.position.set(0, 5, 32); 
+
+            renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance", stencil: false }); // 关闭AA，交给后期处理
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            // ToneMapping 配合 Bloom 使用
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.0; 
+            container.appendChild(renderer.domElement);
+
+            // --- 【修改点3】后期处理 (Bloom) 设置 ---
+            composer = new EffectComposer(renderer);
+            const renderPass = new RenderPass(scene, camera);
+            composer.addPass(renderPass);
+
+            // Unreal Bloom 参数：强度，半径，阈值
+            // 强度高，阈值低，让更多粒子产生柔和光晕
+            const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.8, 0.6 );
+            composer.addPass(bloomPass);
+
+            const outputPass = new OutputPass();
+            composer.addPass(outputPass);
+            // ------------------------------------
+
+            const ambientLight = new THREE.AmbientLight(0x333355, 0.3); // 偏蓝的环境光
+            scene.add(ambientLight);
+
+            // 主光位置调整，侧逆光，勾勒边缘
+            mainLight = new THREE.DirectionalLight(0xfff0dd, 4.0); 
+            mainLight.position.set(-30, 5, -10);
+            mainLight.castShadow = true;
+            mainLight.shadow.mapSize.set(2048, 2048);
+            mainLight.shadow.camera.near = 5;
+            mainLight.shadow.camera.far = 200;
+            mainLight.shadow.bias = -0.0001;
+            scene.add(mainLight);
+
+            window.addEventListener('resize', onWindowResize, false);
+        }
+
+        function createSaturnCore() {
+            const geometry = new THREE.SphereGeometry(3.8, 64, 64);
+            const noiseTex = createNoiseTexture();
+            
+            const material = new THREE.MeshStandardMaterial({
+                color: 0xc0b0a0,
+                map: noiseTex,
+                roughness: 0.6, // 降低粗糙度，增加光泽
+                metalness: 0.4, // 增加金属感，让边缘光更明显
+                bumpMap: noiseTex,
+                bumpScale: 0.01,
+                emissive: 0x221133, // 微弱的紫调自发光
+                emissiveIntensity: 0.3
+            });
+            
+            saturnCore = new THREE.Mesh(geometry, material);
+            saturnCore.castShadow = true;
+            saturnCore.receiveShadow = true;
+            saturnCore.scale.y = 0.92;
+            // 核心旋转与光环保持一致
+            scene.add(saturnCore);
+        }
+
+        function createSaturnRing() {
+            // 粒子数微调，平衡性能与效果
+            const particleCount = 500000;
+            
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const props = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+            const sizes = new Float32Array(particleCount);
+            const indices = new Float32Array(particleCount);
+
+            // 【修改点4】梦幻色板：奶油、淡金、玫瑰金、淡青
+            const pallete = [
+                new THREE.Color(0xfff5e0), // 奶油白
+                new THREE.Color(0xffdfba), // 淡金
+                new THREE.Color(0xffcce0), // 玫瑰金
+                new THREE.Color(0xaaddff)  // 梦幻蓝
+            ];
+
+            for (let i = 0; i < particleCount; i++) {
+                const i3 = i * 3;
+                indices[i] = i;
+
+                let radius;
+                const rRand = Math.random();
+                // 调整分布，让光环看起来更宽广
+                if (rRand < 0.2) radius = 5.2 + Math.pow(Math.random(), 0.8) * 3.8;
+                else if (rRand < 0.25) radius = 9.0 + Math.random() * 0.6;
+                else if (rRand < 0.85) radius = 9.8 + Math.pow(Math.random(), 1.1) * 6.0;
+                else radius = 16.0 + Math.random() * 3.0;
+
+                const angle = Math.random() * Math.PI * 2;
+                // 极薄的厚度，配合侧视角
+                const heightSpread = 0.02 * (1.0 - (radius-5.0)/14.0);
+                const y = (Math.random() - 0.5) * heightSpread;
+
+                positions[i3] = Math.cos(angle) * radius;
+                positions[i3+1] = y;
+                positions[i3+2] = Math.sin(angle) * radius;
+
+                const speed = 3.0 / Math.sqrt(radius);
+                props[i3] = radius; props[i3+1] = speed; props[i3+2] = angle;
+
+                const color = pallete[Math.floor(Math.random() * pallete.length)];
+                // 亮度变化更柔和
+                const brightness = 0.9 + Math.sin(radius * 2.5) * 0.2; 
+                colors[i3] = color.r * brightness; 
+                colors[i3+1] = color.g * brightness; 
+                colors[i3+2] = color.b * brightness;
+                
+                // 大小稍微差异化
+                sizes[i] = 0.1 + Math.random() * 0.3;
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('props', new THREE.BufferAttribute(props, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+            geometry.setAttribute('aIndex', new THREE.BufferAttribute(indices, 1));
+
+            ringMaterial = new THREE.ShaderMaterial({
+                uniforms: {
+                    uTime: { value: 0 },
+                    uChaos: { value: 0.0 },
+                    uPixelRatio: { value: renderer.getPixelRatio() },
+                    uLightDir: { value: mainLight.position.clone().normalize() }
+                },
+                vertexShader: `
+                    uniform float uTime;
+                    uniform float uChaos;
+                    uniform float uPixelRatio;
+                    uniform vec3 uLightDir;
+
+                    attribute vec3 props;
+                    attribute vec3 color;
+                    attribute float size;
+                    attribute float aIndex;
+
+                    varying vec3 vColor;
+                    
+                    float hash(float n) { return fract(sin(n) * 43758.5453123); }
+                    float noise(vec3 x) {
+                        vec3 p = floor(x); vec3 f = fract(x);
+                        f = f*f*(3.0-2.0*f);
+                        float n = p.x + p.y*57.0 + p.z*113.0;
+                        return mix(mix(mix(hash(n+0.0), hash(n+1.0),f.x), mix(hash(n+57.0), hash(n+58.0),f.x),f.y),
+                                   mix(mix(hash(n+113.0), hash(n+114.0),f.x), mix(hash(n+170.0), hash(n+171.0),f.x),f.y),f.z) - 0.5;
+                    }
+
+                    void main() {
+                        vec3 pos = position;
+                        float radius = props.x;
+                        float speed = props.y;
+                        float initialAngle = props.z;
+
+                        float currentAngle = initialAngle + speed * uTime * 0.15;
+                        pos.x = cos(currentAngle) * radius;
+                        pos.z = sin(currentAngle) * radius;
+
+                        if (uChaos > 0.01) {
+                            vec3 noisePos = pos * 0.4 + vec3(uTime * 0.6);
+                            vec3 jitter = vec3(noise(noisePos), noise(noisePos + 13.0), noise(noisePos + 27.0));
+                            pos += jitter * uChaos * 1.2;
+                        }
+
+                        vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+                        gl_Position = projectionMatrix * mvPosition;
+
+                        // 调整大小以配合 Bloom
+                        gl_PointSize = size * uPixelRatio * (90.0 / -mvPosition.z);
+                        
+                        vec3 normal = normalize(pos); 
+                        // 基础发光，不需要太高，Bloom会增强它
+                        float diffuse = max(dot(normal, uLightDir), 0.6); 
+
+                        float twinkleSeed = aIndex * 0.13 + uTime * 2.0;
+                        float twinkle = sin(twinkleSeed) * 0.5 + 0.5;
+                        
+                        float flashSeed = aIndex * 0.01 + uTime * 0.5;
+                        float flash = pow(max(0.0, sin(flashSeed)), 40.0);
+
+                        // 组合亮度：更柔和的闪烁
+                        float finalBrightness = diffuse * (0.8 + twinkle * 0.6) + flash * 4.0;
+
+                        vColor = color * finalBrightness;
+                    }
+                `,
+                fragmentShader: `
+                    varying vec3 vColor;
+                    void main() {
+                        float dist = length(gl_PointCoord - vec2(0.5));
+                        if (dist > 0.5) discard;
+
+                        // 【修改点5】更柔和的粒子 Shader
+                        // 核心小而亮，边缘极度柔和
+                        float intensity = 1.0 - smoothstep(0.05, 0.5, dist);
+                        intensity = pow(intensity, 0.7); // 让光晕散得更开
+
+                        gl_FragColor = vec4(vColor, intensity);
+                    }
+                `,
+                transparent: true,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
+            });
+
+            saturnCore.material.polygonOffset = true;
+            saturnCore.material.polygonOffsetFactor = 2;
+            saturnCore.material.polygonOffsetUnits = 2;
+
+            ringParticles = new THREE.Points(geometry, ringMaterial);
+            
+            // 【修改点6】关键构图调整：极低的倾角 (侧面看过去)
+            // 约 14.4 度
+            const tilt = Math.PI * 0.08;
+            ringParticles.rotation.x = tilt;
+            saturnCore.rotation.x = tilt;
+
+            scene.add(ringParticles);
+        }
+
+        function initMediaPipe() {
+            const videoElement = document.getElementsByClassName('input_video')[0];
+            hands = new Hands({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});
+            hands.setOptions({ maxNumHands: 1, modelComplexity: 0, minDetectionConfidence: 0.7, minTrackingConfidence: 0.7 });
+            hands.onResults(onHandsResults);
+            const cameraUtils = new Camera(videoElement, {
+                onFrame: async () => { await hands.send({image: videoElement}); },
+                width: 640, height: 480
+            });
+            return cameraUtils;
+        }
+
+        function onHandsResults(results) {
+            const statusText = document.getElementById('status-text');
+            const statusDot = document.getElementById('cam-status');
+            
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                if (!state.handDetected) {
+                   statusText.innerText = "信号已锁定";
+                   statusDot.classList.add('active');
+                   state.handDetected = true;
+                }
+                const landmarks = results.multiHandLandmarks[0];
+                const wrist = landmarks[0]; const idx = landmarks[8]; const mid = landmarks[12];
+                const avgDist = (Math.hypot(idx.x - wrist.x, idx.y - wrist.y) + Math.hypot(mid.x - wrist.x, mid.y - wrist.y)) / 2;
+                
+                let zoom = (avgDist - 0.15) / 0.45; 
+                state.rawTargetZoom = Math.max(0.0, Math.min(1.0, zoom));
+
+            } else {
+                if (state.handDetected) {
+                    statusText.innerText = "等待信号...";
+                    statusDot.classList.remove('active');
+                    state.handDetected = false;
+                }
+                state.rawTargetZoom = 0.0;
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.01;
+
+            state.smoothTargetZoom += (state.rawTargetZoom - state.smoothTargetZoom) * 0.08;
+            state.currentZoom += (state.smoothTargetZoom - state.currentZoom) * 0.03;
+            
+            state.chaosLevel = Math.max(0.0, (state.currentZoom - 0.75) / 0.25);
+
+            if (ringMaterial) {
+                ringMaterial.uniforms.uTime.value = time;
+                ringMaterial.uniforms.uChaos.value = state.chaosLevel;
+            }
+            
+            // 【修改点7】配合低倾角的相机路径
+            // 远景: Z=32, Y=5 (中等高度)
+            // 近景: Z=9, Y=0.8 (极低高度，贴地飞行感)
+            const targetZ = 32.0 - state.currentZoom * 23.0;
+            const targetY = 5.0 - state.currentZoom * 4.2;
+
+            camera.position.z = targetZ;
+            camera.position.y = targetY;
+            // 微微向上仰望核心
+            camera.lookAt(0, 0.5, 0);
+
+            if (saturnCore) saturnCore.rotation.y -= 0.001;
+
+            // 使用 composer 替代 renderer 进行渲染
+            composer.render();
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
+            if (ringMaterial) ringMaterial.uniforms.uPixelRatio.value = renderer.getPixelRatio();
+        }
+
+        const startBtn = document.getElementById('start-btn');
+        startBtn.addEventListener('click', () => {
+            document.getElementById('start-overlay').style.opacity = 0;
+            setTimeout(() => {
+                document.getElementById('start-overlay').style.display = 'none';
+            }, 1000);
+            
+            try {
+                document.documentElement.requestFullscreen({ navigationUI: "hide" }).catch(()=>{});
+            } catch(e) {}
+            
+            initScene();
+            createSaturnCore();
+            createSaturnRing();
+            const cameraUtils = initMediaPipe();
+            cameraUtils.start();
+            animate();
+        });
+    </script>
+</body>
+</html>
