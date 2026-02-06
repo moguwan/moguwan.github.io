@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,6 +40,7 @@ html, body {
 body {
   color: var(--text-primary);
   background: #f5f3f0;
+  transition: background 0.5s ease;
 }
 .chinese-bg-container {
   position: fixed;
@@ -1410,6 +1410,48 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
 .announcement-btn.has-new .announcement-badge {
   display: block;
 }
+/* New Leder Button Styles */
+.leder-btn {
+  position: fixed;
+  top: 24px;
+  right: 248px; /* 192 + 56 */
+  width: 48px;
+  height: 48px;
+  z-index: 1000;
+  color: var(--forest);
+  animation: slideInLeft 0.6s var(--ease-spring) 0.1s backwards;
+}
+.leder-btn:hover {
+  transform: scale(1.1) rotate(-10deg);
+  box-shadow: 0 12px 30px rgba(45, 79, 58, 0.15);
+}
+
+/* Clean Mode (Hide Mode) Styles */
+body.clean-mode .user-info,
+body.clean-mode .login-btn,
+body.clean-mode .quick-links-toggle,
+body.clean-mode .announcement-btn,
+body.clean-mode .leder-btn,
+body.clean-mode .mogu-active-btn,
+body.clean-mode .mogu-chat-btn,
+body.clean-mode .admin-tools-btn,
+body.clean-mode .history-rank-wrap {
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.5s ease;
+}
+
+body.clean-mode #toggleBtn {
+  opacity: 0.3;
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: none;
+}
+body.clean-mode #toggleBtn:hover {
+  opacity: 1;
+  background: var(--glass-bg);
+  box-shadow: var(--glass-shadow);
+}
+
 .announcement-modal {
   position: fixed;
   top: 50%;
@@ -2003,9 +2045,9 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
     padding: 18px;
     border-radius: 24px;
   }
-  .toggle-btn { 
-    display: none; 
-  }
+  /* Remove display:none from toggle-btn as requested */
+  /* .toggle-btn { display: none; } */
+  
   .mogu-chat-window { 
     width: 100%; 
     height: 100%; 
@@ -2138,6 +2180,12 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
     top: 16px;
     width: 44px;  
     height: 44px;  
+  }
+  .leder-btn {
+    right: 232px; /* 176 + 56 */
+    top: 16px;
+    width: 44px;
+    height: 44px;
   }
   .admin-tools-btn {
     bottom: 20px;
@@ -2310,6 +2358,13 @@ input:checked + .switch-slider:before { transform: translateX(18px); }
   <div class="login-notice-text">您当前未登录账号，请先登录后再使用Mg搜索功能</div>
   <button class="login-notice-btn" onclick="goToLogin()">去登录</button>
 </div>
+
+<button class="leder-btn float-btn liquid-glass" id="lederBtn" onclick="window.open('leder.html', '_blank')">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="22" y1="2" x2="11" y2="13"></line>
+    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+  </svg>
+</button>
 
 <button class="announcement-btn float-btn liquid-glass" id="announcementBtn" onclick="openAnnouncementModal()">
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -4188,8 +4243,12 @@ moguChatBtn.addEventListener('click', toggleChatWindow);
 moguChatSend.addEventListener('click', sendChatMessage);
 moguChatInput.addEventListener('keydown', e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), sendChatMessage()));
 
+// 修改 Toggle Button 事件监听器
+toggleBtn.addEventListener('click', () => {
+    document.body.classList.toggle('clean-mode');
+});
+
 if (!isMobile()) {
-  toggleBtn.addEventListener('click', () => saveShowState(!getShowState()));
   historySwitch.addEventListener('change', e => saveHistorySwitchState(e.target.checked));
 }
 
@@ -4217,7 +4276,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (isMobile()) {
     searchInput.focus();
   } else {
-    saveShowState(getShowState());
+    // 移除 saveShowState 调用，因为不再需要初始化历史显示状态的显示隐藏，而是通过clean-mode控制
     saveHistorySwitchState(getHistorySwitchState());
     renderHistory();
     searchInput.focus();
