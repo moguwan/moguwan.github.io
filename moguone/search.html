@@ -2644,8 +2644,36 @@ let announcementsData = [];
 let currentAnnouncementVersion = '';
 
 const officialLinks = [
-	{ name: '研可岸真题网', url: 'https://zhenti.kaoyansou.cn/', color: '#3D6B4F', icon: '研' },
-	{ name: '哔哩哔哩', url: 'https://bilibili.com', color: '#FB7299', icon: '📺' },
+  { 
+    name: 'Gemini', 
+    url: 'https://gemini.google.com/app?utm_source=deepmind.google&utm_medium=referral&utm_campaign=gdm&utm_content=', 
+    color: '#555555', 
+    icon: 'https://img.wjwj.top/2026/02/07/a3dcb681b57ccddeb437668d7343a87f.png' 
+  },
+  { 
+    name: '研可岸真题网', 
+    url: 'https://zhenti.kaoyansou.cn/', 
+    color: '#3D6B4F', 
+    icon: '研' 
+  },
+  { 
+    name: '哔哩哔哩', 
+    url: 'https://bilibili.com', 
+    color: '#FB7299', 
+    icon: '📺' 
+  },
+  { 
+    name: 'Kimi', 
+    url: 'https://kimi.moonshot.cn/', 
+    color: '#1C1C1E', // Kimi 标志性的深色背景
+    icon: 'https://img.wjwj.top/2026/02/07/8dda448bdb92094d76cfe0ea08b26079.png'
+  },
+  { 
+    name: 'ChatGPT', 
+    url: 'https://chatgpt.com/', 
+    color: '#10A37F', // ChatGPT 官方绿色
+    icon: 'https://img.wjwj.top/2026/02/07/f3369e2df0f886c9abcce521af4f1d68.png'
+  }
 ];
 
 class DynamicIsland {
@@ -3553,7 +3581,6 @@ function renderQuickLinks() {
     });
   }
 }
-
 function createQuickLinkElement(link, isCustom, index) {
   const item = document.createElement('a');
   item.className = 'quick-link-item';
@@ -3566,8 +3593,20 @@ function createQuickLinkElement(link, isCustom, index) {
     showPageTransition(`正在前往 ${link.name}...`, link.url);
   };
   
+  // --- 修改开始：判断是图片链接还是文字/Emoji ---
+  let iconContent;
+  // 如果 icon 存在且以 http 开头，视为图片
+  if (link.icon && link.icon.startsWith('http')) {
+    // 渲染为 img 标签，并设置样式使其填满容器
+    iconContent = `<img src="${link.icon}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit; display:block;">`;
+  } else {
+    // 否则直接显示文字（如 '研' 或 Emoji）
+    iconContent = link.icon || link.name.charAt(0);
+  }
+  // --- 修改结束 ---
+
   item.innerHTML = `
-    <div class="quick-link-icon" style="background: ${link.color}">${link.icon || link.name.charAt(0)}</div>
+    <div class="quick-link-icon" style="background: ${link.color}">${iconContent}</div>
     <span class="quick-link-name">${link.name}</span>
   `;
   
@@ -3585,7 +3624,6 @@ function createQuickLinkElement(link, isCustom, index) {
   
   return item;
 }
-
 function toggleAddLinkForm() {
   const form = document.getElementById('addLinkForm');
   form.classList.toggle('show');
