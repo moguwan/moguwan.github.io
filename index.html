@@ -8,7 +8,6 @@
 <title>MoGuOne | 记录生活</title>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
-/* --- 原有样式保持不变 --- */
 .main-wrapper.vertical-mode .news-cover-box {
   padding-bottom: 30% !important;
 }
@@ -579,6 +578,9 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
   <div class="nav-logo">MoGuOne</div>
   
   <div class="nav-right-group">
+	  <div class="icon-btn" id="topSearchBtn" title="Go to Search">
+        <svg viewBox="0 0 24 24" fill="#333"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      </div>
       <div class="icon-btn" id="layoutBtn" title="Change Layout">
         <svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>
       </div>
@@ -757,11 +759,10 @@ function init() {
   document.getElementById('bgInput').onchange = handleBgUpload;
 
   document.getElementById('layoutBtn').onclick = toggleLayout;
-
+  document.getElementById('topSearchBtn').onclick = () => window.location.href = 'moguone/search.html';
   document.getElementById('searchBtn').addEventListener('click', doSearch);
   document.getElementById('searchInput').addEventListener('keyup', (e) => { if(e.key === 'Enter') doSearch(); });
 
-  // 键盘事件监听：灯箱切换
   document.addEventListener('keydown', (e) => {
       if(document.getElementById('unifiedLightbox').classList.contains('active')) {
           if(e.key === 'ArrowLeft') changeUnifiedMedia(-1);
