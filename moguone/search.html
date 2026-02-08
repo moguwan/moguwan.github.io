@@ -2668,6 +2668,12 @@ const officialLinks = [
     color: '#1C1C1E', // Kimi 标志性的深色背景
     icon: 'https://img.wjwj.top/2026/02/07/8dda448bdb92094d76cfe0ea08b26079.png'
   },
+  {
+    name: 'PGcode', 
+    url: 'https://pgcode.cn/problem', 
+    color: '#55aa7f',
+    icon: '💻'
+  },
   { 
     name: 'ChatGPT', 
     url: 'https://chatgpt.com/', 
@@ -4314,7 +4320,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (isMobile()) {
     searchInput.focus();
   } else {
-    // 移除 saveShowState 调用，因为不再需要初始化历史显示状态的显示隐藏，而是通过clean-mode控制
     saveHistorySwitchState(getHistorySwitchState());
     renderHistory();
     searchInput.focus();
