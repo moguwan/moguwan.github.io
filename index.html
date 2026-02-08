@@ -587,7 +587,7 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
       <div class="icon-btn" id="bgBtn" style="display:none;" title="Change Background">
         <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
       </div>
-      <input type="file" id="bgInput" accept="image/*" style="display:none;">
+      <input type="file" id="bgInput" accept="image/png, image/jpeg, image/jpg, image/webp" style="display:none;">
 
       <div class="user-area" id="userArea">
         <button class="login-btn" id="loginBtn">登录</button>
@@ -1015,17 +1015,47 @@ function updateProgress() {
 
 function handleBgUpload(e) {
     const file = e.target.files[0];
+    
+    // 1. 格式校验
     if(!file || !file.type.startsWith('image/')) {
         showToast('请选择图片文件！');
         return;
     }
+
+    // 2.【新增】文件大小预检查
+    // LocalStorage上限约5MB，Base64会膨胀33%，所以建议限制在 3.5MB 以内
+    const MAX_SIZE = 3.5 * 1024 * 1024; // 3.5MB
+    if (file.size > MAX_SIZE) {
+        showToast('图片太大了！请上传 3.5MB 以内的图片');
+        return;
+    }
+
     const reader = new FileReader();
     reader.onload = function(evt) {
         const res = evt.target.result;
-        localStorage.setItem('customBg', res);
-        document.body.style.backgroundImage = `url(${res})`;
-        document.body.classList.add('has-custom-bg');
-        showToast('背景已更换');
+        
+        // 3.【新增】尝试写入存储，捕获空间不足的错误
+        try {
+            localStorage.setItem('customBg', res); // 尝试保存
+            
+            // 只有保存成功或虽保存失败但为了当前体验，才执行切换
+            document.body.style.backgroundImage = `url(${res})`;
+            document.body.classList.add('has-custom-bg');
+            showToast('背景已更换');
+            
+        } catch (err) {
+            console.error(err);
+            // 捕获 QuotaExceededError (存储空间已满)
+            if (err.name === 'QuotaExceededError' || err.code === 22) {
+                showToast('背景设置失败：图片超过浏览器存储限制！');
+                // 此时虽然不能保存，但可以在当前页面临时显示一下，刷新后会消失
+                document.body.style.backgroundImage = `url(${res})`;
+                document.body.classList.add('has-custom-bg');
+                showToast('仅本次生效 (图片过大无法保存)');
+            } else {
+                showToast('背景设置发生未知错误');
+            }
+        }
     };
     reader.readAsDataURL(file);
 }
