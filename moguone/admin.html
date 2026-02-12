@@ -8,6 +8,7 @@
     <title>MY HOME - Console</title>
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/dmego-home-page@latest/assets/css/iconfont.css ">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     
     <style>
         :root {
@@ -39,6 +40,12 @@
             padding: 20px;
             gap: 20px;
         }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
 
         .loading-toast {
             position: fixed; top: 30px; left: 50%; transform: translateX(-50%) translateY(-100px);
@@ -105,13 +112,14 @@
 
         .header-bar {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px; flex-shrink: 0;
         }
         .page-title h2 { font-size: 24px; font-weight: 800; color: var(--text-main); }
         .page-title p { font-size: 13px; color: var(--text-sub); margin-top: 4px; }
 
         .top-stats {
             display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 30px;
+            flex-shrink: 0;
         }
         .stat-box {
             background: #fff; padding: 20px; border-radius: var(--radius-md);
@@ -126,7 +134,7 @@
         .stat-info h3 { font-size: 28px; font-weight: 800; line-height: 1; }
         .stat-info span { font-size: 13px; color: var(--text-sub); }
 
-        .controls-area { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .controls-area { display: flex; justify-content: space-between; margin-bottom: 20px; flex-shrink: 0; align-items: center;}
         .search-wrapper { position: relative; width: 300px; }
         .search-wrapper i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-sub); }
         .search-input {
@@ -134,6 +142,7 @@
             border: 1px solid #e5e7eb; background: #fff; transition: all 0.3s;
         }
         .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-light); }
+        .search-input.active { border-color: var(--primary); background: #fefeff; }
 
         .btn-add {
             padding: 10px 24px; background: var(--text-main); color: #fff;
@@ -141,6 +150,17 @@
             display: flex; align-items: center; gap: 8px; transition: all 0.3s;
         }
         .btn-add:hover { background: #000; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .btn-reset {
+             padding: 10px 16px; background: #fff; color: var(--text-sub);
+             border: 1px solid #e5e7eb; border-radius: 12px; font-weight: 600; cursor: pointer;
+             margin-left: 10px; display: none;
+        }
+        .btn-reset:hover { background: #f9fafb; color: var(--text-main); }
+
+
+        /* View Containers */
+        #tableViewContainer { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+        #galleryViewContainer { flex: 1; overflow: hidden; display: none; flex-direction: column; }
 
         .table-wrapper { flex: 1; overflow-y: auto; padding-right: 5px; }
         table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
@@ -162,6 +182,75 @@
         .btn-delete { background: #fef2f2; color: var(--danger); }
         .btn-delete:hover { background: var(--danger); color: #fff; transform: rotate(10deg) scale(1.1); }
 
+        /* Gallery Styles */
+        .gallery-tabs {
+            display: flex; gap: 10px; margin-bottom: 20px; background: #fff;
+            padding: 5px; border-radius: 14px; width: fit-content; border: 1px solid rgba(0,0,0,0.03);
+        }
+        .gallery-tab {
+            padding: 8px 24px; border-radius: 10px; font-size: 14px; font-weight: 600;
+            color: var(--text-sub); cursor: pointer; transition: all 0.3s;
+        }
+        .gallery-tab.active { background: var(--primary-light); color: var(--primary); }
+        
+        .gallery-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px; flex: 1; overflow-y: auto; padding: 5px; align-content: start;
+        }
+        
+        .gallery-item {
+            background: #fff; border-radius: 12px; overflow: hidden;
+            box-shadow: var(--shadow-card); transition: all 0.3s var(--ease-bounce);
+            position: relative; border: 2px solid transparent; cursor: default;
+            display: flex; flex-direction: column;
+        }
+        .gallery-item:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); border-color: var(--primary-light); }
+        
+        .gallery-img-box {
+            width: 100%; aspect-ratio: 16/9; overflow: hidden; background: #f3f4f6; position: relative;
+            cursor: move; 
+        }
+        .gallery-img-box img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+        .gallery-item:hover .gallery-img-box img { transform: scale(1.05); }
+        
+        /* 复制/选择遮罩 */
+        .copy-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.4);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.2s; cursor: pointer; z-index: 10;
+        }
+        .gallery-img-box:hover .copy-overlay { opacity: 1; }
+        .btn-copy {
+            background: rgba(255,255,255,0.9); color: #333; padding: 6px 14px;
+            border-radius: 20px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 5px;
+            pointer-events: none;
+        }
+
+        .gallery-info { padding: 10px; display: flex; flex-direction: column; gap: 4px; flex: 1; justify-content: space-between; }
+        .gallery-remark-input {
+            width: 100%; border: none; background: transparent; font-size: 12px; font-weight: 500;
+            color: var(--text-main); border-bottom: 1px solid transparent; padding-bottom: 2px;
+            transition: all 0.2s;
+        }
+        .gallery-remark-input:focus { border-bottom-color: var(--primary); }
+        .gallery-remark-input::placeholder { color: #ccc; font-style: italic; }
+        
+        .gallery-meta { font-size: 10px; color: #9ca3af; display: flex; justify-content: space-between; align-items: center; }
+        
+        .btn-gallery-del {
+            width: 20px; height: 20px; border-radius: 50%; background: #fee2e2; color: #ef4444;
+            display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer;
+            transition: all 0.2s; border: none;
+        }
+        .btn-gallery-del:hover { background: #ef4444; color: #fff; }
+
+        .diary-source-tag {
+            font-size: 10px; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; 
+            max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            color: var(--text-sub); display: block;
+        }
+
+        /* Modals */
         .modal-mask {
             position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
             z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s;
@@ -169,6 +258,10 @@
         }
         .modal-mask.show { opacity: 1; pointer-events: auto; }
         
+        /* 编辑器层级要低一点，如果在这个上面再开 Picker */
+        #diaryModal { z-index: 1000; }
+        #galleryPickerModal { z-index: 1100; } /* Picker 在上 */
+
         .modal-card {
             background: #fff; width: 90%; 
             max-width: 1000px; height: 85vh;
@@ -177,42 +270,15 @@
             transform: scale(0.9) translateY(20px); transition: all 0.4s var(--ease-bounce);
         }
         
-        #userModal .modal-card {
-            max-width: 750px;
-            height: auto;
-            max-height: 90vh;
+        #userModal .modal-card, #galleryAddModal .modal-card {
+            max-width: 600px; height: auto; max-height: 90vh;
         }
         
-        .user-edit-container {
-            display: flex;
-            padding: 30px;
-            gap: 30px;
-        }
-        .user-edit-left {
-            width: 200px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border-right: 1px solid #f3f4f6;
-            padding-right: 30px;
-            gap: 20px;
-        }
-        .user-edit-right {
-            flex: 1;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            align-content: start;
-        }
+        .user-edit-container { display: flex; padding: 30px; gap: 30px; }
+        .user-edit-left { width: 200px; display: flex; flex-direction: column; align-items: center; border-right: 1px solid #f3f4f6; padding-right: 30px; gap: 20px; }
+        .user-edit-right { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-content: start; }
         
-        .avatar-preview-lg {
-            width: 120px; height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid #fff;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-            background: #eef2ff;
-        }
+        .avatar-preview-lg { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); background: #eef2ff; }
         .full-width-col { grid-column: span 2; } 
 
         .modal-mask.show .modal-card { transform: scale(1) translateY(0); }
@@ -247,6 +313,11 @@
             transition: all 0.2s; border: 1px solid transparent;
         }
         .toolbar-btn:hover { background: #e5e7eb; }
+        
+        /* 特殊按钮 */
+        .btn-gallery-insert { background: #eef2ff; color: var(--primary); border: 1px solid rgba(79, 70, 229, 0.2); }
+        .btn-gallery-insert:hover { background: var(--primary); color: #fff; }
+
         .editor-content-area {
             flex: 1; display: flex; position: relative;
         }
@@ -271,6 +342,13 @@
 
         .table-avatar { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; background: #eef2ff; }
 
+        /* Picker Modal Styles */
+        .picker-header-controls { display: flex; gap: 10px; width: 100%; align-items: center; margin-bottom: 10px; padding: 0 30px; }
+        .picker-search { flex: 1; }
+        .picker-tabs { display: flex; gap: 5px; background: #f3f4f6; padding: 4px; border-radius: 8px; }
+        .picker-tab { padding: 6px 12px; font-size: 12px; font-weight: 600; color: #666; border-radius: 6px; cursor: pointer; }
+        .picker-tab.active { background: #fff; color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
         @media (max-width: 1024px) {
             body { flex-direction: column; overflow-y: auto; height: auto; }
             .sidebar { width: 100%; flex-direction: row; align-items: center; justify-content: space-between; padding: 15px 20px; }
@@ -285,9 +363,9 @@
             .full-width-col { grid-column: span 1; }
             .avatar-preview-lg { width: 80px; height: 80px; }
             .modal-card { height: auto; overflow-y: auto; }
+            .picker-header-controls { flex-direction: column; align-items: stretch; padding: 0 15px; }
         }
         
-        /* Markdown Preview Styles (保持和前台一致的小图) */
         .markdown-preview img, .markdown-preview video { max-width: 100%; max-height: 300px; width: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .markdown-preview blockquote { border-left: 4px solid #ddd; padding-left: 10px; color: #666; }
     </style>
@@ -297,6 +375,16 @@
     <div class="loading-toast" id="loadingToast">
         <div class="spinner"></div>
         <span id="loadingText">处理中...</span>
+    </div>
+
+    <div class="loading-toast" id="copyToast" style="background:var(--success);">
+        <i class="iconfont icon-check"></i>
+        <span>链接已复制!</span>
+    </div>
+
+    <div class="loading-toast" id="insertToast" style="background:var(--primary);">
+        <i class="iconfont icon-plus"></i>
+        <span>图片已插入!</span>
     </div>
 
     <div class="sidebar">
@@ -309,6 +397,10 @@
             <div class="nav-item" id="navUsers" onclick="switchView('users')">
                 <i class="iconfont icon-user"></i>
                 <span>用户管理</span>
+            </div>
+            <div class="nav-item" id="navGallery" onclick="switchView('gallery')">
+                <i class="iconfont icon-image"></i>
+                <span>图库管理</span>
             </div>
             <div class="nav-item" onclick="window.location.href='../index.html'" style="margin-top:auto;">
                 <i class="iconfont icon-logout"></i>
@@ -332,9 +424,13 @@
                 <h2 id="pageHeading">仪表盘</h2>
                 <p>这里是您的内容管理中心</p>
             </div>
+            <div class="gallery-tabs" id="galleryTabs" style="display:none;">
+                <div class="gallery-tab active" id="tabDefault" onclick="switchGalleryTab('default')">默认图库</div>
+                <div class="gallery-tab" id="tabDiary" onclick="switchGalleryTab('diary')">日记图库</div>
+            </div>
         </div>
 
-        <div class="top-stats">
+        <div class="top-stats" id="statsArea">
             <div class="stat-box">
                 <div class="stat-icon-box"><i class="iconfont icon-file-text"></i></div>
                 <div class="stat-info">
@@ -352,22 +448,37 @@
         </div>
 
         <div class="controls-area">
-            <div class="search-wrapper" id="searchWrap" style="display:none;">
+            <div class="search-wrapper" id="searchWrap" style="display:block;">
                 <i class="iconfont icon-search"></i>
-                <input type="text" class="search-input" id="searchInput" placeholder="搜索..." onkeyup="if(event.key==='Enter') renderTable()">
+                <input type="text" class="search-input" id="searchInput" placeholder="搜索..." onkeyup="handleSearch(event)">
             </div>
+            <button class="btn-reset" id="resetSearchBtn" onclick="resetSearch()">重置</button>
             <div id="spacer" style="flex:1"></div>
             
-            <button class="btn-add" onclick="openAddModal()">
+            <button class="btn-add" id="btnAddItem" onclick="openAddModal()">
                 <i class="iconfont icon-plus"></i>新建项目
+            </button>
+            <button class="btn-add" id="btnSaveOrder" style="display:none; margin-left:10px; background:var(--primary);" onclick="saveGalleryOrder()">
+                <i class="iconfont icon-save"></i>保存排序
             </button>
         </div>
 
-        <div class="table-wrapper">
-            <table id="dataTable">
-                <thead id="tableHead"></thead>
-                <tbody id="tableBody"></tbody>
-            </table>
+        <div id="tableViewContainer">
+            <div class="table-wrapper">
+                <table id="dataTable">
+                    <thead id="tableHead"></thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="galleryViewContainer">
+            <div class="gallery-grid" id="galleryGrid">
+                </div>
+            <div id="galleryEmptyState" style="text-align:center; padding: 50px; color:#999; display:none;">
+                <i class="iconfont icon-image" style="font-size:48px; display:block; margin-bottom:10px; opacity:0.5;"></i>
+                暂无图片，快去添加吧
+            </div>
         </div>
     </div>
 
@@ -392,11 +503,14 @@
                 <label class="form-label">内容 (Markdown)</label>
                 <div class="editor-wrapper">
                     <div class="editor-toolbar">
+                        <button class="toolbar-btn btn-gallery-insert" onclick="openGalleryPicker()">
+                            <i class="iconfont icon-image" style="font-size:12px; margin-right:4px;"></i>图库
+                        </button>
+                        <div style="width:1px; height:20px; background:rgba(0,0,0,0.1); margin:0 4px;"></div>
                         <button class="toolbar-btn" onclick="insertMarkdown('**', '**')" title="加粗">B</button>
                         <button class="toolbar-btn" onclick="insertMarkdown('*', '*')" title="斜体">I</button>
                         <button class="toolbar-btn" onclick="insertMarkdown('# ', '')" title="一级标题">H1</button>
                         <button class="toolbar-btn" onclick="insertMarkdown('## ', '')" title="二级标题">H2</button>
-                        <div style="width:1px; height:20px; background:rgba(0,0,0,0.1); margin:0 4px;"></div>
                         <button class="toolbar-btn" onclick="insertMarkdown('[', '](url)')" title="链接">🔗</button>
                         <button class="toolbar-btn" onclick="insertMarkdown('![](', ')')" title="图片">🖼️</button>
                         <button class="toolbar-btn" onclick="insertMarkdown('<video src=\'', '\' controls width=\'100%\'></video>')" title="视频">🎬</button>
@@ -413,6 +527,29 @@
                 <button class="btn-secondary" onclick="closeModal('diaryModal')">取消</button>
                 <button class="btn-save" onclick="saveDiary()">保存更改</button>
             </div>
+        </div>
+    </div>
+
+    <div class="modal-mask" id="galleryPickerModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title">选择图片插入</div>
+                <button class="modal-close" onclick="closeModal('galleryPickerModal')">✕</button>
+            </div>
+            
+            <div class="picker-header-controls">
+                <div class="picker-tabs">
+                    <div class="picker-tab active" id="pickerTabDefault" onclick="switchPickerTab('default')">默认图库</div>
+                    <div class="picker-tab" id="pickerTabDiary" onclick="switchPickerTab('diary')">日记图库</div>
+                </div>
+                <div class="search-wrapper picker-search">
+                    <i class="iconfont icon-search"></i>
+                    <input type="text" class="search-input" id="pickerSearchInput" placeholder="搜索备注或标题..." onkeyup="renderPickerGrid()">
+                </div>
+            </div>
+
+            <div class="gallery-grid" id="pickerGrid" style="padding: 0 30px 20px 30px;">
+                </div>
         </div>
     </div>
 
@@ -473,6 +610,26 @@
         </div>
     </div>
 
+    <div class="modal-mask" id="galleryAddModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title">添加图片到默认图库</div>
+                <button class="modal-close" onclick="closeModal('galleryAddModal')">✕</button>
+            </div>
+            <div class="user-edit-container" style="flex-direction: column; overflow-y:auto;">
+                <div class="full-width-col">
+                    <label class="form-label">图片链接 (一行一个，支持批量粘贴)</label>
+                    <textarea class="form-textarea" id="galleryInputUrls" rows="10" placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.png"></textarea>
+                    <p style="font-size:12px; color:#666; margin-top:5px;">支持 jpg, png, gif, webp 等主流格式。视频链接暂不支持预览。</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('galleryAddModal')">取消</button>
+                <button class="btn-save" onclick="batchAddGalleryImages()">批量添加</button>
+            </div>
+        </div>
+    </div>
+
 <script>
 // ====== CONFIG ======
 const GITHUB_REPO = "moguwan/moguwan.github.io";
@@ -480,14 +637,25 @@ const GITHUB_TOKEN = ["gh","p_p","VXlo0HQ","PmMx","Ic","eM","HB","uMzm","EON","L
 const USER_ISSUE_NUMBER = 11;
 const NEWS_ISSUE_NUMBER = 322;
 const COMMENT_MAPPING_ISSUE_NUMBER = 299; 
+// === 确认你的 ISSUE ID ===
+const GALLERY_ISSUE_NUMBER = 379;
 const DEFAULT_AVATAR_IMG = "https://img.wjwj.top/2026/01/26/30abddc90230cef0bc9896ca3eafd0d3.gif ";
 
 // ====== STATE ======
 let state = {
-    view: 'diaries',
+    view: 'diaries', 
+    galleryTab: 'default',
+    pickerTab: 'default',
     users: [],
     diaries: [],
+    // 默认图库列表 [{id, url, remark}]
+    defaultGallery: [], 
+    // 日记图库备注 Map { "http://url": "备注" }
+    diaryRemarks: {},
+    // 动态提取的日记图片 [{url, diaryTitle, date, remark}]
+    diaryGallery: [],
     editingId: null, 
+    sortableInstance: null
 };
 
 // ====== INIT ======
@@ -495,13 +663,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     checkAuth();
     showLoading('正在同步数据...');
     try {
-        await Promise.all([loadUsers(), loadDiaries()]);
+        await Promise.all([loadUsers(), loadDiaries(), loadGalleryData()]);
+        processDiaryImages(); 
         updateCurrentAdminUI();
         renderStats();
         switchView('diaries');
     } catch (error) {
         console.error(error);
-        alert('无法连接到 GitHub 仓库，请检查网络');
+        alert('无法连接到 GitHub 仓库，请检查网络或配置');
     } finally {
         hideLoading();
     }
@@ -534,6 +703,12 @@ function showLoading(txt) {
 }
 function hideLoading() { setTimeout(() => document.getElementById('loadingToast').classList.remove('active'), 500); }
 
+function showToast(id) {
+    const t = document.getElementById(id);
+    t.classList.add('active');
+    setTimeout(() => t.classList.remove('active'), 1500);
+}
+
 // ====== DATA LOAD ======
 async function loadUsers() {
     const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/issues/${USER_ISSUE_NUMBER}?t=${Date.now()}`, { 
@@ -565,8 +740,83 @@ async function loadDiaries() {
         state.diaries = JSON.parse(data.body);
     } catch(e) {
         state.diaries = [];
-        console.error("JSON parse error", e);
     }
+}
+
+// 加载图库数据 (兼容旧格式)
+async function loadGalleryData() {
+    try {
+        const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/issues/${GALLERY_ISSUE_NUMBER}?t=${Date.now()}`, { 
+            headers: { "Authorization": `token ${GITHUB_TOKEN}` } 
+        });
+        const data = await res.json();
+        if (!data.body) {
+            state.defaultGallery = [];
+            state.diaryRemarks = {};
+            return;
+        }
+        
+        let parsed = JSON.parse(data.body);
+        
+        // 兼容性检查：如果旧数据是数组，则升级结构
+        if (Array.isArray(parsed)) {
+            state.defaultGallery = parsed;
+            state.diaryRemarks = {};
+        } else {
+            state.defaultGallery = parsed.default || [];
+            state.diaryRemarks = parsed.diaryRemarks || {};
+        }
+    } catch (e) {
+        console.warn("图库初始化为空");
+        state.defaultGallery = [];
+        state.diaryRemarks = {};
+    }
+}
+
+// 提取所有日记图片并展平
+function processDiaryImages() {
+    let images = [];
+    // 用于去重，防止同一张图片在多篇日记显示多次导致重复
+    let seenUrls = new Set();
+
+    state.diaries.forEach(d => {
+        // Markdown图片
+        const mdRegex = /!\[(.*?)\]\((.*?)\)/g;
+        // HTML图片
+        const htmlRegex = /<img.*?src=["'](.*?)["'].*?>/g;
+        
+        let match;
+        // Markdown
+        while ((match = mdRegex.exec(d.content)) !== null) {
+            let url = match[2];
+            if (!seenUrls.has(url)) {
+                images.push({
+                    url: url,
+                    diaryTitle: d.title,
+                    date: d.date,
+                    // 优先使用存储的备注，没有则使用Markdown alt，再没有则空
+                    remark: state.diaryRemarks[url] || match[1] || '' 
+                });
+                seenUrls.add(url);
+            }
+        }
+        // HTML
+        while ((match = htmlRegex.exec(d.content)) !== null) {
+            let url = match[1];
+            if (!seenUrls.has(url)) {
+                images.push({
+                    url: url,
+                    diaryTitle: d.title,
+                    date: d.date,
+                    remark: state.diaryRemarks[url] || 'HTML'
+                });
+                seenUrls.add(url);
+            }
+        }
+    });
+    // 按时间倒序
+    images.sort((a, b) => new Date(b.date) - new Date(a.date));
+    state.diaryGallery = images;
 }
 
 // ====== VIEW LOGIC ======
@@ -578,14 +828,88 @@ function renderStats() {
 function switchView(view) {
     state.view = view;
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    document.getElementById(view === 'diaries' ? 'navDiaries' : 'navUsers').classList.add('active');
     
-    document.getElementById('pageHeading').textContent = view === 'diaries' ? '日记管理' : '用户管理';
-    document.getElementById('searchWrap').style.display = view === 'diaries' ? 'none' : 'block';
-    renderTable();
+    // UI Toggles
+    const tableContainer = document.getElementById('tableViewContainer');
+    const galleryContainer = document.getElementById('galleryViewContainer');
+    const statsArea = document.getElementById('statsArea');
+    const galleryTabs = document.getElementById('galleryTabs');
+    const btnAdd = document.getElementById('btnAddItem');
+    const btnSaveOrder = document.getElementById('btnSaveOrder');
+    const searchInput = document.getElementById('searchInput');
+
+    // Reset Search
+    searchInput.value = '';
+    searchInput.classList.remove('active');
+    document.getElementById('resetSearchBtn').style.display = 'none';
+
+    if (view === 'diaries') {
+        document.getElementById('navDiaries').classList.add('active');
+        document.getElementById('pageHeading').textContent = '日记管理';
+        document.getElementById('searchWrap').style.display = 'none';
+        tableContainer.style.display = 'flex';
+        galleryContainer.style.display = 'none';
+        statsArea.style.display = 'grid';
+        galleryTabs.style.display = 'none';
+        btnAdd.innerHTML = '<i class="iconfont icon-plus"></i>新建日记';
+        btnAdd.style.display = 'flex';
+        btnSaveOrder.style.display = 'none';
+        renderTable();
+    } 
+    else if (view === 'users') {
+        document.getElementById('navUsers').classList.add('active');
+        document.getElementById('pageHeading').textContent = '用户管理';
+        document.getElementById('searchWrap').style.display = 'block';
+        tableContainer.style.display = 'flex';
+        galleryContainer.style.display = 'none';
+        statsArea.style.display = 'grid';
+        galleryTabs.style.display = 'none';
+        btnAdd.innerHTML = '<i class="iconfont icon-plus"></i>新建用户';
+        btnAdd.style.display = 'flex';
+        btnSaveOrder.style.display = 'none';
+        renderTable();
+    }
+    else if (view === 'gallery') {
+        document.getElementById('navGallery').classList.add('active');
+        document.getElementById('pageHeading').textContent = '图库管理';
+        document.getElementById('searchWrap').style.display = 'block';
+        tableContainer.style.display = 'none';
+        galleryContainer.style.display = 'flex';
+        statsArea.style.display = 'none';
+        galleryTabs.style.display = 'flex';
+        switchGalleryTab(state.galleryTab);
+    }
 }
 
-// 辅助函数：从Markdown摘要
+function handleSearch(e) {
+    if (e.key === 'Enter') {
+        if (state.view === 'users') renderTable();
+        else if (state.view === 'gallery') renderGallery();
+    }
+    // 实时搜索
+    if (state.view === 'gallery') {
+        const val = e.target.value;
+        const resetBtn = document.getElementById('resetSearchBtn');
+        const input = document.getElementById('searchInput');
+        if (val) {
+            resetBtn.style.display = 'block';
+            input.classList.add('active');
+        } else {
+            resetBtn.style.display = 'none';
+            input.classList.remove('active');
+        }
+        renderGallery();
+    }
+}
+
+function resetSearch() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('searchInput').classList.remove('active');
+    document.getElementById('resetSearchBtn').style.display = 'none';
+    if (state.view === 'gallery') renderGallery();
+    else renderTable();
+}
+
 function getSummary(markdown) {
     return markdown
         .replace(/!\[.*?\]\(.*?\)/g, '[图片]')
@@ -617,7 +941,7 @@ function renderTable() {
             `;
             tbody.appendChild(tr);
         });
-    } else {
+    } else if (state.view === 'users') {
         const search = document.getElementById('searchInput').value.toLowerCase();
         thead.innerHTML = `<tr><th style="width:60px">头像</th><th>账号</th><th>昵称</th><th>邮箱</th><th>签名</th><th>角色</th><th style="text-align:right">操作</th></tr>`;
         
@@ -641,6 +965,262 @@ function renderTable() {
             `;
             tbody.appendChild(tr);
         });
+    }
+}
+
+// ====== GALLERY LOGIC ======
+
+function switchGalleryTab(tab) {
+    state.galleryTab = tab;
+    document.querySelectorAll('.gallery-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(tab === 'default' ? 'tabDefault' : 'tabDiary').classList.add('active');
+    
+    // Controls Visibility
+    const btnAdd = document.getElementById('btnAddItem');
+    const btnSaveOrder = document.getElementById('btnSaveOrder');
+    
+    if (tab === 'default') {
+        btnAdd.innerHTML = '<i class="iconfont icon-plus"></i>添加图片';
+        btnAdd.style.display = 'flex';
+        btnSaveOrder.style.display = 'flex';
+    } else {
+        btnAdd.style.display = 'none';
+        btnSaveOrder.style.display = 'none';
+    }
+    
+    renderGallery();
+}
+
+// 核心渲染函数：复用于主图库和选择器
+function renderGalleryGrid(containerId, dataSource, isPicker = false) {
+    const grid = document.getElementById(containerId);
+    grid.innerHTML = '';
+    
+    const searchVal = isPicker 
+        ? document.getElementById('pickerSearchInput').value.toLowerCase() 
+        : document.getElementById('searchInput').value.toLowerCase();
+
+    // 过滤逻辑
+    const items = dataSource.filter(item => {
+        if (!searchVal) return true;
+        return (item.remark || '').toLowerCase().includes(searchVal) || 
+               (item.diaryTitle || '').toLowerCase().includes(searchVal);
+    });
+
+    if (items.length === 0) {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">没有找到图片</div>';
+        return;
+    }
+
+    items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'gallery-item';
+        // 为默认图库添加 ID 方便排序
+        if (item.id) div.dataset.id = item.id;
+        
+        // 点击图片的行为
+        const clickAction = isPicker 
+            ? `insertImageFromPicker('${item.url}')` 
+            : `copyToClipboard('${item.url}')`;
+            
+        const overlayText = isPicker ? '点击插入' : '点击复制';
+        const iconClass = isPicker ? 'icon-plus' : 'icon-copy';
+
+        // 备注输入框逻辑
+        let remarkHtml = '';
+        if (!isPicker) {
+            // 在管理界面，允许编辑备注
+            // 如果是日记图库(没有id)，传 url 作为标识
+            const updateFunc = item.id 
+                ? `updateGalleryRemark(${item.id}, this.value, 'default')`
+                : `updateGalleryRemark('${item.url}', this.value, 'diary')`;
+                
+            remarkHtml = `<input type="text" class="gallery-remark-input" value="${item.remark || ''}" placeholder="添加备注..." onblur="${updateFunc}">`;
+        } else {
+            // 在选择器界面，只显示备注文本
+            remarkHtml = `<div style="font-size:12px;font-weight:500;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.remark || '无备注'}</div>`;
+        }
+
+        // 底部元数据
+        let metaHtml = '';
+        if (item.diaryTitle) {
+            metaHtml = `<span class="diary-source-tag">${item.diaryTitle}</span>`;
+        } else if (item.id && !isPicker) {
+             metaHtml = `
+                <span>ID: ${item.id}</span>
+                <button class="btn-gallery-del" onclick="deleteGalleryItem(${item.id})"><i class="iconfont icon-delete"></i></button>
+             `;
+        }
+
+        div.innerHTML = `
+            <div class="gallery-img-box" ${item.id && !isPicker ? '' : 'style="cursor:pointer;"'} onclick="${clickAction}">
+                <img src="${item.url}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x200?text=Load+Error'">
+                <div class="copy-overlay">
+                    <div class="btn-copy"><i class="iconfont ${iconClass}"></i> ${overlayText}</div>
+                </div>
+            </div>
+            <div class="gallery-info">
+                ${remarkHtml}
+                <div class="gallery-meta">${metaHtml}</div>
+            </div>
+        `;
+        grid.appendChild(div);
+    });
+
+    // 只有在主界面且为默认图库时，启用拖拽排序
+    if (!isPicker && state.galleryTab === 'default') {
+        state.sortableInstance = new Sortable(grid, {
+            animation: 150,
+            handle: '.gallery-img-box',
+            ghostClass: 'sortable-ghost'
+        });
+    }
+}
+
+function renderGallery() {
+    const dataSource = state.galleryTab === 'default' ? state.defaultGallery : state.diaryGallery;
+    const emptyState = document.getElementById('galleryEmptyState');
+    
+    // Destroy previous sortable
+    if (state.sortableInstance) {
+        state.sortableInstance.destroy();
+        state.sortableInstance = null;
+    }
+
+    if (dataSource.length === 0) {
+        document.getElementById('galleryGrid').innerHTML = '';
+        emptyState.style.display = 'block';
+    } else {
+        emptyState.style.display = 'none';
+        renderGalleryGrid('galleryGrid', dataSource, false);
+    }
+}
+
+// ====== PICKER MODAL LOGIC ======
+function openGalleryPicker() {
+    document.getElementById('galleryPickerModal').classList.add('show');
+    renderPickerGrid();
+}
+
+function switchPickerTab(tab) {
+    state.pickerTab = tab;
+    document.getElementById('pickerTabDefault').className = tab === 'default' ? 'picker-tab active' : 'picker-tab';
+    document.getElementById('pickerTabDiary').className = tab === 'diary' ? 'picker-tab active' : 'picker-tab';
+    renderPickerGrid();
+}
+
+function renderPickerGrid() {
+    const dataSource = state.pickerTab === 'default' ? state.defaultGallery : state.diaryGallery;
+    renderGalleryGrid('pickerGrid', dataSource, true);
+}
+
+function insertImageFromPicker(url) {
+    insertMarkdown(`![](${url})`, '');
+    closeModal('galleryPickerModal');
+    showToast('insertToast');
+}
+
+// ====== ACTIONS ======
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => showToast('copyToast')).catch(() => alert('复制失败'));
+}
+
+function updateGalleryRemark(idOrUrl, newRemark, type) {
+    let changed = false;
+    
+    if (type === 'default') {
+        const item = state.defaultGallery.find(i => i.id === idOrUrl);
+        if (item && item.remark !== newRemark) {
+            item.remark = newRemark;
+            changed = true;
+        }
+    } else {
+        // 日记图库
+        if (state.diaryRemarks[idOrUrl] !== newRemark) {
+            state.diaryRemarks[idOrUrl] = newRemark;
+            // 还需要更新 state.diaryGallery 里的视图数据以便搜索立刻生效
+            const dItem = state.diaryGallery.find(i => i.url === idOrUrl);
+            if (dItem) dItem.remark = newRemark;
+            changed = true;
+        }
+    }
+    
+    if (changed) {
+        syncGalleryData(true); 
+    }
+}
+
+async function batchAddGalleryImages() {
+    const text = document.getElementById('galleryInputUrls').value;
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+    if (lines.length === 0) return;
+
+    const newItems = lines.map(url => ({
+        id: Date.now() + Math.floor(Math.random() * 1000), 
+        url: url,
+        remark: ''
+    }));
+
+    state.defaultGallery = [...state.defaultGallery, ...newItems];
+    closeModal('galleryAddModal');
+    document.getElementById('galleryInputUrls').value = '';
+    renderGallery();
+    
+    showLoading('正在保存图库...');
+    await syncGalleryData();
+    hideLoading();
+}
+
+async function deleteGalleryItem(id) {
+    if(!confirm('确定从默认图库删除此图片？')) return;
+    state.defaultGallery = state.defaultGallery.filter(i => i.id !== id);
+    renderGallery();
+    await syncGalleryData(true);
+}
+
+async function saveGalleryOrder() {
+    showLoading('保存排序中...');
+    const grid = document.getElementById('galleryGrid');
+    const newOrderIds = Array.from(grid.children).map(el => parseInt(el.dataset.id));
+    
+    const sortedGallery = [];
+    newOrderIds.forEach(id => {
+        const item = state.defaultGallery.find(i => i.id === id);
+        if (item) sortedGallery.push(item);
+    });
+    
+    // 把过滤掉的加回来
+    const hiddenItems = state.defaultGallery.filter(item => !newOrderIds.includes(item.id));
+    state.defaultGallery = [...sortedGallery, ...hiddenItems];
+    
+    await syncGalleryData();
+    hideLoading();
+    alert('排序已保存');
+}
+
+// 统一保存图库数据（包含默认图库列表 和 日记备注Map）
+async function syncGalleryData(silent = false) {
+    if (GALLERY_ISSUE_NUMBER === 999) {
+        if(!silent) alert('未配置图库 Issue ID，无法保存！');
+        return;
+    }
+    
+    // 构造存储对象
+    const storageObj = {
+        default: state.defaultGallery,
+        diaryRemarks: state.diaryRemarks
+    };
+    
+    const body = JSON.stringify(storageObj);
+    
+    try {
+        await fetch(`https://api.github.com/repos/${GITHUB_REPO}/issues/${GALLERY_ISSUE_NUMBER}`, {
+            method: "PATCH", headers: { "Authorization": `token ${GITHUB_TOKEN}` }, body: JSON.stringify({ body: body })
+        });
+    } catch(e) {
+        console.error("图库保存失败", e);
+        if (!silent) alert('图库保存失败');
     }
 }
 
@@ -686,14 +1266,15 @@ function toggleEditorPreview() {
 
 function openAddModal() {
     if (state.view === 'diaries') editDiary(null);
-    else editUser(null);
+    else if (state.view === 'users') editUser(null);
+    else if (state.view === 'gallery') {
+        document.getElementById('galleryAddModal').classList.add('show');
+    }
 }
 
 function editDiary(id) {
     state.editingId = id;
     const titleEl = document.getElementById('diaryModalTitle');
-    
-    // Reset preview
     const preview = document.getElementById('dPreview');
     const textarea = document.getElementById('dContent');
     preview.classList.remove('show');
@@ -737,6 +1318,7 @@ async function saveDiary() {
         }
 
         await syncDiaries();
+        processDiaryImages(); 
         closeModal('diaryModal');
         renderStats();
         renderTable();
@@ -750,6 +1332,7 @@ async function delDiary(id) {
         state.diaries = state.diaries.filter(d => d.id !== id);
         await syncDiaries();
         await syncDeleteComments(id);
+        processDiaryImages(); 
         renderStats();
         renderTable();
     } catch(e) { console.error(e); alert('删除失败'); } finally { hideLoading(); }
@@ -770,12 +1353,10 @@ function editUser(account) {
         document.getElementById('uEmail').value = u.email;
         document.getElementById('uRole').value = u.isAdmin ? 'admin' : 'user';
         document.getElementById('uPassword').value = '';
-        
         const avatarUrl = (u.avatar && u.avatar !== '无') ? u.avatar : '';
         document.getElementById('uAvatar').value = avatarUrl;
         previewImg.src = avatarUrl || DEFAULT_AVATAR_IMG;
         document.getElementById('uSignature').value = (u.signature && u.signature !== '无') ? u.signature : '';
-
     } else {
         title.textContent = '新增用户';
         accInput.value = '';
@@ -847,9 +1428,7 @@ async function delUser(acc) {
     } catch(e) { alert('失败'); } finally { hideLoading(); }
 }
 
-// ====== SYNC FUNCTIONS ======
 async function syncDiaries() {
-    // 将日记数组转为JSON字符串保存
     const body = JSON.stringify(state.diaries);
     await fetch(`https://api.github.com/repos/${GITHUB_REPO}/issues/${NEWS_ISSUE_NUMBER}`, {
         method: "PATCH", headers: { "Authorization": `token ${GITHUB_TOKEN}` }, body: JSON.stringify({ body: body })
