@@ -36,6 +36,8 @@ body { -ms-overflow-style: none; }
   --font-serif: "Merriweather", "Georgia", serif;
   --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  /* 新增：更优雅的滚动动画曲线 */
+  --ease-scroll: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 body {
@@ -224,24 +226,43 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
 }
 .stat-item b { color: var(--text-main); font-weight: 600; margin-left: 4px; }
 .update-log { display: none; } 
+/* 优化后的卡片样式 
+   增加了 scale 和 translateY 的组合，配合 ease-scroll 曲线
+*/
 .news-card {
   pointer-events: auto;
   background: var(--bg-card);
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
-  transition: all 0.4s var(--ease-out-back);
-  opacity: 0;
-  transform: translateY(40px);
   cursor: pointer;
   position: relative;
   border: 1px solid rgba(0,0,0,0.02);
   display: flex;
   flex-direction: column;
   -webkit-tap-highlight-color: transparent;
+  
+  /* 初始状态：透明、下沉、微缩 */
+  opacity: 0;
+  transform: translateY(60px) scale(0.96);
+  /* 统一过渡效果，时间稍长以显柔和 */
+  transition: opacity 0.7s var(--ease-scroll), 
+              transform 0.7s var(--ease-scroll),
+              box-shadow 0.3s ease;
 }
-.news-card.visible { opacity: 1; transform: translateY(0); }
-.main-wrapper.vertical-mode .news-card:hover { transform: translateY(-5px) scale(1.01); box-shadow: 0 15px 30px rgba(0,0,0,0.08); }
+
+/* 当卡片进入视野时，添加此 class */
+.news-card.visible { 
+  opacity: 1; 
+  transform: translateY(0) scale(1); 
+}
+
+.main-wrapper.vertical-mode .news-card:hover { 
+    transform: translateY(-5px) scale(1.02); /* hover时轻微上浮放大，覆盖掉默认状态 */
+    box-shadow: 0 15px 30px rgba(0,0,0,0.08); 
+    z-index: 10;
+}
+
 .news-card * {
   pointer-events: none !important;
   user-select: none !important;
@@ -578,7 +599,7 @@ body.has-custom-bg::before { background: rgba(255, 255, 255, 0.6); backdrop-filt
   <div class="nav-logo">MoGuOne</div>
   
   <div class="nav-right-group">
-	  <div class="icon-btn" id="topSearchBtn" title="Go to Search">
+      <div class="icon-btn" id="topSearchBtn" title="Go to Search">
         <svg viewBox="0 0 24 24" fill="#333"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
       </div>
       <div class="icon-btn" id="layoutBtn" title="Change Layout">
@@ -737,6 +758,27 @@ let lbState = { scale: 1, x: 0, y: 0, isDragging: false, startX: 0, startY: 0 };
 // 评论回复全局变量
 let replyTarget = null; // {name, isSub}
 
+// --- 新增：滚动观察器 (用于渐入渐出动画) ---
+const cardObserver = new IntersectionObserver((entries) => {
+    // 横向模式下不应用此逻辑，避免冲突
+    if (state.isHorizontal) return;
+
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            // 进入视野：添加 visible 类 (淡入上浮)
+            entry.target.classList.add('visible');
+        } else {
+            // 离开视野：移除 visible 类 (淡出下沉 - 也就是恢复到 CSS 中的初始状态)
+            // 如果希望只展示一次动画，去掉这个 else 分支即可。但为了"渐入渐出"，保留它。
+            entry.target.classList.remove('visible');
+        }
+    });
+}, {
+    root: null,
+    threshold: 0.1, // 只要露出来 10% 就开始动画
+    rootMargin: "0px 0px -50px 0px" // 底部收缩一点，让淡出效果在元素彻底离开前发生，更自然
+});
+
 function init() {
   const loader = document.getElementById('loader');
   setTimeout(() => loader.classList.add('loaded'), 800);
@@ -890,8 +932,11 @@ function toggleLayout() {
             window.removeEventListener('wheel', handleWheelScroll);
             cancelAnimationFrame(animationFrameId);
             quickNav.classList.remove('show');
+            // 垂直模式下清除手动设置的样式，改用 CSS 和 Observer 控制
             document.querySelectorAll('.news-card').forEach(c => {
                 c.style.transform = ''; c.style.opacity = ''; c.style.zIndex = '';
+                // 重新绑定观察器
+                cardObserver.observe(c);
             });
         }
         window.scrollTo(0,0);
@@ -901,12 +946,6 @@ function toggleLayout() {
         updateProgress();
         requestAnimationFrame(() => {
             container.classList.remove('switching-hidden');
-            if(!state.isHorizontal) {
-                document.querySelectorAll('.news-card').forEach((c, i) => {
-                    c.classList.remove('visible');
-                    setTimeout(() => c.classList.add('visible'), i * 50);
-                });
-            }
         });
     }, 400);
 }
@@ -1158,13 +1197,17 @@ function doSearch() {
   const container = document.getElementById('newsContainer');
   const filtered = state.news.filter(item => item.title.toLowerCase().includes(val) || item.content.toLowerCase().includes(val));
   
+  // 清除旧的观察对象
+  cardObserver.disconnect();
+
   container.innerHTML = filtered.map((item, idx) => {
     const coverImg = extractFirstImage(item.content);
     const coverVideo = extractFirstVideo(item.content);
     const plainText = stripMarkdown(item.content);
 
+    // 移除了 inline style 中的 animation-delay，改用 Observer 控制
     return `
-      <div class="news-card" data-news-id="${item.id}" onclick="openModal(${item.id})" style="animation-delay:${idx * 0.1}s">
+      <div class="news-card" data-news-id="${item.id}" onclick="openModal(${item.id})">
       ${coverImg ? `
         <div class="news-cover-box">
            <img src="${coverImg}" loading="lazy">
@@ -1187,16 +1230,19 @@ function doSearch() {
     `;
   }).join('');  
   
-  setTimeout(() => { 
-      document.querySelectorAll('.news-card').forEach(el => el.classList.add('visible'));
-      if(state.isHorizontal) {
+  // 重新绑定观察器
+  const cards = document.querySelectorAll('.news-card');
+  cards.forEach(card => cardObserver.observe(card));
+
+  if(state.isHorizontal) {
+      setTimeout(() => {
           const wrapper = document.getElementById('mainWrapper');
           scrollTarget = wrapper.scrollLeft;
           scrollCurrent = wrapper.scrollLeft;
           animateCardsInView();
           updateProgress();
-      }
-  }, 50);
+      }, 50);
+  }
   
   if(filtered.length === 0) container.innerHTML = '<div style="text-align:center;width:100%;color:#999;padding:60px;">Nothing found in the journal.</div>';
 }
