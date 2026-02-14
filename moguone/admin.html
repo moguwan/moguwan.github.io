@@ -278,7 +278,45 @@
         
         .markdown-preview img, .markdown-preview video { max-width: 100%; max-height: 300px; width: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .markdown-preview blockquote { border-left: 4px solid #ddd; padding-left: 10px; color: #666; }
-    </style>
+/* ====== 修复滚动条问题的补丁 ====== */
+
+/* 1. 修复“图库选择”窗口 (galleryPickerModal) 看不到下面图片的问题 */
+#galleryPickerModal .modal-card {
+    display: flex;
+    flex-direction: column;
+}
+
+#pickerGrid {
+    flex: 1;            /* 让图片网格占满弹窗中间的剩余空间 */
+    overflow-y: auto;   /* 内容过多时显示垂直滚动条 */
+    min-height: 0;      /* 防止 flex 子元素溢出 */
+    padding-bottom: 20px;
+    
+    /* ====== 新增的强制修复代码 ====== */
+    display: grid;                /* 确保它保持网格布局 */
+    width: 100%;                  /* 确保宽度撑开 */
+    grid-auto-rows: max-content;  /* 关键！强制每一行的高度由内容决定，严禁被压缩变扁 */
+    align-content: start;         /* 内容从顶部开始排列，不要分散对齐 */
+}
+
+/* 2. 修复“添加图片”窗口 (galleryAddModal) 无法滚动的问题 */
+#galleryAddModal .user-edit-container {
+    flex: 1;            /* 占满空间 */
+    min-height: 0;      /* 配合 overflow 使用 */
+    /* 原有内联样式已有 overflow-y:auto，加了 flex:1 才会生效 */
+}
+
+/* 3. 修复“编辑日记”窗口 (diaryModal) 内容过长无法滚动的问题 */
+.editor-layout {
+    overflow-y: auto !important; /* 强制覆盖原来的 hidden，允许整体滚动 */
+}
+
+/* 优化：让 Markdown 编辑器的高度自适应，防止双重滚动条 */
+.editor-wrapper {
+    min-height: 400px; /* 给编辑器一个最小高度 */
+    flex-shrink: 0;    /* 防止被压缩 */
+}
+	</style>
 </head>
 <body>
 
