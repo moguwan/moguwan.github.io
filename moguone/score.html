@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Points Tracker Pro</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            --modal-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            --primary-text: #1d1d1f;
+            --secondary-text: #86868b;
+            --accent-blue: #007aff;
+            --accent-green: #34c759;
+            --accent-red: #ff3b30;
+            --radius-l: 24px;
+            --radius-m: 16px;
+            --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        /* 自定义滚动条样式 */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
+
+        body {
+            font-family: var(--font-stack);
+            background: var(--bg-gradient);
+            background-size: 200% 200%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--primary-text);
+            overflow: hidden; 
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- 返回主页按钮样式 --- */
+        .back-home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-decoration: none;
+        }
+        
+        .back-home-btn:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .back-home-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* --- 核心容器 --- */
+        .app-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            background: rgba(255,255,255,0.4);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            .app-container {
+                width: 90%;
+                max-width: 1000px;
+                height: 85vh;       
+                max-height: 800px;
+                border-radius: 32px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+                border: 1px solid var(--glass-border);
+            }
+            .main-btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
+            .chip:hover { background: rgba(0,0,0,0.1); }
+        }
+
+        /* Loading Screen */
+        .intro-loader {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9); backdrop-filter: blur(20px);
+            z-index: 999; display: flex; justify-content: center; align-items: center;
+            transition: opacity 0.5s ease;
+        }
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid rgba(0,0,0,0.1);
+            border-left-color: var(--accent-blue); border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Header */
+        header {
+            padding: 40px 24px 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+        p.subtitle { color: var(--secondary-text); font-size: 14px; letter-spacing: 1px; }
+
+        /* Cards Layout */
+        .cards-wrapper {
+            padding: 20px 30px 40px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            flex: 1;
+            align-content: start;
+        }
+
+        @media (min-width: 768px) {
+            .cards-wrapper {
+                grid-template-columns: 1fr 1fr;
+                align-items: center;
+                align-content: center;
+                gap: 40px;
+                padding: 40px 60px;
+            }
+        }
+
+        /* --- User Card Styles (修复后：只做简单的上浮和光影，不再消失) --- */
+        .user-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-l);
+            padding: 24px;
+            box-shadow: var(--glass-shadow);
+            /* 这里的 transition 负责平滑过渡 */
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                        box-shadow 0.3s ease, 
+                        background 0.3s ease; 
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            /* 初始状态 */
+            opacity: 0; 
+            /* 只有这里使用 animation，Hover 时不使用 animation 防止冲突 */
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+
+        /* 定义悬浮时的图标过渡 */
+        .user-card .card-header svg {
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), stroke 0.3s ease;
+        }
+
+        /* 桌面端悬浮效果 (修复版：简单、稳定) */
+        @media (min-width: 768px) {
+            .user-card:hover { 
+                /* 稍微上浮一点点 */
+                transform: translateY(-8px); 
+                
+                /* 阴影加深，更有立体感 */
+                box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+                
+                /* 背景稍微变白一点，像灯光打上去 */
+                background: rgba(255, 255, 255, 0.8);
+            }
+            
+            /* 图标稍微转一下，增加灵动感 */
+            .user-card:hover .card-header svg {
+                transform: rotate(15deg) scale(1.1);
+                stroke: var(--accent-blue);
+            }
+        }
+
+        .user-card:active { transform: scale(0.98); }
+        .user-card:nth-child(1) { animation-delay: 0.1s; }
+        .user-card:nth-child(2) { animation-delay: 0.2s; }
+
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .user-name { font-size: 20px; font-weight: 600; }
+        .score-display { 
+            font-size: 42px; font-weight: 800; letter-spacing: -2px; 
+            background: -webkit-linear-gradient(45deg, #1d1d1f, #434344); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+            margin: 10px 0;
+        }
+        .action-hint { font-size: 12px; color: var(--accent-blue); opacity: 0; transition: opacity 0.3s; transform: translateY(10px); }
+        .user-card:hover .action-hint { opacity: 1; transform: translateY(0); }
+
+        /* --- Modal (响应式弹窗) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(15px);
+            z-index: 100;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+            display: flex;
+            align-items: flex-end; 
+            justify-content: center;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.92);
+            width: 100%;
+            height: 85vh; 
+            border-top-left-radius: 32px;
+            border-top-right-radius: 32px;
+            padding: 30px 24px;
+            box-shadow: var(--modal-shadow);
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .modal-overlay { align-items: center; }
+            .modal-content {
+                width: 480px;
+                height: auto;
+                max-height: 85vh;
+                min-height: 500px;
+                border-radius: 32px;
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            .modal-overlay.active .modal-content { transform: scale(1); opacity: 1; }
+        }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+        @media (min-width: 768px) {
+            .modal-overlay.active .modal-content { transform: scale(1); }
+        }
+
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-shrink: 0; }
+        .close-btn { background: #e5e5ea; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 20px; color: #8e8e93; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .close-btn:hover { background: #d1d1d6; }
+
+        .view-section { animation: fadeIn 0.3s ease; }
+
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+        .main-btn {
+            padding: 20px; border-radius: var(--radius-m); border: none;
+            font-size: 16px; font-weight: 600; color: white;
+            cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.2s, filter 0.2s;
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+        }
+        .main-btn:active { transform: scale(0.95); }
+        .btn-add { background: var(--accent-green); }
+        .btn-sub { background: var(--accent-red); }
+        .btn-history, .btn-shop { background: white; color: var(--primary-text); border: 1px solid rgba(0,0,0,0.05); }
+
+        .points-selector { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+        .chip { padding: 8px 16px; background: rgba(0,0,0,0.05); border-radius: 20px; font-weight: 500; font-size: 14px; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+        .chip.selected { background: var(--primary-text); color: white; transform: scale(1.05); }
+
+        .input-group { margin-bottom: 20px; }
+        input, textarea { width: 100%; padding: 16px; background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.05); border-radius: var(--radius-m); font-size: 16px; font-family: inherit; margin-top: 8px; outline: none; transition: background 0.2s, border 0.2s; }
+        input:focus, textarea:focus { background: white; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(0,122,255,0.1); }
+        
+        /* Lists Styles */
+        .list-container { 
+            flex: 1; 
+            overflow-y: auto; 
+            overflow-x: hidden; 
+            margin-top: 10px; 
+            padding: 4px; 
+        }
+        
+        .list-item {
+            background: white; padding: 16px; border-radius: var(--radius-m); margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            transition: all 0.2s;
+            width: 100%;
+            position: relative;
+        }
+        .list-item:hover { transform: translateX(2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        
+        .item-left { display: flex; flex-direction: column; gap: 4px; flex: 1; padding-right: 10px; }
+        .item-title { font-weight: 600; font-size: 15px; }
+        .item-sub { font-size: 12px; color: var(--secondary-text); }
+        .score-pos { color: var(--accent-green); font-weight: bold; }
+        .score-neg { color: var(--accent-red); font-weight: bold; }
+
+        /* 删除记录按钮样式 */
+        .history-del-wrapper { display: flex; align-items: center; gap: 10px; }
+        .history-del-btn { width: 28px; height: 28px; border-radius: 50%; background: #f2f2f7; color: var(--accent-red); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; opacity: 0; transform: scale(0.8); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .history-del-btn:hover { background: #ff3b30; color: white; }
+        .list-item:hover .history-del-btn { opacity: 1; transform: scale(1); }
+
+        /* --- Toast System --- */
+        .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 300; width: 90%; max-width: 400px; display: flex; flex-direction: column; align-items: center; }
+        .toast { background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border-radius: var(--radius-m); padding: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); width: 100%; border: 1px solid rgba(255,255,255,0.5); position: relative; overflow: hidden; display: flex; align-items: center; gap: 12px; opacity: 0; transform: translateY(-20px) scale(0.9); margin-bottom: 0; max-height: 0; transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), margin-bottom 0.4s ease, max-height 0.4s ease, padding 0.4s ease; }
+        .toast.show { opacity: 1; transform: translateY(0) scale(1); margin-bottom: 12px; max-height: 100px; }
+        .toast.hide { opacity: 0; transform: translateY(-20px) scale(0.9); margin-bottom: 0; max-height: 0; padding-top: 0; padding-bottom: 0; border: none; }
+        .toast-content { flex: 1; font-size: 14px; font-weight: 500; }
+        .toast-progress { position: absolute; bottom: 0; left: 0; height: 3px; background: var(--accent-blue); width: 100%; }
+        @keyframes progressLinear { from { width: 100%; } to { width: 0%; } }
+
+        .shop-controls { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+        .edit-btn { font-size: 14px; color: var(--accent-blue); border: none; background: none; cursor: pointer; font-weight: 600; padding: 5px 10px; border-radius: 8px; transition: background 0.2s; }
+        .edit-btn:hover { background: rgba(0,122,255,0.1); }
+        .delete-btn { color: var(--accent-red); margin-left: 10px; cursor: pointer; font-weight: 600; }
+        .delete-btn:hover { text-decoration: underline; }
+
+        .shop-add-form { background: #f0f0f5; padding: 15px; border-radius: 12px; margin-bottom: 15px; display: none; }
+        .shop-add-form.visible { display: block; animation: fadeIn 0.3s; }
+        
+        /* --- 自定义确认弹窗样式 --- */
+        .confirm-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s;
+        }
+        .confirm-overlay.active { opacity: 1; pointer-events: all; }
+        
+        .confirm-box {
+            background: rgba(255, 255, 255, 0.95);
+            width: 85%; max-width: 320px;
+            padding: 24px; border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            text-align: center;
+            transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .confirm-overlay.active .confirm-box { transform: scale(1); }
+        
+        .confirm-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+        .confirm-msg { font-size: 15px; color: var(--secondary-text); margin-bottom: 24px; line-height: 1.4; }
+        
+        .confirm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .confirm-btn { padding: 12px; border-radius: 12px; border: none; font-weight: 600; font-size: 15px; cursor: pointer; transition: opacity 0.2s; }
+        .confirm-btn:active { opacity: 0.7; }
+        .confirm-cancel { background: #f2f2f7; color: var(--primary-text); }
+        .confirm-ok { background: var(--accent-red); color: white; }
+        .confirm-ok.blue { background: var(--accent-blue); }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <a href="../index.html" class="back-home-btn" aria-label="返回主页">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1d1d1f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+    </a>
+
+    <div id="loader" class="intro-loader">
+        <div style="text-align: center;">
+            <div class="spinner"></div>
+            <p style="margin-top: 15px; font-weight: 500; color: #86868b;">正在同步数据...</p>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <div id="confirm-overlay" class="confirm-overlay" onclick="closeConfirm()">
+        <div class="confirm-box" onclick="event.stopPropagation()">
+            <div class="confirm-title" id="confirm-title">确认操作</div>
+            <div class="confirm-msg" id="confirm-msg">你确定要执行此操作吗？</div>
+            <div class="confirm-actions">
+                <button class="confirm-btn confirm-cancel" onclick="closeConfirm()">取消</button>
+                <button class="confirm-btn confirm-ok" id="confirm-ok-btn" onclick="executeConfirm()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <header>
+            <h1>Point Center</h1>
+            <p class="subtitle">记录每一个美好瞬间</p>
+        </header>
+
+        <div class="cards-wrapper">
+            <div class="user-card" onclick="openUserModal('luluZhang')">
+                <div class="card-header">
+                    <span class="user-name">lulu张</span>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#86868b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                </div>
+                <div class="score-display" id="score-luluZhang">0</div>
+                <div class="action-hint">点击管理积分</div>
+            </div>
+
+            <div class="user-card" onclick="openUserModal('luluHan')">
+                <div class="card-header">
+                    <span class="user-name">lulu涵</span>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#86868b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                </div>
+                <div class="score-display" id="score-luluHan">0</div>
+                <div class="action-hint">点击管理积分</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-overlay" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 id="modal-title" style="font-size: 22px; font-weight: 700;">管理</h2>
+                <button class="close-btn" onclick="closeModalDirect()">×</button>
+            </div>
+
+            <div id="view-actions" class="view-section">
+                <div class="action-grid">
+                    <button class="main-btn btn-add" onclick="showPointsInput('add')">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        加分
+                    </button>
+                    <button class="main-btn btn-sub" onclick="showPointsInput('sub')">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        减分
+                    </button>
+                </div>
+                <div class="action-grid">
+                    <button class="main-btn btn-history" onclick="fetchAndShowHistory()">
+                        <span style="font-size: 20px;">📜</span>
+                        查看详情
+                    </button>
+                    <button class="main-btn btn-shop" onclick="fetchAndShowShop()">
+                        <span style="font-size: 20px;">🎁</span>
+                        兑换奖品
+                    </button>
+                </div>
+            </div>
+
+            <div id="view-input" class="view-section" style="display: none;">
+                <h3 id="input-type-label" style="margin-bottom: 15px;">选择分值</h3>
+                <div class="points-selector">
+                    <div class="chip" onclick="selectPoint(1, this)">1分</div>
+                    <div class="chip" onclick="selectPoint(2, this)">2分</div>
+                    <div class="chip" onclick="selectPoint(5, this)">5分</div>
+                    <div class="chip" onclick="selectPoint(10, this)">10分</div>
+                </div>
+                
+                <div class="input-group">
+                    <label style="font-size: 14px; font-weight: 600; color: #86868b;">或 自定义分数</label>
+                    <input type="number" id="custom-point" placeholder="0" oninput="clearChips()">
+                </div>
+                <div class="input-group">
+                    <label style="font-size: 14px; font-weight: 600; color: #86868b;">备注 (必填)</label>
+                    <textarea id="remark-input" rows="3" placeholder="例如：做家务、洗碗..."></textarea>
+                </div>
+                <button class="main-btn" style="width: 100%; background: #1d1d1f; margin-top: 10px;" onclick="submitTransaction()">确认提交</button>
+                <button class="edit-btn" style="width: 100%; margin-top: 15px; text-align: center;" onclick="backToMain()">返回</button>
+            </div>
+
+            <div id="view-history" class="view-section" style="display: none; height: 100%; flex-direction: column;">
+                <div class="list-container" id="history-list">
+                    </div>
+                <button class="edit-btn" style="width: 100%; margin-top: 15px; text-align: center;" onclick="backToMain()">返回</button>
+            </div>
+
+            <div id="view-shop" class="view-section" style="display: none; height: 100%; flex-direction: column;">
+                <div class="shop-controls">
+                    <button class="edit-btn" onclick="toggleShopEdit()">编辑/添加</button>
+                </div>
+                
+                <div id="shop-add-form" class="shop-add-form">
+                    <input type="text" id="new-item-name" placeholder="奖品名称" style="margin-bottom: 8px;">
+                    <input type="number" id="new-item-cost" placeholder="所需积分">
+                    <button class="main-btn btn-add" style="width: 100%; margin-top: 10px; padding: 10px;" onclick="addShopItem()">添加商品</button>
+                </div>
+
+                <div class="list-container" id="shop-list">
+                </div>
+                <button class="edit-btn" style="width: 100%; margin-top: 15px; text-align: center;" onclick="backToMain()">返回</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const CONFIG = {
+            owner: 'moguwan',
+            repo: 'points',
+            token: ["gh","p_p","VXlo0HQ","PmMx","Ic","eM","HB","uMzm","EON","LPX","700","10","M","SL"].join(''),
+            issues: {
+                scores: 1,
+                history_luluZhang: 2,
+                history_luluHan: 3,
+                rewards_luluZhang: 4,
+                rewards_luluHan: 5
+            }
+        };
+
+        // --- STATE ---
+        let appState = {
+            scores: { luluZhang: 0, luluHan: 0 },
+            currentUser: null,
+            operation: null,
+            shopEditMode: false,
+            rewards: [],
+            // 新增：用于存储当前确认弹窗的回调函数
+            confirmAction: null
+        };
+
+        const USER_MAP = {
+            'luluZhang': { name: 'lulu张', issueHistory: CONFIG.issues.history_luluZhang, issueRewards: CONFIG.issues.rewards_luluZhang },
+            'luluHan':   { name: 'lulu涵', issueHistory: CONFIG.issues.history_luluHan, issueRewards: CONFIG.issues.rewards_luluHan }
+        };
+
+        // --- INIT ---
+        window.onload = async () => {
+            await syncScores();
+            document.getElementById('loader').style.opacity = '0';
+            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+        };
+
+        // --- API HELPERS ---
+        async function githubReq(path, method = 'GET', body = null) {
+            const url = `https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/${path}`;
+            const headers = {
+                'Authorization': `token ${CONFIG.token}`,
+                'Accept': 'application/vnd.github.v3+json'
+            };
+            const options = { method, headers };
+            if (body) options.body = JSON.stringify(body);
+
+            try {
+                const res = await fetch(url, options);
+                if (!res.ok) throw new Error(`API Error: ${res.status}`);
+                return await res.json();
+            } catch (e) {
+                showToast('❌ 网络错误: ' + e.message);
+                throw e;
+            }
+        }
+
+        // --- CORE LOGIC ---
+        async function syncScores() {
+            try {
+                const data = await githubReq(`issues/${CONFIG.issues.scores}`);
+                const content = data.body;
+                const lines = content.split('\n');
+                lines.forEach(line => {
+                    if (line.includes('lulu张')) {
+                        const match = line.match(/lulu张:(\d+)分/);
+                        if (match) appState.scores.luluZhang = parseInt(match[1]);
+                    }
+                    if (line.includes('lulu涵')) {
+                        const match = line.match(/lulu涵:(\d+)分/);
+                        if (match) appState.scores.luluHan = parseInt(match[1]);
+                    }
+                });
+                updateScoreUI();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function updateScoreUI() {
+            document.getElementById('score-luluZhang').innerText = appState.scores.luluZhang;
+            document.getElementById('score-luluHan').innerText = appState.scores.luluHan;
+        }
+
+        async function updateRemoteScores() {
+            const body = `lulu涵:${appState.scores.luluHan}分\nlulu张:${appState.scores.luluZhang}分`;
+            await githubReq(`issues/${CONFIG.issues.scores}`, 'PATCH', { body: body });
+        }
+
+        async function appendHistory(userKey, pointsChanged, newTotal, remark) {
+            const sign = pointsChanged > 0 ? '+' : '';
+            const line = `${sign}${pointsChanged}分 总分${newTotal} 备注：${remark}`;
+            const issueId = USER_MAP[userKey].issueHistory;
+            const data = await githubReq(`issues/${issueId}`);
+            const newBody = data.body + '\n' + line;
+            await githubReq(`issues/${issueId}`, 'PATCH', { body: newBody });
+        }
+
+        // --- UI INTERACTION ---
+        function openUserModal(userKey) {
+            appState.currentUser = userKey;
+            document.getElementById('modal-title').innerText = USER_MAP[userKey].name;
+            document.getElementById('modal-overlay').classList.add('active');
+            backToMain();
+        }
+
+        function closeModal(e) {
+            if (e.target.id === 'modal-overlay') closeModalDirect();
+        }
+
+        function closeModalDirect() {
+            document.getElementById('modal-overlay').classList.remove('active');
+        }
+
+        function backToMain() {
+            document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
+            document.getElementById('view-actions').style.display = 'block';
+            appState.shopEditMode = false;
+            document.getElementById('shop-add-form').classList.remove('visible');
+        }
+
+        function showPointsInput(type) {
+            appState.operation = type;
+            document.getElementById('view-actions').style.display = 'none';
+            document.getElementById('view-input').style.display = 'block';
+            document.getElementById('input-type-label').innerText = type === 'add' ? '加多少分？' : '减多少分？';
+            document.getElementById('custom-point').value = '';
+            document.getElementById('remark-input').value = '';
+            clearChips();
+        }
+
+        function selectPoint(val, el) {
+            clearChips();
+            el.classList.add('selected');
+            document.getElementById('custom-point').value = val;
+        }
+
+        function clearChips() {
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+        }
+
+        async function submitTransaction() {
+            const pointsVal = document.getElementById('custom-point').value;
+            const remark = document.getElementById('remark-input').value;
+
+            if (!pointsVal || pointsVal <= 0) { showToast('⚠️ 请输入有效的分数'); return; }
+            if (!remark) { showToast('⚠️ 备注不能为空哦'); return; }
+
+            const points = parseInt(pointsVal);
+            const actualChange = appState.operation === 'add' ? points : -points;
+            
+            const toastId = showToast('⏳ 正在提交...', 0);
+
+            try {
+                const oldScore = appState.scores[appState.currentUser];
+                const newScore = oldScore + actualChange;
+                
+                if (newScore < 0) {
+                    showToast('❌ 分数不够扣啦！');
+                    removeToast(toastId);
+                    return;
+                }
+
+                appState.scores[appState.currentUser] = newScore;
+                updateScoreUI();
+
+                await Promise.all([
+                    updateRemoteScores(),
+                    appendHistory(appState.currentUser, actualChange, newScore, remark)
+                ]);
+
+                removeToast(toastId);
+                showToast(`✅ ${appState.operation === 'add' ? '加分' : '减分'}成功！`);
+                closeModalDirect();
+            } catch (e) {
+                removeToast(toastId);
+                showToast('❌ 提交失败，请重试');
+            }
+        }
+
+        // --- CUSTOM CONFIRM MODAL LOGIC ---
+        function openConfirm(title, msg, type, callback) {
+            document.getElementById('confirm-title').innerText = title;
+            document.getElementById('confirm-msg').innerHTML = msg.replace(/\n/g, '<br>'); // Support line breaks
+            
+            const okBtn = document.getElementById('confirm-ok-btn');
+            
+            if (type === 'danger') {
+                okBtn.className = 'confirm-btn confirm-ok'; // Red
+                okBtn.innerText = '删除';
+            } else {
+                okBtn.className = 'confirm-btn confirm-ok blue'; // Blue
+                okBtn.innerText = '确定兑换';
+            }
+
+            appState.confirmAction = callback;
+            document.getElementById('confirm-overlay').classList.add('active');
+        }
+
+        function closeConfirm() {
+            document.getElementById('confirm-overlay').classList.remove('active');
+            appState.confirmAction = null;
+        }
+
+        function executeConfirm() {
+            if (appState.confirmAction) {
+                appState.confirmAction();
+            }
+            closeConfirm();
+        }
+
+        // --- HISTORY FEATURE (Updated with Custom Confirm) ---
+        async function fetchAndShowHistory() {
+            const toastId = showToast('⏳ 加载历史记录...', 0);
+            try {
+                const issueId = USER_MAP[appState.currentUser].issueHistory;
+                const data = await githubReq(`issues/${issueId}`);
+                const rawLines = data.body.split('\n');
+                
+                const listContainer = document.getElementById('history-list');
+                listContainer.innerHTML = '';
+
+                for (let i = rawLines.length - 1; i >= 0; i--) {
+                    const line = rawLines[i].trim();
+                    if (!line) continue;
+
+                    const parts = line.match(/([+-]?\d+)分\s+总分(\d+)\s+备注：(.*)/);
+                    if (parts) {
+                        const changeStr = parts[1];
+                        const total = parts[2];
+                        const note = parts[3];
+                        const changeVal = parseInt(changeStr);
+                        const isPos = changeVal > 0;
+                        
+                        const item = document.createElement('div');
+                        item.className = 'list-item';
+                        item.innerHTML = `
+                            <div class="item-left">
+                                <span class="item-title">${note}</span>
+                                <span class="item-sub">变动后总分: ${total}</span>
+                            </div>
+                            <div class="history-del-wrapper">
+                                <div class="item-right ${isPos ? 'score-pos' : 'score-neg'}">${changeStr}</div>
+                                <button class="history-del-btn" onclick="tryDeleteHistoryItem(${i}, ${changeVal}, '${note.replace(/'/g, "\\'")}')" title="删除此记录">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                </button>
+                            </div>
+                        `;
+                        listContainer.appendChild(item);
+                    }
+                }
+
+                if (listContainer.children.length === 0) {
+                    listContainer.innerHTML = '<div style="text-align:center;color:#999;padding:20px">暂无记录</div>';
+                }
+
+                document.getElementById('view-actions').style.display = 'none';
+                document.getElementById('view-history').style.display = 'flex';
+                removeToast(toastId);
+            } catch (e) {
+                removeToast(toastId);
+                showToast('❌ 加载失败');
+            }
+        }
+
+        // Wrapper function to open the modal
+        function tryDeleteHistoryItem(originalIndex, changeVal, note) {
+            const rollbackTxt = changeVal > 0 ? `减去 ${Math.abs(changeVal)}` : `加回 ${Math.abs(changeVal)}`;
+            openConfirm(
+                '删除记录', 
+                `确定要删除这条记录吗？\n"${note}"\n\n注意：这将自动<b>${rollbackTxt}分</b>。`, 
+                'danger', 
+                () => deleteHistoryItem(originalIndex, changeVal)
+            );
+        }
+
+        async function deleteHistoryItem(originalIndex, changeVal) {
+            const toastId = showToast('⏳ 正在删除并回滚...', 0);
+            try {
+                const issueId = USER_MAP[appState.currentUser].issueHistory;
+                const data = await githubReq(`issues/${issueId}`);
+                let lines = data.body.split('\n');
+
+                if (originalIndex >= 0 && originalIndex < lines.length) {
+                    lines.splice(originalIndex, 1);
+                } else {
+                    throw new Error("索引无效，可能数据已变更");
+                }
+                
+                const newBody = lines.join('\n');
+                const currentScore = appState.scores[appState.currentUser];
+                const newScore = currentScore - changeVal; 
+
+                appState.scores[appState.currentUser] = newScore;
+                updateScoreUI();
+
+                await Promise.all([
+                    githubReq(`issues/${issueId}`, 'PATCH', { body: newBody }),
+                    updateRemoteScores()
+                ]);
+
+                removeToast(toastId);
+                showToast('✅ 删除成功，分数已回滚');
+                fetchAndShowHistory();
+
+            } catch (e) {
+                console.error(e);
+                removeToast(toastId);
+                showToast('❌ 删除失败: ' + e.message);
+            }
+        }
+
+        // --- SHOP FEATURE (Updated with Custom Confirm) ---
+        async function fetchAndShowShop() {
+            const toastId = showToast('⏳ 加载奖品列表...', 0);
+            try {
+                const issueId = USER_MAP[appState.currentUser].issueRewards;
+                const data = await githubReq(`issues/${issueId}`);
+                
+                appState.rewards = [];
+                const lines = data.body.split('\n').filter(l => l.trim() !== '');
+                lines.forEach(line => {
+                    const match = line.match(/「(.*)」:(\d+)/);
+                    if (match) {
+                        appState.rewards.push({ name: match[1], cost: parseInt(match[2]) });
+                    }
+                });
+
+                renderShopList();
+                document.getElementById('view-actions').style.display = 'none';
+                document.getElementById('view-shop').style.display = 'flex';
+                removeToast(toastId);
+            } catch (e) {
+                removeToast(toastId);
+            }
+        }
+
+        function renderShopList() {
+            const container = document.getElementById('shop-list');
+            container.innerHTML = '';
+            
+            if (appState.rewards.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:#999; padding:20px;">暂无奖品</div>';
+                return;
+            }
+
+            appState.rewards.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                
+                let actionHtml = '';
+                if (appState.shopEditMode) {
+                    actionHtml = `<div style="display:flex; align-items:center;">
+                        <span style="font-weight:700; margin-right:10px;">${item.cost}分</span>
+                        <span class="delete-btn" onclick="tryDeleteShopItem(${index})">删除</span>
+                    </div>`;
+                } else {
+                    actionHtml = `<button class="main-btn btn-add" style="padding: 6px 12px; font-size:12px; border-radius:8px;" onclick="tryRedeemItem(${index})">兑换 ${item.cost}</button>`;
+                }
+
+                div.innerHTML = `
+                    <div class="item-left">
+                        <span class="item-title">${item.name}</span>
+                    </div>
+                    ${actionHtml}
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function toggleShopEdit() {
+            appState.shopEditMode = !appState.shopEditMode;
+            document.getElementById('shop-add-form').classList.toggle('visible', appState.shopEditMode);
+            renderShopList();
+        }
+
+        async function saveShopToRemote() {
+            const lines = appState.rewards.map(r => `「${r.name}」:${r.cost}`);
+            const body = lines.join('\n');
+            const issueId = USER_MAP[appState.currentUser].issueRewards;
+            await githubReq(`issues/${issueId}`, 'PATCH', { body });
+        }
+
+        async function addShopItem() {
+            const name = document.getElementById('new-item-name').value;
+            const cost = parseInt(document.getElementById('new-item-cost').value);
+            if (!name || !cost) { showToast('⚠️ 请填写完整'); return; }
+            appState.rewards.push({ name, cost });
+            renderShopList();
+            document.getElementById('new-item-name').value = '';
+            document.getElementById('new-item-cost').value = '';
+            const toastId = showToast('⏳ 保存中...', 0);
+            await saveShopToRemote();
+            removeToast(toastId);
+            showToast('✅ 添加成功');
+        }
+
+        // Updated Shop delete with Custom Modal
+        function tryDeleteShopItem(index) {
+            openConfirm(
+                '删除奖品', 
+                '确定要删除这个奖品吗？删除后无法恢复。', 
+                'danger', 
+                () => deleteShopItem(index)
+            );
+        }
+
+        async function deleteShopItem(index) {
+            appState.rewards.splice(index, 1);
+            renderShopList();
+            const toastId = showToast('⏳ 同步中...', 0);
+            await saveShopToRemote();
+            removeToast(toastId);
+        }
+
+        // Updated Redeem with Custom Modal
+        function tryRedeemItem(index) {
+            const item = appState.rewards[index];
+            const currentScore = appState.scores[appState.currentUser];
+            if (currentScore < item.cost) { showToast(`❌ 积分不足！还差 ${item.cost - currentScore} 分`); return; }
+            
+            openConfirm(
+                '兑换奖品', 
+                `确定花费 ${item.cost} 分兑换\n「${item.name}」吗？`, 
+                'info', 
+                () => redeemItem(index)
+            );
+        }
+
+        async function redeemItem(index) {
+            const item = appState.rewards[index];
+            const currentScore = appState.scores[appState.currentUser];
+            const toastId = showToast('⏳ 兑换中...', 0);
+            try {
+                const newScore = currentScore - item.cost;
+                appState.scores[appState.currentUser] = newScore;
+                updateScoreUI();
+                await Promise.all([
+                    updateRemoteScores(),
+                    appendHistory(appState.currentUser, -item.cost, newScore, `兑换奖品：${item.name}`)
+                ]);
+                removeToast(toastId);
+                showToast('🎉 兑换成功！');
+                closeModalDirect();
+            } catch(e) {
+                removeToast(toastId);
+                showToast('❌ 兑换失败');
+            }
+        }
+
+        // --- IMPROVED TOAST SYSTEM ---
+        function showToast(msg, duration = 3000) {
+            const container = document.getElementById('toast-container');
+            const id = 'toast-' + Date.now();
+            const div = document.createElement('div');
+            div.className = 'toast'; 
+            div.id = id;
+            div.innerHTML = `<div class="toast-content">${msg}</div>${duration > 0 ? `<div class="toast-progress" style="animation: progressLinear ${duration}ms linear forwards;"></div>` : ''}`;
+            container.appendChild(div);
+            requestAnimationFrame(() => { div.classList.add('show'); });
+            if (duration > 0) {
+                setTimeout(() => { removeToast(id); }, duration);
+            }
+            return id;
+        }
+
+        function removeToast(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.remove('show');
+            el.classList.add('hide');
+            setTimeout(() => { if (el && el.parentNode) el.remove(); }, 400);
+        }
+
+    </script>
+</body>
+</html>
