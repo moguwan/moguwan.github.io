@@ -23,11 +23,10 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        /* 自定义滚动条样式 */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        /* 基础滚动条样式 */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
 
         body {
             font-family: var(--font-stack);
@@ -48,7 +47,7 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* --- 返回主页按钮样式 --- */
+        /* --- 返回主页按钮 --- */
         .back-home-btn {
             position: fixed;
             top: 20px;
@@ -66,19 +65,10 @@
             justify-content: center;
             z-index: 50;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.2s;
             text-decoration: none;
         }
-        
-        .back-home-btn:hover {
-            transform: scale(1.1);
-            background: rgba(255, 255, 255, 0.85);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-        
-        .back-home-btn:active {
-            transform: scale(0.95);
-        }
+        .back-home-btn:active { transform: scale(0.95); }
 
         /* --- 核心容器 --- */
         .app-container {
@@ -92,20 +82,6 @@
             overflow-x: hidden;
             display: flex;
             flex-direction: column;
-        }
-
-        @media (min-width: 768px) {
-            .app-container {
-                width: 90%;
-                max-width: 1000px;
-                height: 85vh;       
-                max-height: 800px;
-                border-radius: 32px;
-                box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-                border: 1px solid var(--glass-border);
-            }
-            .main-btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
-            .chip:hover { background: rgba(0,0,0,0.1); }
         }
 
         /* Loading Screen */
@@ -141,67 +117,46 @@
             align-content: start;
         }
 
-        @media (min-width: 768px) {
-            .cards-wrapper {
-                grid-template-columns: 1fr 1fr;
-                align-items: center;
-                align-content: center;
-                gap: 40px;
-                padding: 40px 60px;
-            }
-        }
-
-        /* --- User Card Styles (修复后：只做简单的上浮和光影，不再消失) --- */
+        /* --- User Card Styles --- */
         .user-card {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: var(--radius-l);
             padding: 24px;
             box-shadow: var(--glass-shadow);
-            /* 这里的 transition 负责平滑过渡 */
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), 
-                        box-shadow 0.3s ease, 
-                        background 0.3s ease; 
             cursor: pointer;
             position: relative;
             overflow: hidden;
-            /* 初始状态 */
             opacity: 0; 
-            /* 只有这里使用 animation，Hover 时不使用 animation 防止冲突 */
+            /* 入场动画保持不变 */
             animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             display: flex; flex-direction: column; justify-content: center;
-        }
-
-        /* 定义悬浮时的图标过渡 */
-        .user-card .card-header svg {
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), stroke 0.3s ease;
-        }
-
-        /* 桌面端悬浮效果 (修复版：简单、稳定) */
-        @media (min-width: 768px) {
-            .user-card:hover { 
-                /* 稍微上浮一点点 */
-                transform: translateY(-8px); 
-                
-                /* 阴影加深，更有立体感 */
-                box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-                
-                /* 背景稍微变白一点，像灯光打上去 */
-                background: rgba(255, 255, 255, 0.8);
-            }
             
-            /* 图标稍微转一下，增加灵动感 */
-            .user-card:hover .card-header svg {
-                transform: rotate(15deg) scale(1.1);
-                stroke: var(--accent-blue);
-            }
+            /* * 核心优化：
+             * 使用更平滑的 transition 曲线 (0.2, 0.8, 0.2, 1)
+             * 这是一种非常现代的缓动曲线，启动快，停止慢且丝滑
+             */
+            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), 
+                        box-shadow 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), 
+                        background 0.5s ease;
+            
+            /* 开启硬件加速，防止卡顿 */
+            will-change: transform, box-shadow;
         }
-
+        
+        /* 手机端点击缩放 */
         .user-card:active { transform: scale(0.98); }
+        
         .user-card:nth-child(1) { animation-delay: 0.1s; }
         .user-card:nth-child(2) { animation-delay: 0.2s; }
 
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        
+        /* 图标过渡优化 */
+        .user-card .card-header svg { 
+            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), stroke 0.3s ease; 
+        }
+        
         .user-name { font-size: 20px; font-weight: 600; }
         .score-display { 
             font-size: 42px; font-weight: 800; letter-spacing: -2px; 
@@ -210,9 +165,10 @@
             margin: 10px 0;
         }
         .action-hint { font-size: 12px; color: var(--accent-blue); opacity: 0; transition: opacity 0.3s; transform: translateY(10px); }
-        .user-card:hover .action-hint { opacity: 1; transform: translateY(0); }
+        
+        .user-card:active .action-hint { opacity: 1; transform: translateY(0); }
 
-        /* --- Modal (响应式弹窗) --- */
+        /* --- Modal --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.3);
@@ -239,28 +195,11 @@
             display: flex; flex-direction: column;
             overflow: hidden;
         }
-
-        @media (min-width: 768px) {
-            .modal-overlay { align-items: center; }
-            .modal-content {
-                width: 480px;
-                height: auto;
-                max-height: 85vh;
-                min-height: 500px;
-                border-radius: 32px;
-                transform: scale(0.9);
-                opacity: 0;
-            }
-            .modal-overlay.active .modal-content { transform: scale(1); opacity: 1; }
-        }
         .modal-overlay.active .modal-content { transform: translateY(0); }
-        @media (min-width: 768px) {
-            .modal-overlay.active .modal-content { transform: scale(1); }
-        }
 
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-shrink: 0; }
         .close-btn { background: #e5e5ea; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 20px; color: #8e8e93; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
-        .close-btn:hover { background: #d1d1d6; }
+        .close-btn:active { background: #d1d1d6; }
 
         .view-section { animation: fadeIn 0.3s ease; }
 
@@ -302,7 +241,6 @@
             width: 100%;
             position: relative;
         }
-        .list-item:hover { transform: translateX(2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         
         .item-left { display: flex; flex-direction: column; gap: 4px; flex: 1; padding-right: 10px; }
         .item-title { font-weight: 600; font-size: 15px; }
@@ -310,13 +248,10 @@
         .score-pos { color: var(--accent-green); font-weight: bold; }
         .score-neg { color: var(--accent-red); font-weight: bold; }
 
-        /* 删除记录按钮样式 */
         .history-del-wrapper { display: flex; align-items: center; gap: 10px; }
-        .history-del-btn { width: 28px; height: 28px; border-radius: 50%; background: #f2f2f7; color: var(--accent-red); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; opacity: 0; transform: scale(0.8); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .history-del-btn:hover { background: #ff3b30; color: white; }
-        .list-item:hover .history-del-btn { opacity: 1; transform: scale(1); }
-
-        /* --- Toast System --- */
+        .history-del-btn { width: 28px; height: 28px; border-radius: 50%; background: #f2f2f7; color: var(--accent-red); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; opacity: 1; }
+        
+        /* Toast System */
         .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 300; width: 90%; max-width: 400px; display: flex; flex-direction: column; align-items: center; }
         .toast { background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border-radius: var(--radius-m); padding: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); width: 100%; border: 1px solid rgba(255,255,255,0.5); position: relative; overflow: hidden; display: flex; align-items: center; gap: 12px; opacity: 0; transform: translateY(-20px) scale(0.9); margin-bottom: 0; max-height: 0; transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), margin-bottom 0.4s ease, max-height 0.4s ease, padding 0.4s ease; }
         .toast.show { opacity: 1; transform: translateY(0) scale(1); margin-bottom: 12px; max-height: 100px; }
@@ -327,14 +262,11 @@
 
         .shop-controls { display: flex; justify-content: flex-end; margin-bottom: 10px; }
         .edit-btn { font-size: 14px; color: var(--accent-blue); border: none; background: none; cursor: pointer; font-weight: 600; padding: 5px 10px; border-radius: 8px; transition: background 0.2s; }
-        .edit-btn:hover { background: rgba(0,122,255,0.1); }
         .delete-btn { color: var(--accent-red); margin-left: 10px; cursor: pointer; font-weight: 600; }
-        .delete-btn:hover { text-decoration: underline; }
 
         .shop-add-form { background: #f0f0f5; padding: 15px; border-radius: 12px; margin-bottom: 15px; display: none; }
         .shop-add-form.visible { display: block; animation: fadeIn 0.3s; }
         
-        /* --- 自定义确认弹窗样式 --- */
         .confirm-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
@@ -366,6 +298,82 @@
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* ========================================= */
+        /* --- 桌面端专属样式 (包含 Hover 优化) --- */
+        /* ========================================= */
+        @media (min-width: 768px) {
+            ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
+
+            .app-container {
+                width: 90%;
+                max-width: 1000px;
+                height: 85vh;        
+                max-height: 800px;
+                border-radius: 32px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+                border: 1px solid var(--glass-border);
+            }
+            
+            .cards-wrapper {
+                grid-template-columns: 1fr 1fr;
+                align-items: center;
+                align-content: center;
+                gap: 40px;
+                padding: 40px 60px;
+            }
+
+            .modal-overlay { align-items: center; }
+            .modal-content {
+                width: 480px;
+                height: auto;
+                max-height: 85vh;
+                min-height: 500px;
+                border-radius: 32px;
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            .modal-overlay.active .modal-content { transform: scale(1); opacity: 1; }
+
+            /* --- 核心优化：更自然的悬浮效果 --- */
+            
+            .back-home-btn:hover {
+                transform: scale(1.1);
+                background: rgba(255, 255, 255, 0.85);
+                box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            }
+
+            /* * 优化说明：
+             * !important 覆盖动画锁定
+             * translateY(-10px) 让上浮更明显一点点
+             * scale(1.02) 增加微妙的放大感，像气球充气
+             * box-shadow 阴影扩散半径增加 (60px)，更柔和，像光源拉远了
+             */
+            .user-card:hover { 
+                transform: translateY(-10px) scale(1.02) !important; 
+                box-shadow: 0 30px 60px rgba(0,0,0,0.12);
+                background: rgba(255, 255, 255, 0.85);
+            }
+            .user-card:hover .action-hint { opacity: 1; transform: translateY(0); }
+            
+            /* 图标旋转幅度减小 (12deg)，避免太夸张，更优雅 */
+            .user-card:hover .card-header svg {
+                transform: rotate(12deg) scale(1.15);
+                stroke: var(--accent-blue);
+            }
+
+            .main-btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
+            .chip:hover { background: rgba(0,0,0,0.1); }
+            .list-item:hover { transform: translateX(2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+            
+            .edit-btn:hover { background: rgba(0,122,255,0.1); }
+            .delete-btn:hover { text-decoration: underline; }
+            .close-btn:hover { background: #d1d1d6; }
+
+            .history-del-btn { opacity: 0; transform: scale(0.8); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+            .history-del-btn:hover { background: #ff3b30; color: white; }
+            .list-item:hover .history-del-btn { opacity: 1; transform: scale(1); }
+        }
 
     </style>
 </head>
@@ -522,7 +530,6 @@
             operation: null,
             shopEditMode: false,
             rewards: [],
-            // 新增：用于存储当前确认弹窗的回调函数
             confirmAction: null
         };
 
@@ -562,7 +569,7 @@
         async function syncScores() {
             try {
                 const data = await githubReq(`issues/${CONFIG.issues.scores}`);
-                const content = data.body;
+                const content = data.body || '';
                 const lines = content.split('\n');
                 lines.forEach(line => {
                     if (line.includes('lulu张')) {
@@ -595,7 +602,8 @@
             const line = `${sign}${pointsChanged}分 总分${newTotal} 备注：${remark}`;
             const issueId = USER_MAP[userKey].issueHistory;
             const data = await githubReq(`issues/${issueId}`);
-            const newBody = data.body + '\n' + line;
+            const currentBody = data.body || '';
+            const newBody = currentBody + '\n' + line;
             await githubReq(`issues/${issueId}`, 'PATCH', { body: newBody });
         }
 
@@ -684,7 +692,7 @@
         // --- CUSTOM CONFIRM MODAL LOGIC ---
         function openConfirm(title, msg, type, callback) {
             document.getElementById('confirm-title').innerText = title;
-            document.getElementById('confirm-msg').innerHTML = msg.replace(/\n/g, '<br>'); // Support line breaks
+            document.getElementById('confirm-msg').innerHTML = msg.replace(/\n/g, '<br>');
             
             const okBtn = document.getElementById('confirm-ok-btn');
             
@@ -712,13 +720,14 @@
             closeConfirm();
         }
 
-        // --- HISTORY FEATURE (Updated with Custom Confirm) ---
+        // --- HISTORY FEATURE ---
         async function fetchAndShowHistory() {
             const toastId = showToast('⏳ 加载历史记录...', 0);
             try {
                 const issueId = USER_MAP[appState.currentUser].issueHistory;
                 const data = await githubReq(`issues/${issueId}`);
-                const rawLines = data.body.split('\n');
+                const content = data.body || '';
+                const rawLines = content.split('\n');
                 
                 const listContainer = document.getElementById('history-list');
                 listContainer.innerHTML = '';
@@ -766,7 +775,6 @@
             }
         }
 
-        // Wrapper function to open the modal
         function tryDeleteHistoryItem(originalIndex, changeVal, note) {
             const rollbackTxt = changeVal > 0 ? `减去 ${Math.abs(changeVal)}` : `加回 ${Math.abs(changeVal)}`;
             openConfirm(
@@ -782,7 +790,8 @@
             try {
                 const issueId = USER_MAP[appState.currentUser].issueHistory;
                 const data = await githubReq(`issues/${issueId}`);
-                let lines = data.body.split('\n');
+                const content = data.body || '';
+                let lines = content.split('\n');
 
                 if (originalIndex >= 0 && originalIndex < lines.length) {
                     lines.splice(originalIndex, 1);
@@ -813,7 +822,7 @@
             }
         }
 
-        // --- SHOP FEATURE (Updated with Custom Confirm) ---
+        // --- SHOP FEATURE ---
         async function fetchAndShowShop() {
             const toastId = showToast('⏳ 加载奖品列表...', 0);
             try {
@@ -821,7 +830,9 @@
                 const data = await githubReq(`issues/${issueId}`);
                 
                 appState.rewards = [];
-                const lines = data.body.split('\n').filter(l => l.trim() !== '');
+                const content = data.body || ''; 
+                const lines = content.split('\n').filter(l => l.trim() !== '');
+                
                 lines.forEach(line => {
                     const match = line.match(/「(.*)」:(\d+)/);
                     if (match) {
@@ -835,6 +846,7 @@
                 removeToast(toastId);
             } catch (e) {
                 removeToast(toastId);
+                showToast('❌ 加载失败');
             }
         }
 
@@ -898,7 +910,6 @@
             showToast('✅ 添加成功');
         }
 
-        // Updated Shop delete with Custom Modal
         function tryDeleteShopItem(index) {
             openConfirm(
                 '删除奖品', 
@@ -916,7 +927,6 @@
             removeToast(toastId);
         }
 
-        // Updated Redeem with Custom Modal
         function tryRedeemItem(index) {
             const item = appState.rewards[index];
             const currentScore = appState.scores[appState.currentUser];
