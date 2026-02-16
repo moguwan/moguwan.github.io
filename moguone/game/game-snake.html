@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Neon Snake</title>
+    <style>
+        body {
+            background: #090a0f;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Segoe UI', monospace;
+            color: #fff;
+        }
+        
+        .header {
+            width: 500px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .title { font-size: 24px; font-weight: bold; color: #00ff88; text-shadow: 0 0 10px rgba(0,255,136,0.5); }
+        .score { font-size: 20px; }
+
+        .game-wrapper { position: relative; width: 500px; height: 500px; }
+
+        canvas {
+            background: #000;
+            border: 2px solid #333;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.1);
+            border-radius: 4px;
+            display: block;
+        }
+
+        /* 游戏内菜单层 */
+        .menu-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .btn-start {
+            padding: 15px 40px;
+            font-size: 20px;
+            background: transparent;
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 10px rgba(0,255,136,0.2);
+        }
+        .btn-start:hover {
+            background: #00ff88;
+            color: #000;
+            box-shadow: 0 0 20px rgba(0,255,136,0.8);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="title">NEON SNAKE</div>
+        <div class="score">SCORE: <span id="score">0</span></div>
+    </div>
+
+    <div class="game-wrapper">
+        <canvas id="gameCanvas" width="500" height="500"></canvas>
+        
+        <div id="startMenu" class="menu-overlay">
+            <h1 style="color:#fff; margin-bottom:30px;">READY?</h1>
+            <button class="btn-start" onclick="startGame()">START GAME</button>
+        </div>
+
+        <div id="gameOverMenu" class="menu-overlay" style="display: none;">
+            <h1 style="color:#ff0055; margin-bottom:10px;">GAME OVER</h1>
+            <p style="color:#aaa; margin-bottom:30px;">Final Score: <span id="finalScore">0</span></p>
+            <button class="btn-start" style="border-color:#ff0055; color:#ff0055" onclick="startGame()">TRY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const finalScoreEl = document.getElementById('finalScore');
+        const startMenu = document.getElementById('startMenu');
+        const gameOverMenu = document.getElementById('gameOverMenu');
+
+        const gridSize = 20;
+        const tileCount = canvas.width / gridSize;
+
+        let score = 0;
+        let velocity = { x: 0, y: 0 };
+        let trail = [];
+        let tailLength = 5;
+        let player = { x: 10, y: 10 };
+        let apple = { x: 15, y: 15 };
+        let gameInterval;
+        let isRunning = false;
+
+        function startGame() {
+            startMenu.style.display = 'none';
+            gameOverMenu.style.display = 'none';
+            resetState();
+            isRunning = true;
+            if(gameInterval) clearInterval(gameInterval);
+            gameInterval = setInterval(gameLoop, 1000/15);
+            // 默认向右移动
+            velocity = { x: 1, y: 0 };
+        }
+
+        function resetState() {
+            player = { x: 10, y: 10 };
+            velocity = { x: 0, y: 0 };
+            tailLength = 5;
+            trail = [];
+            score = 0;
+            scoreEl.innerText = 0;
+        }
+
+        function gameLoop() {
+            if (!isRunning) return;
+
+            player.x += velocity.x;
+            player.y += velocity.y;
+
+            // 穿墙
+            if (player.x < 0) player.x = tileCount - 1;
+            if (player.x > tileCount - 1) player.x = 0;
+            if (player.y < 0) player.y = tileCount - 1;
+            if (player.y > tileCount - 1) player.y = 0;
+
+            // 绘制背景
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 绘制苹果
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = "#ff0055";
+            ctx.fillStyle = "#ff0055";
+            ctx.beginPath();
+            ctx.arc(apple.x * gridSize + gridSize/2, apple.y * gridSize + gridSize/2, gridSize/2 - 2, 0, Math.PI*2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // 绘制蛇
+            for (let i = 0; i < trail.length; i++) {
+                ctx.fillStyle = i === trail.length - 1 ? '#fff' : '#00ff88'; // 头部白色
+                if (i === trail.length - 1) {
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = "#00ff88";
+                } else {
+                    ctx.shadowBlur = 0;
+                }
+                
+                ctx.fillRect(trail[i].x * gridSize, trail[i].y * gridSize, gridSize - 2, gridSize - 2);
+
+                // 死亡判定
+                if (trail[i].x === player.x && trail[i].y === player.y) {
+                    gameOver();
+                }
+            }
+
+            trail.push({ x: player.x, y: player.y });
+            while (trail.length > tailLength) trail.shift();
+
+            if (apple.x === player.x && apple.y === player.y) {
+                tailLength++;
+                score += 10;
+                scoreEl.innerText = score;
+                apple.x = Math.floor(Math.random() * tileCount);
+                apple.y = Math.floor(Math.random() * tileCount);
+            }
+        }
+
+        function gameOver() {
+            isRunning = false;
+            clearInterval(gameInterval);
+            finalScoreEl.innerText = score;
+            gameOverMenu.style.display = 'flex';
+        }
+
+        document.addEventListener('keydown', e => {
+            if(!isRunning) return;
+            switch (e.key) {
+                case 'ArrowLeft': if (velocity.x !== 1) velocity = {x: -1, y: 0}; break;
+                case 'ArrowUp': if (velocity.y !== 1) velocity = {x: 0, y: -1}; break;
+                case 'ArrowRight': if (velocity.x !== -1) velocity = {x: 1, y: 0}; break;
+                case 'ArrowDown': if (velocity.y !== -1) velocity = {x: 0, y: 1}; break;
+            }
+        });
+        // 与父级通信
+        window.addEventListener('message', (event) => {
+            // 接收用户信息（如果需要）
+        });
+
+        // 修改 gameOver 函数
+        const originalGameOver = gameOver;
+        function gameOver() {
+            isRunning = false;
+            clearInterval(gameInterval);
+            finalScoreEl.innerText = score;
+            gameOverMenu.style.display = 'flex';
+            
+            // 发送分数
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'GAME_OVER',
+                    game: 'snake',
+                    score: score,
+                    extra: `长度: ${tailLength}`
+                }, '*');
+            }
+        }
+    </script>
+</body>
+</html>

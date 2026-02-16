@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>2048 PERFECT LOGIC</title>
+    <style>
+        :root {
+            --bg-color: #090a0f;
+            --game-bg: #1f293a;
+            --tile-bg: rgba(255, 255, 255, 0.05);
+            --gap: 15px;
+            --tile-size: 80px; 
+        }
+
+        body {
+            background: var(--bg-color);
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .header {
+            width: 395px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .score-board {
+            background: #161b22;
+            padding: 5px 15px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .game-container {
+            position: relative;
+            width: 395px; /* 15*5 + 80*4 */
+            height: 395px;
+            background: var(--game-bg);
+            border-radius: 10px;
+            padding: var(--gap);
+            box-sizing: border-box;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            overflow: hidden; 
+        }
+
+        .grid-bg {
+            display: grid;
+            grid-template-columns: repeat(4, var(--tile-size));
+            grid-template-rows: repeat(4, var(--tile-size));
+            gap: var(--gap);
+        }
+
+        .grid-cell {
+            width: var(--tile-size);
+            height: var(--tile-size);
+            background: var(--tile-bg);
+            border-radius: 6px;
+        }
+
+        .tile-container {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+        }
+
+        .tile {
+            position: absolute;
+            width: var(--tile-size);
+            height: var(--tile-size);
+            border-radius: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: #fff;
+            z-index: 10;
+            transition: top 0.1s ease-in-out, left 0.1s ease-in-out, background-color 0.15s, color 0.15s;
+        }
+
+        .tile.new { animation: appear 0.2s ease-in-out; }
+        .tile.merged { z-index: 20; animation: pop 0.2s ease-in-out; }
+
+        @keyframes appear {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* 颜色表 */
+        .val-2 { background: #eee4da; color: #776e65; }
+        .val-4 { background: #ede0c8; color: #776e65; }
+        .val-8 { background: #f2b179; color: #f9f6f2; }
+        .val-16 { background: #f59563; color: #f9f6f2; }
+        .val-32 { background: #f67c5f; color: #f9f6f2; }
+        .val-64 { background: #f65e3b; color: #f9f6f2; box-shadow: 0 0 10px #f65e3b; }
+        .val-128 { background: #edcf72; color: #f9f6f2; box-shadow: 0 0 15px #edcf72; font-size: 28px; }
+        .val-256 { background: #edcc61; color: #f9f6f2; box-shadow: 0 0 20px #edcc61; font-size: 28px; }
+        .val-512 { background: #edc850; color: #f9f6f2; font-size: 28px; }
+        .val-1024 { background: #edc53f; color: #f9f6f2; font-size: 24px; }
+        .val-2048 { background: #00d2ff; color: #fff; box-shadow: 0 0 30px #00d2ff; font-size: 24px; }
+
+        .btn {
+            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+            border: none; padding: 10px 20px; color: white; border-radius: 5px; cursor: pointer;
+        }
+        
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(31, 41, 58, 0.9);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 100;
+            border-radius: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>2048</h1>
+        <div class="score-board">
+            <div style="font-size:12px;color:#aaa">SCORE</div>
+            <div id="score" style="font-size:20px;font-weight:bold">0</div>
+        </div>
+        <button class="btn" onclick="restart()">重来</button>
+    </div>
+
+    <div class="game-container">
+        <div class="grid-bg">
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+        </div>
+        <div class="tile-container" id="tile-layer"></div>
+        
+        <div class="overlay" id="overlay">
+            <h1 id="over-msg" style="color:white; margin-bottom:20px;">GAME OVER</h1>
+            <button class="btn" onclick="restart()">Try Again</button>
+        </div>
+    </div>
+<script>
+        const tileLayer = document.getElementById('tile-layer');
+        const scoreEl = document.getElementById('score');
+        const overlay = document.getElementById('overlay');
+        const overMsg = document.getElementById('over-msg');
+        
+        let board = [];
+        let score = 0;
+        let isInputLocked = false;
+        
+        const size = 4;
+        const GAP = 15;
+        const TILE_SIZE = 80;
+
+        class Tile {
+            constructor(x, y, value) {
+                this.x = x;
+                this.y = y;
+                this.value = value;
+                this.element = document.createElement('div');
+                this.element.classList.add('tile', `val-${value}`, 'new');
+                this.element.innerText = value;
+                this.updatePosition();
+                tileLayer.appendChild(this.element);
+                setTimeout(() => this.element.classList.remove('new'), 200);
+            }
+
+            updatePosition() {
+                const safeX = Math.max(0, Math.min(3, this.x));
+                const safeY = Math.max(0, Math.min(3, this.y));
+                const left = GAP + safeX * (TILE_SIZE + GAP);
+                const top = GAP + safeY * (TILE_SIZE + GAP);
+                this.element.style.left = `${left}px`;
+                this.element.style.top = `${top}px`;
+            }
+
+            setValue(val) {
+                this.value = val;
+                this.element.className = `tile val-${val} merged`;
+                this.element.innerText = val;
+                setTimeout(() => this.element.classList.remove('merged'), 200);
+            }
+
+            remove() {
+                this.element.style.zIndex = '5'; 
+                setTimeout(() => this.element.remove(), 100);
+            }
+        }
+
+        function restart() {
+            tileLayer.innerHTML = '';
+            overlay.style.display = 'none';
+            board = Array(size * size).fill(null);
+            score = 0;
+            scoreEl.innerText = 0;
+            isInputLocked = false;
+            addNewTile();
+            addNewTile();
+        }
+
+        function addNewTile() {
+            let emptyIndices = [];
+            board.forEach((tile, index) => {
+                if (!tile) emptyIndices.push(index);
+            });
+            if (emptyIndices.length === 0) return;
+
+            let index = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+            let x = index % size;
+            let y = Math.floor(index / size);
+            let val = Math.random() < 0.9 ? 2 : 4;
+            
+            board[index] = new Tile(x, y, val);
+            checkGameOver();
+        }
+
+        function move(direction) {
+            if (isInputLocked) return;
+            
+            let moved = false;
+            let vector = getVector(direction);
+            let traversals = buildTraversals(vector);
+            let mergedMap = Array(size * size).fill(false);
+
+            traversals.x.forEach(x => {
+                traversals.y.forEach(y => {
+                    let index = y * size + x;
+                    let tile = board[index];
+
+                    if (tile) {
+                        let positions = findFarthestPosition(x, y, vector);
+                        let nextX = positions.next.x;
+                        let nextY = positions.next.y;
+                        
+                        let nextTile = null;
+                        let nextIndex = -1;
+
+                        if (nextX >= 0 && nextX < size && nextY >= 0 && nextY < size) {
+                            nextIndex = nextY * size + nextX;
+                            nextTile = board[nextIndex];
+                        }
+
+                        if (nextTile && nextTile.value === tile.value && !mergedMap[nextIndex]) {
+                            // 合并
+                            tile.x = nextX;
+                            tile.y = nextY;
+                            tile.updatePosition();
+
+                            board[index] = null;
+                            setTimeout(() => tile.remove(), 100);
+
+                            nextTile.setValue(nextTile.value * 2);
+                            mergedMap[nextIndex] = true;
+                            
+                            score += nextTile.value;
+                            scoreEl.innerText = score;
+                            moved = true;
+                        } else {
+                            // 移动
+                            let farX = positions.farthest.x;
+                            let farY = positions.farthest.y;
+                            if (farX !== x || farY !== y) {
+                                board[index] = null;
+                                board[farY * size + farX] = tile;
+                                tile.x = farX;
+                                tile.y = farY;
+                                tile.updatePosition();
+                                moved = true;
+                            }
+                        }
+                    }
+                });
+            });
+
+            if (moved) {
+                isInputLocked = true;
+                setTimeout(() => {
+                    addNewTile();
+                    isInputLocked = false;
+                }, 120);
+            }
+        }
+
+        function getVector(direction) {
+            const map = {
+                'ArrowUp': { x: 0, y: -1 },
+                'ArrowRight': { x: 1, y: 0 },
+                'ArrowDown': { x: 0, y: 1 },
+                'ArrowLeft': { x: -1, y: 0 }
+            };
+            return map[direction];
+        }
+
+        function buildTraversals(vector) {
+            let traversals = { x: [], y: [] };
+            for (let i = 0; i < size; i++) {
+                traversals.x.push(i);
+                traversals.y.push(i);
+            }
+            if (vector.x === 1) traversals.x.reverse();
+            if (vector.y === 1) traversals.y.reverse();
+            return traversals;
+        }
+
+        function findFarthestPosition(x, y, vector) {
+            let previous;
+            do {
+                previous = { x: x, y: y };
+                x += vector.x;
+                y += vector.y;
+            } while (
+                x >= 0 && x < size && 
+                y >= 0 && y < size && 
+                board[y * size + x] === null
+            );
+            return { farthest: previous, next: { x: x, y: y } };
+        }
+
+        // --- 修正后的 CheckGameOver，包含分数上报 ---
+        function checkGameOver() {
+            if (board.includes(null)) return;
+            for (let y = 0; y < size; y++) {
+                for (let x = 0; x < size; x++) {
+                    let current = board[y*size+x].value;
+                    if (x < 3 && board[y*size+x+1].value === current) return;
+                    if (y < 3 && board[(y+1)*size+x].value === current) return;
+                }
+            }
+            
+            // 游戏结束逻辑
+            overMsg.innerText = "GAME OVER";
+            overlay.style.display = 'flex';
+
+            // 发送分数到父页面
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'GAME_OVER',
+                    game: '2048',
+                    score: score,
+                    extra: '最高分'
+                }, '*');
+            }
+        }
+
+        document.addEventListener('keydown', e => {
+            if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+                move(e.key);
+            }
+        });
+
+        restart();
+    </script>
+</body>
+</html>
