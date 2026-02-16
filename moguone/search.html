@@ -2337,6 +2337,137 @@ body.clean-mode #toggleBtn:hover {
   color: white;
 }
 .editor-mode-switch:hover { background: var(--peach-light); color: white; }
+.game-sidebar-toggle {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translate(-80%, -50%);
+  width: 60px;
+  height: 60px;
+  z-index: 9996;
+  background: var(--peach);
+  border-radius: 0 50% 50% 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 12px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  box-shadow: 0 0 20px rgba(224, 122, 95, 0.3);
+}
+.game-sidebar-toggle:hover {
+  transform: translate(0%, -50%);
+  background: var(--peach-light);
+}
+.game-sidebar-toggle svg {
+  width: 28px;
+  height: 28px;
+  color: white;
+}
+
+.game-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 320px;
+  max-width: 90vw;
+  height: 100vh;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 20px 0 60px rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  transform: translateX(-110%);
+  opacity: 0;
+  transition: all 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.game-sidebar.open {
+  transform: translateX(0);
+  opacity: 1;
+}
+.game-sidebar-header {
+  padding: 40px 24px 20px;
+  background: rgba(0,0,0,0.2);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.game-sidebar-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  font-family: "PingFang SC", sans-serif;
+  text-shadow: 0 0 20px rgba(0, 210, 255, 0.3);
+}
+.game-sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+.game-link-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+.game-link-item:hover {
+  background: rgba(255,255,255,0.1);
+  transform: translateX(8px);
+  border-color: rgba(0, 210, 255, 0.5);
+  box-shadow: 0 0 20px rgba(0, 210, 255, 0.1);
+}
+.game-link-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+}
+.game-link-info {
+  flex: 1;
+}
+.game-link-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+  font-family: "PingFang SC", sans-serif;
+}
+.game-link-desc {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+}
+.game-sidebar-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+.game-sidebar-close:hover {
+  background: rgba(224, 122, 95, 0.8);
+  transform: rotate(90deg);
+}
 </style>
 <base target="_blank">
 </head>
@@ -2394,6 +2525,39 @@ body.clean-mode #toggleBtn:hover {
 </button>
 
 <div class="quick-links-overlay" id="quickLinksOverlay" onclick="toggleQuickLinks()"></div>
+<!-- 游戏侧边栏遮罩 -->
+<div class="quick-links-overlay" id="gameSidebarOverlay" onclick="toggleGameSidebar()"></div>
+
+<!-- 游戏侧边栏按钮 -->
+<div class="game-sidebar-toggle" id="gameSidebarToggle" onclick="toggleGameSidebar()">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+  </svg>
+</div>
+
+<!-- 游戏侧边栏 -->
+<div class="game-sidebar" id="gameSidebar">
+  <button class="game-sidebar-close" onclick="toggleGameSidebar()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </button>
+  
+  <div class="game-sidebar-header">
+    <div class="game-sidebar-title">🎮 OMEGA ARCADE</div>
+  </div>
+  
+  <div class="game-sidebar-content">
+    <a href="game/index.html" target="_blank" class="game-link-item" onclick="toggleGameSidebar()">
+      <div class="game-link-icon">🕹️</div>
+      <div class="game-link-info">
+        <div class="game-link-name">终极游戏台</div>
+        <div class="game-link-desc">2048 / 贪吃蛇 / 打砖块</div>
+      </div>
+    </a>
+  </div>
+</div>
 <div class="quick-links-sidebar" id="quickLinksSidebar">
   <div class="quick-links-header">
     <div class="quick-links-title">
@@ -4326,6 +4490,24 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
   updateAdminUI();
 });
+// 游戏侧边栏控制
+let gameSidebarOpen = false;
+function toggleGameSidebar() {
+  gameSidebarOpen = !gameSidebarOpen;
+  const sidebar = document.getElementById('gameSidebar');
+  const overlay = document.getElementById('gameSidebarOverlay');
+  const toggle = document.getElementById('gameSidebarToggle');
+  
+  if (gameSidebarOpen) {
+    sidebar.classList.add('open');
+    overlay.classList.add('show');
+    toggle.style.opacity = '0';
+  } else {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+    toggle.style.opacity = '1';
+  }
+}
 </script>
 </body>
 </html>
